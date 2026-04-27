@@ -1,0 +1,40 @@
+# bin and obj folders
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / Visual Studio Code
+.vs/
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Oo]ut/
+TestResults/
+
+# SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+
+# Exception: keep standard DB structure if needed, but usually we ignore local databases to avoid committing test data
+# Keep posapp.db out of source control
+posapp.db
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Publish
+publish/
+
+# NuGet
+*.nupkg

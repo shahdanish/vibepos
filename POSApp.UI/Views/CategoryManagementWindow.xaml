@@ -1,0 +1,83 @@
+<Window x:Class="POSApp.UI.Views.CategoryManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:POSApp.UI.Views"
+        mc:Ignorable="d"
+        Title="Category Management - Shah Jee Super Store" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#8B4513" Padding="15">
+            <TextBlock Text="Category Management" FontSize="24" FontWeight="Bold" 
+                       Foreground="White" HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Category List -->
+            <Border Grid.Column="0" BorderBrush="#DDD" BorderThickness="1" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Categories List" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" 
+                              AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Category Name" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*"/>
+                            <DataGridTextColumn Header="Products" Binding="{Binding Products.Count}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Button Grid.Row="2" Content="Refresh List" Command="{Binding RefreshCommand}" 
+                            Margin="0,10,0,0" Padding="10,5" Background="#2196F3" Foreground="White"/>
+                </Grid>
+            </Border>
+
+            <!-- Right: Add/Edit Form -->
+            <Border Grid.Column="2" BorderBrush="#DDD" BorderThickness="1" Padding="15">
+                <StackPanel>
+                    <TextBlock Text="Category Details" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Category Name *" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Description" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="8" Margin="0,0,0,20" Height="80" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+                    <StackPanel>
+                        <Button Content="Add New Category" Command="{Binding AddCommand}" 
+                                Padding="10,8" Margin="0,0,0,10" Background="#4CAF50" Foreground="White"/>
+                        <Button Content="Update Category" Command="{Binding UpdateCommand}" 
+                                Padding="10,8" Margin="0,0,0,10" Background="#FF9800" Foreground="White"/>
+                        <Button Content="Delete Category" Command="{Binding DeleteCommand}" 
+                                Padding="10,8" Margin="0,0,0,10" Background="#f44336" Foreground="White"/>
+                        <Button Content="Clear Form" Command="{Binding ClearCommand}" 
+                                Padding="10,8" Margin="0,0,0,10" Background="#9E9E9E" Foreground="White"/>
+                        <Button Content="Close" Click="Close_Click" 
+                                Padding="10,8" Background="#607D8B" Foreground="White"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
