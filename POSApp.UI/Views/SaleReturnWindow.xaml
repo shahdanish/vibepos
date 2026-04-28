@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:POSApp.UI.Views"
         mc:Ignorable="d"
-        Title="Sale Return - Shah Jee Super Store" Height="750" Width="1200"
-        WindowStartupLocation="CenterScreen">
+        Title="Sale Return - Shah Jee Super Store" Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Grid Background="#F5F5F5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -14,62 +14,62 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#f44336" Padding="20">
+        <Border Grid.Row="0" Background="#f44336" Padding="15">
             <Grid>
-                <TextBlock Text="🔄 SALE RETURN" FontSize="32" FontWeight="Bold" 
+                <TextBlock Text="🔄 SALE RETURN" FontSize="28" FontWeight="Bold" 
                            Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <TextBlock Text="{Binding ReturnInvoiceNumber, StringFormat='Return Invoice: {0}'}" 
-                           FontSize="20" FontWeight="Bold" Foreground="Yellow" 
+                           FontSize="18" FontWeight="Bold" Foreground="Yellow" 
                            HorizontalAlignment="Right" VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
-        <!-- Main Content -->
+        <!-- Main Content Grid -->
         <Grid Grid.Row="1" Margin="15">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/> <!-- Search & Date -->
+                <RowDefinition Height="*"/>    <!-- Items Grid (Stretches) -->
+                <RowDefinition Height="Auto"/> <!-- Actions -->
             </Grid.RowDefinitions>
 
             <!-- Search Section -->
-            <Border Grid.Row="0" Background="White" Padding="20" Margin="0,0,0,15" CornerRadius="5">
+            <Border Grid.Row="0" Background="White" Padding="15" Margin="0,0,0,10" CornerRadius="5">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Search Original Invoice" FontSize="18" FontWeight="Bold" 
-                               Foreground="#f44336" Margin="0,0,0,15"/>
+                    <TextBlock Grid.Row="0" Text="Search Original Invoice" FontSize="16" FontWeight="Bold" 
+                               Foreground="#f44336" Margin="0,0,0,10"/>
 
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="250"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="Invoice Number:" FontSize="14" FontWeight="SemiBold" 
+                        <TextBlock Grid.Column="0" Text="Invoice #:" FontSize="13" FontWeight="SemiBold" 
                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox Grid.Column="1" Text="{Binding SearchInvoiceNumber, UpdateSourceTrigger=PropertyChanged}" 
-                                 FontSize="14" Padding="10" Margin="0,0,15,0"/>
+                                 FontSize="13" Padding="8" Margin="0,0,10,0"/>
                         <Button Grid.Column="2" Content="🔍 Search" Command="{Binding SearchCommand}" 
-                                Padding="20,10" Background="#2196F3" Foreground="White" FontSize="14" 
-                                FontWeight="Bold" MinWidth="120" BorderThickness="0"/>
+                                Padding="15,8" Background="#2196F3" Foreground="White" FontSize="13" 
+                                FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
 
-                        <TextBlock Grid.Column="3" Text="Return Date:" FontSize="14" FontWeight="SemiBold" 
-                                   VerticalAlignment="Center" Margin="20,0,10,0"/>
+                        <TextBlock Grid.Column="3" Text="Return Date:" FontSize="13" FontWeight="SemiBold" 
+                                   VerticalAlignment="Center" Margin="15,0,10,0"/>
                         <DatePicker Grid.Column="4" SelectedDate="{Binding ReturnDate}" 
-                                    FontSize="14" Padding="10" Width="150"/>
+                                    FontSize="13" Padding="8" Width="130"/>
                     </Grid>
                 </Grid>
             </Border>
 
-            <!-- Return Items Section -->
-            <Border Grid.Row="1" Background="White" Padding="20" Margin="0,0,0,15" CornerRadius="5">
+            <!-- Return Items Section (Stretches) -->
+            <Border Grid.Row="1" Background="White" Padding="15" Margin="0,0,0,10" CornerRadius="5">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -77,44 +77,45 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Items to Return" FontSize="18" FontWeight="Bold" 
-                               Margin="0,0,0,15"/>
+                    <TextBlock Grid.Row="0" Text="Items to Return" FontSize="16" FontWeight="Bold" 
+                               Margin="0,0,0,10"/>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding ReturnItems}" AutoGenerateColumns="False" 
                               CanUserAddRows="False" AlternatingRowBackground="#F9F9F9" 
-                              HeadersVisibility="All" GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#DDD">
+                              HeadersVisibility="All" GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#DDD"
+                              HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" Width="120" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Original Qty" Binding="{Binding OriginalQuantity}" Width="100" 
+                            <DataGridTextColumn Header="Orig Qty" Binding="{Binding OriginalQuantity}" Width="90" 
                                                 ElementStyle="{StaticResource CenterAlignStyle}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Return Qty" Binding="{Binding ReturnQuantity, UpdateSourceTrigger=PropertyChanged}" 
-                                                Width="100" ElementStyle="{StaticResource CenterAlignStyle}"/>
+                            <DataGridTextColumn Header="Ret Qty" Binding="{Binding ReturnQuantity, UpdateSourceTrigger=PropertyChanged}" 
+                                                Width="90" ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, StringFormat=N2}" Width="100" 
                                                 ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Return Amount" Binding="{Binding Total, StringFormat=N2}" Width="120" 
+                            <DataGridTextColumn Header="Amount" Binding="{Binding Total, StringFormat=N2}" Width="110" 
                                                 ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Grid Grid.Row="2" Margin="0,15,0,0">
+                    <Grid Grid.Row="2" Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Return Reason (Required)" FontWeight="Bold" Margin="0,0,0,5"/>
+                            <TextBlock Text="Return Reason" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
                             <TextBox Text="{Binding ReturnReason, UpdateSourceTrigger=PropertyChanged}" 
-                                     FontSize="14" Padding="10" TextWrapping="Wrap" MaxLength="200"/>
+                                     FontSize="13" Padding="8" TextWrapping="Wrap" MaxLength="200"/>
                         </StackPanel>
 
-                        <Border Grid.Column="1" Background="#FFEBEE" Padding="20" Margin="20,0,0,0" 
+                        <Border Grid.Column="1" Background="#FFEBEE" Padding="15" Margin="15,0,0,0" 
                                 CornerRadius="5" BorderBrush="#f44336" BorderThickness="2">
                             <StackPanel>
-                                <TextBlock Text="TOTAL REFUND" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
+                                <TextBlock Text="TOTAL REFUND" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
                                 <TextBlock Text="{Binding TotalReturnAmount, StringFormat=Rs. {0:N2}}" 
-                                           FontSize="24" FontWeight="Bold" Foreground="#f44336"/>
+                                           FontSize="20" FontWeight="Bold" Foreground="#f44336"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -122,21 +123,21 @@
             </Border>
 
             <!-- Action Buttons -->
-            <Border Grid.Row="2" Background="White" Padding="15" CornerRadius="5">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Border Grid.Row="2" Background="White" Padding="12" CornerRadius="5">
+                <WrapPanel HorizontalAlignment="Center">
                     <Button Content="✅ PROCESS RETURN" Command="{Binding ProcessReturnCommand}" 
-                            Padding="25,12" Margin="0,0,15,0" Background="#4CAF50" Foreground="White" 
-                            FontSize="14" FontWeight="Bold" MinWidth="180" BorderThickness="0"/>
-                    <Button Content="🖨️ PRINT RECEIPT" Command="{Binding PrintReturnCommand}" 
-                            Padding="25,12" Margin="0,0,15,0" Background="#9C27B0" Foreground="White" 
-                            FontSize="14" FontWeight="Bold" MinWidth="180" BorderThickness="0"/>
+                            Padding="20,10" Margin="0,0,10,5" Background="#4CAF50" Foreground="White" 
+                            FontSize="13" FontWeight="Bold" MinWidth="150" BorderThickness="0"/>
+                    <Button Content="🖨️ PRINT" Command="{Binding PrintReturnCommand}" 
+                            Padding="20,10" Margin="0,0,10,5" Background="#9C27B0" Foreground="White" 
+                            FontSize="13" FontWeight="Bold" MinWidth="140" BorderThickness="0"/>
                     <Button Content="❌ CANCEL" Command="{Binding CancelCommand}" 
-                            Padding="25,12" Margin="0,0,15,0" Background="#FF9800" Foreground="White" 
-                            FontSize="14" FontWeight="Bold" MinWidth="150" BorderThickness="0"/>
+                            Padding="20,10" Margin="0,0,10,5" Background="#FF9800" Foreground="White" 
+                            FontSize="13" FontWeight="Bold" MinWidth="120" BorderThickness="0"/>
                     <Button Content="CLOSE" Click="Close_Click" 
-                            Padding="25,12" Background="#9E9E9E" Foreground="White" 
-                            FontSize="14" FontWeight="Bold" MinWidth="120" BorderThickness="0"/>
-                </StackPanel>
+                            Padding="20,10" Margin="0,0,0,5" Background="#9E9E9E" Foreground="White" 
+                            FontSize="13" FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
+                </WrapPanel>
             </Border>
         </Grid>
     </Grid>

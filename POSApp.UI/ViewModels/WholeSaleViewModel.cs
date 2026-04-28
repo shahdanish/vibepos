@@ -8,10 +8,8 @@ namespace POSApp.UI.ViewModels
         public WholeSaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository)
             : base(saleRepository, productRepository, customerRepository)
         {
-            // Override to use wholesale prices
         }
 
-        // Override the SelectedProduct setter to use wholesale price
         public new Product? SelectedProduct
         {
             get => base.SelectedProduct;
@@ -20,10 +18,11 @@ namespace POSApp.UI.ViewModels
                 base.SelectedProduct = value;
                 if (value != null)
                 {
-                    // Use wholesale price instead of retail price
                     UnitPrice = value.WholesalePrice > 0 ? value.WholesalePrice : value.UnitPrice;
                 }
             }
         }
+
+        protected override string InvoiceTitle => "Whole Sale Bill / Invoice";
     }
 }

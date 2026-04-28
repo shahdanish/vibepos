@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
@@ -39,6 +41,9 @@ namespace POSApp.UI.ViewModels
         private bool _autoPrint = false;
         private bool _autoAddItem = true;
         private bool _useSmallBillFormat = false;
+        private decimal _lastScannedCost;
+        private bool _isLastScannedCostVisible;
+        private readonly DispatcherTimer _costHideTimer;
 
         public ObservableCollection<SaleItemViewModel> SaleItems { get; } = new();
         public ObservableCollection<Product> Products { get; } = new();
@@ -253,6 +258,18 @@ namespace POSApp.UI.ViewModels
             }
         }
 
+        public decimal LastScannedCost
+        {
+            get => _lastScannedCost;
+            set => SetProperty(ref _lastScannedCost, value);
+        }
+
+        public bool IsLastScannedCostVisible
+        {
+            get => _isLastScannedCostVisible;
+            set => SetProperty(ref _isLastScannedCostVisible, value);
+        }
+
         public decimal TotalPurchasePrice => SaleItems?.Sum(item => item.CostPrice * item.Quantity) ?? 0;
 
         public ICommand AddItemCommand { get; }
@@ -275,6 +292,12 @@ namespace POSApp.UI.ViewModels
             _autoAddItem = settings.AutoAddItem;
             _showPurchasePrice = settings.ShowPurchasePrice;
 
+            _costHideTimer = new DispatcherTimer();
+            _costHideTimer.Interval = TimeSpan.FromSeconds(3);
+            _costHideTimer.Tick += (s, e) => { IsLastScannedCostVisible = false; _costHideTimer.Stop(); };
+
+            SaleItems.CollectionChanged += SaleItems_CollectionChanged;
+
             AddItemCommand = new RelayCommand(_ => AddItem());
             DeleteItemCommand = new RelayCommand(DeleteItem);
             SaveCommand = new RelayCommand(async _ => await SaveSale());
@@ -283,6 +306,32 @@ namespace POSApp.UI.ViewModels
             PrintCommand = new RelayCommand(async _ => await PrintInvoice());
 
             _ = LoadData();
+        }
+
+        private void SaleItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+            {
+                foreach (SaleItemViewModel item in e.OldItems)
+                    item.PropertyChanged -= SaleItem_PropertyChanged;
+            }
+            if (e.NewItems != null)
+            {
+                foreach (SaleItemViewModel item in e.NewItems)
+                    item.PropertyChanged += SaleItem_PropertyChanged;
+            }
+            CalculateTotals();
+        }
+
+        private void SaleItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SaleItemViewModel.Total) || 
+                e.PropertyName == nameof(SaleItemViewModel.UnitPrice) || 
+                e.PropertyName == nameof(SaleItemViewModel.Quantity) || 
+                e.PropertyName == nameof(SaleItemViewModel.DiscountPercent))
+            {
+                CalculateTotals();
+            }
         }
 
         private async Task LoadData()
@@ -340,10 +389,15 @@ namespace POSApp.UI.ViewModels
                     else
                     {
                         // Add new item to cart
-                        SelectedProduct = product;
-                        UnitPrice = product.UnitPrice;
                         Quantity = 1;
                         DiscountPercent = 0;
+                        
+                        // Set temporary cost display
+                        LastScannedCost = product.CostPrice;
+                        IsLastScannedCostVisible = true;
+                        _costHideTimer.Stop();
+                        _costHideTimer.Start();
+                        
                         AddItem();
                     }
                     
@@ -351,10 +405,9 @@ namespace POSApp.UI.ViewModels
                     ProductSearchText = string.Empty;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Silently ignore errors during auto-scan to prevent UI disruption
-                System.Diagnostics.Debug.WriteLine($"Auto-add error: {ex.Message}");
             }
         }
 
@@ -388,14 +441,9 @@ namespace POSApp.UI.ViewModels
 
         private void AddItem()
         {
-            System.Diagnostics.Debug.WriteLine($"=== AddItem called ===");
-            System.Diagnostics.Debug.WriteLine($"SelectedProduct: {SelectedProduct?.ProductName ?? "NULL"}");
-            System.Diagnostics.Debug.WriteLine($"Quantity: {Quantity}");
-            
             // Skip validation if called from barcode scan (product is already selected)
             if (SelectedProduct == null)
             {
-                System.Diagnostics.Debug.WriteLine($"ERROR: No product selected!");
                 NotificationHelper.ValidationErrorCustom("Please select a product and enter a valid quantity to add to the sale.");
                 return;
             }
@@ -418,12 +466,16 @@ namespace POSApp.UI.ViewModels
                 Total = total
             };
 
-            System.Diagnostics.Debug.WriteLine($"Adding item to SaleItems collection...");
             SaleItems.Add(saleItem);
-            System.Diagnostics.Debug.WriteLine($"SaleItems count: {SaleItems.Count}");
             
             CalculateTotals();
             
+            // Set temporary cost display
+            LastScannedCost = SelectedProduct.CostPrice;
+            IsLastScannedCostVisible = true;
+            _costHideTimer.Stop();
+            _costHideTimer.Start();
+
             // Force UI refresh
             OnPropertyChanged(nameof(SaleItems));
             
@@ -432,8 +484,7 @@ namespace POSApp.UI.ViewModels
             Quantity = 1;
             UnitPrice = 0;
             DiscountPercent = 0;
-            
-            System.Diagnostics.Debug.WriteLine($"=== AddItem completed ===");
+            ProductSearchText = string.Empty; // Auto-clear field
         }
 
         private void DeleteItem(object? parameter)
@@ -554,42 +605,38 @@ namespace POSApp.UI.ViewModels
 
             try
             {
-                // 1. Generate the invoice text BEFORE saving (which clears items)
-                var invoiceText = UseSmallBillFormat ? GenerateSmallBillText() : GenerateInvoiceText();
+                // 1. Build the professional FlowDocument
+                FlowDocument printDoc = CreateProfessionalInvoice();
 
-                // 2. Build a FlowDocument for printing
-                FlowDocument printDoc = CreateInvoiceFlowDocument(invoiceText);
-
-                // 3. Show standard Windows print dialog (pick printer, copies, etc.)
+                // 2. Initialize print dialog (no dialog shown)
                 PrintDialog printDialog = new PrintDialog();
                 
-                if (printDialog.ShowDialog() == true)
+                // 3. Configure page size
+                if (UseSmallBillFormat)
                 {
-                    // 4. Configure page size to match selected printer
-                    if (UseSmallBillFormat)
-                    {
-                        printDoc.PageWidth = 302;
-                        printDoc.PageHeight = 5000;
-                        printDoc.ColumnWidth = 280;
-                    }
-                    else
-                    {
-                        printDoc.PageWidth = printDialog.PrintableAreaWidth;
-                        printDoc.PageHeight = printDialog.PrintableAreaHeight;
-                        printDoc.ColumnWidth = printDialog.PrintableAreaWidth;
-                        printDoc.PagePadding = new Thickness(50);
-                    }
-
-                    // 5. Print the document
-                    printDialog.PrintDocument(
-                        ((IDocumentPaginatorSource)printDoc).DocumentPaginator,
-                        "Invoice Printing");
-
-                    NotificationHelper.ShowSuccess($"Invoice {InvoiceNumber} sent to printer!");
-
-                    // 6. Save the sale after successful print
-                    await SaveSale();
+                    printDoc.PageWidth = 280; // Safer for 80mm and better for scaling
+                    printDoc.PageHeight = double.NaN; 
+                    printDoc.ColumnWidth = 260;
+                    printDoc.PagePadding = new Thickness(5);
+                    printDoc.FontSize = 10; // Smaller font for thermal
                 }
+                else
+                {
+                    printDoc.PageWidth = printDialog.PrintableAreaWidth;
+                    printDoc.PageHeight = printDialog.PrintableAreaHeight;
+                    printDoc.ColumnWidth = printDialog.PrintableAreaWidth;
+                    printDoc.PagePadding = new Thickness(40);
+                }
+
+                // 4. Print the document immediately without dialog
+                printDialog.PrintDocument(
+                    ((IDocumentPaginatorSource)printDoc).DocumentPaginator,
+                    "Invoice Printing");
+
+                NotificationHelper.ShowSuccess($"Invoice {InvoiceNumber} printed successfully!");
+
+                // 5. Save the sale after successful print
+                await SaveSale();
             }
             catch (Exception ex)
             {
@@ -597,130 +644,189 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        private FlowDocument CreateInvoiceFlowDocument(string invoiceText)
-        {
-            FlowDocument flowDoc = new FlowDocument();
-            
-            // Set formatting
-            flowDoc.FontFamily = new System.Windows.Media.FontFamily("Consolas");
-            flowDoc.FontSize = 11;
-            flowDoc.PagePadding = new Thickness(50);
-            flowDoc.LineHeight = 16;
-            
-            // Parse invoice text and create paragraphs
-            string[] lines = invoiceText.Split('\n');
-            foreach (string line in lines)
-            {
-                Paragraph para = new Paragraph();
-                para.Margin = new Thickness(0, 2, 0, 2);
-                
-                // Check if it's a header or separator line
-                bool isHeader = line.Contains("SHAH JEE") || line.Contains("====") || 
-                               line.StartsWith("Inv:") || line.StartsWith("Shah Jee") ||
-                               line.StartsWith("Items:") || line.Contains("Total") || 
-                               line.Contains("Cash") || line.Contains("Balance");
-                
-                if (isHeader)
-                {
-                    para.FontWeight = FontWeights.Bold;
-                    para.FontSize = 12;
-                }
-                
-                // Add text with proper formatting
-                Run run = new Run(line);
-                para.Inlines.Add(run);
-                flowDoc.Blocks.Add(para);
-            }
-            
-            return flowDoc;
-        }
+        protected virtual string InvoiceTitle => "Bill / Invoice";
 
-        private string GenerateInvoiceText()
+        private FlowDocument CreateProfessionalInvoice()
         {
-            var invoice = $"SHAH JEE SUPER STORE\n";
-            invoice += $"================================\n";
-            invoice += $"Invoice: {InvoiceNumber}\n";
-            invoice += $"Date: {SaleDate:dd/MM/yyyy HH:mm}\n";
-            invoice += $"Customer: {CustomerName}\n";
-            if (!string.IsNullOrWhiteSpace(MobileNumber))
-                invoice += $"Mobile: {MobileNumber}\n";
-            invoice += $"Type: Sale\n";
-            if (!string.IsNullOrWhiteSpace(BillNote))
-                invoice += $"Note: {BillNote}\n";
-            invoice += $"================================\n\n";
-            invoice += $"Items:\n";
+            FlowDocument doc = new FlowDocument();
+            doc.FontFamily = new FontFamily("Segoe UI");
+            doc.FontSize = 12;
+            doc.TextAlignment = TextAlignment.Left;
+
+            // --- HEADER ---
+            Paragraph header = new Paragraph();
+            header.TextAlignment = TextAlignment.Center;
+            header.Inlines.Add(new Bold(new Run("Shah Jee Super Store")) { FontSize = 24 });
+            header.Inlines.Add(new LineBreak());
+            header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
+            header.Inlines.Add(new LineBreak());
+            header.Inlines.Add(new Run("0332-3324911") { FontSize = 14 });
+            doc.Blocks.Add(header);
+
+            // --- BILL / INVOICE TITLE ---
+            Paragraph titlePara = new Paragraph(new Bold(new Run(InvoiceTitle))) { TextAlignment = TextAlignment.Center, FontSize = 16 };
+            Border titleBorder = new Border() { BorderBrush = Brushes.Black, BorderThickness = new Thickness(1), Padding = new Thickness(5) };
+            // Note: FlowDocument doesn't support Border directly as a block, we use a Table with one cell or just paragraphs with borders
+            titlePara.BorderBrush = Brushes.Black;
+            titlePara.BorderThickness = new Thickness(1);
+            titlePara.Padding = new Thickness(5);
+            doc.Blocks.Add(titlePara);
+
+            // --- METADATA TABLE (Bill No, Date, etc.) ---
+            Table metaTable = new Table() { CellSpacing = 0 };
+            metaTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            metaTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
             
+            TableRowGroup metaGroup = new TableRowGroup();
+            
+            // Row 1: Bill No & Date
+            TableRow row1 = new TableRow();
+            row1.Cells.Add(new TableCell(new Paragraph(new Run($"Bill No: {InvoiceNumber}"))));
+            row1.Cells.Add(new TableCell(new Paragraph(new Run($"Date: {SaleDate:dd-MMM-yyyy}"))));
+            metaGroup.Rows.Add(row1);
+
+            // Row 2: Customer
+            TableRow row2 = new TableRow();
+            row2.Cells.Add(new TableCell(new Paragraph(new Run($"Customer: {CustomerName}"))) { ColumnSpan = 2 });
+            metaGroup.Rows.Add(row2);
+
+            // Row 3: Address & Mobile
+            TableRow row3 = new TableRow();
+            row3.Cells.Add(new TableCell(new Paragraph(new Run($"Address: {Address ?? ""}"))));
+            row3.Cells.Add(new TableCell(new Paragraph(new Run($"Mobile: {MobileNumber ?? ""}"))));
+            metaGroup.Rows.Add(row3);
+
+            metaTable.RowGroups.Add(metaGroup);
+            doc.Blocks.Add(metaTable);
+
+            doc.Blocks.Add(new Paragraph(new Run("-----------------------------------------------------------------")));
+
+            // --- ITEMS TABLE ---
+            Table itemsTable = new Table() { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
+            if (UseSmallBillFormat)
+            {
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.4, GridUnitType.Star) }); // S.No
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(2.1, GridUnitType.Star) }); // Product Name
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.6, GridUnitType.Star) }); // Qty
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.9, GridUnitType.Star) }); // Price
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.7, GridUnitType.Star) }); // Disc
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1.1, GridUnitType.Star) }); // Total
+            }
+            else
+            {
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.5, GridUnitType.Star) }); // S.No
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(2.5, GridUnitType.Star) }); // Product Name
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Qty
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Price
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Disc
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Total
+            }
+
+            TableRowGroup itemsGroup = new TableRowGroup();
+            
+            // Header Row
+            TableRow headerRow = new TableRow() { FontWeight = FontWeights.Bold, Background = Brushes.LightGray };
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("S.No"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Product Name"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Qty"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Price"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Disc"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Total"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            itemsGroup.Rows.Add(headerRow);
+
+            // Item Rows
+            int serialNo = 1;
             foreach (var item in SaleItems)
             {
-                invoice += $"{item.ProductName}\n";
-                invoice += $"  {item.Quantity} x Rs.{item.UnitPrice:N2}";
-                if (item.DiscountPercent > 0)
-                    invoice += $" (-{item.DiscountPercent}%)";
-                invoice += $" = Rs.{item.Total:N2}\n";
+                TableRow row = new TableRow();
+                row.Cells.Add(new TableCell(new Paragraph(new Run(serialNo++.ToString()))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.ProductName))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.Quantity.ToString()))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.UnitPrice.ToString("N0")))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.DiscountPercent.ToString("N0")))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.Total.ToString("N2")))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                itemsGroup.Rows.Add(row);
             }
-            
-            invoice += $"\n================================\n";
-            if (DiscountOnProducts > 0)
-                invoice += $"Discount on Products: Rs.{DiscountOnProducts:N2}\n";
-            if (DiscountOnBill > 0)
-                invoice += $"Discount on Bill: Rs.{DiscountOnBill:N2}\n";
-            invoice += $"Total Bill: Rs.{TotalBill:N2}\n";
-            invoice += $"Cash Received: Rs.{ReceiveCash:N2}\n";
-            invoice += $"Balance: Rs.{Balance:N2}\n";
-            invoice += $"================================\n";
-            invoice += $"Thank you for your business!\n";
-            
-            return invoice;
-        }
 
-        // Compact bill format for thermal printers (58mm/80mm)
-        private string GenerateSmallBillText()
-        {
-            var bill = "";
+            itemsTable.RowGroups.Add(itemsGroup);
+            doc.Blocks.Add(itemsTable);
+
+            // --- TOTALS SECTION ---
+            Table totalsTable = new Table() { CellSpacing = 0 };
+            totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Empty space
+            totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(200) }); // Labels
+            totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(100) }); // Values
+
+            TableRowGroup totalsGroup = new TableRowGroup();
             
-            // Header
-            bill += "SHAH JEE SUPER STORE\n";
-            bill += "-----------------------------\n";
-            bill += $"Inv: {InvoiceNumber}\n";
-            bill += $"Date: {SaleDate:dd/MM/yyyy HH:mm}\n";
-            if (!string.IsNullOrWhiteSpace(CustomerName) && CustomerName != "Cash")
-                bill += $"Cust: {CustomerName}\n";
-            if (!string.IsNullOrWhiteSpace(MobileNumber))
-                bill += $"Ph: {MobileNumber}\n";
-            bill += "-----------------------------\n";
-            
-            // Items header
-            bill += "Item         Qty  Price   Amount\n";
-            bill += "---------------------------------\n";
-            
-            // Items
-            foreach (var item in SaleItems)
+            // Total Bill
+            TableRow tRow1 = new TableRow();
+            tRow1.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
+            tRow1.Cells.Add(new TableCell(new Paragraph(new Run("Total Bill")) { FontWeight = FontWeights.Bold }));
+            tRow1.Cells.Add(new TableCell(new Paragraph(new Run(TotalBill.ToString("N2"))) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold }));
+            totalsGroup.Rows.Add(tRow1);
+
+            // Previous Balance
+            if (PreBalance > 0)
             {
-                var itemName = item.ProductName.Length > 12 ? item.ProductName.Substring(0, 10) + ".." : item.ProductName.PadRight(12);
-                bill += $"{itemName} {item.Quantity,3}x{item.UnitPrice,6:N0}";
-                if (item.DiscountPercent > 0)
-                    bill += $"(-{item.DiscountPercent:N0}%)";
-                else
-                    bill += "       ";
-                bill += $"{item.Total,7:N0}\n";
+                TableRow tRowPB = new TableRow();
+                tRowPB.Cells.Add(new TableCell(new Paragraph(new Run("")))); 
+                tRowPB.Cells.Add(new TableCell(new Paragraph(new Run("Previous Balance"))));
+                tRowPB.Cells.Add(new TableCell(new Paragraph(new Run(PreBalance.ToString("N2"))) { TextAlignment = TextAlignment.Right }));
+                totalsGroup.Rows.Add(tRowPB);
             }
-            
-            bill += "---------------------------------\n";
-            
-            // Totals
-            if (DiscountOnProducts > 0)
-                bill += $"Disc(Prod): Rs.{DiscountOnProducts,-6:N0}\n";
-            if (DiscountOnBill > 0)
-                bill += $"Disc(Bill): Rs.{DiscountOnBill,-6:N0}\n";
-            bill += $"TOTAL:     Rs.{TotalBill,-6:N0}\n";
-            bill += $"Cash:      Rs.{ReceiveCash,-6:N0}\n";
-            bill += $"Balance:   Rs.{Balance,-6:N0}\n";
-            bill += "---------------------------------\n";
-            if (!string.IsNullOrWhiteSpace(BillNote))
-                bill += $"{BillNote}\n";
-            bill += "Thank you for your business!\n";
-            
-            return bill;
+
+            // Net Total Bill
+            TableRow tRowNet = new TableRow();
+            tRowNet.Cells.Add(new TableCell(new Paragraph(new Run("")))); 
+            tRowNet.Cells.Add(new TableCell(new Paragraph(new Run("Net Bill Amount")) { FontWeight = FontWeights.Bold }));
+            tRowNet.Cells.Add(new TableCell(new Paragraph(new Run((TotalBill + PreBalance).ToString("N2"))) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold }));
+            totalsGroup.Rows.Add(tRowNet);
+
+            // Cash Received
+            TableRow tRow2 = new TableRow();
+            tRow2.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
+            tRow2.Cells.Add(new TableCell(new Paragraph(new Run("Cash Received"))));
+            tRow2.Cells.Add(new TableCell(new Paragraph(new Run(ReceiveCash.ToString("N2"))) { TextAlignment = TextAlignment.Right }));
+            totalsGroup.Rows.Add(tRow2);
+
+            // Total Quantity
+            TableRow tRow3 = new TableRow();
+            tRow3.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
+            tRow3.Cells.Add(new TableCell(new Paragraph(new Run("Total Items Quantity")) { FontWeight = FontWeights.Bold }));
+            tRow3.Cells.Add(new TableCell(new Paragraph(new Run(SaleItems.Sum(i => i.Quantity).ToString())) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold }));
+            totalsGroup.Rows.Add(tRow3);
+
+            // Discount
+            if (DiscountOnBill > 0 || DiscountOnProducts > 0)
+            {
+                TableRow tRow4 = new TableRow();
+                tRow4.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
+                tRow4.Cells.Add(new TableCell(new Paragraph(new Run("Total Discount"))));
+                tRow4.Cells.Add(new TableCell(new Paragraph(new Run((DiscountOnBill + DiscountOnProducts).ToString("N2"))) { TextAlignment = TextAlignment.Right }));
+                totalsGroup.Rows.Add(tRow4);
+            }
+
+            // Balance
+            TableRow tRow5 = new TableRow();
+            tRow5.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
+            tRow5.Cells.Add(new TableCell(new Paragraph(new Run("Balance Amount")) { FontWeight = FontWeights.Bold, FontSize = 14 }));
+            tRow5.Cells.Add(new TableCell(new Paragraph(new Run(Balance.ToString("N2"))) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold, FontSize = 14 }));
+            totalsGroup.Rows.Add(tRow5);
+
+            totalsTable.RowGroups.Add(totalsGroup);
+            doc.Blocks.Add(totalsTable);
+
+            // --- FOOTER ---
+            Paragraph footer = new Paragraph();
+            footer.Margin = new Thickness(0, 20, 0, 0);
+            footer.TextAlignment = TextAlignment.Center;
+            footer.Inlines.Add(new Bold(new Run("Thank You For Your Business!")) { FontSize = 14 });
+            footer.Inlines.Add(new LineBreak());
+            footer.Inlines.Add(new Run("Please keep this invoice for your records.") { FontSize = 10, Foreground = Brushes.Gray });
+            doc.Blocks.Add(footer);
+
+            return doc;
         }
     }
 

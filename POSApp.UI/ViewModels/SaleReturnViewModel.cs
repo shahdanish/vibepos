@@ -1,6 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
@@ -134,6 +137,7 @@ namespace POSApp.UI.ViewModels
                     OriginalQuantity = item.Quantity,
                     ReturnQuantity = 0, // User will specify
                     UnitPrice = item.UnitPrice,
+                    CostPrice = item.CostPrice,
                     Total = 0
                 });
             }
@@ -242,34 +246,134 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
-            var receipt = GenerateReturnReceipt();
-            NotificationHelper.ShowInfo($"Return Receipt\n\n{receipt}\n\nNote: Connect to printer for actual printing.", "Print Preview");
+            try
+            {
+                FlowDocument printDoc = CreateProfessionalReturnInvoice();
+                PrintDialog printDialog = new PrintDialog();
+                
+                if (printDialog.ShowDialog() == true)
+                {
+                    printDoc.PageWidth = 280; 
+                    printDoc.PageHeight = double.NaN;
+                    printDoc.ColumnWidth = 260;
+                    printDoc.PagePadding = new Thickness(5);
+                    printDoc.FontSize = 10;
+
+                    printDialog.PrintDocument(
+                        ((IDocumentPaginatorSource)printDoc).DocumentPaginator,
+                        "Return Receipt Printing");
+
+                    NotificationHelper.ShowSuccess($"Return Receipt {ReturnInvoiceNumber} sent to printer!");
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("print return receipt", ex.Message);
+            }
         }
 
-        private string GenerateReturnReceipt()
+        private FlowDocument CreateProfessionalReturnInvoice()
         {
-            var receipt = $"SHAH JEE SUPER STORE\\n";
-            receipt += $"===== RETURN RECEIPT =====\\n";
-            receipt += $"Return Invoice: {ReturnInvoiceNumber}\\n";
-            receipt += $"Return Date: {ReturnDate:dd/MM/yyyy HH:mm}\\n";
-            receipt += $"Original Invoice: {OriginalSale?.InvoiceNumber}\\n";
-            receipt += $"Customer: {OriginalSale?.CustomerName}\\n";
-            receipt += $"Reason: {ReturnReason}\\n";
-            receipt += $"================================\\n\\n";
-            receipt += $"Returned Items:\\n";
+            FlowDocument doc = new FlowDocument();
+            doc.FontFamily = new System.Windows.Media.FontFamily("Segoe UI");
+            doc.FontSize = 12;
+
+            // --- HEADER ---
+            Paragraph header = new Paragraph();
+            header.TextAlignment = TextAlignment.Center;
+            header.Inlines.Add(new Bold(new Run("Shah Jee Super Store")) { FontSize = 24 });
+            header.Inlines.Add(new LineBreak());
+            header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
+            header.Inlines.Add(new LineBreak());
+            header.Inlines.Add(new Run("0332-3324911") { FontSize = 14 });
+            doc.Blocks.Add(header);
+
+            // --- TITLE ---
+            Paragraph titlePara = new Paragraph(new Bold(new Run("Return Receipt"))) 
+            { 
+                TextAlignment = TextAlignment.Center, 
+                FontSize = 16,
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(5)
+            };
+            doc.Blocks.Add(titlePara);
+
+            // --- METADATA TABLE ---
+            Table metaTable = new Table() { CellSpacing = 0 };
+            metaTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            metaTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            
+            TableRowGroup metaGroup = new TableRowGroup();
+            
+            TableRow row1 = new TableRow();
+            row1.Cells.Add(new TableCell(new Paragraph(new Run($"Return No: {ReturnInvoiceNumber}"))));
+            row1.Cells.Add(new TableCell(new Paragraph(new Run($"Date: {ReturnDate:dd-MMM-yyyy}"))));
+            metaGroup.Rows.Add(row1);
+
+            TableRow row2 = new TableRow();
+            row2.Cells.Add(new TableCell(new Paragraph(new Run($"Orig Invoice: {OriginalSale?.InvoiceNumber}"))));
+            row2.Cells.Add(new TableCell(new Paragraph(new Run($"Customer: {OriginalSale?.CustomerName}"))));
+            metaGroup.Rows.Add(row2);
+
+            if (!string.IsNullOrWhiteSpace(ReturnReason))
+            {
+                TableRow row3 = new TableRow();
+                row3.Cells.Add(new TableCell(new Paragraph(new Run($"Reason: {ReturnReason}"))) { ColumnSpan = 2 });
+                metaGroup.Rows.Add(row3);
+            }
+
+            metaTable.RowGroups.Add(metaGroup);
+            doc.Blocks.Add(metaTable);
+
+            doc.Blocks.Add(new Paragraph(new Run("-----------------------------------------------------------------")));
+
+            // --- ITEMS TABLE ---
+            Table itemsTable = new Table() { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
+            itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(2.5, GridUnitType.Star) });
+            itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.6, GridUnitType.Star) });
+            itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.9, GridUnitType.Star) });
+            itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1.1, GridUnitType.Star) });
+
+            TableRowGroup itemsGroup = new TableRowGroup();
+            
+            TableRow headerRow = new TableRow() { FontWeight = FontWeights.Bold, Background = Brushes.LightGray };
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Product Name"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Qty"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Price"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Total"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            itemsGroup.Rows.Add(headerRow);
 
             foreach (var item in ReturnItems.Where(i => i.ReturnQuantity > 0))
             {
-                receipt += $"{item.ProductName}\\n";
-                receipt += $"  Qty: {item.ReturnQuantity} x Rs.{item.UnitPrice:N2} = Rs.{item.Total:N2}\\n";
+                TableRow row = new TableRow();
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.ProductName))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.ReturnQuantity.ToString()))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.UnitPrice.ToString("N0")))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(new TableCell(new Paragraph(new Run(item.Total.ToString("N2")))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                itemsGroup.Rows.Add(row);
             }
 
-            receipt += $"\\n================================\\n";
-            receipt += $"TOTAL REFUND: Rs.{TotalReturnAmount:N2}\\n";
-            receipt += $"================================\\n";
-            receipt += $"Thank you!\\n";
+            itemsTable.RowGroups.Add(itemsGroup);
+            doc.Blocks.Add(itemsTable);
 
-            return receipt;
+            // --- TOTALS ---
+            Paragraph refundPara = new Paragraph();
+            refundPara.TextAlignment = TextAlignment.Right;
+            refundPara.Margin = new Thickness(0, 10, 0, 0);
+            refundPara.Inlines.Add(new Bold(new Run($"TOTAL REFUND: Rs.{TotalReturnAmount:N2}")) { FontSize = 16, Foreground = Brushes.Red });
+            doc.Blocks.Add(refundPara);
+
+            // --- FOOTER ---
+            Paragraph footer = new Paragraph();
+            footer.Margin = new Thickness(0, 20, 0, 0);
+            footer.TextAlignment = TextAlignment.Center;
+            footer.Inlines.Add(new Bold(new Run("Thank You For Your Business!")) { FontSize = 14 });
+            footer.Inlines.Add(new LineBreak());
+            footer.Inlines.Add(new Run("Please keep this invoice for your records.") { FontSize = 10, Foreground = Brushes.Gray });
+            doc.Blocks.Add(footer);
+
+            return doc;
         }
     }
 

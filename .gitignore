@@ -33,8 +33,10 @@ posapp.db
 *.userosscache
 *.sln.docstates
 
-# Publish
+# Publish and Installers
 publish/
+POSApp_Installer/
+*.zip
 
 # NuGet
 *.nupkg
