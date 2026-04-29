@@ -1,8 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\POSApp.Data\POSApp.Data.csproj" />
-    <ProjectReference Include="..\POSApp.Core\POSApp.Core.csproj" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../POSApp.Data/POSApp.Data.csproj" />
+    <ProjectReference Include="../POSApp.Core/POSApp.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -7,16 +7,19 @@
         mc:Ignorable="d"
         Title="Sale Return - Shah Jee Super Store" Height="700" Width="1100"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
-    <Grid Background="#F5F5F5">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#f44336" Padding="15">
+        <Border Grid.Row="0" Background="{DynamicResource DangerBrush}" Padding="15">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.25" Direction="270" Color="Black"/>
+            </Border.Effect>
             <Grid>
-                <TextBlock Text="🔄 SALE RETURN" FontSize="28" FontWeight="Bold" 
+                <TextBlock Text="SALE RETURN" FontSize="28" FontWeight="Bold" 
                            Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <TextBlock Text="{Binding ReturnInvoiceNumber, StringFormat='Return Invoice: {0}'}" 
                            FontSize="18" FontWeight="Bold" Foreground="Yellow" 
@@ -27,13 +30,13 @@
         <!-- Main Content Grid -->
         <Grid Grid.Row="1" Margin="15">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Search & Date -->
-                <RowDefinition Height="*"/>    <!-- Items Grid (Stretches) -->
-                <RowDefinition Height="Auto"/> <!-- Actions -->
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Search Section -->
-            <Border Grid.Row="0" Background="White" Padding="15" Margin="0,0,0,10" CornerRadius="5">
+            <Border Grid.Row="0" Style="{StaticResource CardBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -41,7 +44,7 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Text="Search Original Invoice" FontSize="16" FontWeight="Bold" 
-                               Foreground="#f44336" Margin="0,0,0,10"/>
+                               Foreground="{DynamicResource DangerBrush}" Margin="0,0,0,10"/>
 
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
@@ -56,9 +59,8 @@
                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox Grid.Column="1" Text="{Binding SearchInvoiceNumber, UpdateSourceTrigger=PropertyChanged}" 
                                  FontSize="13" Padding="8" Margin="0,0,10,0"/>
-                        <Button Grid.Column="2" Content="🔍 Search" Command="{Binding SearchCommand}" 
-                                Padding="15,8" Background="#2196F3" Foreground="White" FontSize="13" 
-                                FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
+                        <Button Grid.Column="2" Content="Search" Command="{Binding SearchCommand}" 
+                                Style="{StaticResource InfoButton}" Padding="15,8" MinWidth="110"/>
 
                         <TextBlock Grid.Column="3" Text="Return Date:" FontSize="13" FontWeight="SemiBold" 
                                    VerticalAlignment="Center" Margin="15,0,10,0"/>
@@ -68,8 +70,8 @@
                 </Grid>
             </Border>
 
-            <!-- Return Items Section (Stretches) -->
-            <Border Grid.Row="1" Background="White" Padding="15" Margin="0,0,0,10" CornerRadius="5">
+            <!-- Return Items Section -->
+            <Border Grid.Row="1" Style="{StaticResource CardBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -77,8 +79,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Items to Return" FontSize="16" FontWeight="Bold" 
-                               Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="0" Text="Items to Return" Style="{StaticResource SectionTitle}"/>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding ReturnItems}" AutoGenerateColumns="False" 
                               CanUserAddRows="False" AlternatingRowBackground="#F9F9F9" 
@@ -111,11 +112,14 @@
                         </StackPanel>
 
                         <Border Grid.Column="1" Background="#FFEBEE" Padding="15" Margin="15,0,0,0" 
-                                CornerRadius="5" BorderBrush="#f44336" BorderThickness="2">
+                                CornerRadius="8" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="2">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.12" Direction="270" Color="Black"/>
+                            </Border.Effect>
                             <StackPanel>
                                 <TextBlock Text="TOTAL REFUND" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
                                 <TextBlock Text="{Binding TotalReturnAmount, StringFormat=Rs. {0:N2}}" 
-                                           FontSize="20" FontWeight="Bold" Foreground="#f44336"/>
+                                           FontSize="20" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -123,20 +127,16 @@
             </Border>
 
             <!-- Action Buttons -->
-            <Border Grid.Row="2" Background="White" Padding="12" CornerRadius="5">
+            <Border Grid.Row="2" Style="{StaticResource CardBorder}">
                 <WrapPanel HorizontalAlignment="Center">
-                    <Button Content="✅ PROCESS RETURN" Command="{Binding ProcessReturnCommand}" 
-                            Padding="20,10" Margin="0,0,10,5" Background="#4CAF50" Foreground="White" 
-                            FontSize="13" FontWeight="Bold" MinWidth="150" BorderThickness="0"/>
-                    <Button Content="🖨️ PRINT" Command="{Binding PrintReturnCommand}" 
-                            Padding="20,10" Margin="0,0,10,5" Background="#9C27B0" Foreground="White" 
-                            FontSize="13" FontWeight="Bold" MinWidth="140" BorderThickness="0"/>
-                    <Button Content="❌ CANCEL" Command="{Binding CancelCommand}" 
-                            Padding="20,10" Margin="0,0,10,5" Background="#FF9800" Foreground="White" 
-                            FontSize="13" FontWeight="Bold" MinWidth="120" BorderThickness="0"/>
+                    <Button Content="PROCESS RETURN" Command="{Binding ProcessReturnCommand}" 
+                            Style="{StaticResource SuccessButton}" Padding="20,10" Margin="0,0,10,5" MinWidth="150"/>
+                    <Button Content="PRINT" Command="{Binding PrintReturnCommand}" 
+                            Style="{StaticResource PurpleButton}" Padding="20,10" Margin="0,0,10,5" MinWidth="140"/>
+                    <Button Content="CANCEL" Command="{Binding CancelCommand}" 
+                            Style="{StaticResource WarningButton}" Padding="20,10" Margin="0,0,10,5" MinWidth="120"/>
                     <Button Content="CLOSE" Click="Close_Click" 
-                            Padding="20,10" Margin="0,0,0,5" Background="#9E9E9E" Foreground="White" 
-                            FontSize="13" FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
+                            Style="{StaticResource NeutralButton}" Padding="20,10" Margin="0,0,0,5" MinWidth="110"/>
                 </WrapPanel>
             </Border>
         </Grid>

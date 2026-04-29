@@ -7,14 +7,14 @@
         mc:Ignorable="d"
         Title="Product Management - Shah Jee Super Store" Height="700" Width="1200"
         WindowStartupLocation="CenterScreen">
-    <Grid Background="White">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#8B4513" Padding="15">
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
             <TextBlock Text="Product Management" FontSize="24" FontWeight="Bold" 
                        Foreground="White" HorizontalAlignment="Center"/>
         </Border>
@@ -28,7 +28,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Left: Product List -->
-            <Border Grid.Column="0" BorderBrush="#DDD" BorderThickness="1" Padding="10">
+            <Border Grid.Column="0" Style="{StaticResource CardBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -36,7 +36,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Products List" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="0" Text="Products List" Style="{StaticResource SectionTitle}"/>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}" 
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
@@ -66,19 +66,19 @@
 
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
                         <CheckBox Content="Show Deleted" IsChecked="{Binding ShowDeletedProducts}" 
-                                  FontSize="13" FontWeight="SemiBold" Foreground="#FF5722"
+                                  FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}"
                                   ToolTip="Toggle to show/hide deleted products" Margin="0,0,10,0"/>
-                        <Button Content="🔄 Refresh List" Command="{Binding RefreshCommand}" 
-                                Padding="10,5" Background="#2196F3" Foreground="White"/>
+                        <Button Content="Refresh List" Command="{Binding RefreshCommand}" 
+                                Style="{StaticResource InfoButton}" Padding="10,5"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- Right: Add/Edit Form -->
-            <Border Grid.Column="2" BorderBrush="#DDD" BorderThickness="1" Padding="15">
+            <Border Grid.Column="2" Style="{StaticResource CardBorder}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock Text="Product Details" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <TextBlock Text="Product Details" Style="{StaticResource SectionTitle}"/>
 
                         <TextBlock Text="Product ID" FontWeight="SemiBold" Margin="0,0,0,5"/>
                         <Grid Margin="0,0,0,10">
@@ -87,8 +87,8 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox Grid.Column="0" Text="{Binding ProductId, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,10,0"/>
-                            <Button Grid.Column="1" Content="🔄 Auto" Command="{Binding GenerateIdCommand}" 
-                                    Padding="10,8" Background="#2196F3" Foreground="White" ToolTip="Auto-generate 5-digit ID"/>
+                            <Button Grid.Column="1" Content="Auto" Command="{Binding GenerateIdCommand}" 
+                                    Style="{StaticResource InfoButton}" Padding="10,8" ToolTip="Auto-generate 5-digit ID"/>
                         </Grid>
 
                         <TextBlock Text="Barcode" FontWeight="SemiBold" Margin="0,0,0,5"/>
@@ -118,18 +118,18 @@
 
                         <StackPanel>
                             <Button Content="Add New Product" Command="{Binding AddCommand}" 
-                                    Padding="10,8" Margin="0,0,0,10" Background="#4CAF50" Foreground="White"/>
+                                    Style="{StaticResource SuccessButton}" Padding="10,8" Margin="0,0,0,10"/>
                             <Button Content="Update Product" Command="{Binding UpdateCommand}" 
-                                    Padding="10,8" Margin="0,0,0,10" Background="#FF9800" Foreground="White"/>
+                                    Style="{StaticResource WarningButton}" Padding="10,8" Margin="0,0,0,10"/>
                             <Button Content="Delete Product" Command="{Binding DeleteCommand}" 
-                                    Padding="10,8" Margin="0,0,0,10" Background="#f44336" Foreground="White"/>
-                            <Button Content="♻️ Restore Product" Command="{Binding RestoreCommand}" 
-                                    Padding="10,8" Margin="0,0,0,10" Background="#8BC34A" Foreground="White"
+                                    Style="{StaticResource DangerButton}" Padding="10,8" Margin="0,0,0,10"/>
+                            <Button Content="Restore Product" Command="{Binding RestoreCommand}" 
+                                    Style="{StaticResource RestoreButton}" Padding="10,8" Margin="0,0,0,10"
                                     Visibility="{Binding SelectedProduct.IsDeleted, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}"/>
                             <Button Content="Clear Form" Command="{Binding ClearCommand}" 
-                                    Padding="10,8" Margin="0,0,0,10" Background="#9E9E9E" Foreground="White"/>
+                                    Style="{StaticResource NeutralButton}" Padding="10,8" Margin="0,0,0,10"/>
                             <Button Content="Close" Click="Close_Click" 
-                                    Padding="10,8" Background="#607D8B" Foreground="White"/>
+                                    Style="{StaticResource NeutralButton}" Padding="10,8"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>

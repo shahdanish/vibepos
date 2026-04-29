@@ -7,14 +7,14 @@
         mc:Ignorable="d"
         Title="Sale - Shah Jee Super Store" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
-    <Grid Background="#F5F5F5">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#8B4513" Padding="15">
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="15">
             <Grid>
                 <TextBlock Text="SALE" FontSize="28" FontWeight="Bold" 
                            Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
@@ -27,16 +27,16 @@
         <!-- Main Content Grid -->
         <Grid Grid.Row="1" Margin="15">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Top Inputs -->
-                <RowDefinition Height="*"/>    <!-- Sale Items Grid (Stretches) -->
-                <RowDefinition Height="Auto"/> <!-- Bottom Actions/Totals -->
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Top Sections (Wrapped in ScrollViewer for small screens) -->
+            <!-- Top Sections -->
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" MaxHeight="300" Margin="0,0,0,10">
                 <StackPanel>
-                    <!-- Top: Customer & Payment Info + Settings-->
-                    <Border Background="White" Padding="12" Margin="0,0,0,10" CornerRadius="5">
+                    <!-- Customer & Payment Info -->
+                    <Border Style="{StaticResource CardBorder}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -96,24 +96,24 @@
 
                                 <StackPanel Grid.Column="1" Margin="10,0" Orientation="Horizontal" VerticalAlignment="Bottom">
                                     <CheckBox Content="Auto Add" IsChecked="{Binding AutoAddItem}" 
-                                              FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                                              FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" Margin="10,0" Orientation="Horizontal" VerticalAlignment="Bottom">
                                     <CheckBox Content="Auto Print" IsChecked="{Binding AutoPrint}" 
-                                              FontSize="12" FontWeight="SemiBold" Foreground="#9C27B0"/>
+                                              FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PurpleBrush}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="3" Margin="10,0,0,0" Orientation="Horizontal" VerticalAlignment="Bottom">
                                     <CheckBox Content="Small Bill" IsChecked="{Binding UseSmallBillFormat}" 
-                                              FontSize="12" FontWeight="SemiBold" Foreground="#FF5722"/>
+                                              FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}"/>
                                 </StackPanel>
                             </Grid>
                         </Grid>
                     </Border>
 
                     <!-- Product Entry Section -->
-                    <Border Background="White" Padding="12" Margin="0,0,0,5" CornerRadius="5">
+                    <Border Style="{StaticResource CardBorder}" Margin="0,0,0,5">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -148,7 +148,7 @@
                                 <TextBlock Text="Disc %" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
                                 <TextBox Text="{Binding DiscountPercent, UpdateSourceTrigger=PropertyChanged}" 
                                          FontSize="13" Padding="6" TextAlignment="Center"/>
-                                </StackPanel>
+                            </StackPanel>
 
                             <StackPanel Grid.Column="4" Margin="0,0,10,0">
                                 <TextBlock Text="Stock" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
@@ -159,29 +159,28 @@
                             <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Bottom">
                                 <StackPanel Margin="0,0,15,0" VerticalAlignment="Center"
                                             Visibility="{Binding IsLastScannedCostVisible, Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="Item Cost" FontWeight="Bold" FontSize="10" Foreground="#FF9800" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Item Cost" FontWeight="Bold" FontSize="10" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center"/>
                                     <TextBlock Text="{Binding LastScannedCost, StringFormat=Rs. {0:N2}}" 
-                                               FontSize="14" FontWeight="Bold" Foreground="#FF9800" TextAlignment="Center"/>
+                                               FontSize="14" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" TextAlignment="Center"/>
                                 </StackPanel>
                                 
                                 <Button Content="Add Item" Command="{Binding AddItemCommand}" 
-                                        Padding="15,8" Background="#4CAF50" Foreground="White" 
-                                        FontSize="13" FontWeight="Bold" BorderThickness="0"/>
+                                        Style="{StaticResource SuccessButton}" Padding="15,8"/>
                             </StackPanel>
                         </Grid>
                     </Border>
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Items Grid (Row 1 - Stretches) -->
-            <Border Grid.Row="1" Background="White" Padding="12" Margin="0,0,0,10" CornerRadius="5">
+            <!-- Items Grid -->
+            <Border Grid.Row="1" Style="{StaticResource CardBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Sale Items" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="0" Text="Sale Items" Style="{StaticResource SectionTitle}"/>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding SaleItems}" AutoGenerateColumns="False" 
                               CanUserAddRows="False" AlternatingRowBackground="#F9F9F9" 
@@ -198,8 +197,8 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Content="Del" Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                                CommandParameter="{Binding}" Padding="6,2" Background="#f44336" 
-                                                Foreground="White" BorderThickness="0" FontSize="11"/>
+                                                CommandParameter="{Binding}" Style="{StaticResource DangerButton}" 
+                                                Padding="6,2" FontSize="11"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -208,7 +207,7 @@
                 </Grid>
             </Border>
 
-            <!-- Bottom: Totals & Actions (Row 2) -->
+            <!-- Bottom: Totals & Actions -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -216,28 +215,23 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Left: Action Buttons -->
-                <Border Grid.Column="0" Background="White" Padding="12" Margin="0,0,10,0" CornerRadius="5">
+                <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,10,0">
                     <WrapPanel VerticalAlignment="Bottom" HorizontalAlignment="Left">
                         <Button Content="NEW SALE" Command="{Binding NewCommand}" 
-                                Padding="15,10" Margin="0,0,8,5" Background="#2196F3" Foreground="White" 
-                                FontSize="13" FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
+                                Style="{StaticResource InfoButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
                         <Button Content="SAVE SALE" Command="{Binding SaveCommand}" 
-                                Padding="15,10" Margin="0,0,8,5" Background="#4CAF50" Foreground="White" 
-                                FontSize="13" FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
+                                Style="{StaticResource SuccessButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
                         <Button Content="PRINT" Command="{Binding PrintCommand}" 
-                                Padding="15,10" Margin="0,0,8,5" Background="#9C27B0" Foreground="White" 
-                                FontSize="13" FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
+                                Style="{StaticResource PurpleButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
                         <Button Content="CANCEL" Command="{Binding CancelCommand}" 
-                                Padding="15,10" Margin="0,0,8,5" Background="#FF9800" Foreground="White" 
-                                FontSize="13" FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
+                                Style="{StaticResource WarningButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
                         <Button Content="CLOSE" Click="Exit_Click" 
-                                Padding="15,10" Margin="0,0,0,5" Background="#9E9E9E" Foreground="White" 
-                                FontSize="13" FontWeight="Bold" MinWidth="110" BorderThickness="0"/>
+                                Style="{StaticResource NeutralButton}" Padding="15,10" Margin="0,0,0,5" MinWidth="110"/>
                     </WrapPanel>
                 </Border>
 
                 <!-- Right: Totals -->
-                <Border Grid.Column="1" Background="White" Padding="15" CornerRadius="5">
+                <Border Grid.Column="1" Style="{StaticResource ElevatedCardBorder}" Padding="15">
                     <StackPanel>
                         <Grid Margin="0,0,0,8">
                             <TextBlock Text="Discount Products:" FontSize="13" VerticalAlignment="Center"/>
@@ -254,29 +248,27 @@
                         <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="0,8,0,0"/>
 
                         <Grid Margin="0,8,0,8">
-                            <TextBlock Text="TOTAL BILL:" FontSize="16" FontWeight="Bold" Foreground="#f44336"/>
+                            <TextBlock Text="TOTAL BILL:" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                             <TextBox Text="{Binding TotalBill, StringFormat=Rs. {0:N2}, Mode=OneWay}" 
-                                     FontSize="18" FontWeight="Bold" Padding="8" Width="180" 
-                                     HorizontalAlignment="Right" TextAlignment="Right" IsReadOnly="True" 
-                                     Background="#FFFACD" Foreground="#f44336" BorderThickness="2" BorderBrush="#f44336"/>
+                                     Style="{StaticResource TotalDisplay}" Width="180" HorizontalAlignment="Right"/>
                         </Grid>
 
                         <Grid Margin="0,0,0,8">
                             <TextBlock Text="Cash Received:" FontSize="14" FontWeight="Bold"/>
                             <TextBox Text="{Binding ReceiveCash, UpdateSourceTrigger=PropertyChanged}" 
                                      FontSize="14" FontWeight="Bold" Padding="8" Width="180" 
-                                     HorizontalAlignment="Right" TextAlignment="Right" BorderThickness="2" BorderBrush="#4CAF50"/>
+                                     HorizontalAlignment="Right" TextAlignment="Right" BorderThickness="2" 
+                                     BorderBrush="{DynamicResource SuccessBrush}"/>
                         </Grid>
 
                         <Grid>
-                            <TextBlock Text="Balance:" FontSize="14" FontWeight="Bold" Foreground="#2196F3"/>
+                            <TextBlock Text="Balance:" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource InfoBrush}"/>
                             <TextBox Text="{Binding Balance, StringFormat=Rs. {0:N2}, Mode=OneWay}" 
                                      FontSize="16" FontWeight="Bold" Padding="8" Width="180" 
                                      HorizontalAlignment="Right" TextAlignment="Right" IsReadOnly="True" 
-                                     Background="#E3F2FD" Foreground="#2196F3" BorderThickness="2" BorderBrush="#2196F3"/>
+                                     Background="#E3F2FD" Foreground="{DynamicResource InfoBrush}" BorderThickness="2" 
+                                     BorderBrush="{DynamicResource InfoBrush}"/>
                         </Grid>
-                        
-                        <!-- Purchase Price Display Hidden (as per requirement) -->
                     </StackPanel>
                 </Border>
             </Grid>

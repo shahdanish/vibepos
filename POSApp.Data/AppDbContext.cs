@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using POSApp.Core.Entities;
 
 namespace POSApp.Data
@@ -12,12 +13,15 @@ namespace POSApp.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
+        public DbSet<SyncLog> SyncLogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             if (!options.IsConfigured)
             {
-                options.UseSqlite("Data Source=posapp.db");
+                options.UseSqlite("Data Source=posapp.db")
+                       .AddInterceptors(new SyncLogInterceptor())
+                       .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
             }
         }
 
@@ -121,22 +125,35 @@ namespace POSApp.Data
                 .Property(c => c.PreBalance)
                 .HasPrecision(18, 2);
 
+            // Configure SyncLog entity
+            modelBuilder.Entity<SyncLog>()
+                .HasKey(s => s.Id);
+
+            modelBuilder.Entity<SyncLog>()
+                .HasIndex(s => s.SyncedAt);
+
+            modelBuilder.Entity<SyncLog>()
+                .HasIndex(s => s.EntityType);
+
+            modelBuilder.Entity<SyncLog>()
+                .HasIndex(s => new { s.EntityType, s.EntityId });
+
             // Seed sample data
             modelBuilder.Entity<Category>().HasData(
-                new Category { Id = 1, Name = "Medicine", Description = "Medical products" },
-                new Category { Id = 2, Name = "Stationery", Description = "Office and school supplies" }
+                new Category { Id = 1, Name = "Medicine", Description = "Medical products", CreatedDate = new DateTime(2025, 1, 1) },
+                new Category { Id = 2, Name = "Stationery", Description = "Office and school supplies", CreatedDate = new DateTime(2025, 1, 1) }
             );
 
             modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, ProductId = "101124", Barcode = "101124", ProductName = "Glycerin 25gm", CostPrice = 18, UnitPrice = 23, WholesalePrice = 21, Stock = 100, Rack = "A1", CategoryId = 1 },
-                new Product { Id = 2, ProductId = "6939219010101", Barcode = "6939219010101", ProductName = "Glue Stick", CostPrice = 45, UnitPrice = 60, WholesalePrice = 55, Stock = 46, Rack = "B2", CategoryId = 2 }
+                new Product { Id = 1, ProductId = "101124", Barcode = "101124", ProductName = "Glycerin 25gm", CostPrice = 18, UnitPrice = 23, WholesalePrice = 21, Stock = 100, Rack = "A1", CategoryId = 1, CreatedDate = new DateTime(2025, 1, 1) },
+                new Product { Id = 2, ProductId = "6939219010101", Barcode = "6939219010101", ProductName = "Glue Stick", CostPrice = 45, UnitPrice = 60, WholesalePrice = 55, Stock = 46, Rack = "B2", CategoryId = 2, CreatedDate = new DateTime(2025, 1, 1) }
             );
 
             modelBuilder.Entity<Customer>().HasData(
-                new Customer { Id = 1, CustomerId = "CASH", Name = "Cash", PreBalance = 0 }
+                new Customer { Id = 1, CustomerId = "CASH", Name = "Cash", PreBalance = 0, CreatedDate = new DateTime(2025, 1, 1) }
             );
 
-            // Seed default admin user (password: admin123)
+            // Seed default users
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
@@ -144,7 +161,7 @@ namespace POSApp.Data
                     Username = "admin",
                     PasswordHash = "admin123", // In production, use proper hashing like BCrypt
                     Role = "Admin",
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = new DateTime(2025, 1, 1),
                     IsActive = true
                 },
                 new User
@@ -153,7 +170,16 @@ namespace POSApp.Data
                     Username = "cashier",
                     PasswordHash = "cashier123",
                     Role = "Cashier",
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = new DateTime(2025, 1, 1),
+                    IsActive = true
+                },
+                new User
+                {
+                    Id = 3,
+                    Username = "ali",
+                    PasswordHash = "ali443",
+                    Role = "Admin",
+                    CreatedDate = new DateTime(2025, 1, 1),
                     IsActive = true
                 }
             );
@@ -166,7 +192,7 @@ namespace POSApp.Data
                     Key = "DefaultProfitMarginPercentage",
                     Value = "200",
                     Description = "Default profit margin percentage for auto-calculating selling price from cost",
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2025, 1, 1)
                 },
                 new ApplicationSetting
                 {
@@ -174,7 +200,7 @@ namespace POSApp.Data
                     Key = "LowStockAlertEnabled",
                     Value = "true",
                     Description = "Enable/disable low stock alerts",
-                    CreatedDate = DateTime.Now
+                    CreatedDate = new DateTime(2025, 1, 1)
                 }
             );
         }

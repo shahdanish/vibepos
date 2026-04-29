@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using POSApp.Data;
 using POSApp.Core.Interfaces;
 using POSApp.Infrastructure.Repositories;
+using POSApp.Infrastructure.Services;
 using POSApp.UI.ViewModels;
 using POSApp.UI.Views;
 using POSApp.UI.Converters;
@@ -54,15 +55,22 @@ public partial class App : System.Windows.Application
         services.AddTransient<ProductManagementWindow>();
         services.AddTransient<CategoryManagementWindow>();
 
+        // Add Sync Services (Firebase background sync)
+        services.AddSingleton<ISyncService, FirebaseSyncService>();
+
         // Build service provider
         Services = services.BuildServiceProvider();
 
-        // Ensure database is created
+        // Ensure database is created and migrated (applies new tables/columns)
         using (var scope = Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            dbContext.Database.EnsureCreated();
+            dbContext.Database.Migrate();
         }
+
+        // Initialize Firebase sync background service
+        var syncService = Services.GetRequiredService<ISyncService>() as FirebaseSyncService;
+        syncService?.Initialize();
 
         // Show login window first
         var loginWindow = Services.GetRequiredService<LoginWindow>();

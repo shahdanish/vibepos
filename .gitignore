@@ -40,3 +40,9 @@ POSApp_Installer/
 
 # NuGet
 *.nupkg
+
+# Firebase credentials (contains private key — NEVER commit)
+firebase-credentials.json
+
+# Publish output
+publish/

@@ -7,14 +7,14 @@
         mc:Ignorable="d"
         Title="Category Management - Shah Jee Super Store" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
-    <Grid Background="White">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#8B4513" Padding="15">
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
             <TextBlock Text="Category Management" FontSize="24" FontWeight="Bold" 
                        Foreground="White" HorizontalAlignment="Center"/>
         </Border>
@@ -28,7 +28,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Left: Category List -->
-            <Border Grid.Column="0" BorderBrush="#DDD" BorderThickness="1" Padding="10">
+            <Border Grid.Column="0" Style="{StaticResource CardBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -36,7 +36,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Categories List" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="0" Text="Categories List" Style="{StaticResource SectionTitle}"/>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" 
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
@@ -48,14 +48,14 @@
                     </DataGrid>
 
                     <Button Grid.Row="2" Content="Refresh List" Command="{Binding RefreshCommand}" 
-                            Margin="0,10,0,0" Padding="10,5" Background="#2196F3" Foreground="White"/>
+                            Style="{StaticResource InfoButton}" Margin="0,10,0,0" Padding="10,5"/>
                 </Grid>
             </Border>
 
             <!-- Right: Add/Edit Form -->
-            <Border Grid.Column="2" BorderBrush="#DDD" BorderThickness="1" Padding="15">
+            <Border Grid.Column="2" Style="{StaticResource CardBorder}">
                 <StackPanel>
-                    <TextBlock Text="Category Details" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                    <TextBlock Text="Category Details" Style="{StaticResource SectionTitle}"/>
 
                     <TextBlock Text="Category Name *" FontWeight="SemiBold" Margin="0,0,0,5"/>
                     <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,15"/>
@@ -66,15 +66,15 @@
 
                     <StackPanel>
                         <Button Content="Add New Category" Command="{Binding AddCommand}" 
-                                Padding="10,8" Margin="0,0,0,10" Background="#4CAF50" Foreground="White"/>
+                                Style="{StaticResource SuccessButton}" Padding="10,8" Margin="0,0,0,10"/>
                         <Button Content="Update Category" Command="{Binding UpdateCommand}" 
-                                Padding="10,8" Margin="0,0,0,10" Background="#FF9800" Foreground="White"/>
+                                Style="{StaticResource WarningButton}" Padding="10,8" Margin="0,0,0,10"/>
                         <Button Content="Delete Category" Command="{Binding DeleteCommand}" 
-                                Padding="10,8" Margin="0,0,0,10" Background="#f44336" Foreground="White"/>
+                                Style="{StaticResource DangerButton}" Padding="10,8" Margin="0,0,0,10"/>
                         <Button Content="Clear Form" Command="{Binding ClearCommand}" 
-                                Padding="10,8" Margin="0,0,0,10" Background="#9E9E9E" Foreground="White"/>
+                                Style="{StaticResource NeutralButton}" Padding="10,8" Margin="0,0,0,10"/>
                         <Button Content="Close" Click="Close_Click" 
-                                Padding="10,8" Background="#607D8B" Foreground="White"/>
+                                Style="{StaticResource NeutralButton}" Padding="10,8"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

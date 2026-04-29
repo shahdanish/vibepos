@@ -133,8 +133,10 @@ namespace POSApp.UI.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"An error occurred: {ex.Message}";
-                MessageBox.Show(ErrorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Walk the full inner exception chain for the real error
+                var fullMessage = GetFullExceptionMessage(ex);
+                ErrorMessage = $"An error occurred: {fullMessage}";
+                MessageBox.Show(fullMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -145,6 +147,23 @@ namespace POSApp.UI.ViewModels
         private void ExecuteCancel()
         {
             Application.Current.Shutdown();
+        }
+
+        /// <summary>
+        /// Unwraps the full inner exception chain so the REAL error
+        /// (e.g. "table SyncLogs doesn't exist") is visible instead of
+        /// the generic "An error occurred while saving the entity changes".
+        /// </summary>
+        private static string GetFullExceptionMessage(Exception ex)
+        {
+            var messages = new List<string>();
+            var current = ex as Exception;
+            while (current is not null)
+            {
+                messages.Add(current.Message);
+                current = current.InnerException;
+            }
+            return string.Join("\n→ ", messages);
         }
     }
 }
