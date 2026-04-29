@@ -1,4 +1,6 @@
 using System.Windows.Input;
+using System.Windows;
+using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using POSApp.UI.Views;
@@ -15,6 +17,7 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenSalesReportCommand { get; }
         public ICommand OpenProductManagementCommand { get; }
         public ICommand OpenCategoryManagementCommand { get; }
+        public ICommand SyncNowCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ExitCommand { get; }
 
@@ -38,6 +41,7 @@ namespace POSApp.UI.ViewModels
             OpenSalesReportCommand = new RelayCommand(_ => OpenSalesReport());
             OpenProductManagementCommand = new RelayCommand(_ => OpenProductManagement());
             OpenCategoryManagementCommand = new RelayCommand(_ => OpenCategoryManagement());
+            SyncNowCommand = new RelayCommand(_ => SyncNow());
             LogoutCommand = new RelayCommand(_ => Logout());
             ExitCommand = new RelayCommand(_ => Exit());
         }
@@ -76,6 +80,42 @@ namespace POSApp.UI.ViewModels
         {
             var categoryWindow = App.Services?.GetRequiredService<CategoryManagementWindow>();
             categoryWindow?.ShowDialog();
+        }
+
+        // Temporary helper for verifying background sync during development.
+        private async void SyncNow()
+        {
+            try
+            {
+                var sync = App.Services?.GetService<ISyncService>();
+                if (sync == null)
+                {
+                    MessageBox.Show("Sync service is not registered.", "Sync", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                MessageBox.Show(
+                    $"Starting sync...\n\nOnline: {sync.IsOnline}\nPending: {sync.PendingCount}",
+                    "Sync",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                await sync.SyncPendingChangesAsync();
+
+                MessageBox.Show(
+                    $"Sync completed.\n\nPending now: {sync.PendingCount}",
+                    "Sync",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "Sync error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         private void Logout()
