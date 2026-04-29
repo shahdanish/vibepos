@@ -25,6 +25,7 @@ namespace POSApp.Infrastructure.Services
         private readonly string _logPath;
         private readonly string _fallbackLogPath;
         private readonly object _logLock = new();
+        private readonly SemaphoreSlim _syncSemaphore = new(1, 1);
 
         /// <summary>
         /// Simple file logger — writes timestamped lines to sync.log next to the .exe.
@@ -186,44 +187,50 @@ namespace POSApp.Infrastructure.Services
 
         public async Task SyncPendingChangesAsync(CancellationToken ct = default)
         {
+            // Prevent overlapping sync cycles (e.g., connectivity event + bootstrap at startup).
+            if (!await _syncSemaphore.WaitAsync(0, ct))
+            {
+                Log("Skipping sync: another sync cycle is already in progress.");
+                return;
+            }
+
             int totalLogs = -1;
             int pendingLogs = -1;
             try
             {
-                using var scope = _serviceProvider.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                totalLogs = await db.SyncLogs.CountAsync(ct);
-                pendingLogs = await db.SyncLogs.CountAsync(s => s.SyncedAt == null, ct);
-            }
-            catch (Exception ex)
-            {
-                Log($"⚠ Could not read SyncLogs counts: {ex.GetType().Name}: {ex.Message}");
-            }
+                try
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    totalLogs = await db.SyncLogs.CountAsync(ct);
+                    pendingLogs = await db.SyncLogs.CountAsync(s => s.SyncedAt == null, ct);
+                }
+                catch (Exception ex)
+                {
+                    Log($"⚠ Could not read SyncLogs counts: {ex.GetType().Name}: {ex.Message}");
+                }
 
-            Log($"SyncPendingChangesAsync start: online={_connectivityDetector.IsOnline}, firestore={(_firestoreDb != null ? "OK" : "NULL")}, SyncLogs(total={totalLogs}, pending={pendingLogs})");
+                Log($"SyncPendingChangesAsync start: online={_connectivityDetector.IsOnline}, firestore={(_firestoreDb != null ? "OK" : "NULL")}, SyncLogs(total={totalLogs}, pending={pendingLogs})");
 
-            if (_firestoreDb is null)
-            {
-                Log("⚠ Sync skipped: Firestore not initialized (check credentials)");
-                return;
-            }
-            if (!_connectivityDetector.IsOnline)
-            {
-                Log("⚠ Sync skipped: offline");
-                return;
-            }
+                if (_firestoreDb is null)
+                {
+                    Log("⚠ Sync skipped: Firestore not initialized (check credentials)");
+                    return;
+                }
+                if (!_connectivityDetector.IsOnline)
+                {
+                    Log("⚠ Sync skipped: offline");
+                    return;
+                }
 
-            int pushed = 0;
-            int failed = 0;
-            string? errorMsg = null;
-
-            try
-            {
-                using var scope = _serviceProvider.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                int pushed = 0;
+                int failed = 0;
+                string? errorMsg = null;
 
                 // Get all pending (unsynced) log entries, oldest first
-                var pendingLogEntries = await db.SyncLogs
+                using var scope2 = _serviceProvider.CreateScope();
+                var db2 = scope2.ServiceProvider.GetRequiredService<AppDbContext>();
+                var pendingLogEntries = await db2.SyncLogs
                     .Where(s => s.SyncedAt == null)
                     .OrderBy(s => s.CreatedAt)
                     .Take(100) // batch limit per cycle
@@ -248,7 +255,7 @@ namespace POSApp.Infrastructure.Services
                 {
                     try
                     {
-                        var entityData = await LoadEntityAsync(db, logEntry.EntityType, logEntry.EntityId, ct);
+                        var entityData = await LoadEntityAsync(db2, logEntry.EntityType, logEntry.EntityId, ct);
 
                         if (entityData is not null)
                         {
@@ -279,24 +286,26 @@ namespace POSApp.Infrastructure.Services
                     }
                 }
 
-                await db.SaveChangesAsync(ct);
-                _pendingCount = await db.SyncLogs.CountAsync(s => s.SyncedAt == null, ct);
+                await db2.SaveChangesAsync(ct);
+                _pendingCount = await db2.SyncLogs.CountAsync(s => s.SyncedAt == null, ct);
+                Log($"Sync result: pushed={pushed}, failed={failed}{(errorMsg != null ? ", error=" + errorMsg : "")}");
+
+                SyncCompleted?.Invoke(this, new SyncResult
+                {
+                    Success = failed == 0,
+                    PushedCount = pushed,
+                    FailedCount = failed,
+                    ErrorMessage = errorMsg
+                });
             }
             catch (Exception ex)
             {
-                errorMsg = ex.Message;
-                Log($"Sync cycle failed: {ex.Message}");
+                Log($"Sync cycle failed: {ex.GetType().Name}: {ex.Message}");
             }
-
-            Log($"Sync result: pushed={pushed}, failed={failed}{(errorMsg != null ? ", error=" + errorMsg : "")}");
-
-            SyncCompleted?.Invoke(this, new SyncResult
+            finally
             {
-                Success = failed == 0,
-                PushedCount = pushed,
-                FailedCount = failed,
-                ErrorMessage = errorMsg
-            });
+                _syncSemaphore.Release();
+            }
         }
 
         private async Task EnsureInitialSyncLogsAsync(CancellationToken ct)
