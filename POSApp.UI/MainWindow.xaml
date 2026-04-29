@@ -53,6 +53,8 @@
                         Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
                 <Button Content="Logout" Command="{Binding LogoutCommand}" 
                         Style="{StaticResource WarningButton}" Margin="4"/>
+                <Button Content="Sync Now" Command="{Binding SyncNowCommand}" 
+                        Style="{StaticResource NeutralButton}" Margin="4"/>
                 <Button Content="Exit" Command="{Binding ExitCommand}" 
                         Style="{StaticResource NeutralButton}" Margin="4"/>
             </WrapPanel>
