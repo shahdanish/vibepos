@@ -8,11 +8,16 @@
         Title="Login - Shah Jee Super Store" 
         Height="500" Width="450"
         WindowStartupLocation="CenterScreen"
+        Icon="../app.ico"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent">
     
-    <Border Background="#F5F5F5" CornerRadius="15" BorderThickness="2" BorderBrush="#8B4513">
+    <Border Background="{DynamicResource PageBackgroundBrush}" CornerRadius="15" 
+            BorderBrush="{DynamicResource BrandPrimaryBrush}" BorderThickness="2">
+        <Border.Effect>
+            <DropShadowEffect ShadowDepth="4" BlurRadius="20" Opacity="0.25" Direction="270" Color="Black"/>
+        </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -20,12 +25,12 @@
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <Border Grid.Row="0" Background="#8B4513" CornerRadius="15,15,0,0" Padding="20">
+            <Border Grid.Row="0" Style="{StaticResource HeaderBar}" CornerRadius="15,15,0,0">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="🏪 Shah Jee Super Store" FontSize="24" FontWeight="Bold" 
+                    <TextBlock Text="Shah Jee Super Store" FontSize="24" FontWeight="Bold" 
                                Foreground="White" HorizontalAlignment="Center"/>
                     <TextBlock Text="POS System Login" FontSize="14" FontWeight="SemiBold" 
-                               Foreground="#FFD700" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                               Foreground="{DynamicResource BrandGoldBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
 
@@ -42,37 +47,31 @@
 
                 <!-- Welcome Message -->
                 <TextBlock Grid.Row="0" Text="Welcome Back!" FontSize="28" FontWeight="Bold" 
-                           Foreground="#8B4513" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                           Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
                 <!-- Username Field -->
                 <StackPanel Grid.Row="1" Margin="0,0,0,20">
                     <TextBlock Text="Username" FontWeight="Bold" FontSize="14" Margin="0,0,0,8" Foreground="#333"/>
-                    <Border BorderBrush="#8B4513" BorderThickness="1.5" CornerRadius="5">
-                        <TextBox x:Name="txtUsername"
-                                 Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" 
-                                 FontSize="15" Padding="12,10" 
-                                 Background="White" BorderThickness="0"
-                                 KeyDown="TxtUsername_KeyDown"/>
-                    </Border>
+                    <TextBox x:Name="txtUsername"
+                             Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" 
+                             FontSize="15" Padding="12,10" 
+                             KeyDown="TxtUsername_KeyDown"/>
                 </StackPanel>
 
                 <!-- Password Field -->
                 <StackPanel Grid.Row="2" Margin="0,0,0,20">
                     <TextBlock Text="Password" FontWeight="Bold" FontSize="14" Margin="0,0,0,8" Foreground="#333"/>
-                    <Border BorderBrush="#8B4513" BorderThickness="1.5" CornerRadius="5">
-                        <PasswordBox x:Name="txtPassword" FontSize="15" Padding="12,10" 
-                                     Background="White" BorderThickness="0"
-                                     PasswordChanged="TxtPassword_PasswordChanged"
-                                     KeyDown="TxtPassword_KeyDown"/>
-                    </Border>
+                    <PasswordBox x:Name="txtPassword" FontSize="15" Padding="12,10" 
+                                 PasswordChanged="TxtPassword_PasswordChanged"
+                                 KeyDown="TxtPassword_KeyDown"/>
                 </StackPanel>
 
                 <!-- Error Message -->
-                <Border Grid.Row="3" Background="#FFE6E6" BorderBrush="#FF4444" 
+                <Border Grid.Row="3" Background="#FFE6E6" BorderBrush="{DynamicResource DangerBrush}" 
                         BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,20"
                         Visibility="{Binding ErrorMessage, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⚠️ " FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="⚠ " FontSize="16" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding ErrorMessage}" FontSize="13" 
                                    Foreground="#CC0000" TextWrapping="Wrap" VerticalAlignment="Center"/>
                     </StackPanel>
@@ -81,59 +80,13 @@
                 <!-- Buttons -->
                 <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
                     <Button Content="LOGIN" Command="{Binding LoginCommand}" 
-                            Padding="30,12" Margin="0,0,10,0" 
-                            Background="#4CAF50" Foreground="White" 
-                            FontSize="15" FontWeight="Bold" BorderThickness="0"
-                            Cursor="Hand" MinWidth="120">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" 
-                                                    CornerRadius="5" Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#45a049"/>
-                                    </Trigger>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter Property="Opacity" Value="0.5"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    
+                            Style="{StaticResource SuccessButton}"
+                            Padding="30,12" Margin="0,0,10,0" MinWidth="120"
+                            FontWeight="Bold" FontSize="15"/>
                     <Button Content="EXIT" Command="{Binding CancelCommand}" 
-                            Padding="30,12" 
-                            Background="#f44336" Foreground="White" 
-                            FontSize="15" FontWeight="Bold" BorderThickness="0"
-                            Cursor="Hand" MinWidth="120">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" 
-                                                    CornerRadius="5" Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#da190b"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                            Style="{StaticResource DangerButton}"
+                            Padding="30,12" MinWidth="120"
+                            FontWeight="Bold" FontSize="15"/>
                 </StackPanel>
             </Grid>
         </Grid>
