@@ -10,6 +10,7 @@ namespace POSApp.UI.ViewModels
     public sealed class MainViewModel : ViewModelBase
     {
         private string _currentUserInfo = string.Empty;
+        private bool _isSyncInProgress;
 
         public ICommand OpenSaleCommand { get; }
         public ICommand OpenWholeSaleCommand { get; }
@@ -17,6 +18,14 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenSalesReportCommand { get; }
         public ICommand OpenProductManagementCommand { get; }
         public ICommand OpenCategoryManagementCommand { get; }
+        public ICommand OpenDashboardCommand { get; }
+        public ICommand OpenExpenseCommand { get; }
+        public ICommand OpenShiftCommand { get; }
+        public ICommand OpenCustomerLedgerCommand { get; }
+        public ICommand OpenDailySummaryCommand { get; }
+        public ICommand OpenPurchaseEntryCommand { get; }
+        public ICommand OpenSupplierManagementCommand { get; }
+        public ICommand OpenBackupRestoreCommand { get; }
         public ICommand SyncNowCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ExitCommand { get; }
@@ -41,7 +50,15 @@ namespace POSApp.UI.ViewModels
             OpenSalesReportCommand = new RelayCommand(_ => OpenSalesReport());
             OpenProductManagementCommand = new RelayCommand(_ => OpenProductManagement());
             OpenCategoryManagementCommand = new RelayCommand(_ => OpenCategoryManagement());
-            SyncNowCommand = new RelayCommand(_ => SyncNow());
+            OpenDashboardCommand = new RelayCommand(_ => OpenDashboard());
+            OpenExpenseCommand = new RelayCommand(_ => OpenExpense());
+            OpenShiftCommand = new RelayCommand(_ => OpenShift());
+            OpenCustomerLedgerCommand = new RelayCommand(_ => OpenCustomerLedger());
+            OpenDailySummaryCommand = new RelayCommand(_ => OpenDailySummary());
+            OpenPurchaseEntryCommand = new RelayCommand(_ => OpenPurchaseEntry());
+            OpenSupplierManagementCommand = new RelayCommand(_ => OpenSupplierManagement());
+            OpenBackupRestoreCommand = new RelayCommand(_ => OpenBackupRestore());
+            SyncNowCommand = new AsyncRelayCommand(SyncNowAsync, () => !_isSyncInProgress);
             LogoutCommand = new RelayCommand(_ => Logout());
             ExitCommand = new RelayCommand(_ => Exit());
         }
@@ -82,11 +99,83 @@ namespace POSApp.UI.ViewModels
             categoryWindow?.ShowDialog();
         }
 
-        // Temporary helper for verifying background sync during development.
-        private async void SyncNow()
+        private void OpenDashboard()
         {
+            var dashboardWindow = App.Services?.GetRequiredService<DashboardWindow>();
+            dashboardWindow?.ShowDialog();
+        }
+
+        private void OpenExpense()
+        {
+            var expenseWindow = App.Services?.GetRequiredService<ExpenseWindow>();
+            expenseWindow?.ShowDialog();
+        }
+
+        private void OpenShift()
+        {
+            var shiftWindow = App.Services?.GetRequiredService<ShiftWindow>();
+            shiftWindow?.ShowDialog();
+        }
+
+        private void OpenCustomerLedger()
+        {
+            var ledgerWindow = App.Services?.GetRequiredService<CustomerLedgerWindow>();
+            ledgerWindow?.ShowDialog();
+        }
+
+        private void OpenDailySummary()
+        {
+            if (!PermissionManager.CanAccessDailySummary(SessionManager.CurrentUser))
+            {
+                NotificationHelper.ValidationErrorCustom("You don't have permission to access daily summary.");
+                return;
+            }
+            var dailySummaryWindow = App.Services?.GetRequiredService<DailySummaryWindow>();
+            dailySummaryWindow?.ShowDialog();
+        }
+
+        private void OpenPurchaseEntry()
+        {
+            if (!PermissionManager.CanManagePurchases(SessionManager.CurrentUser))
+            {
+                NotificationHelper.ValidationErrorCustom("You don't have permission to manage purchases.");
+                return;
+            }
+            var purchaseWindow = App.Services?.GetRequiredService<PurchaseEntryWindow>();
+            purchaseWindow?.ShowDialog();
+        }
+
+        private void OpenSupplierManagement()
+        {
+            if (!PermissionManager.CanManageSuppliers(SessionManager.CurrentUser))
+            {
+                NotificationHelper.ValidationErrorCustom("You don't have permission to manage suppliers.");
+                return;
+            }
+            var supplierWindow = App.Services?.GetRequiredService<SupplierManagementWindow>();
+            supplierWindow?.ShowDialog();
+        }
+
+        private void OpenBackupRestore()
+        {
+            if (!PermissionManager.CanAccess(SessionManager.CurrentUser, "BackupRestore"))
+            {
+                NotificationHelper.ValidationErrorCustom("You don't have permission to access backup/restore.");
+                return;
+            }
+            var backupWindow = App.Services?.GetRequiredService<BackupRestoreWindow>();
+            backupWindow?.ShowDialog();
+        }
+
+        // Temporary helper for verifying background sync during development.
+        private async Task SyncNowAsync()
+        {
+            if (_isSyncInProgress)
+                return;
+
             try
             {
+                _isSyncInProgress = true;
                 var sync = App.Services?.GetService<ISyncService>();
                 if (sync == null)
                 {
@@ -115,6 +204,10 @@ namespace POSApp.UI.ViewModels
                     "Sync error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isSyncInProgress = false;
             }
         }
 

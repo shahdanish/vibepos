@@ -1,0 +1,53 @@
+<Window x:Class="POSApp.UI.Views.BackupRestoreWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Backup &amp; Restore" Height="500" Width="700"
+        WindowStartupLocation="CenterOwner" Icon="/app-icon.png">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Database Backup &amp; Restore" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <StackPanel Grid.Row="1">
+            <GroupBox Header="Backup Directory" Padding="15" Margin="0,0,0,15">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding BackupDirectory}" IsReadOnly="True" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="Browse" Command="{Binding SelectBackupDirectoryCommand}" Margin="10,0,0,0" Padding="15,5"/>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Actions" Padding="15" Margin="0,0,0,15">
+                <StackPanel>
+                    <Button Content="Create Backup" Command="{Binding CreateBackupCommand}" Padding="20,10" FontSize="14" Background="#4CAF50" Foreground="White" Margin="0,0,0,10"/>
+                    <Button Content="Restore Latest Backup" Command="{Binding RestoreBackupCommand}" Padding="20,10" FontSize="14" Background="#FF9800" Foreground="White"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Available Backups" Padding="15">
+                <StackPanel>
+                    <ListView ItemsSource="{Binding AvailableBackups}" Height="150">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Padding="5"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button Content="Refresh" Command="{Binding RefreshBackupsCommand}" Margin="0,10,0,0" Padding="10,5"/>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="Gray" Margin="0,10,0,0"/>
+            <Button Content="Close" Click="CloseButton_Click" HorizontalAlignment="Right" Padding="20,8" Margin="0,10,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>

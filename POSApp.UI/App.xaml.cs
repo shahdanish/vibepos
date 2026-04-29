@@ -10,6 +10,7 @@ using POSApp.Infrastructure.Services;
 using POSApp.UI.ViewModels;
 using POSApp.UI.Views;
 using POSApp.UI.Converters;
+using POSApp.Core.Services;
 
 namespace POSApp.UI;
 
@@ -34,6 +35,16 @@ public partial class App : System.Windows.Application
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
+        // Phase-1 feature repositories
+        services.AddScoped<IExpenseRepository, ExpenseRepository>();
+        services.AddScoped<IShiftRepository, ShiftRepository>();
+        services.AddScoped<IHoldSaleRepository, HoldSaleRepository>();
+        services.AddScoped<ICustomerPaymentRepository, CustomerPaymentRepository>();
+        // New feature repositories
+        services.AddScoped<IDailySalesSummaryRepository, DailySalesSummaryRepository>();
+        services.AddScoped<IPurchaseRepository, PurchaseRepository>();
+        services.AddScoped<ISupplierRepository, SupplierRepository>();
+        services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 
         // Add ViewModels
         services.AddTransient<LoginViewModel>();
@@ -44,6 +55,16 @@ public partial class App : System.Windows.Application
         services.AddTransient<SalesReportViewModel>();
         services.AddTransient<ProductManagementViewModel>();
         services.AddTransient<CategoryManagementViewModel>();
+        // Phase-1 feature view models
+        services.AddTransient<ExpenseViewModel>();
+        services.AddTransient<ShiftViewModel>();
+        services.AddTransient<CustomerLedgerViewModel>();
+        services.AddTransient<DashboardViewModel>();
+        // New feature view models
+        services.AddTransient<DailySummaryViewModel>();
+        services.AddTransient<PurchaseEntryViewModel>();
+        services.AddTransient<SupplierManagementViewModel>();
+        services.AddTransient<BackupRestoreViewModel>();
 
         // Add Windows
         services.AddTransient<LoginWindow>();
@@ -54,9 +75,23 @@ public partial class App : System.Windows.Application
         services.AddTransient<SalesReportWindow>();
         services.AddTransient<ProductManagementWindow>();
         services.AddTransient<CategoryManagementWindow>();
+        // Phase-1 feature windows
+        services.AddTransient<ExpenseWindow>();
+        services.AddTransient<ShiftWindow>();
+        services.AddTransient<CustomerLedgerWindow>();
+        services.AddTransient<DashboardWindow>();
+        // New feature windows
+        services.AddTransient<DailySummaryWindow>();
+        services.AddTransient<PurchaseEntryWindow>();
+        services.AddTransient<SupplierManagementWindow>();
+        services.AddTransient<BackupRestoreWindow>();
 
         // Add Sync Services (Firebase background sync)
         services.AddSingleton<ISyncService, FirebaseSyncService>();
+        
+        // Add new services
+        services.AddSingleton<IBarcodeService, BarcodeService>();
+        services.AddSingleton<IDatabaseBackupService, DatabaseBackupService>();
 
         // Build service provider
         Services = services.BuildServiceProvider();

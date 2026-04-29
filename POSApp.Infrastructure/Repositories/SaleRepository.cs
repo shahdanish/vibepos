@@ -117,5 +117,77 @@ namespace POSApp.Infrastructure.Repositories
                 .Where(si => si.Sale!.SaleDate >= cutoffDate)
                 .ToListAsync(ct);
         }
+        
+        public async Task<IEnumerable<SalesByCategoryDto>> GetSalesByCategoryAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+        {
+            var start = startDate.Date;
+            var end = endDate.Date.AddDays(1);
+            
+            return await _context.SaleItems
+                .Include(si => si.Product)
+                .ThenInclude(p => p!.Category)
+                .Where(si => si.Sale!.SaleDate >= start && si.Sale!.SaleDate < end)
+                .GroupBy(si => si.Product!.Category != null ? si.Product.Category.Name : "Uncategorized")
+                .Select(g => new SalesByCategoryDto
+                {
+                    CategoryName = g.Key,
+                    TotalQuantity = g.Sum(si => si.Quantity),
+                    TotalSales = g.Sum(si => si.Total),
+                    TotalProfit = g.Sum(si => (si.UnitPrice - si.CostPrice) * si.Quantity)
+                })
+                .OrderByDescending(x => x.TotalSales)
+                .ToListAsync(ct);
+        }
+        
+        public async Task<IEnumerable<TopProductDto>> GetTopSellingProductsAsync(int count, DateTime startDate, DateTime endDate, CancellationToken ct = default)
+        {
+            var start = startDate.Date;
+            var end = endDate.Date.AddDays(1);
+            
+            return await _context.SaleItems
+                .Where(si => si.Sale!.SaleDate >= start && si.Sale!.SaleDate < end)
+                .GroupBy(si => new { si.ProductId, si.ProductName })
+                .Select(g => new TopProductDto
+                {
+                    ProductId = g.Key.ProductId,
+                    ProductName = g.Key.ProductName,
+                    TotalQuantity = g.Sum(si => si.Quantity),
+                    TotalSales = g.Sum(si => si.Total),
+                    TotalProfit = g.Sum(si => (si.UnitPrice - si.CostPrice) * si.Quantity)
+                })
+                .OrderByDescending(x => x.TotalQuantity)
+                .Take(count)
+                .ToListAsync(ct);
+        }
+        
+        public async Task<decimal> GetTotalProfitAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+        {
+            var start = startDate.Date;
+            var end = endDate.Date.AddDays(1);
+            
+            var profit = await _context.SaleItems
+                .Where(si => si.Sale!.SaleDate >= start && si.Sale!.SaleDate < end)
+                .SumAsync(si => (si.UnitPrice - si.CostPrice) * si.Quantity, ct);
+            
+            return profit;
+        }
+        
+        public async Task<IEnumerable<SalesByPaymentTypeDto>> GetSalesByPaymentTypeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+        {
+            var start = startDate.Date;
+            var end = endDate.Date.AddDays(1);
+            
+            return await _context.Sales
+                .Where(s => s.SaleDate >= start && s.SaleDate < end)
+                .GroupBy(s => s.PaymentType)
+                .Select(g => new SalesByPaymentTypeDto
+                {
+                    PaymentType = g.Key,
+                    TotalTransactions = g.Count(),
+                    TotalAmount = g.Sum(s => s.TotalBill)
+                })
+                .OrderByDescending(x => x.TotalAmount)
+                .ToListAsync(ct);
+        }
     }
 }

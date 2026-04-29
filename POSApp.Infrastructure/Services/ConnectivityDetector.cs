@@ -8,6 +8,11 @@ namespace POSApp.Infrastructure.Services
     /// </summary>
     public sealed class ConnectivityDetector : IDisposable
     {
+        private static readonly HttpClient HttpClient = new()
+        {
+            Timeout = TimeSpan.FromSeconds(5)
+        };
+
         private readonly TimeSpan _checkInterval;
         private readonly CancellationTokenSource _cts = new();
         private bool _isOnline;
@@ -65,9 +70,8 @@ namespace POSApp.Infrastructure.Services
         {
             try
             {
-                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
                 // Lightweight connectivity check — any 200-level response means we're online
-                var response = await client.GetAsync("https://www.google.com/generate_204");
+                var response = await HttpClient.GetAsync("https://www.google.com/generate_204");
                 return response.IsSuccessStatusCode;
             }
             catch

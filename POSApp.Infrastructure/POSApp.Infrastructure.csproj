@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <PackageReference Include="Google.Cloud.Firestore" Version="3.10.0" />
+    <PackageReference Include="ZXing.Net" Version="0.16.9" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

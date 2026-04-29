@@ -14,6 +14,20 @@ namespace POSApp.Data
         public DbSet<User> Users { get; set; }
         public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
         public DbSet<SyncLog> SyncLogs { get; set; }
+        
+        // New Features
+        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Shift> Shifts { get; set; }
+        public DbSet<HoldSale> HoldSales { get; set; }
+        public DbSet<HoldSaleItem> HoldSaleItems { get; set; }
+        public DbSet<CustomerPayment> CustomerPayments { get; set; }
+        
+        // New Features
+        public DbSet<DailySalesSummary> DailySalesSummaries { get; set; }
+        public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+        public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<UserFavorite> UserFavorites { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -125,6 +139,66 @@ namespace POSApp.Data
                 .Property(c => c.PreBalance)
                 .HasPrecision(18, 2);
 
+            modelBuilder.Entity<Customer>()
+                .Property(c => c.CurrentBalance)
+                .HasPrecision(18, 2);
+            
+            // Customer loyalty fields
+            modelBuilder.Entity<Customer>()
+                .Property(c => c.TotalPurchases)
+                .HasPrecision(18, 2);
+
+            // Configure CustomerPayment
+            modelBuilder.Entity<CustomerPayment>()
+                .Property(cp => cp.AmountPaid)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<CustomerPayment>()
+                .HasOne(cp => cp.Customer)
+                .WithMany(c => c.Payments)
+                .HasForeignKey(cp => cp.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Expense
+            modelBuilder.Entity<Expense>()
+                .Property(e => e.Amount)
+                .HasPrecision(18, 2);
+
+            // Configure Shift
+            modelBuilder.Entity<Shift>()
+                .Property(s => s.OpeningBalance)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<Shift>()
+                .Property(s => s.ExpectedClosingBalance)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<Shift>()
+                .Property(s => s.ActualClosingBalance)
+                .HasPrecision(18, 2);
+
+            // Configure HoldSale and HoldSaleItem
+            modelBuilder.Entity<HoldSale>()
+                .Property(hs => hs.TotalBill)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<HoldSaleItem>()
+                .HasOne(hsi => hsi.HoldSale)
+                .WithMany(hs => hs.Items)
+                .HasForeignKey(hsi => hsi.HoldSaleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<HoldSaleItem>()
+                .Property(hsi => hsi.UnitPrice)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<HoldSaleItem>()
+                .Property(hsi => hsi.CostPrice)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<HoldSaleItem>()
+                .Property(hsi => hsi.Discount)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<HoldSaleItem>()
+                .Property(hsi => hsi.Total)
+                .HasPrecision(18, 2);
+
             // Configure SyncLog entity
             modelBuilder.Entity<SyncLog>()
                 .HasKey(s => s.Id);
@@ -137,6 +211,72 @@ namespace POSApp.Data
 
             modelBuilder.Entity<SyncLog>()
                 .HasIndex(s => new { s.EntityType, s.EntityId });
+            
+            // Configure DailySalesSummary
+            modelBuilder.Entity<DailySalesSummary>()
+                .Property(d => d.OpeningBalance)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<DailySalesSummary>()
+                .Property(d => d.TotalSales)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<DailySalesSummary>()
+                .Property(d => d.TotalExpenses)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<DailySalesSummary>()
+                .Property(d => d.ExpectedClosing)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<DailySalesSummary>()
+                .Property(d => d.ActualClosing)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<DailySalesSummary>()
+                .Property(d => d.Variance)
+                .HasPrecision(18, 2);
+            
+            // Configure PurchaseOrder
+            modelBuilder.Entity<PurchaseOrder>()
+                .Property(p => p.TotalAmount)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasIndex(p => p.PurchaseNumber)
+                .IsUnique();
+            
+            // Configure PurchaseOrderItem
+            modelBuilder.Entity<PurchaseOrderItem>()
+                .Property(p => p.UnitCost)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseOrderItem>()
+                .Property(p => p.Total)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseOrderItem>()
+                .HasOne(p => p.PurchaseOrder)
+                .WithMany(p => p.Items)
+                .HasForeignKey(p => p.PurchaseOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            // Configure Supplier
+            modelBuilder.Entity<Supplier>()
+                .HasKey(s => s.Id);
+            modelBuilder.Entity<Supplier>()
+                .Property(s => s.CurrentBalance)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.SupplierId)
+                .IsUnique();
+            
+            // Configure UserFavorite
+            modelBuilder.Entity<UserFavorite>()
+                .HasIndex(f => new { f.UserId, f.ProductId })
+                .IsUnique();
+            modelBuilder.Entity<UserFavorite>()
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<UserFavorite>()
+                .HasOne(f => f.Product)
+                .WithMany()
+                .HasForeignKey(f => f.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Seed sample data
             modelBuilder.Entity<Category>().HasData(

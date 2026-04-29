@@ -1,0 +1,139 @@
+<Window x:Class="POSApp.UI.Views.DashboardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Dashboard - Shah Jee Super Store" Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="📊 Today's Dashboard" FontSize="24" FontWeight="Bold"
+                           Foreground="White" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='As of {0:dddd, dd MMMM yyyy}'}"
+                           xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                           FontSize="12" Foreground="#CBD5E0" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- KPI Cards Row -->
+        <Grid Grid.Row="1" Margin="20,20,20,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="15"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="15"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="15"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Today Sales -->
+            <Border Grid.Column="0" CornerRadius="12" Padding="20" Background="#EBF8FF">
+                <StackPanel>
+                    <TextBlock Text="💰 Today's Sales" FontSize="13" Foreground="#2B6CB0"/>
+                    <TextBlock FontSize="26" FontWeight="Bold" Foreground="#1A365D" Margin="0,6,0,0">
+                        <Run Text="Rs. "/><Run Text="{Binding TodaySales, StringFormat=N0}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Today Expenses -->
+            <Border Grid.Column="2" CornerRadius="12" Padding="20" Background="#FFF5F5">
+                <StackPanel>
+                    <TextBlock Text="📤 Today's Expenses" FontSize="13" Foreground="#C53030"/>
+                    <TextBlock FontSize="26" FontWeight="Bold" Foreground="#742A2A" Margin="0,6,0,0">
+                        <Run Text="Rs. "/><Run Text="{Binding TodayExpenses, StringFormat=N0}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Today Profit -->
+            <Border Grid.Column="4" CornerRadius="12" Padding="20" Background="#F0FFF4">
+                <StackPanel>
+                    <TextBlock Text="📈 Today's Profit" FontSize="13" Foreground="#276749"/>
+                    <TextBlock FontSize="26" FontWeight="Bold" Foreground="#1C4532" Margin="0,6,0,0">
+                        <Run Text="Rs. "/><Run Text="{Binding TodayProfit, StringFormat=N0}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Low Stock Alert -->
+            <Border Grid.Column="6" CornerRadius="12" Padding="20" Background="#FFFAF0">
+                <StackPanel>
+                    <TextBlock Text="⚠️ Low Stock Items" FontSize="13" Foreground="#C05621"/>
+                    <TextBlock Text="{Binding LowStockCount}" FontSize="26" FontWeight="Bold"
+                               Foreground="#7B341E" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Main Content: Top Sellers + Low Stock -->
+        <Grid Grid.Row="2" Margin="20,15,20,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Top Selling Products -->
+            <Border Grid.Column="0" Style="{StaticResource CardBorder}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="🏆 Top Sellers (Last 30 Days)" Style="{StaticResource SectionTitle}"/>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding TopSellingProducts}"
+                              AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
+                            <DataGridTextColumn Header="Qty Sold" Binding="{Binding TotalQuantity}" Width="80"/>
+                            <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat=N0}" Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- Low Stock Products -->
+            <Border Grid.Column="2" Style="{StaticResource CardBorder}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="⚠️ Low Stock Alert" Style="{StaticResource SectionTitle}"/>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding LowStockProducts}"
+                              AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
+                            <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="70"/>
+                            <DataGridTextColumn Header="Min" Binding="{Binding Threshold}" Width="60"/>
+                        </DataGrid.Columns>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Background" Value="#FFF5F5"/>
+                                <Setter Property="Foreground" Value="#C53030"/>
+                            </Style>
+                        </DataGrid.RowStyle>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Footer actions -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right"
+                    Margin="20,15,20,20">
+            <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
+                    Style="{StaticResource InfoButton}" Padding="14,8" Margin="0,0,10,0"/>
+            <Button Content="Close" Click="Close_Click"
+                    Style="{StaticResource NeutralButton}" Padding="14,8"/>
+        </StackPanel>
+    </Grid>
+</Window>

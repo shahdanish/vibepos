@@ -17,7 +17,7 @@ namespace POSApp.UI.Views
             KeyDown += SaleWindow_KeyDown;
         }
 
-        private async void SaleWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void SaleWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             // Check for Ctrl+S - New Sale
             if (e.Key == System.Windows.Input.Key.S &&

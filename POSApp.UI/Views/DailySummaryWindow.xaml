@@ -1,0 +1,131 @@
+<Window x:Class="POSApp.UI.Views.DailySummaryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Daily Sales Summary" Height="600" Width="900"
+        WindowStartupLocation="CenterOwner"
+        Icon="/app-icon.png">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Daily Sales Summary &amp; Cash Reconciliation" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="Select Date:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <DatePicker SelectedDate="{Binding SelectedDate}" Width="200"/>
+                <Button Content="Refresh" Command="{Binding RefreshCommand}" Margin="10,0,0,0" Padding="15,5"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Summary Cards -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Financial Summary -->
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <GroupBox Header="Financial Summary" Padding="15">
+                    <StackPanel>
+                        <Grid Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Opening Balance:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Text="{Binding OpeningBalance}" TextAlignment="Right" Padding="5"/>
+                        </Grid>
+                        
+                        <Grid Margin="0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Total Sales:" VerticalAlignment="Center" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalSales, StringFormat={}{0:N2}}" TextAlignment="Right" FontWeight="Bold" Foreground="Green"/>
+                        </Grid>
+
+                        <Grid Margin="0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Total Expenses:" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalExpenses, StringFormat={}{0:N2}}" TextAlignment="Right" Foreground="Red"/>
+                        </Grid>
+
+                        <Separator Margin="0,15"/>
+
+                        <Grid Margin="0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Expected Closing:" VerticalAlignment="Center" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ExpectedClosing, StringFormat={}{0:N2}}" TextAlignment="Right" FontWeight="Bold" FontSize="16"/>
+                        </Grid>
+
+                        <Grid Margin="0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Actual Closing:" VerticalAlignment="Center" FontWeight="Bold"/>
+                            <TextBox Grid.Column="1" Text="{Binding ActualClosing}" TextAlignment="Right" Padding="5" FontSize="16"/>
+                        </Grid>
+
+                        <Grid Margin="0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Variance:" VerticalAlignment="Center" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Variance, StringFormat={}{0:N2}}" TextAlignment="Right" FontWeight="Bold" FontSize="16">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Variance}" Value="0">
+                                                <Setter Property="Foreground" Value="Green"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                        <Setter Property="Foreground" Value="Red"/>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+
+                        <TextBlock Text="Notes:" Margin="0,15,0,5"/>
+                        <TextBox Text="{Binding Notes}" Height="60" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+
+            <!-- Right: History -->
+            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                <GroupBox Header="Summary History" Padding="15">
+                    <ListView ItemsSource="{Binding Summaries}" MaxHeight="400">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Date, StringFormat={}{0:dd-MMM-yyyy}}" Width="100"/>
+                                <GridViewColumn Header="Sales" DisplayMemberBinding="{Binding TotalSales, StringFormat={}{0:N2}}" Width="100"/>
+                                <GridViewColumn Header="Expenses" DisplayMemberBinding="{Binding TotalExpenses, StringFormat={}{0:N2}}" Width="100"/>
+                                <GridViewColumn Header="Variance" DisplayMemberBinding="{Binding Variance, StringFormat={}{0:N2}}" Width="100"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </GroupBox>
+            </StackPanel>
+        </Grid>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Save Summary" Command="{Binding SaveCommand}" Padding="20,8" FontSize="14" Background="#4CAF50" Foreground="White"/>
+            <Button Content="Close" Click="CloseButton_Click" Padding="20,8" Margin="10,0,0,0" FontSize="14"/>
+        </StackPanel>
+    </Grid>
+</Window>

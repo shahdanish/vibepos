@@ -1,4 +1,4 @@
-﻿<Window x:Class="POSApp.UI.MainWindow"
+<Window x:Class="POSApp.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -31,31 +31,36 @@
                 <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.15" Direction="270" Color="Black"/>
             </Border.Effect>
             <WrapPanel HorizontalAlignment="Center">
-                <Button Content="Sale" Command="{Binding OpenSaleCommand}" 
+                <!-- Sales -->
+                <Button Content="🛒 Sale" Command="{Binding OpenSaleCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="Whole Sale" Command="{Binding OpenWholeSaleCommand}" 
+                <Button Content="📦 Whole Sale" Command="{Binding OpenWholeSaleCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="Sale Return" Command="{Binding OpenSaleReturnCommand}" 
+                <Button Content="↩ Sale Return" Command="{Binding OpenSaleReturnCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="Purchase" 
-                        Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
-                <Button Content="Purchase Return" 
-                        Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
-                <Button Content="Products" Command="{Binding OpenProductManagementCommand}" 
+                <!-- Inventory -->
+                <Button Content="🏷 Products" Command="{Binding OpenProductManagementCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="Categories" Command="{Binding OpenCategoryManagementCommand}" 
+                <Button Content="📂 Categories" Command="{Binding OpenCategoryManagementCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="Customers" 
-                        Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
-                <Button Content="Sales Report" Command="{Binding OpenSalesReportCommand}" 
+                <!-- Reports -->
+                <Button Content="📊 Dashboard" Command="{Binding OpenDashboardCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="Help" 
-                        Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
-                <Button Content="Logout" Command="{Binding LogoutCommand}" 
-                        Style="{StaticResource WarningButton}" Margin="4"/>
-                <Button Content="Sync Now" Command="{Binding SyncNowCommand}" 
+                <Button Content="📈 Sales Report" Command="{Binding OpenSalesReportCommand}"
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
+                <!-- New Features -->
+                <Button Content="💰 Expenses" Command="{Binding OpenExpenseCommand}"
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
+                <Button Content="🏪 Cash Register" Command="{Binding OpenShiftCommand}"
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
+                <Button Content="📒 Khata" Command="{Binding OpenCustomerLedgerCommand}"
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
+                <!-- System -->
+                <Button Content="🔄 Sync" Command="{Binding SyncNowCommand}"
                         Style="{StaticResource NeutralButton}" Margin="4"/>
-                <Button Content="Exit" Command="{Binding ExitCommand}" 
+                <Button Content="⇦ Logout" Command="{Binding LogoutCommand}"
+                        Style="{StaticResource WarningButton}" Margin="4"/>
+                <Button Content="✕ Exit" Command="{Binding ExitCommand}"
                         Style="{StaticResource NeutralButton}" Margin="4"/>
             </WrapPanel>
         </Border>
