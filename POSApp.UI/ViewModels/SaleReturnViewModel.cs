@@ -10,7 +10,7 @@ using POSApp.UI.Helpers;
 
 namespace POSApp.UI.ViewModels
 {
-    public class SaleReturnViewModel : ViewModelBase
+    public sealed class SaleReturnViewModel : ViewModelBase
     {
         private readonly ISaleRepository _saleRepository;
         private readonly IProductRepository _productRepository;
@@ -102,7 +102,7 @@ namespace POSApp.UI.ViewModels
             try
             {
                 var sale = await _saleRepository.GetByInvoiceNumberAsync(SearchInvoiceNumber);
-                
+
                 if (sale == null)
                 {
                     NotificationHelper.ShowWarning($"Invoice '{SearchInvoiceNumber}' was not found in the system.", "Invoice Not Found");
@@ -127,7 +127,7 @@ namespace POSApp.UI.ViewModels
         private void LoadReturnItems(Sale sale)
         {
             ReturnItems.Clear();
-            
+
             foreach (var item in sale.SaleItems)
             {
                 ReturnItems.Add(new ReturnItemViewModel
@@ -152,7 +152,7 @@ namespace POSApp.UI.ViewModels
             }
 
             var itemsToReturn = ReturnItems.Where(i => i.ReturnQuantity > 0).ToList();
-            
+
             if (!itemsToReturn.Any())
             {
                 NotificationHelper.ValidationErrorCustom("Please specify quantities to return for at least one item.");
@@ -216,7 +216,7 @@ namespace POSApp.UI.ViewModels
                 }
 
                 await _saleRepository.AddAsync(returnSale);
-                
+
                 NotificationHelper.ReturnProcessed(ReturnInvoiceNumber, TotalReturnAmount);
 
                 // Reset form
@@ -250,10 +250,10 @@ namespace POSApp.UI.ViewModels
             {
                 FlowDocument printDoc = CreateProfessionalReturnInvoice();
                 PrintDialog printDialog = new PrintDialog();
-                
+
                 if (printDialog.ShowDialog() == true)
                 {
-                    printDoc.PageWidth = 280; 
+                    printDoc.PageWidth = 280;
                     printDoc.PageHeight = double.NaN;
                     printDoc.ColumnWidth = 260;
                     printDoc.PagePadding = new Thickness(5);
@@ -289,9 +289,9 @@ namespace POSApp.UI.ViewModels
             doc.Blocks.Add(header);
 
             // --- TITLE ---
-            Paragraph titlePara = new Paragraph(new Bold(new Run("Return Receipt"))) 
-            { 
-                TextAlignment = TextAlignment.Center, 
+            Paragraph titlePara = new Paragraph(new Bold(new Run("Return Receipt")))
+            {
+                TextAlignment = TextAlignment.Center,
                 FontSize = 16,
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(1),
@@ -303,9 +303,9 @@ namespace POSApp.UI.ViewModels
             Table metaTable = new Table() { CellSpacing = 0 };
             metaTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
             metaTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
-            
+
             TableRowGroup metaGroup = new TableRowGroup();
-            
+
             TableRow row1 = new TableRow();
             row1.Cells.Add(new TableCell(new Paragraph(new Run($"Return No: {ReturnInvoiceNumber}"))));
             row1.Cells.Add(new TableCell(new Paragraph(new Run($"Date: {ReturnDate:dd-MMM-yyyy}"))));
@@ -336,7 +336,7 @@ namespace POSApp.UI.ViewModels
             itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1.1, GridUnitType.Star) });
 
             TableRowGroup itemsGroup = new TableRowGroup();
-            
+
             TableRow headerRow = new TableRow() { FontWeight = FontWeights.Bold, Background = Brushes.LightGray };
             headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Product Name"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
             headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Qty"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
@@ -377,7 +377,7 @@ namespace POSApp.UI.ViewModels
         }
     }
 
-    public class ReturnItemViewModel : ViewModelBase
+    public sealed class ReturnItemViewModel : ViewModelBase
     {
         private string _productId = string.Empty;
         private string _productName = string.Empty;

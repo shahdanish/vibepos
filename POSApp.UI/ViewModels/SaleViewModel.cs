@@ -151,7 +151,7 @@ namespace POSApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref _productSearchText, value))
-                { 
+                {
                     // Auto-add on barcode scan if text is entered (from scanner)
                     if (AutoAddItem && !string.IsNullOrWhiteSpace(value) && value.Length >= 3)
                     {
@@ -173,7 +173,7 @@ namespace POSApp.UI.ViewModels
                 if (SetProperty(ref _selectedProduct, value) && value != null)
                 {
                     UnitPrice = value.UnitPrice;
-                    
+
                     // Auto-add item if enabled and barcode scanned
                     // Disable during initial load to prevent crashes
                     if (AutoAddItem && !string.IsNullOrWhiteSpace(ProductSearchText) && SaleItems != null)
@@ -325,9 +325,9 @@ namespace POSApp.UI.ViewModels
 
         private void SaleItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SaleItemViewModel.Total) || 
-                e.PropertyName == nameof(SaleItemViewModel.UnitPrice) || 
-                e.PropertyName == nameof(SaleItemViewModel.Quantity) || 
+            if (e.PropertyName == nameof(SaleItemViewModel.Total) ||
+                e.PropertyName == nameof(SaleItemViewModel.UnitPrice) ||
+                e.PropertyName == nameof(SaleItemViewModel.Quantity) ||
                 e.PropertyName == nameof(SaleItemViewModel.DiscountPercent))
             {
                 CalculateTotals();
@@ -337,7 +337,7 @@ namespace POSApp.UI.ViewModels
         private async Task LoadData()
         {
             InvoiceNumber = await _saleRepository.GetNextInvoiceNumberAsync();
-            
+
             var products = await _productRepository.GetAllAsync();
             Products.Clear();
             foreach (var product in products)
@@ -359,7 +359,7 @@ namespace POSApp.UI.ViewModels
             {
                 // Try to find product by barcode
                 var product = await _productRepository.GetByBarcodeAsync(barcode);
-                
+
                 if (product != null)
                 {
                     // Check if product is deleted
@@ -369,7 +369,7 @@ namespace POSApp.UI.ViewModels
                         ProductSearchText = string.Empty; // Clear field
                         return;
                     }
-                    
+
                     // Check stock availability
                     if (product.Stock <= 0)
                     {
@@ -377,7 +377,7 @@ namespace POSApp.UI.ViewModels
                         ProductSearchText = string.Empty;
                         return;
                     }
-                    
+
                     // Check if item already in cart - increase quantity instead of duplicate
                     var existingItem = SaleItems.FirstOrDefault(item => item.ProductId == product.ProductId);
                     if (existingItem != null)
@@ -391,16 +391,16 @@ namespace POSApp.UI.ViewModels
                         // Add new item to cart
                         Quantity = 1;
                         DiscountPercent = 0;
-                        
+
                         // Set temporary cost display
                         LastScannedCost = product.CostPrice;
                         IsLastScannedCostVisible = true;
                         _costHideTimer.Stop();
                         _costHideTimer.Start();
-                        
+
                         AddItem();
                     }
-                    
+
                     // Clear search text for next scan
                     ProductSearchText = string.Empty;
                 }
@@ -454,7 +454,7 @@ namespace POSApp.UI.ViewModels
             }
 
             var total = (UnitPrice * Quantity) - ((UnitPrice * Quantity * DiscountPercent) / 100);
-            
+
             var saleItem = new SaleItemViewModel
             {
                 ProductId = SelectedProduct.ProductId,
@@ -467,9 +467,9 @@ namespace POSApp.UI.ViewModels
             };
 
             SaleItems.Add(saleItem);
-            
+
             CalculateTotals();
-            
+
             // Set temporary cost display
             LastScannedCost = SelectedProduct.CostPrice;
             IsLastScannedCostVisible = true;
@@ -478,7 +478,7 @@ namespace POSApp.UI.ViewModels
 
             // Force UI refresh
             OnPropertyChanged(nameof(SaleItems));
-            
+
             // Reset input fields
             SelectedProduct = null;
             Quantity = 1;
@@ -499,7 +499,7 @@ namespace POSApp.UI.ViewModels
         private void CalculateTotals()
         {
             if (SaleItems == null) return;
-            
+
             var subtotal = SaleItems.Sum(item => item.Total);
             subtotal -= DiscountOnProducts;
             TotalBill = subtotal - DiscountOnBill;
@@ -557,13 +557,13 @@ namespace POSApp.UI.ViewModels
                 }
 
                 await _saleRepository.AddAsync(sale);
-                
+
                 // Auto-print if enabled
                 if (AutoPrint)
                 {
                     await PrintInvoice();
                 }
-                
+
                 NewSale();
             }
             catch (Exception ex)
@@ -610,12 +610,12 @@ namespace POSApp.UI.ViewModels
 
                 // 2. Initialize print dialog (no dialog shown)
                 PrintDialog printDialog = new PrintDialog();
-                
+
                 // 3. Configure page size
                 if (UseSmallBillFormat)
                 {
                     printDoc.PageWidth = 280; // Safer for 80mm and better for scaling
-                    printDoc.PageHeight = double.NaN; 
+                    printDoc.PageHeight = double.NaN;
                     printDoc.ColumnWidth = 260;
                     printDoc.PagePadding = new Thickness(5);
                     printDoc.FontSize = 10; // Smaller font for thermal
@@ -676,9 +676,9 @@ namespace POSApp.UI.ViewModels
             Table metaTable = new Table() { CellSpacing = 0 };
             metaTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
             metaTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
-            
+
             TableRowGroup metaGroup = new TableRowGroup();
-            
+
             // Row 1: Bill No & Date
             TableRow row1 = new TableRow();
             row1.Cells.Add(new TableCell(new Paragraph(new Run($"Bill No: {InvoiceNumber}"))));
@@ -723,7 +723,7 @@ namespace POSApp.UI.ViewModels
             }
 
             TableRowGroup itemsGroup = new TableRowGroup();
-            
+
             // Header Row
             TableRow headerRow = new TableRow() { FontWeight = FontWeights.Bold, Background = Brushes.LightGray };
             headerRow.Cells.Add(new TableCell(new Paragraph(new Run("S.No"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
@@ -758,7 +758,7 @@ namespace POSApp.UI.ViewModels
             totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(100) }); // Values
 
             TableRowGroup totalsGroup = new TableRowGroup();
-            
+
             // Total Bill
             TableRow tRow1 = new TableRow();
             tRow1.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
@@ -770,7 +770,7 @@ namespace POSApp.UI.ViewModels
             if (PreBalance > 0)
             {
                 TableRow tRowPB = new TableRow();
-                tRowPB.Cells.Add(new TableCell(new Paragraph(new Run("")))); 
+                tRowPB.Cells.Add(new TableCell(new Paragraph(new Run(""))));
                 tRowPB.Cells.Add(new TableCell(new Paragraph(new Run("Previous Balance"))));
                 tRowPB.Cells.Add(new TableCell(new Paragraph(new Run(PreBalance.ToString("N2"))) { TextAlignment = TextAlignment.Right }));
                 totalsGroup.Rows.Add(tRowPB);
@@ -778,7 +778,7 @@ namespace POSApp.UI.ViewModels
 
             // Net Total Bill
             TableRow tRowNet = new TableRow();
-            tRowNet.Cells.Add(new TableCell(new Paragraph(new Run("")))); 
+            tRowNet.Cells.Add(new TableCell(new Paragraph(new Run(""))));
             tRowNet.Cells.Add(new TableCell(new Paragraph(new Run("Net Bill Amount")) { FontWeight = FontWeights.Bold }));
             tRowNet.Cells.Add(new TableCell(new Paragraph(new Run((TotalBill + PreBalance).ToString("N2"))) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold }));
             totalsGroup.Rows.Add(tRowNet);
@@ -830,7 +830,7 @@ namespace POSApp.UI.ViewModels
         }
     }
 
-    public class SaleItemViewModel : ViewModelBase
+    public sealed class SaleItemViewModel : ViewModelBase
     {
         private string _productId = string.Empty;
         private string _productName = string.Empty;
@@ -902,7 +902,7 @@ namespace POSApp.UI.ViewModels
             get => _total;
             set => SetProperty(ref _total, value);
         }
-        
+
         private void CalculateTotal()
         {
             Total = (UnitPrice * Quantity) - ((UnitPrice * Quantity * DiscountPercent) / 100);

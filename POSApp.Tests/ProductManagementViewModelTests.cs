@@ -54,7 +54,7 @@ namespace POSApp.Tests
             Assert.Equal("Test Product", _viewModel.Products[0].ProductName);
             Assert.Equal("Test Category", _viewModel.Categories[0].Name);
         }
-        
+
         [Fact]
         public void ClearForm_ResetsAllProperties()
         {
@@ -62,10 +62,10 @@ namespace POSApp.Tests
             _viewModel.ProductName = "Test";
             _viewModel.CostPrice = 10;
             _viewModel.SelectedProduct = new Product { ProductName = "Test" };
-            
+
             // Act
             _viewModel.ClearCommand.Execute(null);
-            
+
             // Assert
             Assert.Null(_viewModel.SelectedProduct);
             Assert.Equal(string.Empty, _viewModel.ProductName);

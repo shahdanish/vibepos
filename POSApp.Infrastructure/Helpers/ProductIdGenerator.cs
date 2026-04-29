@@ -2,7 +2,7 @@ using POSApp.Core.Interfaces;
 
 namespace POSApp.Infrastructure.Helpers
 {
-    public class ProductIdGenerator
+    public sealed class ProductIdGenerator
     {
         private readonly IProductRepository _productRepository;
 
@@ -17,15 +17,15 @@ namespace POSApp.Infrastructure.Helpers
         /// Example: For category 1, products: 10001, 10002, 10003...
         ///          For category 12, products: 12001, 12002, 12003...
         /// </summary>
-        public async Task<string> GenerateProductIdAsync(int? categoryId = null)
+        public async Task<string> GenerateProductIdAsync(int? categoryId = null, CancellationToken ct = default)
         {
-            var allProducts = await _productRepository.GetAllAsync();
-            
+            var allProducts = await _productRepository.GetAllAsync(ct);
+
             if (categoryId.HasValue)
             {
                 // Get all products in this category
                 var categoryProducts = allProducts.Where(p => p.CategoryId == categoryId.Value).ToList();
-                
+
                 // Find the highest sequence number for this category
                 var categoryPrefix = categoryId.Value.ToString();
                 var maxSequence = 0;

@@ -5,7 +5,7 @@ using POSApp.Data;
 
 namespace POSApp.Infrastructure.Repositories
 {
-    public class UserRepository : IUserRepository
+    public sealed class UserRepository : IUserRepository
     {
         private readonly AppDbContext _context;
 
@@ -14,39 +14,39 @@ namespace POSApp.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<User?> ValidateUserAsync(string username, string password)
+        public async Task<User?> ValidateUserAsync(string username, string password, CancellationToken ct = default)
         {
             return await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == username && 
-                                         u.PasswordHash == password && 
-                                         u.IsActive);
+                .FirstOrDefaultAsync(u => u.Username == username &&
+                                         u.PasswordHash == password &&
+                                         u.IsActive, ct);
         }
 
-        public async Task<User?> GetByUsernameAsync(string username)
+        public async Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default)
         {
             return await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == username && u.IsActive);
+                .FirstOrDefaultAsync(u => u.Username == username && u.IsActive, ct);
         }
 
-        public async Task<User> CreateAsync(User user)
+        public async Task<User> CreateAsync(User user, CancellationToken ct = default)
         {
             _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
             return user;
         }
 
-        public async Task UpdateAsync(User user)
+        public async Task UpdateAsync(User user, CancellationToken ct = default)
         {
             user.ModifiedDate = DateTime.Now;
             _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<User>> GetAllAsync(CancellationToken ct = default)
         {
             return await _context.Users
                 .Where(u => u.IsActive)
-                .ToListAsync();
+                .ToListAsync(ct);
         }
     }
 }

@@ -1,6 +1,6 @@
 namespace POSApp.Core.Entities
 {
-    public class ApplicationSetting
+    public sealed class ApplicationSetting
     {
         public int Id { get; set; }
         public string Key { get; set; } = string.Empty;

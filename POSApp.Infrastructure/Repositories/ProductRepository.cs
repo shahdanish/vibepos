@@ -5,7 +5,7 @@ using POSApp.Data;
 
 namespace POSApp.Infrastructure.Repositories
 {
-    public class ProductRepository : IProductRepository
+    public sealed class ProductRepository : IProductRepository
     {
         private readonly AppDbContext _context;
 
@@ -14,105 +14,108 @@ namespace POSApp.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Product?> GetByIdAsync(int id)
+        public async Task<Product?> GetByIdAsync(int id, CancellationToken ct = default)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products.FindAsync([id], ct);
         }
 
-        public async Task<Product?> GetByProductIdAsync(string productId)
-        {
-            return await _context.Products
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => (p.ProductId == productId || p.Barcode == productId) && !p.IsDeleted);
-        }
-
-        public async Task<Product?> GetByBarcodeAsync(string barcode)
+        public async Task<Product?> GetByProductIdAsync(string productId, CancellationToken ct = default)
         {
             return await _context.Products
                 .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.Barcode == barcode && !p.IsDeleted);
+                .FirstOrDefaultAsync(p => p.ProductId == productId || p.Barcode == productId, ct);
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<Product?> GetByBarcodeAsync(string barcode, CancellationToken ct = default)
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Barcode == barcode && !p.IsDeleted, ct);
+        }
+
+        public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken ct = default)
         {
             // Global query filter already excludes deleted products
             return await _context.Products
                 .Include(p => p.Category)
-                .ToListAsync();
+                .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<Product>> GetAllIncludingDeletedAsync()
+        public async Task<IEnumerable<Product>> GetAllIncludingDeletedAsync(CancellationToken ct = default)
         {
             // Use IgnoreQueryFilters to bypass the soft delete filter
             return await _context.Products
                 .IgnoreQueryFilters()
                 .Include(p => p.Category)
-                .ToListAsync();
+                .ToListAsync(ct);
         }
 
-        public async Task<Product> AddAsync(Product product)
+        public async Task<Product> AddAsync(Product product, CancellationToken ct = default)
         {
             _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
             return product;
         }
 
-        public async Task UpdateAsync(Product product)
+        public async Task UpdateAsync(Product product, CancellationToken ct = default)
         {
             product.ModifiedDate = DateTime.Now;
             _context.Entry(product).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, CancellationToken ct = default)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync([id], ct);
             if (product != null)
             {
                 // Soft delete: set IsDeleted flag instead of removing
                 product.IsDeleted = true;
                 product.ModifiedDate = DateTime.Now;
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(ct);
             }
         }
 
-        public async Task<IEnumerable<Product>> GetLowStockProductsAsync()
+        public async Task<IEnumerable<Product>> GetLowStockProductsAsync(CancellationToken ct = default)
         {
             return await _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.Stock <= p.MinStockThreshold && !p.IsDeleted)
+                .Where(p => p.Stock <= p.MinStockThreshold)
                 .OrderBy(p => p.Stock)
-                .ToListAsync();
+                .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<Product>> GetSlowSellingProductsAsync(int daysToConsider = 30, int minSalesCount = 5)
+        public async Task<IEnumerable<Product>> GetSlowSellingProductsAsync(int daysToConsider = 30, int minSalesCount = 5, CancellationToken ct = default)
         {
             var cutoffDate = DateTime.Now.AddDays(-daysToConsider);
-            
+
             // Get products with low or no sales in the specified period
             var slowSellers = await _context.Products
                 .Include(p => p.Category)
                 .Where(p => !p.IsDeleted)
-                .Select(p => new { Product = p, SalesCount = _context.SaleItems
+                .Select(p => new
+                {
+                    Product = p,
+                    SalesCount = _context.SaleItems
                     .Where(si => si.ProductId == p.ProductId && si.Sale!.SaleDate >= cutoffDate)
-                    .Count() })
+                    .Count()
+                })
                 .Where(x => x.SalesCount < minSalesCount)
                 .OrderBy(x => x.SalesCount)
-                .ThenByDescending(x => x.SalesCount) // Products with 0 sales first
                 .Select(x => x.Product)
-                .ToListAsync();
-            
+                .ToListAsync(ct);
+
             return slowSellers;
         }
 
-        public async Task<IEnumerable<Product>> SearchAsync(string searchTerm)
+        public async Task<IEnumerable<Product>> SearchAsync(string searchTerm, CancellationToken ct = default)
         {
             return await _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.ProductId.Contains(searchTerm) || 
+                .Where(p => p.ProductId.Contains(searchTerm) ||
                            p.Barcode.Contains(searchTerm) ||
                            p.ProductName.Contains(searchTerm))
-                .ToListAsync();
+                .ToListAsync(ct);
         }
     }
 }

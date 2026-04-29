@@ -5,10 +5,10 @@ using POSApp.UI.Views;
 
 namespace POSApp.UI.ViewModels
 {
-    public class MainViewModel : ViewModelBase
+    public sealed class MainViewModel : ViewModelBase
     {
         private string _currentUserInfo = string.Empty;
-        
+
         public ICommand OpenSaleCommand { get; }
         public ICommand OpenWholeSaleCommand { get; }
         public ICommand OpenSaleReturnCommand { get; }
@@ -31,7 +31,7 @@ namespace POSApp.UI.ViewModels
             {
                 CurrentUserInfo = $"Logged in as: {SessionManager.CurrentUser.Username} ({SessionManager.CurrentUser.Role})";
             }
-            
+
             OpenSaleCommand = new RelayCommand(_ => OpenSale());
             OpenWholeSaleCommand = new RelayCommand(_ => OpenWholeSale());
             OpenSaleReturnCommand = new RelayCommand(_ => OpenSaleReturn());
@@ -82,15 +82,15 @@ namespace POSApp.UI.ViewModels
         {
             // Clear session
             SessionManager.Logout();
-            
+
             // Close main window
             var mainWindow = System.Windows.Application.Current.MainWindow;
             mainWindow?.Close();
-            
+
             // Show login window again
             var loginWindow = App.Services.GetRequiredService<LoginWindow>();
             loginWindow.Show();
-            
+
             // Update app's main window reference
             System.Windows.Application.Current.MainWindow = loginWindow;
         }

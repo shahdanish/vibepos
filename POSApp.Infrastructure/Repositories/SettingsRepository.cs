@@ -5,7 +5,7 @@ using POSApp.Data;
 
 namespace POSApp.Infrastructure.Repositories
 {
-    public class SettingsRepository : ISettingsRepository
+    public sealed class SettingsRepository : ISettingsRepository
     {
         private readonly AppDbContext _context;
 
@@ -14,17 +14,17 @@ namespace POSApp.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<string?> GetSettingAsync(string key)
+        public async Task<string?> GetSettingAsync(string key, CancellationToken ct = default)
         {
             var setting = await _context.ApplicationSettings
-                .FirstOrDefaultAsync(s => s.Key == key);
-            
+                .FirstOrDefaultAsync(s => s.Key == key, ct);
+
             return setting?.Value;
         }
 
-        public async Task<T?> GetSettingAsync<T>(string key)
+        public async Task<T?> GetSettingAsync<T>(string key, CancellationToken ct = default)
         {
-            var value = await GetSettingAsync(key);
+            var value = await GetSettingAsync(key, ct);
             if (value != null)
             {
                 try
@@ -39,11 +39,11 @@ namespace POSApp.Infrastructure.Repositories
             return default;
         }
 
-        public async Task SetSettingAsync(string key, string value)
+        public async Task SetSettingAsync(string key, string value, CancellationToken ct = default)
         {
             var setting = await _context.ApplicationSettings
-                .FirstOrDefaultAsync(s => s.Key == key);
-            
+                .FirstOrDefaultAsync(s => s.Key == key, ct);
+
             if (setting != null)
             {
                 setting.Value = value;
@@ -60,24 +60,24 @@ namespace POSApp.Infrastructure.Repositories
                 };
                 _context.ApplicationSettings.Add(setting);
             }
-            
-            await _context.SaveChangesAsync();
+
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task SetSettingAsync<T>(string key, T value)
+        public async Task SetSettingAsync<T>(string key, T value, CancellationToken ct = default)
         {
-            await SetSettingAsync(key, value?.ToString() ?? string.Empty);
+            await SetSettingAsync(key, value?.ToString() ?? string.Empty, ct);
         }
 
-        public async Task<ApplicationSetting?> GetSettingDetailAsync(string key)
+        public async Task<ApplicationSetting?> GetSettingDetailAsync(string key, CancellationToken ct = default)
         {
             return await _context.ApplicationSettings
-                .FirstOrDefaultAsync(s => s.Key == key);
+                .FirstOrDefaultAsync(s => s.Key == key, ct);
         }
 
-        public async Task<IEnumerable<ApplicationSetting>> GetAllSettingsAsync()
+        public async Task<IEnumerable<ApplicationSetting>> GetAllSettingsAsync(CancellationToken ct = default)
         {
-            return await _context.ApplicationSettings.ToListAsync();
+            return await _context.ApplicationSettings.ToListAsync(ct);
         }
     }
 }

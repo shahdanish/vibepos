@@ -8,10 +8,10 @@ using POSApp.UI.Views;
 
 namespace POSApp.UI.ViewModels
 {
-    public class LoginViewModel : ViewModelBase
+    public sealed class LoginViewModel : ViewModelBase
     {
         private readonly IUserRepository _userRepository;
-        
+
         private string _username = string.Empty;
         private string _password = string.Empty;
         private string _errorMessage = string.Empty;
@@ -47,15 +47,15 @@ namespace POSApp.UI.ViewModels
         public LoginViewModel(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            
+
             LoginCommand = new RelayCommand(async _ => await ExecuteLogin(), _ => CanExecuteLogin());
             CancelCommand = new RelayCommand(_ => ExecuteCancel());
         }
 
         private bool CanExecuteLogin()
         {
-            return !string.IsNullOrWhiteSpace(Username) && 
-                   !string.IsNullOrWhiteSpace(Password) && 
+            return !string.IsNullOrWhiteSpace(Username) &&
+                   !string.IsNullOrWhiteSpace(Password) &&
                    IsLoginEnabled;
         }
 
@@ -66,24 +66,24 @@ namespace POSApp.UI.ViewModels
                 ErrorMessage = "Please enter both username and password.";
                 return;
             }
-        
+
             try
             {
                 IsLoginEnabled = false;
                 ErrorMessage = string.Empty;
-        
+
                 // Validate user credentials
                 var user = await _userRepository.ValidateUserAsync(Username, Password);
-        
+
                 if (user != null)
                 {
                     // Login successful
                     SessionManager.CurrentUser = user;
-                                    
+
                     // Update last login date
                     user.LastLoginDate = DateTime.Now;
                     await _userRepository.UpdateAsync(user);
-                
+
                     // Use Dispatcher to ensure we're on UI thread
                     await Application.Current.Dispatcher.Invoke(async () =>
                     {
@@ -93,7 +93,7 @@ namespace POSApp.UI.ViewModels
                             var thisWindow = Application.Current.Windows
                                 .OfType<Window>()
                                 .FirstOrDefault(w => w.DataContext == this);
-                                                        
+
                             if (thisWindow != null)
                             {
                                 thisWindow.Hide();
@@ -102,22 +102,22 @@ namespace POSApp.UI.ViewModels
                             {
                                 return;
                             }
-                                            
+
                             await Task.Delay(100);
-                                            
+
                             // Create MainViewModel
                             var mainViewModel = new MainViewModel();
-                                            
+
                             // Create MainWindow
                             var mainWindow = new MainWindow(mainViewModel);
-                                            
+
                             // Show it
                             Application.Current.MainWindow = mainWindow;
                             mainWindow.Show();
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error in window transition:\n\n{ex.Message}", 
+                            MessageBox.Show($"Error in window transition:\n\n{ex.Message}",
                                 "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     });
@@ -126,7 +126,7 @@ namespace POSApp.UI.ViewModels
                 {
                     // Login failed - INVALID CREDENTIALS
                     ErrorMessage = "❌ Invalid username or password. Please try again.";
-                    
+
                     // Show MessageBox with error
                     MessageBox.Show(ErrorMessage, "Login Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }

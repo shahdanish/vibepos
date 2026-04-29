@@ -1,6 +1,6 @@
 namespace POSApp.Core.Entities
 {
-    public class Product
+    public sealed class Product
     {
         public int Id { get; set; }
         public string ProductId { get; set; } = string.Empty;
@@ -17,7 +17,7 @@ namespace POSApp.Core.Entities
         public int? CategoryId { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
-        
+
         // Navigation property
         public Category? Category { get; set; }
     }

@@ -1,6 +1,6 @@
 namespace POSApp.Core.Entities
 {
-    public class SaleItem
+    public sealed class SaleItem
     {
         public int Id { get; set; }
         public int SaleId { get; set; }
@@ -11,7 +11,7 @@ namespace POSApp.Core.Entities
         public decimal UnitPrice { get; set; } // Selling price
         public decimal DiscountPercent { get; set; }
         public decimal Total { get; set; }
-        
+
         // Navigation property
         public Sale? Sale { get; set; }
         public Product? Product { get; set; } // Navigation property for product details

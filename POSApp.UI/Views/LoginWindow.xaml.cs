@@ -15,7 +15,7 @@ namespace POSApp.UI.Views
         public LoginWindow()
         {
             InitializeComponent();
-            
+
             // Get ViewModel from DI container
             _viewModel = App.Services.GetRequiredService<LoginViewModel>();
             DataContext = _viewModel;

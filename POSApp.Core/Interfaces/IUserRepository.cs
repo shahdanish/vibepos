@@ -4,10 +4,10 @@ namespace POSApp.Core.Interfaces
 {
     public interface IUserRepository
     {
-        Task<User?> ValidateUserAsync(string username, string password);
-        Task<User?> GetByUsernameAsync(string username);
-        Task<User> CreateAsync(User user);
-        Task UpdateAsync(User user);
-        Task<IEnumerable<User>> GetAllAsync();
+        Task<User?> ValidateUserAsync(string username, string password, CancellationToken ct = default);
+        Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default);
+        Task<User> CreateAsync(User user, CancellationToken ct = default);
+        Task UpdateAsync(User user, CancellationToken ct = default);
+        Task<IEnumerable<User>> GetAllAsync(CancellationToken ct = default);
     }
 }

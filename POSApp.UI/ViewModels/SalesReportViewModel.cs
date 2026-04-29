@@ -7,7 +7,7 @@ using POSApp.UI.Helpers;
 
 namespace POSApp.UI.ViewModels
 {
-    public class SalesReportViewModel : ViewModelBase
+    public sealed class SalesReportViewModel : ViewModelBase
     {
         private readonly ISaleRepository _saleRepository;
         private string _invoiceNumber = string.Empty;
@@ -110,7 +110,7 @@ namespace POSApp.UI.ViewModels
         public SalesReportViewModel(ISaleRepository saleRepository)
         {
             _saleRepository = saleRepository;
-            
+
             // Check if current user is admin
             _isAdmin = SessionManager.IsAdmin;
             _canExport = _isAdmin; // Only admins can export
@@ -132,9 +132,9 @@ namespace POSApp.UI.ViewModels
             // If not admin, show warning and close window
             if (!_isAdmin)
             {
-                MessageBox.Show("Sales reports are restricted to administrators only.\n\nPlease login with an admin account to access this feature.", 
+                MessageBox.Show("Sales reports are restricted to administrators only.\n\nPlease login with an admin account to access this feature.",
                     "Access Denied", MessageBoxButton.OK, MessageBoxImage.Warning);
-                
+
                 // Close the window - this will return to Dashboard automatically
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -219,7 +219,7 @@ namespace POSApp.UI.ViewModels
             {
                 var sale = await _saleRepository.GetByInvoiceNumberAsync(InvoiceNumber);
                 Sales.Clear();
-                
+
                 if (sale != null)
                 {
                     Sales.Add(sale);
@@ -256,7 +256,7 @@ namespace POSApp.UI.ViewModels
             {
                 var sales = await _saleRepository.GetByDateRangeAsync(start, end);
                 Sales.Clear();
-                
+
                 foreach (var sale in sales.OrderByDescending(s => s.SaleDate))
                 {
                     Sales.Add(sale);
@@ -295,7 +295,7 @@ namespace POSApp.UI.ViewModels
             {
                 // Print invoice logic
                 var invoice = GenerateInvoiceText(SelectedSale);
-                MessageBox.Show($"Print Invoice Feature\n\n{invoice}\n\nNote: Connect to printer for actual printing.", 
+                MessageBox.Show($"Print Invoice Feature\n\n{invoice}\n\nNote: Connect to printer for actual printing.",
                     "Print Preview", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -313,7 +313,7 @@ namespace POSApp.UI.ViewModels
             }
 
             var report = GenerateReportText();
-            MessageBox.Show($"Print Report Feature\n\n{report}\n\nNote: Connect to printer for actual printing.", 
+            MessageBox.Show($"Print Report Feature\n\n{report}\n\nNote: Connect to printer for actual printing.",
                 "Print Preview", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -325,7 +325,7 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
-            MessageBox.Show("Excel Export Feature - To be implemented with Excel library.", 
+            MessageBox.Show("Excel Export Feature - To be implemented with Excel library.",
                 "Export", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -363,19 +363,19 @@ namespace POSApp.UI.ViewModels
             invoice += $"Type: {sale.SaleType}\n";
             invoice += $"================================\n\n";
             invoice += $"Items:\n";
-            
+
             foreach (var item in sale.SaleItems)
             {
                 invoice += $"{item.ProductName}\n";
                 invoice += $"  {item.Quantity} x Rs.{item.UnitPrice:N2} = Rs.{item.Total:N2}\n";
             }
-            
+
             invoice += $"\n================================\n";
             invoice += $"Total Bill: Rs.{sale.TotalBill:N2}\n";
             invoice += $"Received: Rs.{sale.ReceiveCash:N2}\n";
             invoice += $"Balance: Rs.{sale.Balance:N2}\n";
             invoice += $"================================\n";
-            
+
             return invoice;
         }
 
@@ -390,7 +390,7 @@ namespace POSApp.UI.ViewModels
             report += $"Total Profit: Rs.{TotalProfit:N2}\n";
             report += $"Total Discount: Rs.{TotalDiscount:N2}\n";
             report += $"================================\n";
-            
+
             return report;
         }
     }

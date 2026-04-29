@@ -7,10 +7,10 @@ using POSApp.UI.Helpers;
 
 namespace POSApp.UI.ViewModels
 {
-    public class CategoryManagementViewModel : ViewModelBase
+    public sealed class CategoryManagementViewModel : ViewModelBase
     {
         private readonly ICategoryRepository _categoryRepository;
-        
+
         private Category? _selectedCategory;
         private string _name = string.Empty;
         private string? _description;
@@ -94,7 +94,7 @@ namespace POSApp.UI.ViewModels
 
                 await _categoryRepository.AddAsync(category);
                 NotificationHelper.ShowSuccess($"Category '{Name}' has been added successfully.", "Category Added");
-                
+
                 await LoadData();
                 ClearForm();
             }
@@ -115,7 +115,7 @@ namespace POSApp.UI.ViewModels
 
                 await _categoryRepository.UpdateAsync(SelectedCategory);
                 NotificationHelper.ShowSuccess($"Category '{Name}' has been updated successfully.", "Category Updated");
-                
+
                 await LoadData();
                 ClearForm();
             }
@@ -135,7 +135,7 @@ namespace POSApp.UI.ViewModels
                 {
                     await _categoryRepository.DeleteAsync(SelectedCategory.Id);
                     NotificationHelper.ShowInfo($"Category '{SelectedCategory.Name}' has been removed.", "Category Deleted");
-                    
+
                     await LoadData();
                     ClearForm();
                 }

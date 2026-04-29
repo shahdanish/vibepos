@@ -8,11 +8,11 @@ using POSApp.Infrastructure.Helpers;
 
 namespace POSApp.UI.ViewModels
 {
-    public class ProductManagementViewModel : ViewModelBase
+    public sealed class ProductManagementViewModel : ViewModelBase
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
-        
+
         private Product? _selectedProduct;
         private string _productId = string.Empty;
         private string _barcode = string.Empty;
@@ -133,7 +133,7 @@ namespace POSApp.UI.ViewModels
         private async Task LoadData()
         {
             IEnumerable<Product> products;
-            
+
             if (ShowDeletedProducts)
             {
                 // Include deleted products
@@ -144,7 +144,7 @@ namespace POSApp.UI.ViewModels
                 // Only active products
                 products = await _productRepository.GetAllAsync();
             }
-            
+
             Products.Clear();
             foreach (var product in products)
             {
@@ -209,7 +209,7 @@ namespace POSApp.UI.ViewModels
 
                 await _productRepository.AddAsync(product);
                 NotificationHelper.ProductAdded(ProductName);
-                
+
                 await LoadData();
                 ClearForm();
             }
@@ -237,7 +237,7 @@ namespace POSApp.UI.ViewModels
 
                 await _productRepository.UpdateAsync(SelectedProduct);
                 NotificationHelper.ProductUpdated(ProductName);
-                
+
                 await LoadData();
                 ClearForm();
             }
@@ -258,7 +258,7 @@ namespace POSApp.UI.ViewModels
                     // Soft delete - repository handles setting IsDeleted flag
                     await _productRepository.DeleteAsync(SelectedProduct.Id);
                     NotificationHelper.ProductDeleted(SelectedProduct.ProductName);
-                    
+
                     await LoadData();
                     ClearForm();
                 }
@@ -277,10 +277,10 @@ namespace POSApp.UI.ViewModels
             {
                 SelectedProduct.IsDeleted = false;
                 SelectedProduct.ModifiedDate = DateTime.Now;
-                
+
                 await _productRepository.UpdateAsync(SelectedProduct);
                 NotificationHelper.ShowSuccess($"Product '{SelectedProduct.ProductName}' has been restored.");
-                
+
                 await LoadData();
                 ClearForm();
             }
@@ -310,7 +310,7 @@ namespace POSApp.UI.ViewModels
             {
                 var generator = new ProductIdGenerator(_productRepository);
                 ProductId = await generator.GenerateProductIdAsync(SelectedCategory?.Id);
-                
+
                 // Auto-fill barcode with generated ID if barcode is empty
                 if (string.IsNullOrWhiteSpace(Barcode))
                 {

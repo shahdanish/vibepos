@@ -4,11 +4,11 @@ namespace POSApp.Core.Interfaces
 {
     public interface ICategoryRepository
     {
-        Task<Category?> GetByIdAsync(int id);
-        Task<IEnumerable<Category>> GetAllAsync();
-        Task<Category> AddAsync(Category category);
-        Task UpdateAsync(Category category);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<Category>> SearchAsync(string searchTerm);
+        Task<Category?> GetByIdAsync(int id, CancellationToken ct = default);
+        Task<IEnumerable<Category>> GetAllAsync(CancellationToken ct = default);
+        Task<Category> AddAsync(Category category, CancellationToken ct = default);
+        Task UpdateAsync(Category category, CancellationToken ct = default);
+        Task DeleteAsync(int id, CancellationToken ct = default);
+        Task<IEnumerable<Category>> SearchAsync(string searchTerm, CancellationToken ct = default);
     }
 }

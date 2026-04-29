@@ -7,7 +7,7 @@ namespace POSApp.UI.Converters
     /// <summary>
     /// Encrypts total purchase cost for staff display (e.g., 200 becomes "XX200.00YY")
     /// </summary>
-    public class PurchaseCostEncryptorConverter : IValueConverter
+    public sealed class PurchaseCostEncryptorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -16,17 +16,17 @@ namespace POSApp.UI.Converters
                 // Format: XX{amount}YY for better visibility
                 return $"XX{purchasePrice:F2}YY";
             }
-            
+
             if (value is double doubleValue)
             {
                 return $"XX{doubleValue:F2}YY";
             }
-            
+
             if (value is int intValue)
             {
                 return $"XX{intValue}.00YY";
             }
-            
+
             return "XX0.00YY";
         }
 

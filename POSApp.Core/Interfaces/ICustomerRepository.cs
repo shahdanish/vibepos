@@ -4,12 +4,12 @@ namespace POSApp.Core.Interfaces
 {
     public interface ICustomerRepository
     {
-        Task<Customer?> GetByIdAsync(int id);
-        Task<Customer?> GetByCustomerIdAsync(string customerId);
-        Task<IEnumerable<Customer>> GetAllAsync();
-        Task<Customer> AddAsync(Customer customer);
-        Task UpdateAsync(Customer customer);
-        Task DeleteAsync(int id);
-        Task<IEnumerable<Customer>> SearchAsync(string searchTerm);
+        Task<Customer?> GetByIdAsync(int id, CancellationToken ct = default);
+        Task<Customer?> GetByCustomerIdAsync(string customerId, CancellationToken ct = default);
+        Task<IEnumerable<Customer>> GetAllAsync(CancellationToken ct = default);
+        Task<Customer> AddAsync(Customer customer, CancellationToken ct = default);
+        Task UpdateAsync(Customer customer, CancellationToken ct = default);
+        Task DeleteAsync(int id, CancellationToken ct = default);
+        Task<IEnumerable<Customer>> SearchAsync(string searchTerm, CancellationToken ct = default);
     }
 }

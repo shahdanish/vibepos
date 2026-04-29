@@ -14,20 +14,7 @@ namespace POSApp.UI.Helpers
         public static User? CurrentUser
         {
             get => _currentUser;
-            set
-            {
-                _currentUser = value;
-                if (value != null)
-                {
-                    // Update last login date
-                    Task.Run(async () =>
-                    {
-                        value.LastLoginDate = DateTime.Now;
-                        // Note: We can't save here without repository access
-                        // This should be handled by the ViewModel
-                    });
-                }
-            }
+            set => _currentUser = value;
         }
 
         public static bool IsAdmin => _currentUser?.Role == "Admin";

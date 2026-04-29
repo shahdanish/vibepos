@@ -4,15 +4,15 @@ namespace POSApp.Core.Interfaces
 {
     public interface ISaleRepository
     {
-        Task<Sale?> GetByIdAsync(int id);
-        Task<Sale?> GetByInvoiceNumberAsync(string invoiceNumber);
-        Task<IEnumerable<Sale>> GetAllAsync();
-        Task<IEnumerable<Sale>> GetByDateAsync(DateTime date);
-        Task<IEnumerable<Sale>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
-        Task<Sale> AddAsync(Sale sale);
-        Task UpdateAsync(Sale sale);
-        Task DeleteAsync(int id);
-        Task<string> GetNextInvoiceNumberAsync();
-        Task<IEnumerable<SaleItem>> GetRecentSalesItemsAsync(int days = 30);
+        Task<Sale?> GetByIdAsync(int id, CancellationToken ct = default);
+        Task<Sale?> GetByInvoiceNumberAsync(string invoiceNumber, CancellationToken ct = default);
+        Task<IEnumerable<Sale>> GetAllAsync(CancellationToken ct = default);
+        Task<IEnumerable<Sale>> GetByDateAsync(DateTime date, CancellationToken ct = default);
+        Task<IEnumerable<Sale>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default);
+        Task<Sale> AddAsync(Sale sale, CancellationToken ct = default);
+        Task UpdateAsync(Sale sale, CancellationToken ct = default);
+        Task DeleteAsync(int id, CancellationToken ct = default);
+        Task<string> GetNextInvoiceNumberAsync(CancellationToken ct = default);
+        Task<IEnumerable<SaleItem>> GetRecentSalesItemsAsync(int days = 30, CancellationToken ct = default);
     }
 }

@@ -1,6 +1,6 @@
 namespace POSApp.Core.Entities
 {
-    public class Customer
+    public sealed class Customer
     {
         public int Id { get; set; }
         public string CustomerId { get; set; } = string.Empty;

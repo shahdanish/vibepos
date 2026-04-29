@@ -1,6 +1,6 @@
 namespace POSApp.Core.Entities
 {
-    public class Sale
+    public sealed class Sale
     {
         public int Id { get; set; }
         public string InvoiceNumber { get; set; } = string.Empty;
@@ -21,7 +21,7 @@ namespace POSApp.Core.Entities
         public decimal Balance { get; set; }
         public bool AutoPrinted { get; set; } // Track if auto-printed
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-        
+
         // Navigation property
         public Customer? Customer { get; set; }
         public List<SaleItem> SaleItems { get; set; } = new List<SaleItem>();

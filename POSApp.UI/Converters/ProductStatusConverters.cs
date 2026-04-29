@@ -4,13 +4,13 @@ using System.Windows.Media;
 
 namespace POSApp.UI.Converters
 {
-    public class IsDeletedToBackgroundConverter : IValueConverter
+    public sealed class IsDeletedToBackgroundConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool isDeleted)
             {
-                return isDeleted ? new SolidColorBrush(Color.FromRgb(244, 67, 54)) : 
+                return isDeleted ? new SolidColorBrush(Color.FromRgb(244, 67, 54)) :
                                    new SolidColorBrush(Color.FromRgb(76, 175, 80));
             }
             return new SolidColorBrush(Color.FromRgb(76, 175, 80));
@@ -22,7 +22,7 @@ namespace POSApp.UI.Converters
         }
     }
 
-    public class IsDeletedToTextConverter : IValueConverter
+    public sealed class IsDeletedToTextConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
