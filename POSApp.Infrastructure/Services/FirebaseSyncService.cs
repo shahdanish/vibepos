@@ -133,6 +133,27 @@ namespace POSApp.Infrastructure.Services
             Log($"Background sync loop starting (syncs every 60s when online)");
             // Start background sync loop (every 60 seconds when online)
             _syncLoopTask = Task.Run(SyncLoopAsync);
+
+            // IMPORTANT FOR FIRST RUN:
+            // If the app already has data in SQLite (e.g., seeded/default rows) but
+            // there are no SyncLogs yet, nothing will ever sync. We bootstrap by
+            // creating "pending" SyncLogs for existing rows once when SyncLogs is empty.
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await EnsureInitialSyncLogsAsync(_cts.Token);
+                    Log("Initial sync-log bootstrap completed (if needed).");
+
+                    // If we already have connectivity + Firestore, kick a quick sync.
+                    if (_connectivityDetector.IsOnline && _firestoreDb is not null)
+                        await SyncPendingChangesAsync(_cts.Token);
+                }
+                catch (Exception ex)
+                {
+                    Log($"❌ Initial sync-log bootstrap failed: {ex.GetType().Name}: {ex.Message}");
+                }
+            });
             
             Log("=== Initialization complete ===");
         }
@@ -165,6 +186,22 @@ namespace POSApp.Infrastructure.Services
 
         public async Task SyncPendingChangesAsync(CancellationToken ct = default)
         {
+            int totalLogs = -1;
+            int pendingLogs = -1;
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                totalLogs = await db.SyncLogs.CountAsync(ct);
+                pendingLogs = await db.SyncLogs.CountAsync(s => s.SyncedAt == null, ct);
+            }
+            catch (Exception ex)
+            {
+                Log($"⚠ Could not read SyncLogs counts: {ex.GetType().Name}: {ex.Message}");
+            }
+
+            Log($"SyncPendingChangesAsync start: online={_connectivityDetector.IsOnline}, firestore={(_firestoreDb != null ? "OK" : "NULL")}, SyncLogs(total={totalLogs}, pending={pendingLogs})");
+
             if (_firestoreDb is null)
             {
                 Log("⚠ Sync skipped: Firestore not initialized (check credentials)");
@@ -186,15 +223,15 @@ namespace POSApp.Infrastructure.Services
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 // Get all pending (unsynced) log entries, oldest first
-                var pendingLogs = await db.SyncLogs
+                var pendingLogEntries = await db.SyncLogs
                     .Where(s => s.SyncedAt == null)
                     .OrderBy(s => s.CreatedAt)
                     .Take(100) // batch limit per cycle
                     .ToListAsync(ct);
 
-                Log($"Pending changes: {pendingLogs.Count}");
+                Log($"Pending changes: {pendingLogEntries.Count}");
 
-                if (pendingLogs.Count == 0)
+                if (pendingLogEntries.Count == 0)
                 {
                     _pendingCount = 0;
                     Log("No pending changes to sync");
@@ -202,7 +239,7 @@ namespace POSApp.Infrastructure.Services
                 }
 
                 // Deduplicate: for each entity, only push the latest version
-                var latestPerEntity = pendingLogs
+                var latestPerEntity = pendingLogEntries
                     .GroupBy(s => new { s.EntityType, s.EntityId })
                     .Select(g => g.Last()) // last entry = most recent state
                     .ToList();
@@ -223,7 +260,7 @@ namespace POSApp.Infrastructure.Services
                         }
 
                         // Mark ALL log entries for this entity as synced (not just the latest)
-                        var relatedLogs = pendingLogs
+                        var relatedLogs = pendingLogEntries
                             .Where(s => s.EntityType == logEntry.EntityType && s.EntityId == logEntry.EntityId);
 
                         foreach (var related in relatedLogs)
@@ -260,6 +297,100 @@ namespace POSApp.Infrastructure.Services
                 FailedCount = failed,
                 ErrorMessage = errorMsg
             });
+        }
+
+        private async Task EnsureInitialSyncLogsAsync(CancellationToken ct)
+        {
+            // Only backfill once when the SyncLogs table is empty.
+            using var scope = _serviceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var totalLogs = await db.SyncLogs.CountAsync(ct);
+            if (totalLogs > 0)
+            {
+                Log($"Initial sync-log bootstrap: SyncLogs already has {totalLogs} rows; skipping backfill.");
+                return;
+            }
+
+            Log("Initial sync-log bootstrap: SyncLogs is empty; creating pending logs for existing SQLite rows...");
+
+            var createdAt = DateTime.Now;
+            var newLogs = new List<SyncLog>();
+
+            // Note: Use IDs only; data is pulled later during SyncPendingChangesAsync.
+            // Keep this list small/targeted for now.
+            newLogs.AddRange(await db.Products
+                .AsNoTracking()
+                .Select(p => new SyncLog
+                {
+                    EntityType = nameof(Product),
+                    EntityId = p.Id,
+                    Operation = "Create",
+                    CreatedAt = createdAt,
+                    SyncedAt = null
+                }).ToListAsync(ct));
+
+            newLogs.AddRange(await db.Categories
+                .AsNoTracking()
+                .Select(c => new SyncLog
+                {
+                    EntityType = nameof(Category),
+                    EntityId = c.Id,
+                    Operation = "Create",
+                    CreatedAt = createdAt,
+                    SyncedAt = null
+                }).ToListAsync(ct));
+
+            newLogs.AddRange(await db.Customers
+                .AsNoTracking()
+                .Select(c => new SyncLog
+                {
+                    EntityType = nameof(Customer),
+                    EntityId = c.Id,
+                    Operation = "Create",
+                    CreatedAt = createdAt,
+                    SyncedAt = null
+                }).ToListAsync(ct));
+
+            newLogs.AddRange(await db.Users
+                .AsNoTracking()
+                .Select(u => new SyncLog
+                {
+                    EntityType = nameof(User),
+                    EntityId = u.Id,
+                    Operation = "Create",
+                    CreatedAt = createdAt,
+                    SyncedAt = null
+                }).ToListAsync(ct));
+
+            newLogs.AddRange(await db.ApplicationSettings
+                .AsNoTracking()
+                .Select(a => new SyncLog
+                {
+                    EntityType = nameof(ApplicationSetting),
+                    EntityId = a.Id,
+                    Operation = "Create",
+                    CreatedAt = createdAt,
+                    SyncedAt = null
+                }).ToListAsync(ct));
+
+            // Sales can be large; include them too so the dashboard isn't empty.
+            // If you expect lots of historical sales, we can add a limit.
+            newLogs.AddRange(await db.Sales
+                .AsNoTracking()
+                .Select(s => new SyncLog
+                {
+                    EntityType = nameof(Sale),
+                    EntityId = s.Id,
+                    Operation = "Create",
+                    CreatedAt = createdAt,
+                    SyncedAt = null
+                }).ToListAsync(ct));
+
+            await db.SyncLogs.AddRangeAsync(newLogs, ct);
+            await db.SaveChangesAsync(ct);
+
+            Log($"Initial sync-log bootstrap: created {newLogs.Count} SyncLog rows.");
         }
 
         /// <summary>
