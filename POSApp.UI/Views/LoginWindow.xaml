@@ -8,7 +8,7 @@
         Title="Login - Shah Jee Super Store" 
         Height="500" Width="450"
         WindowStartupLocation="CenterScreen"
-        Icon="../app.ico"
+        Icon="pack://application:,,,/POSApp.UI;component/app.ico"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent">

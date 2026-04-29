@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:POSApp.UI"
         mc:Ignorable="d"
         Title="Shah Jee Super Store - POS System" Height="600" Width="1000"
-        WindowStartupLocation="CenterScreen" WindowState="Maximized">
-    <Grid Background="#F5F5F5">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        Icon="pack://application:,,,/POSApp.UI;component/app.ico">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -15,54 +16,59 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#8B4513" Padding="20">
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
             <Grid>
                 <TextBlock Text="Shah Jee Super Store" FontSize="32" FontWeight="Bold" 
                            Foreground="White" HorizontalAlignment="Center"/>
                 <TextBlock Text="{Binding CurrentUserInfo}" FontSize="12" FontWeight="SemiBold" 
-                           Foreground="#FFD700" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                           Foreground="{DynamicResource BrandGoldBrush}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
             </Grid>
         </Border>
 
         <!-- Navigation Toolbar -->
-        <Border Grid.Row="1" Background="#D2691E" Padding="10">
+        <Border Grid.Row="1" Background="{DynamicResource BrandAccentBrush}" Padding="10">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.15" Direction="270" Color="Black"/>
+            </Border.Effect>
             <WrapPanel HorizontalAlignment="Center">
                 <Button Content="Sale" Command="{Binding OpenSaleCommand}" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
                 <Button Content="Whole Sale" Command="{Binding OpenWholeSaleCommand}" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
                 <Button Content="Sale Return" Command="{Binding OpenSaleReturnCommand}" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
                 <Button Content="Purchase" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5" IsEnabled="False"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
                 <Button Content="Purchase Return" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5" IsEnabled="False"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
                 <Button Content="Products" Command="{Binding OpenProductManagementCommand}" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
                 <Button Content="Categories" Command="{Binding OpenCategoryManagementCommand}" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
                 <Button Content="Customers" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5" IsEnabled="False"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
                 <Button Content="Sales Report" Command="{Binding OpenSalesReportCommand}" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
                 <Button Content="Help" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5" IsEnabled="False"/>
+                        Style="{StaticResource NavButtonStyle}" Margin="4" IsEnabled="False"/>
                 <Button Content="Logout" Command="{Binding LogoutCommand}" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5"
-                        Background="#FF9800" Foreground="White"/>
+                        Style="{StaticResource WarningButton}" Margin="4"/>
                 <Button Content="Exit" Command="{Binding ExitCommand}" 
-                        Style="{StaticResource NavButtonStyle}" Margin="5"/>
+                        Style="{StaticResource NeutralButton}" Margin="4"/>
             </WrapPanel>
         </Border>
 
         <!-- Main Content Area -->
-        <Grid Grid.Row="2">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Welcome to POS System" FontSize="36" FontWeight="Bold" 
-                           Foreground="#8B4513" Margin="0,0,0,30"/>
-                <TextBlock Text="Please select an option from the menu above" FontSize="18" 
-                           Foreground="#666" HorizontalAlignment="Center"/>
-            </StackPanel>
+        <Grid Grid.Row="2" Margin="30">
+            <Border Style="{StaticResource ElevatedCardBorder}" Padding="40">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="Welcome to POS System" FontSize="36" FontWeight="Bold" 
+                               Foreground="{DynamicResource BrandPrimaryBrush}" Margin="0,0,0,20"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Please select an option from the menu above" FontSize="18" 
+                               Foreground="#888" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </Window>
