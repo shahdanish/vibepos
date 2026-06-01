@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Input;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
@@ -25,7 +24,10 @@ namespace POSApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref _selectedCustomer, value))
-                    _ = LoadPayments();
+                {
+                    // Load payments asynchronously with proper error handling
+                    _ = LoadPaymentsSafe();
+                }
             }
         }
 
@@ -52,45 +54,56 @@ namespace POSApp.UI.ViewModels
             AddPaymentCommand = new RelayCommand(async _ => await AddPayment());
             RefreshCommand = new RelayCommand(async _ => await LoadCustomers());
 
-            _ = LoadCustomers();
+            // Load customers on initialization with proper error handling
+            _ = LoadCustomersSafe();
+        }
+
+        private async Task LoadCustomersSafe()
+        {
+            try
+            {
+                await LoadCustomers();
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("load customers", ex.Message);
+            }
         }
 
         private async Task LoadCustomers()
         {
+            var customers = await _customerRepository.GetAllAsync();
+            Customers.Clear();
+            
+            // Show customers with balances first
+            foreach (var customer in customers.OrderByDescending(c => c.CurrentBalance))
+            {
+                Customers.Add(customer);
+            }
+        }
+
+        private async Task LoadPaymentsSafe()
+        {
             try
             {
-                var customers = await _customerRepository.GetAllAsync();
-                Customers.Clear();
-                // Show customers with balances first
-                foreach (var customer in customers.OrderByDescending(c => c.CurrentBalance))
-                {
-                    Customers.Add(customer);
-                }
+                await LoadPayments();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading customers: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationHelper.OperationFailed("load payment history", ex.Message);
             }
         }
 
         private async Task LoadPayments()
         {
             Payments.Clear();
+            
             if (SelectedCustomer == null) return;
 
-            try
+            var payments = await _paymentRepository.GetByCustomerIdAsync(SelectedCustomer.Id);
+            foreach (var payment in payments)
             {
-                var payments = await _paymentRepository.GetByCustomerIdAsync(SelectedCustomer.Id);
-                foreach (var payment in payments)
-                {
-                    Payments.Add(payment);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading payments: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                Payments.Add(payment);
             }
         }
 
@@ -98,15 +111,13 @@ namespace POSApp.UI.ViewModels
         {
             if (SelectedCustomer == null)
             {
-                MessageBox.Show("Please select a customer.", "Validation",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                NotificationHelper.ValidationErrorCustom("Please select a customer.");
                 return;
             }
 
             if (PaymentAmount <= 0)
             {
-                MessageBox.Show("Please enter a valid payment amount.", "Validation",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                NotificationHelper.ValidationErrorCustom("Please enter a valid payment amount.");
                 return;
             }
 
@@ -122,22 +133,21 @@ namespace POSApp.UI.ViewModels
 
                 await _paymentRepository.AddAsync(payment);
 
+                // Clear form
                 PaymentAmount = 0;
                 PaymentNote = null;
 
-                // Reload customer to get updated balance
+                // Reload customer list to get updated balances
                 await LoadCustomers();
 
-                // Re-select the same customer
+                // Re-select the same customer to refresh their payment history
                 SelectedCustomer = Customers.FirstOrDefault(c => c.Id == payment.CustomerId);
 
-                MessageBox.Show($"Payment of Rs.{payment.AmountPaid:N2} recorded!", "Success",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                NotificationHelper.ShowSuccess($"Payment of Rs.{payment.AmountPaid:N2} recorded successfully!");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error recording payment: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationHelper.OperationFailed("record payment", ex.Message);
             }
         }
     }

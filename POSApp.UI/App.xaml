@@ -288,6 +288,7 @@
             <converters:IsDeletedToTextConverter x:Key="BoolToText"/>
             <converters:CostPriceEncryptorConverter x:Key="CostPriceEncryptor"/>
             <converters:PurchaseCostEncryptorConverter x:Key="PurchaseCostEncryptor"/>
+            <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

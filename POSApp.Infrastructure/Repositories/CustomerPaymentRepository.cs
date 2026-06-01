@@ -24,15 +24,21 @@ namespace POSApp.Infrastructure.Repositories
 
         public async Task<CustomerPayment> AddAsync(CustomerPayment payment, CancellationToken ct = default)
         {
+            // Validate payment
+            if (payment.AmountPaid <= 0)
+                throw new ArgumentException("Payment amount must be greater than zero.", nameof(payment.AmountPaid));
+
+            // Verify customer exists
+            var customer = await _context.Customers.FindAsync([payment.CustomerId], ct);
+            if (customer == null)
+                throw new InvalidOperationException($"Customer with ID {payment.CustomerId} not found.");
+
+            // Add payment record
             _context.CustomerPayments.Add(payment);
 
-            // Update customer's current balance
-            var customer = await _context.Customers.FindAsync([payment.CustomerId], ct);
-            if (customer != null)
-            {
-                customer.CurrentBalance -= payment.AmountPaid;
-                customer.ModifiedDate = DateTime.Now;
-            }
+            // Update customer's current balance (subtract payment from balance)
+            customer.CurrentBalance -= payment.AmountPaid;
+            customer.ModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync(ct);
             return payment;

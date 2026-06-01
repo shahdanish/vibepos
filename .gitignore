@@ -35,6 +35,8 @@ posapp.db
 
 # Publish and Installers
 publish/
+dist/
+installer/
 POSApp_Installer/
 *.zip
 
@@ -44,5 +46,3 @@ POSApp_Installer/
 # Firebase credentials (contains private key — NEVER commit)
 firebase-credentials.json
 
-# Publish output
-publish/
