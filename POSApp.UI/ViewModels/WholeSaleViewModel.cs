@@ -10,18 +10,8 @@ namespace POSApp.UI.ViewModels
         {
         }
 
-        public new Product? SelectedProduct
-        {
-            get => base.SelectedProduct;
-            set
-            {
-                base.SelectedProduct = value;
-                if (value != null)
-                {
-                    UnitPrice = value.WholesalePrice > 0 ? value.WholesalePrice : value.UnitPrice;
-                }
-            }
-        }
+        protected override decimal GetUnitPriceForProduct(Product product)
+            => product.WholesalePrice > 0 ? product.WholesalePrice : product.UnitPrice;
 
         protected override string InvoiceTitle => "Whole Sale Bill / Invoice";
     }

@@ -1,4 +1,5 @@
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using POSApp.UI.ViewModels;
 
 namespace POSApp.UI.Views
@@ -12,6 +13,13 @@ namespace POSApp.UI.Views
             InitializeComponent();
             DataContext = viewModel;
             _viewModel = viewModel;
+
+            viewModel.OpenQuickSaleWindow = () =>
+            {
+                var quickWindow = App.Services!.GetRequiredService<SaleWindow>();
+                quickWindow.Title = "Quick Sale - Shah Jee Super Store";
+                quickWindow.Show();
+            };
 
             // Enable keyboard shortcuts
             KeyDown += SaleWindow_KeyDown;

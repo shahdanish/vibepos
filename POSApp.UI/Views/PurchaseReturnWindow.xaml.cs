@@ -3,15 +3,15 @@ using POSApp.UI.ViewModels;
 
 namespace POSApp.UI.Views
 {
-    public partial class PurchaseEntryWindow : Window
+    public partial class PurchaseReturnWindow : Window
     {
-        public PurchaseEntryWindow(PurchaseEntryViewModel viewModel)
+        public PurchaseReturnWindow(PurchaseReturnViewModel viewModel)
         {
             InitializeComponent();
             DataContext = viewModel;
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        private void Close_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }

@@ -15,6 +15,12 @@ namespace POSApp.UI.ViewModels
         private decimal _paymentAmount;
         private string? _paymentNote;
 
+        // Add customer fields
+        private string _newCustomerName = string.Empty;
+        private string? _newCustomerPhone;
+        private string? _newCustomerAddress;
+        private decimal _newCustomerInitialBalance;
+
         public ObservableCollection<Customer> Customers { get; } = new();
         public ObservableCollection<CustomerPayment> Payments { get; } = new();
 
@@ -43,7 +49,32 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _paymentNote, value);
         }
 
+        public string NewCustomerName
+        {
+            get => _newCustomerName;
+            set => SetProperty(ref _newCustomerName, value);
+        }
+
+        public string? NewCustomerPhone
+        {
+            get => _newCustomerPhone;
+            set => SetProperty(ref _newCustomerPhone, value);
+        }
+
+        public string? NewCustomerAddress
+        {
+            get => _newCustomerAddress;
+            set => SetProperty(ref _newCustomerAddress, value);
+        }
+
+        public decimal NewCustomerInitialBalance
+        {
+            get => _newCustomerInitialBalance;
+            set => SetProperty(ref _newCustomerInitialBalance, value);
+        }
+
         public ICommand AddPaymentCommand { get; }
+        public ICommand AddCustomerCommand { get; }
         public ICommand RefreshCommand { get; }
 
         public CustomerLedgerViewModel(ICustomerRepository customerRepository, ICustomerPaymentRepository paymentRepository)
@@ -52,6 +83,7 @@ namespace POSApp.UI.ViewModels
             _paymentRepository = paymentRepository;
 
             AddPaymentCommand = new RelayCommand(async _ => await AddPayment());
+            AddCustomerCommand = new RelayCommand(async _ => await AddCustomer());
             RefreshCommand = new RelayCommand(async _ => await LoadCustomers());
 
             // Load customers on initialization with proper error handling
@@ -104,6 +136,52 @@ namespace POSApp.UI.ViewModels
             foreach (var payment in payments)
             {
                 Payments.Add(payment);
+            }
+        }
+
+        private async Task AddCustomer()
+        {
+            if (string.IsNullOrWhiteSpace(NewCustomerName))
+            {
+                NotificationHelper.ValidationErrorCustom("Please enter the customer name.");
+                return;
+            }
+
+            try
+            {
+                var all = await _customerRepository.GetAllAsync();
+                var maxNum = all
+                    .Select(c => { int.TryParse(c.CustomerId.TrimStart('C'), out int n); return n; })
+                    .DefaultIfEmpty(0).Max();
+                var customerId = $"C{(maxNum + 1):D4}";
+
+                var customer = new Customer
+                {
+                    CustomerId = customerId,
+                    Name = NewCustomerName.Trim(),
+                    Phone = NewCustomerPhone,
+                    CellNo = NewCustomerPhone,
+                    Address = NewCustomerAddress,
+                    PreBalance = NewCustomerInitialBalance,
+                    CurrentBalance = NewCustomerInitialBalance,
+                    CreatedDate = DateTime.Now
+                };
+
+                await _customerRepository.AddAsync(customer);
+
+                NewCustomerName = string.Empty;
+                NewCustomerPhone = null;
+                NewCustomerAddress = null;
+                NewCustomerInitialBalance = 0;
+
+                await LoadCustomers();
+                SelectedCustomer = Customers.FirstOrDefault(c => c.CustomerId == customerId);
+
+                NotificationHelper.ShowSuccess($"Customer '{customer.Name}' added!");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("add customer", ex.Message);
             }
         }
 

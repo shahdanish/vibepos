@@ -24,6 +24,7 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenCustomerLedgerCommand { get; }
         public ICommand OpenDailySummaryCommand { get; }
         public ICommand OpenPurchaseEntryCommand { get; }
+        public ICommand OpenPurchaseReturnCommand { get; }
         public ICommand OpenSupplierManagementCommand { get; }
         public ICommand OpenBackupRestoreCommand { get; }
         public ICommand SyncNowCommand { get; }
@@ -56,6 +57,7 @@ namespace POSApp.UI.ViewModels
             OpenCustomerLedgerCommand = new RelayCommand(_ => OpenCustomerLedger());
             OpenDailySummaryCommand = new RelayCommand(_ => OpenDailySummary());
             OpenPurchaseEntryCommand = new RelayCommand(_ => OpenPurchaseEntry());
+            OpenPurchaseReturnCommand = new RelayCommand(_ => OpenPurchaseReturn());
             OpenSupplierManagementCommand = new RelayCommand(_ => OpenSupplierManagement());
             OpenBackupRestoreCommand = new RelayCommand(_ => OpenBackupRestore());
             SyncNowCommand = new AsyncRelayCommand(SyncNowAsync, () => !_isSyncInProgress);
@@ -143,6 +145,17 @@ namespace POSApp.UI.ViewModels
             }
             var purchaseWindow = App.Services?.GetRequiredService<PurchaseEntryWindow>();
             purchaseWindow?.ShowDialog();
+        }
+
+        private void OpenPurchaseReturn()
+        {
+            if (!PermissionManager.CanManagePurchases(SessionManager.CurrentUser))
+            {
+                NotificationHelper.ValidationErrorCustom("You don't have permission to manage purchases.");
+                return;
+            }
+            var purchaseReturnWindow = App.Services?.GetRequiredService<PurchaseReturnWindow>();
+            purchaseReturnWindow?.ShowDialog();
         }
 
         private void OpenSupplierManagement()

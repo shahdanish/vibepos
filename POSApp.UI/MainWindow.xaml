@@ -48,6 +48,11 @@
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
                 <Button Content="📈 Sales Report" Command="{Binding OpenSalesReportCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
+                <!-- Purchase Management -->
+                <Button Content="🛒 Purchase" Command="{Binding OpenPurchaseEntryCommand}"
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
+                <Button Content="↩ Purch. Return" Command="{Binding OpenPurchaseReturnCommand}"
+                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
                 <!-- New Features -->
                 <Button Content="💰 Expenses" Command="{Binding OpenExpenseCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>

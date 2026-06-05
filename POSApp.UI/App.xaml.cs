@@ -63,6 +63,7 @@ public partial class App : System.Windows.Application
         // New feature view models
         services.AddTransient<DailySummaryViewModel>();
         services.AddTransient<PurchaseEntryViewModel>();
+        services.AddTransient<PurchaseReturnViewModel>();
         services.AddTransient<SupplierManagementViewModel>();
         services.AddTransient<BackupRestoreViewModel>();
 
@@ -83,6 +84,7 @@ public partial class App : System.Windows.Application
         // New feature windows
         services.AddTransient<DailySummaryWindow>();
         services.AddTransient<PurchaseEntryWindow>();
+        services.AddTransient<PurchaseReturnWindow>();
         services.AddTransient<SupplierManagementWindow>();
         services.AddTransient<BackupRestoreWindow>();
 

@@ -41,8 +41,9 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            
+
                             <!-- Row 1: Customer Info -->
                             <Grid Grid.Row="0" Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
@@ -66,11 +67,9 @@
 
                                 <StackPanel Grid.Column="2" Margin="10,0">
                                     <TextBlock Text="Payment Method" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                    <ComboBox SelectedItem="{Binding PaymentType}" FontSize="13" Padding="6">
-                                        <ComboBoxItem Content="Cash" IsSelected="True"/>
-                                        <ComboBoxItem Content="Credit Card"/>
-                                        <ComboBoxItem Content="Bank Transfer"/>
-                                    </ComboBox>
+                                    <ComboBox ItemsSource="{Binding PaymentTypes}"
+                                              SelectedItem="{Binding PaymentType}"
+                                              FontSize="13" Padding="6"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="3" Margin="10,0,0,0">
@@ -79,8 +78,36 @@
                                 </StackPanel>
                             </Grid>
                             
+                            <!-- Row 1b: Credit customer selector (shown only for Credit payment) -->
+                            <Grid Grid.Row="1" Margin="0,0,0,8"
+                                  Visibility="{Binding IsCreditPayment, Converter={StaticResource BoolToVis}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="Select Credit Customer" FontWeight="Bold" Margin="0,0,0,5"
+                                               FontSize="12" Foreground="{DynamicResource DangerBrush}"/>
+                                    <ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}"
+                                              DisplayMemberPath="Name" IsEditable="True" IsTextSearchEnabled="True"
+                                              FontSize="13" Padding="6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="10,0">
+                                    <TextBlock Text="Outstanding Balance" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"
+                                               Foreground="{DynamicResource DangerBrush}"/>
+                                    <TextBox Text="{Binding PreBalance, StringFormat='Rs. {0:N2}', Mode=OneWay}"
+                                             FontSize="13" Padding="6" IsReadOnly="True" Background="#FFF9C4"/>
+                                </StackPanel>
+                                <Border Grid.Column="2" Background="#FFF3E0" Padding="8" CornerRadius="4" Margin="10,0,0,0"
+                                        VerticalAlignment="Bottom">
+                                    <TextBlock Text="⚠ Credit sale: amount will be added to customer's outstanding balance."
+                                               FontSize="11" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"/>
+                                </Border>
+                            </Grid>
+
                             <!-- Row 2: Bill Note & Settings -->
-                            <Grid Grid.Row="1">
+                            <Grid Grid.Row="2">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -116,51 +143,61 @@
                     <Border Style="{StaticResource CardBorder}" Margin="0,0,0,5">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="1.3*"/>
+                                <ColumnDefinition Width="1.3*"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="70"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                <TextBlock Text="Product (Scan Barcode or Select)" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                <ComboBox ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}" 
-                                          DisplayMemberPath="ProductName" IsEditable="True" 
-                                          Text="{Binding ProductSearchText, UpdateSourceTrigger=PropertyChanged}"
-                                          FontSize="13" Padding="6"/>
+                                <TextBlock Text="Scan Barcode" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                <TextBox Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
+                                         FontSize="13" Padding="6">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding ScanCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                <TextBlock Text="Price (Rs)" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged}" 
-                                         FontSize="13" Padding="6" TextAlignment="Right"/>
+                                <TextBlock Text="Select Product" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                <ComboBox ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
+                                          DisplayMemberPath="ProductName" IsEditable="True" IsTextSearchEnabled="True"
+                                          FontSize="13" Padding="6"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2" Margin="0,0,10,0">
-                                <TextBlock Text="Qty" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" 
-                                         FontSize="13" Padding="6" TextAlignment="Center"/>
+                                <TextBlock Text="Price (Rs)" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged}"
+                                         FontSize="13" Padding="6" TextAlignment="Right"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="3" Margin="0,0,10,0">
-                                <TextBlock Text="Disc %" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                <TextBox Text="{Binding DiscountPercent, UpdateSourceTrigger=PropertyChanged}" 
+                                <TextBlock Text="Qty" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
                                          FontSize="13" Padding="6" TextAlignment="Center"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="4" Margin="0,0,10,0">
+                                <TextBlock Text="Disc %" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                <TextBox Text="{Binding DiscountPercent, UpdateSourceTrigger=PropertyChanged}"
+                                         FontSize="13" Padding="6" TextAlignment="Center"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="5" Margin="0,0,10,0">
                                 <TextBlock Text="Stock" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                <TextBox Text="{Binding SelectedProduct.Stock}" FontSize="13" Padding="6" 
+                                <TextBox Text="{Binding SelectedProduct.Stock}" FontSize="13" Padding="6"
                                          IsReadOnly="True" Background="#f0f0f0" TextAlignment="Center"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Bottom">
+                            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom">
                                 <StackPanel Margin="0,0,15,0" VerticalAlignment="Center"
                                             Visibility="{Binding IsLastScannedCostVisible, Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="Item Cost" FontWeight="Bold" FontSize="10" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding LastScannedCost, StringFormat=Rs. {0:N2}}" 
+                                    <TextBlock Text="{Binding LastScannedCost, StringFormat={}{0:N2}}"
                                                FontSize="14" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" TextAlignment="Center"/>
                                 </StackPanel>
                                 
@@ -217,11 +254,14 @@
                 <!-- Left: Action Buttons -->
                 <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,10,0">
                     <WrapPanel VerticalAlignment="Bottom" HorizontalAlignment="Left">
-                        <Button Content="NEW SALE" Command="{Binding NewCommand}" 
+                        <Button Content="NEW SALE" Command="{Binding NewCommand}"
                                 Style="{StaticResource InfoButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
-                        <Button Content="SAVE SALE" Command="{Binding SaveCommand}" 
+                        <Button Content="QUICK SALE" Command="{Binding QuickSaleCommand}"
+                                Style="{StaticResource SuccessButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"
+                                ToolTip="Open a new sale window for a quick customer"/>
+                        <Button Content="SAVE SALE" Command="{Binding SaveCommand}"
                                 Style="{StaticResource SuccessButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
-                        <Button Content="PRINT" Command="{Binding PrintCommand}" 
+                        <Button Content="{Binding PrintButtonText}" Command="{Binding PrintCommand}"
                                 Style="{StaticResource PurpleButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
                         <Button Content="CANCEL" Command="{Binding CancelCommand}" 
                                 Style="{StaticResource WarningButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>

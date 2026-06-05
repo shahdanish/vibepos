@@ -22,6 +22,7 @@ namespace POSApp.UI.ViewModels
         private DateTime _saleDate = DateTime.Now;
         private string _paymentType = "Cash";
         private string _customerName = "Cash";
+        private Customer? _selectedCustomer;
         private string? _address;
         private string? _phone;
         private string? _mobileNumber;
@@ -33,6 +34,7 @@ namespace POSApp.UI.ViewModels
         private decimal _receiveCash;
         private decimal _balance;
         private string _productSearchText = string.Empty;
+        private string _barcodeInput = string.Empty;
         private Product? _selectedProduct;
         private int _quantity = 1;
         private decimal _unitPrice;
@@ -61,10 +63,32 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _saleDate, value);
         }
 
+        public IReadOnlyList<string> PaymentTypes { get; } = new[] { "Cash", "Credit", "Credit Card", "Bank Transfer" };
+
         public string PaymentType
         {
             get => _paymentType;
-            set => SetProperty(ref _paymentType, value);
+            set
+            {
+                if (SetProperty(ref _paymentType, value))
+                    OnPropertyChanged(nameof(IsCreditPayment));
+            }
+        }
+
+        public bool IsCreditPayment => _paymentType == "Credit";
+
+        public Customer? SelectedCustomer
+        {
+            get => _selectedCustomer;
+            set
+            {
+                if (SetProperty(ref _selectedCustomer, value) && value != null)
+                {
+                    CustomerName = value.Name;
+                    MobileNumber = value.CellNo ?? value.Phone;
+                    PreBalance = value.CurrentBalance;
+                }
+            }
         }
 
         public string CustomerName
@@ -148,21 +172,17 @@ namespace POSApp.UI.ViewModels
         public string ProductSearchText
         {
             get => _productSearchText;
-            set
-            {
-                if (SetProperty(ref _productSearchText, value))
-                {
-                    // Auto-add on barcode scan if text is entered (from scanner)
-                    if (AutoAddItem && !string.IsNullOrWhiteSpace(value) && value.Length >= 3)
-                    {
-                        _ = AutoAddProductFromBarcode(value);
-                    }
-                    else
-                    {
-                        _ = SearchProducts();
-                    }
-                }
-            }
+            set => SetProperty(ref _productSearchText, value);
+        }
+
+        /// <summary>
+        /// Dedicated barcode-scan field. Submitting it (Enter / scanner) runs ScanCommand,
+        /// which looks the product up and adds it — independent of the product dropdown.
+        /// </summary>
+        public string BarcodeInput
+        {
+            get => _barcodeInput;
+            set => SetProperty(ref _barcodeInput, value);
         }
 
         public Product? SelectedProduct
@@ -172,16 +192,15 @@ namespace POSApp.UI.ViewModels
             {
                 if (SetProperty(ref _selectedProduct, value) && value != null)
                 {
-                    UnitPrice = value.UnitPrice;
+                    UnitPrice = GetUnitPriceForProduct(value);
 
-                    // Auto-add item if enabled and barcode scanned
-                    // Disable during initial load to prevent crashes
-                    if (AutoAddItem && !string.IsNullOrWhiteSpace(ProductSearchText) && SaleItems != null)
+                    // Selecting from the dropdown auto-adds the item (qty 1) when Auto Add
+                    // is enabled; otherwise the user adjusts qty/disc and clicks Add Item.
+                    if (AutoAddItem && SaleItems != null)
                     {
                         try
                         {
                             AddItem();
-                            ProductSearchText = string.Empty;
                         }
                         catch
                         {
@@ -261,8 +280,18 @@ namespace POSApp.UI.ViewModels
         public decimal LastScannedCost
         {
             get => _lastScannedCost;
-            set => SetProperty(ref _lastScannedCost, value);
+            set
+            {
+                if (SetProperty(ref _lastScannedCost, value))
+                    OnPropertyChanged(nameof(PrintButtonText));
+            }
         }
+
+        /// <summary>
+        /// Print button caption — shows the last item's cost in brackets, e.g. "PRINT (60.00)".
+        /// </summary>
+        public string PrintButtonText =>
+            LastScannedCost > 0 ? $"PRINT ({LastScannedCost:N2})" : "PRINT";
 
         public bool IsLastScannedCostVisible
         {
@@ -272,12 +301,16 @@ namespace POSApp.UI.ViewModels
 
         public decimal TotalPurchasePrice => SaleItems?.Sum(item => item.CostPrice * item.Quantity) ?? 0;
 
+        public Action? OpenQuickSaleWindow { get; set; }
+
         public ICommand AddItemCommand { get; }
+        public ICommand ScanCommand { get; }
         public ICommand DeleteItemCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand NewCommand { get; }
         public ICommand CancelCommand { get; }
         public ICommand PrintCommand { get; }
+        public ICommand QuickSaleCommand { get; }
 
         public SaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository)
         {
@@ -299,11 +332,13 @@ namespace POSApp.UI.ViewModels
             SaleItems.CollectionChanged += SaleItems_CollectionChanged;
 
             AddItemCommand = new RelayCommand(_ => AddItem());
+            ScanCommand = new RelayCommand(async _ => await ProcessBarcodeScan());
             DeleteItemCommand = new RelayCommand(DeleteItem);
-            SaveCommand = new RelayCommand(async _ => await SaveSale());
+            SaveCommand = new RelayCommand(async _ => await SaveSale(printAfterSave: false));
             NewCommand = new RelayCommand(_ => NewSale());
             CancelCommand = new RelayCommand(_ => Cancel());
             PrintCommand = new RelayCommand(async _ => await PrintInvoice());
+            QuickSaleCommand = new RelayCommand(_ => OpenQuickSaleWindow?.Invoke());
 
             _ = LoadData();
         }
@@ -353,89 +388,85 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        private async Task AutoAddProductFromBarcode(string barcode)
+        /// <summary>
+        /// Resolves the selling price for a product. Overridden by WholeSaleViewModel
+        /// so that barcode scanning uses the same wholesale pricing as a manual selection.
+        /// </summary>
+        protected virtual decimal GetUnitPriceForProduct(Product product) => product.UnitPrice;
+
+        private async Task ProcessBarcodeScan()
         {
+            var barcode = BarcodeInput?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(barcode))
+                return;
+
             try
             {
-                // Try to find product by barcode
-                var product = await _productRepository.GetByBarcodeAsync(barcode);
+                // Resolve by barcode first, then fall back to the Product ID so that
+                // codes stored in either field auto-select exactly like a dropdown pick.
+                var product = await _productRepository.GetByBarcodeAsync(barcode)
+                              ?? await _productRepository.GetByProductIdAsync(barcode);
 
-                if (product != null)
+                if (product == null)
                 {
-                    // Check if product is deleted
-                    if (product.IsDeleted)
-                    {
-                        NotificationHelper.ShowError($"Product '{product.ProductName}' has been deleted and cannot be sold.");
-                        ProductSearchText = string.Empty; // Clear field
-                        return;
-                    }
-
-                    // Check stock availability
-                    if (product.Stock <= 0)
-                    {
-                        NotificationHelper.ShowError($"Product '{product.ProductName}' is out of stock!");
-                        ProductSearchText = string.Empty;
-                        return;
-                    }
-
-                    // Check if item already in cart - increase quantity instead of duplicate
-                    var existingItem = SaleItems.FirstOrDefault(item => item.ProductId == product.ProductId);
-                    if (existingItem != null)
-                    {
-                        existingItem.Quantity += 1;
-                        CalculateTotals();
-                        NotificationHelper.ShowSuccess($"Quantity increased for {product.ProductName}");
-                    }
-                    else
-                    {
-                        // Add new item to cart
-                        Quantity = 1;
-                        DiscountPercent = 0;
-
-                        // Set temporary cost display
-                        LastScannedCost = product.CostPrice;
-                        IsLastScannedCostVisible = true;
-                        _costHideTimer.Stop();
-                        _costHideTimer.Start();
-
-                        AddItem();
-                    }
-
-                    // Clear search text for next scan
-                    ProductSearchText = string.Empty;
+                    NotificationHelper.ShowError($"No product found for code '{barcode}'.");
+                    BarcodeInput = string.Empty;
+                    return;
                 }
+
+                // Check if product is deleted
+                if (product.IsDeleted)
+                {
+                    NotificationHelper.ShowError($"Product '{product.ProductName}' has been deleted and cannot be sold.");
+                    BarcodeInput = string.Empty; // Clear field
+                    return;
+                }
+
+                // Check stock availability
+                if (product.Stock <= 0)
+                {
+                    NotificationHelper.ShowError($"Product '{product.ProductName}' is out of stock!");
+                    BarcodeInput = string.Empty;
+                    return;
+                }
+
+                // Check if item already in cart - increase quantity instead of duplicate
+                var existingItem = SaleItems.FirstOrDefault(item => item.ProductId == product.ProductId);
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += 1;
+                    CalculateTotals();
+                }
+                else
+                {
+                    // Build the line item directly (price respects Sale vs Whole Sale)
+                    var price = GetUnitPriceForProduct(product);
+                    var saleItem = new SaleItemViewModel
+                    {
+                        ProductId = product.ProductId,
+                        ProductName = product.ProductName,
+                        Quantity = 1,
+                        CostPrice = product.CostPrice,
+                        UnitPrice = price,
+                        DiscountPercent = 0,
+                        Total = price
+                    };
+                    SaleItems.Add(saleItem);
+                    CalculateTotals();
+
+                    // Set temporary cost display
+                    LastScannedCost = product.CostPrice;
+                    IsLastScannedCostVisible = true;
+                    _costHideTimer.Stop();
+                    _costHideTimer.Start();
+                }
+
+                // Clear scan field, keep focus here for the next scan
+                BarcodeInput = string.Empty;
             }
             catch (Exception)
             {
                 // Silently ignore errors during auto-scan to prevent UI disruption
-            }
-        }
-
-        private async Task SearchProducts()
-        {
-            if (string.IsNullOrWhiteSpace(ProductSearchText))
-            {
-                await LoadData();
-                return;
-            }
-
-            // Search by Product ID or Barcode
-            var productByBarcode = await _productRepository.GetByProductIdAsync(ProductSearchText);
-            if (productByBarcode == null)
-            {
-                var products = await _productRepository.SearchAsync(ProductSearchText);
-                Products.Clear();
-                foreach (var product in products)
-                {
-                    Products.Add(product);
-                }
-            }
-            else
-            {
-                // Direct barcode match - auto-select
-                Products.Clear();
-                Products.Add(productByBarcode);
-                SelectedProduct = productByBarcode;
             }
         }
 
@@ -453,20 +484,30 @@ namespace POSApp.UI.ViewModels
                 Quantity = 1; // Default to 1 if invalid
             }
 
-            var total = (UnitPrice * Quantity) - ((UnitPrice * Quantity * DiscountPercent) / 100);
-
-            var saleItem = new SaleItemViewModel
+            // If the product is already in the cart, bump its quantity instead of
+            // adding a duplicate row (matches the barcode-scan behaviour).
+            var existingItem = SaleItems.FirstOrDefault(i => i.ProductId == SelectedProduct.ProductId);
+            if (existingItem != null)
             {
-                ProductId = SelectedProduct.ProductId,
-                ProductName = SelectedProduct.ProductName,
-                Quantity = Quantity,
-                CostPrice = SelectedProduct.CostPrice, // Track cost price (encrypted in display)
-                UnitPrice = UnitPrice,
-                DiscountPercent = DiscountPercent,
-                Total = total
-            };
+                existingItem.Quantity += Quantity;
+            }
+            else
+            {
+                var total = (UnitPrice * Quantity) - ((UnitPrice * Quantity * DiscountPercent) / 100);
 
-            SaleItems.Add(saleItem);
+                var saleItem = new SaleItemViewModel
+                {
+                    ProductId = SelectedProduct.ProductId,
+                    ProductName = SelectedProduct.ProductName,
+                    Quantity = Quantity,
+                    CostPrice = SelectedProduct.CostPrice, // Track cost price (encrypted in display)
+                    UnitPrice = UnitPrice,
+                    DiscountPercent = DiscountPercent,
+                    Total = total
+                };
+
+                SaleItems.Add(saleItem);
+            }
 
             CalculateTotals();
 
@@ -512,7 +553,7 @@ namespace POSApp.UI.ViewModels
             Balance = ReceiveCash - TotalBill;
         }
 
-        private async Task SaveSale()
+        private async Task SaveSale(bool printAfterSave = false)
         {
             if (!SaleItems.Any())
             {
@@ -528,6 +569,7 @@ namespace POSApp.UI.ViewModels
                     SaleDate = SaleDate,
                     SaleType = "Sale",
                     PaymentType = PaymentType,
+                    CustomerId = SelectedCustomer?.Id,
                     CustomerName = CustomerName,
                     Address = Address,
                     Phone = Phone,
@@ -558,10 +600,20 @@ namespace POSApp.UI.ViewModels
 
                 await _saleRepository.AddAsync(sale);
 
-                // Auto-print if enabled
-                if (AutoPrint)
+                // Update customer balance for credit sales
+                if (PaymentType == "Credit" && SelectedCustomer != null)
                 {
-                    await PrintInvoice();
+                    SelectedCustomer.CurrentBalance += TotalBill;
+                    SelectedCustomer.TotalPurchases += TotalBill;
+                    SelectedCustomer.LastPurchaseDate = SaleDate;
+                    SelectedCustomer.ModifiedDate = DateTime.Now;
+                    await _customerRepository.UpdateAsync(SelectedCustomer);
+                }
+
+                // Auto-print if requested (prints only — does NOT re-enter SaveSale)
+                if (printAfterSave)
+                {
+                    DoPrint();
                 }
 
                 NewSale();
@@ -576,6 +628,8 @@ namespace POSApp.UI.ViewModels
         {
             SaleItems.Clear();
             CustomerName = "Cash";
+            SelectedCustomer = null;
+            PaymentType = "Cash";
             Address = null;
             Phone = null;
             MobileNumber = null;
@@ -586,6 +640,9 @@ namespace POSApp.UI.ViewModels
             TotalBill = 0;
             ReceiveCash = 0;
             Balance = 0;
+            BarcodeInput = string.Empty;
+            LastScannedCost = 0;
+            IsLastScannedCostVisible = false;
             OnPropertyChanged(nameof(TotalPurchasePrice));
             _ = LoadData();
         }
@@ -603,6 +660,20 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
+            // Print first, then save once. Pass printAfterSave: false so SaveSale
+            // does not print again (which previously caused an endless popup loop).
+            if (DoPrint())
+            {
+                await SaveSale(printAfterSave: false);
+            }
+        }
+
+        /// <summary>
+        /// Renders and prints the current invoice. Returns true on success.
+        /// Pure print operation — does NOT save the sale, to avoid recursion.
+        /// </summary>
+        private bool DoPrint()
+        {
             try
             {
                 // 1. Build the professional FlowDocument
@@ -633,14 +704,13 @@ namespace POSApp.UI.ViewModels
                     ((IDocumentPaginatorSource)printDoc).DocumentPaginator,
                     "Invoice Printing");
 
-                NotificationHelper.ShowSuccess($"Invoice {InvoiceNumber} printed successfully!");
-
-                // 5. Save the sale after successful print
-                await SaveSale();
+                // No success popup for printing — just print silently.
+                return true;
             }
             catch (Exception ex)
             {
                 NotificationHelper.OperationFailed("print invoice", ex.Message);
+                return false;
             }
         }
 
@@ -655,8 +725,9 @@ namespace POSApp.UI.ViewModels
 
             // --- HEADER ---
             Paragraph header = new Paragraph();
+            header.Margin = new Thickness(0, 0, 0, 2);
             header.TextAlignment = TextAlignment.Center;
-            header.Inlines.Add(new Bold(new Run("Shah Jee Super Store")) { FontSize = 24 });
+            header.Inlines.Add(new Bold(new Run("ShahJee Super Store")) { FontSize = 24 });
             header.Inlines.Add(new LineBreak());
             header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
             header.Inlines.Add(new LineBreak());
@@ -664,12 +735,15 @@ namespace POSApp.UI.ViewModels
             doc.Blocks.Add(header);
 
             // --- BILL / INVOICE TITLE ---
-            Paragraph titlePara = new Paragraph(new Bold(new Run(InvoiceTitle))) { TextAlignment = TextAlignment.Center, FontSize = 16 };
-            Border titleBorder = new Border() { BorderBrush = Brushes.Black, BorderThickness = new Thickness(1), Padding = new Thickness(5) };
-            // Note: FlowDocument doesn't support Border directly as a block, we use a Table with one cell or just paragraphs with borders
-            titlePara.BorderBrush = Brushes.Black;
-            titlePara.BorderThickness = new Thickness(1);
-            titlePara.Padding = new Thickness(5);
+            Paragraph titlePara = new Paragraph(new Bold(new Run(InvoiceTitle)))
+            {
+                TextAlignment = TextAlignment.Center,
+                FontSize = 16,
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(3),
+                Margin = new Thickness(0, 2, 0, 2)
+            };
             doc.Blocks.Add(titlePara);
 
             // --- METADATA TABLE (Bill No, Date, etc.) ---
@@ -679,27 +753,46 @@ namespace POSApp.UI.ViewModels
 
             TableRowGroup metaGroup = new TableRowGroup();
 
-            // Row 1: Bill No & Date
+            // Compact cell builder so the metadata block stays tight (minimal vertical space).
+            TableCell MetaCell(string text, int columnSpan = 1)
+            {
+                var cell = new TableCell(new Paragraph(new Run(text)) { Margin = new Thickness(0) })
+                {
+                    Padding = new Thickness(0, 1, 0, 1)
+                };
+                if (columnSpan > 1) cell.ColumnSpan = columnSpan;
+                return cell;
+            }
+
+            // Row 1: Bill No & Date (with time)
             TableRow row1 = new TableRow();
-            row1.Cells.Add(new TableCell(new Paragraph(new Run($"Bill No: {InvoiceNumber}"))));
-            row1.Cells.Add(new TableCell(new Paragraph(new Run($"Date: {SaleDate:dd-MMM-yyyy}"))));
+            row1.Cells.Add(MetaCell($"Bill No: {InvoiceNumber}"));
+            row1.Cells.Add(MetaCell($"Date: {SaleDate:dd-MMM-yyyy hh:mm tt}"));
             metaGroup.Rows.Add(row1);
 
             // Row 2: Customer
             TableRow row2 = new TableRow();
-            row2.Cells.Add(new TableCell(new Paragraph(new Run($"Customer: {CustomerName}"))) { ColumnSpan = 2 });
+            row2.Cells.Add(MetaCell($"Customer: {CustomerName}", columnSpan: 2));
             metaGroup.Rows.Add(row2);
 
             // Row 3: Address & Mobile
             TableRow row3 = new TableRow();
-            row3.Cells.Add(new TableCell(new Paragraph(new Run($"Address: {Address ?? ""}"))));
-            row3.Cells.Add(new TableCell(new Paragraph(new Run($"Mobile: {MobileNumber ?? ""}"))));
+            row3.Cells.Add(MetaCell($"Address: {Address ?? ""}"));
+            row3.Cells.Add(MetaCell($"Mobile: {MobileNumber ?? ""}"));
             metaGroup.Rows.Add(row3);
+
+            // Row 4: Bill Note (only printed when provided)
+            if (!string.IsNullOrWhiteSpace(BillNote))
+            {
+                TableRow noteRow = new TableRow();
+                noteRow.Cells.Add(MetaCell($"Note: {BillNote}", columnSpan: 2));
+                metaGroup.Rows.Add(noteRow);
+            }
 
             metaTable.RowGroups.Add(metaGroup);
             doc.Blocks.Add(metaTable);
 
-            doc.Blocks.Add(new Paragraph(new Run("-----------------------------------------------------------------")));
+            doc.Blocks.Add(new Paragraph(new Run("---------------------------------------------")) { Margin = new Thickness(0, 1, 0, 1) });
 
             // --- ITEMS TABLE ---
             Table itemsTable = new Table() { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
@@ -724,14 +817,25 @@ namespace POSApp.UI.ViewModels
 
             TableRowGroup itemsGroup = new TableRowGroup();
 
+            // Compact, aligned cell builder for the items grid.
+            TableCell ItemCell(string text, TextAlignment align)
+            {
+                return new TableCell(new Paragraph(new Run(text)) { TextAlignment = align, Margin = new Thickness(0) })
+                {
+                    BorderThickness = new Thickness(0.5),
+                    BorderBrush = Brushes.Black,
+                    Padding = new Thickness(2, 1, 2, 1)
+                };
+            }
+
             // Header Row
             TableRow headerRow = new TableRow() { FontWeight = FontWeights.Bold, Background = Brushes.LightGray };
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("S.No"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Product Name"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Qty"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Price"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Disc"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Run("Total"))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+            headerRow.Cells.Add(ItemCell("S.No", TextAlignment.Center));
+            headerRow.Cells.Add(ItemCell("Product Name", TextAlignment.Left));
+            headerRow.Cells.Add(ItemCell("Qty", TextAlignment.Center));
+            headerRow.Cells.Add(ItemCell("Price", TextAlignment.Right));
+            headerRow.Cells.Add(ItemCell("Disc", TextAlignment.Right));
+            headerRow.Cells.Add(ItemCell("Total", TextAlignment.Center));
             itemsGroup.Rows.Add(headerRow);
 
             // Item Rows
@@ -739,12 +843,12 @@ namespace POSApp.UI.ViewModels
             foreach (var item in SaleItems)
             {
                 TableRow row = new TableRow();
-                row.Cells.Add(new TableCell(new Paragraph(new Run(serialNo++.ToString()))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.ProductName))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.Quantity.ToString()))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.UnitPrice.ToString("N0")))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.DiscountPercent.ToString("N0")))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.Total.ToString("N2")))) { BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black });
+                row.Cells.Add(ItemCell(serialNo++.ToString(), TextAlignment.Center));
+                row.Cells.Add(ItemCell(item.ProductName, TextAlignment.Left));
+                row.Cells.Add(ItemCell(item.Quantity.ToString(), TextAlignment.Center));
+                row.Cells.Add(ItemCell(item.UnitPrice.ToString("N0"), TextAlignment.Right));
+                row.Cells.Add(ItemCell(item.DiscountPercent.ToString("N0"), TextAlignment.Right));
+                row.Cells.Add(ItemCell(item.Total.ToString("N2"), TextAlignment.Right));
                 itemsGroup.Rows.Add(row);
             }
 
@@ -752,67 +856,45 @@ namespace POSApp.UI.ViewModels
             doc.Blocks.Add(itemsTable);
 
             // --- TOTALS SECTION ---
+            // Use proportional (star) widths so the value column always fits within the
+            // printable paper width. Fixed pixel widths (200 + 100) previously overflowed
+            // the ~260px thermal paper, pushing the values column off the right edge and
+            // printing blank totals.
             Table totalsTable = new Table() { CellSpacing = 0 };
-            totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Empty space
-            totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(200) }); // Labels
-            totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(100) }); // Values
+            bool useSpacer = !UseSmallBillFormat;
+            if (useSpacer)
+                totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Left spacer (A4 only)
+            totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(2, GridUnitType.Star) }); // Labels
+            totalsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Values
 
             TableRowGroup totalsGroup = new TableRowGroup();
 
-            // Total Bill
-            TableRow tRow1 = new TableRow();
-            tRow1.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
-            tRow1.Cells.Add(new TableCell(new Paragraph(new Run("Total Bill")) { FontWeight = FontWeights.Bold }));
-            tRow1.Cells.Add(new TableCell(new Paragraph(new Run(TotalBill.ToString("N2"))) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold }));
-            totalsGroup.Rows.Add(tRow1);
+            // Local helper keeps every row aligned and respects the format's column count.
+            void AddTotalRow(string label, string value, bool bold = false, double fontSize = 12)
+            {
+                var row = new TableRow();
+                if (useSpacer)
+                    row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
 
-            // Previous Balance
+                var labelPara = new Paragraph(new Run(label)) { FontSize = fontSize, Margin = new Thickness(0) };
+                if (bold) labelPara.FontWeight = FontWeights.Bold;
+                row.Cells.Add(new TableCell(labelPara) { Padding = new Thickness(2, 1, 2, 1) });
+
+                var valuePara = new Paragraph(new Run(value)) { TextAlignment = TextAlignment.Right, FontSize = fontSize, Margin = new Thickness(0) };
+                if (bold) valuePara.FontWeight = FontWeights.Bold;
+                row.Cells.Add(new TableCell(valuePara) { Padding = new Thickness(2, 1, 2, 1) });
+
+                totalsGroup.Rows.Add(row);
+            }
+
+            AddTotalRow("Total Bill", TotalBill.ToString("N2"), bold: true);
             if (PreBalance > 0)
-            {
-                TableRow tRowPB = new TableRow();
-                tRowPB.Cells.Add(new TableCell(new Paragraph(new Run(""))));
-                tRowPB.Cells.Add(new TableCell(new Paragraph(new Run("Previous Balance"))));
-                tRowPB.Cells.Add(new TableCell(new Paragraph(new Run(PreBalance.ToString("N2"))) { TextAlignment = TextAlignment.Right }));
-                totalsGroup.Rows.Add(tRowPB);
-            }
-
-            // Net Total Bill
-            TableRow tRowNet = new TableRow();
-            tRowNet.Cells.Add(new TableCell(new Paragraph(new Run(""))));
-            tRowNet.Cells.Add(new TableCell(new Paragraph(new Run("Net Bill Amount")) { FontWeight = FontWeights.Bold }));
-            tRowNet.Cells.Add(new TableCell(new Paragraph(new Run((TotalBill + PreBalance).ToString("N2"))) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold }));
-            totalsGroup.Rows.Add(tRowNet);
-
-            // Cash Received
-            TableRow tRow2 = new TableRow();
-            tRow2.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
-            tRow2.Cells.Add(new TableCell(new Paragraph(new Run("Cash Received"))));
-            tRow2.Cells.Add(new TableCell(new Paragraph(new Run(ReceiveCash.ToString("N2"))) { TextAlignment = TextAlignment.Right }));
-            totalsGroup.Rows.Add(tRow2);
-
-            // Total Quantity
-            TableRow tRow3 = new TableRow();
-            tRow3.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
-            tRow3.Cells.Add(new TableCell(new Paragraph(new Run("Total Items Quantity")) { FontWeight = FontWeights.Bold }));
-            tRow3.Cells.Add(new TableCell(new Paragraph(new Run(SaleItems.Sum(i => i.Quantity).ToString())) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold }));
-            totalsGroup.Rows.Add(tRow3);
-
-            // Discount
+                AddTotalRow("Previous Balance", PreBalance.ToString("N2"));
+            AddTotalRow("Cash Received", ReceiveCash.ToString("N2"), bold: true);
+            AddTotalRow("Total Items Quantity", SaleItems.Sum(i => i.Quantity).ToString(), bold: true);
             if (DiscountOnBill > 0 || DiscountOnProducts > 0)
-            {
-                TableRow tRow4 = new TableRow();
-                tRow4.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
-                tRow4.Cells.Add(new TableCell(new Paragraph(new Run("Total Discount"))));
-                tRow4.Cells.Add(new TableCell(new Paragraph(new Run((DiscountOnBill + DiscountOnProducts).ToString("N2"))) { TextAlignment = TextAlignment.Right }));
-                totalsGroup.Rows.Add(tRow4);
-            }
-
-            // Balance
-            TableRow tRow5 = new TableRow();
-            tRow5.Cells.Add(new TableCell(new Paragraph(new Run("")))); // Empty
-            tRow5.Cells.Add(new TableCell(new Paragraph(new Run("Balance Amount")) { FontWeight = FontWeights.Bold, FontSize = 14 }));
-            tRow5.Cells.Add(new TableCell(new Paragraph(new Run(Balance.ToString("N2"))) { TextAlignment = TextAlignment.Right, FontWeight = FontWeights.Bold, FontSize = 14 }));
-            totalsGroup.Rows.Add(tRow5);
+                AddTotalRow("Total Discount", (DiscountOnBill + DiscountOnProducts).ToString("N2"));
+            AddTotalRow("Balance Amount", Balance.ToString("N2"), bold: true, fontSize: 14);
 
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);

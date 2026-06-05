@@ -1,6 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
@@ -211,7 +214,7 @@ namespace POSApp.UI.ViewModels
         {
             if (string.IsNullOrWhiteSpace(InvoiceNumber))
             {
-                MessageBox.Show("Please enter an invoice number.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                NotificationHelper.ValidationErrorCustom("Please enter an invoice number.");
                 return;
             }
 
@@ -221,20 +224,13 @@ namespace POSApp.UI.ViewModels
                 Sales.Clear();
 
                 if (sale != null)
-                {
                     Sales.Add(sale);
-                    UpdateSummary();
-                    MessageBox.Show($"Invoice {InvoiceNumber} found!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    UpdateSummary();
-                    MessageBox.Show($"Invoice {InvoiceNumber} not found.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
+
+                UpdateSummary();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error searching invoice: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationHelper.OperationFailed("search invoice", ex.Message);
             }
         }
 
@@ -242,7 +238,7 @@ namespace POSApp.UI.ViewModels
         {
             if (EndDate < StartDate)
             {
-                MessageBox.Show("End date cannot be before start date.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                NotificationHelper.ValidationErrorCustom("End date cannot be before start date.");
                 return;
             }
 
@@ -258,20 +254,13 @@ namespace POSApp.UI.ViewModels
                 Sales.Clear();
 
                 foreach (var sale in sales.OrderByDescending(s => s.SaleDate))
-                {
                     Sales.Add(sale);
-                }
 
                 UpdateSummary();
-
-                if (!sales.Any())
-                {
-                    MessageBox.Show("No sales found for the selected period.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading sales: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationHelper.OperationFailed("load sales", ex.Message);
             }
         }
 
@@ -287,20 +276,18 @@ namespace POSApp.UI.ViewModels
         {
             if (SelectedSale == null)
             {
-                MessageBox.Show("Please select a sale to print.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                NotificationHelper.ValidationErrorCustom("Please select a sale to print.");
                 return;
             }
 
             try
             {
-                // Print invoice logic
-                var invoice = GenerateInvoiceText(SelectedSale);
-                MessageBox.Show($"Print Invoice Feature\n\n{invoice}\n\nNote: Connect to printer for actual printing.",
-                    "Print Preview", MessageBoxButton.OK, MessageBoxImage.Information);
+                FlowDocument doc = CreateInvoiceDocument(SelectedSale);
+                PrintDocument(doc, $"Invoice {SelectedSale.InvoiceNumber}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error printing invoice: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationHelper.OperationFailed("print invoice", ex.Message);
             }
         }
 
@@ -308,25 +295,24 @@ namespace POSApp.UI.ViewModels
         {
             if (!Sales.Any())
             {
-                MessageBox.Show("No sales data to print.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                NotificationHelper.ValidationErrorCustom("No sales data to print.");
                 return;
             }
 
-            var report = GenerateReportText();
-            MessageBox.Show($"Print Report Feature\n\n{report}\n\nNote: Connect to printer for actual printing.",
-                "Print Preview", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                FlowDocument doc = CreateReportDocument();
+                PrintDocument(doc, "Sales Report");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("print report", ex.Message);
+            }
         }
 
         private void ExportToExcel()
         {
-            if (!Sales.Any())
-            {
-                MessageBox.Show("No sales data to export.", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            MessageBox.Show("Excel Export Feature - To be implemented with Excel library.",
-                "Export", MessageBoxButton.OK, MessageBoxImage.Information);
+            NotificationHelper.ValidationErrorCustom("Excel export is not yet implemented.");
         }
 
         private async Task RefreshData()
@@ -353,45 +339,233 @@ namespace POSApp.UI.ViewModels
             OnPropertyChanged(nameof(TotalDiscount));
         }
 
-        private string GenerateInvoiceText(Sale sale)
-        {
-            var invoice = $"SHAH JEE SUPER STORE\n";
-            invoice += $"================================\n";
-            invoice += $"Invoice: {sale.InvoiceNumber}\n";
-            invoice += $"Date: {sale.SaleDate:dd/MM/yyyy HH:mm}\n";
-            invoice += $"Customer: {sale.CustomerName}\n";
-            invoice += $"Type: {sale.SaleType}\n";
-            invoice += $"================================\n\n";
-            invoice += $"Items:\n";
+        // ---------------------------------------------------------------------
+        // Printing — mirrors the Sale screen's thermal/A4 FlowDocument output so
+        // reports and invoices look consistent across the app.
+        // ---------------------------------------------------------------------
 
-            foreach (var item in sale.SaleItems)
+        // Respect the same Small Bill (thermal) preference the Sale screen uses.
+        private static bool UseSmallBillFormat => SettingsManager.LoadSettings().UseSmallBillFormat;
+
+        /// <summary>
+        /// Renders a FlowDocument and prints it silently (no dialog), using the
+        /// same page configuration as the Sale screen's invoice printing.
+        /// </summary>
+        private static void PrintDocument(FlowDocument doc, string description)
+        {
+            PrintDialog printDialog = new PrintDialog();
+
+            if (UseSmallBillFormat)
             {
-                invoice += $"{item.ProductName}\n";
-                invoice += $"  {item.Quantity} x Rs.{item.UnitPrice:N2} = Rs.{item.Total:N2}\n";
+                doc.PageWidth = 280;
+                doc.PageHeight = double.NaN;
+                doc.ColumnWidth = 260;
+                doc.PagePadding = new Thickness(5);
+                doc.FontSize = 10;
+            }
+            else
+            {
+                doc.PageWidth = printDialog.PrintableAreaWidth;
+                doc.PageHeight = printDialog.PrintableAreaHeight;
+                doc.ColumnWidth = printDialog.PrintableAreaWidth;
+                doc.PagePadding = new Thickness(40);
             }
 
-            invoice += $"\n================================\n";
-            invoice += $"Total Bill: Rs.{sale.TotalBill:N2}\n";
-            invoice += $"Received: Rs.{sale.ReceiveCash:N2}\n";
-            invoice += $"Balance: Rs.{sale.Balance:N2}\n";
-            invoice += $"================================\n";
-
-            return invoice;
+            printDialog.PrintDocument(((IDocumentPaginatorSource)doc).DocumentPaginator, description);
         }
 
-        private string GenerateReportText()
+        /// <summary>Shared store header used at the top of every printout.</summary>
+        private static void AddStoreHeader(FlowDocument doc, string title)
         {
-            var report = $"{ReportTitle}\n";
-            report += $"Generated: {DateTime.Now:dd/MM/yyyy HH:mm}\n";
-            report += $"================================\n";
-            report += $"Total Sales: {TotalSales}\n";
-            report += $"Total Revenue: Rs.{TotalRevenue:N2}\n";
-            report += $"Total Cost: Rs.{TotalCost:N2}\n";
-            report += $"Total Profit: Rs.{TotalProfit:N2}\n";
-            report += $"Total Discount: Rs.{TotalDiscount:N2}\n";
-            report += $"================================\n";
+            Paragraph header = new Paragraph { Margin = new Thickness(0, 0, 0, 2), TextAlignment = TextAlignment.Center };
+            header.Inlines.Add(new Bold(new Run("ShahJee Super Store")) { FontSize = 24 });
+            header.Inlines.Add(new LineBreak());
+            header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
+            header.Inlines.Add(new LineBreak());
+            header.Inlines.Add(new Run("0332-3324911") { FontSize = 14 });
+            doc.Blocks.Add(header);
 
-            return report;
+            Paragraph titlePara = new Paragraph(new Bold(new Run(title)))
+            {
+                TextAlignment = TextAlignment.Center,
+                FontSize = 16,
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(3),
+                Margin = new Thickness(0, 2, 0, 2)
+            };
+            doc.Blocks.Add(titlePara);
+        }
+
+        private static TableCell Cell(string text, TextAlignment align, bool bold = false)
+        {
+            var para = new Paragraph(new Run(text)) { TextAlignment = align, Margin = new Thickness(0) };
+            if (bold) para.FontWeight = FontWeights.Bold;
+            return new TableCell(para)
+            {
+                BorderThickness = new Thickness(0.5),
+                BorderBrush = Brushes.Black,
+                Padding = new Thickness(2, 1, 2, 1)
+            };
+        }
+
+        /// <summary>Builds a single-sale invoice matching the Sale screen layout.</summary>
+        private FlowDocument CreateInvoiceDocument(Sale sale)
+        {
+            FlowDocument doc = new FlowDocument
+            {
+                FontFamily = new FontFamily("Segoe UI"),
+                FontSize = 12,
+                TextAlignment = TextAlignment.Left
+            };
+
+            AddStoreHeader(doc, "Bill / Invoice");
+
+            // Metadata
+            doc.Blocks.Add(new Paragraph(new Run($"Bill No: {sale.InvoiceNumber}")) { Margin = new Thickness(0, 1, 0, 0) });
+            doc.Blocks.Add(new Paragraph(new Run($"Date: {sale.SaleDate:dd-MMM-yyyy hh:mm tt}")) { Margin = new Thickness(0) });
+            doc.Blocks.Add(new Paragraph(new Run($"Customer: {sale.CustomerName}")) { Margin = new Thickness(0) });
+            if (!string.IsNullOrWhiteSpace(sale.MobileNumber))
+                doc.Blocks.Add(new Paragraph(new Run($"Mobile: {sale.MobileNumber}")) { Margin = new Thickness(0) });
+            doc.Blocks.Add(new Paragraph(new Run("---------------------------------------------")) { Margin = new Thickness(0, 1, 0, 1) });
+
+            // Items table
+            Table itemsTable = new Table { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
+            itemsTable.Columns.Add(new TableColumn { Width = new GridLength(0.4, GridUnitType.Star) });
+            itemsTable.Columns.Add(new TableColumn { Width = new GridLength(2.1, GridUnitType.Star) });
+            itemsTable.Columns.Add(new TableColumn { Width = new GridLength(0.6, GridUnitType.Star) });
+            itemsTable.Columns.Add(new TableColumn { Width = new GridLength(0.9, GridUnitType.Star) });
+            itemsTable.Columns.Add(new TableColumn { Width = new GridLength(1.1, GridUnitType.Star) });
+
+            var itemsGroup = new TableRowGroup();
+            var head = new TableRow { FontWeight = FontWeights.Bold, Background = Brushes.LightGray };
+            head.Cells.Add(Cell("S.No", TextAlignment.Center));
+            head.Cells.Add(Cell("Product Name", TextAlignment.Left));
+            head.Cells.Add(Cell("Qty", TextAlignment.Center));
+            head.Cells.Add(Cell("Price", TextAlignment.Right));
+            head.Cells.Add(Cell("Total", TextAlignment.Right));
+            itemsGroup.Rows.Add(head);
+
+            int serial = 1;
+            foreach (var item in sale.SaleItems)
+            {
+                var row = new TableRow();
+                row.Cells.Add(Cell(serial++.ToString(), TextAlignment.Center));
+                row.Cells.Add(Cell(item.ProductName, TextAlignment.Left));
+                row.Cells.Add(Cell(item.Quantity.ToString(), TextAlignment.Center));
+                row.Cells.Add(Cell(item.UnitPrice.ToString("N0"), TextAlignment.Right));
+                row.Cells.Add(Cell(item.Total.ToString("N2"), TextAlignment.Right));
+                itemsGroup.Rows.Add(row);
+            }
+            itemsTable.RowGroups.Add(itemsGroup);
+            doc.Blocks.Add(itemsTable);
+
+            // Totals
+            Table totals = new Table { CellSpacing = 0 };
+            totals.Columns.Add(new TableColumn { Width = new GridLength(2, GridUnitType.Star) });
+            totals.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
+            var totalsGroup = new TableRowGroup();
+            void TotalRow(string label, string value, bool bold = false)
+            {
+                var r = new TableRow();
+                var lp = new Paragraph(new Run(label)) { Margin = new Thickness(0) };
+                var vp = new Paragraph(new Run(value)) { TextAlignment = TextAlignment.Right, Margin = new Thickness(0) };
+                if (bold) { lp.FontWeight = FontWeights.Bold; vp.FontWeight = FontWeights.Bold; }
+                r.Cells.Add(new TableCell(lp) { Padding = new Thickness(2, 1, 2, 1) });
+                r.Cells.Add(new TableCell(vp) { Padding = new Thickness(2, 1, 2, 1) });
+                totalsGroup.Rows.Add(r);
+            }
+            decimal totalDiscount = sale.DiscountOnBill + sale.DiscountOnProducts;
+            TotalRow("Total Bill", sale.TotalBill.ToString("N2"), bold: true);
+            if (totalDiscount > 0) TotalRow("Total Discount", totalDiscount.ToString("N2"));
+            TotalRow("Cash Received", sale.ReceiveCash.ToString("N2"), bold: true);
+            TotalRow("Balance Amount", sale.Balance.ToString("N2"), bold: true);
+            totals.RowGroups.Add(totalsGroup);
+            doc.Blocks.Add(totals);
+
+            Paragraph footer = new Paragraph { Margin = new Thickness(0, 20, 0, 0), TextAlignment = TextAlignment.Center };
+            footer.Inlines.Add(new Bold(new Run("Thank You For Your Business!")) { FontSize = 14 });
+            doc.Blocks.Add(footer);
+
+            return doc;
+        }
+
+        /// <summary>Builds the multi-sale summary report (the list + totals shown on screen).</summary>
+        private FlowDocument CreateReportDocument()
+        {
+            FlowDocument doc = new FlowDocument
+            {
+                FontFamily = new FontFamily("Segoe UI"),
+                FontSize = 12,
+                TextAlignment = TextAlignment.Left
+            };
+
+            // Strip leading emoji/icons from the on-screen title for a clean printout.
+            string cleanTitle = new string(ReportTitle.Where(c => c < 128).ToArray()).Trim();
+            AddStoreHeader(doc, "Sales Report");
+
+            doc.Blocks.Add(new Paragraph(new Run(cleanTitle)) { TextAlignment = TextAlignment.Center, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 1, 0, 0) });
+            doc.Blocks.Add(new Paragraph(new Run($"Generated: {DateTime.Now:dd-MMM-yyyy hh:mm tt}")) { TextAlignment = TextAlignment.Center, FontSize = 10, Margin = new Thickness(0, 0, 0, 2) });
+            doc.Blocks.Add(new Paragraph(new Run("---------------------------------------------")) { Margin = new Thickness(0, 1, 0, 1) });
+
+            // Sales list
+            Table table = new Table { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
+            table.Columns.Add(new TableColumn { Width = new GridLength(1.4, GridUnitType.Star) }); // Invoice
+            table.Columns.Add(new TableColumn { Width = new GridLength(1.3, GridUnitType.Star) }); // Date
+            table.Columns.Add(new TableColumn { Width = new GridLength(1.6, GridUnitType.Star) }); // Customer
+            table.Columns.Add(new TableColumn { Width = new GridLength(0.6, GridUnitType.Star) }); // Items
+            table.Columns.Add(new TableColumn { Width = new GridLength(1.1, GridUnitType.Star) }); // Total
+
+            var group = new TableRowGroup();
+            var header = new TableRow { FontWeight = FontWeights.Bold, Background = Brushes.LightGray };
+            header.Cells.Add(Cell("Invoice #", TextAlignment.Left));
+            header.Cells.Add(Cell("Date", TextAlignment.Left));
+            header.Cells.Add(Cell("Customer", TextAlignment.Left));
+            header.Cells.Add(Cell("Items", TextAlignment.Center));
+            header.Cells.Add(Cell("Total", TextAlignment.Right));
+            group.Rows.Add(header);
+
+            foreach (var sale in Sales)
+            {
+                var row = new TableRow();
+                row.Cells.Add(Cell(sale.InvoiceNumber, TextAlignment.Left));
+                row.Cells.Add(Cell(sale.SaleDate.ToString("dd/MM/yyyy"), TextAlignment.Left));
+                row.Cells.Add(Cell(sale.CustomerName, TextAlignment.Left));
+                row.Cells.Add(Cell(sale.SaleItems.Count.ToString(), TextAlignment.Center));
+                row.Cells.Add(Cell(sale.TotalBill.ToString("N2"), TextAlignment.Right));
+                group.Rows.Add(row);
+            }
+            table.RowGroups.Add(group);
+            doc.Blocks.Add(table);
+
+            // Summary totals
+            Table summary = new Table { CellSpacing = 0, Margin = new Thickness(0, 4, 0, 0) };
+            summary.Columns.Add(new TableColumn { Width = new GridLength(2, GridUnitType.Star) });
+            summary.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
+            var sGroup = new TableRowGroup();
+            void SummaryRow(string label, string value, bool bold = false)
+            {
+                var r = new TableRow();
+                var lp = new Paragraph(new Run(label)) { Margin = new Thickness(0) };
+                var vp = new Paragraph(new Run(value)) { TextAlignment = TextAlignment.Right, Margin = new Thickness(0) };
+                if (bold) { lp.FontWeight = FontWeights.Bold; vp.FontWeight = FontWeights.Bold; }
+                r.Cells.Add(new TableCell(lp) { Padding = new Thickness(2, 1, 2, 1) });
+                r.Cells.Add(new TableCell(vp) { Padding = new Thickness(2, 1, 2, 1) });
+                sGroup.Rows.Add(r);
+            }
+            SummaryRow("Total Sales", TotalSales.ToString(), bold: true);
+            SummaryRow("Total Revenue", TotalRevenue.ToString("N2"), bold: true);
+            SummaryRow("Total Discount", TotalDiscount.ToString("N2"));
+            SummaryRow("Total Cost", TotalCost.ToString("N2"));
+            SummaryRow("Total Profit", TotalProfit.ToString("N2"), bold: true);
+            summary.RowGroups.Add(sGroup);
+            doc.Blocks.Add(summary);
+
+            Paragraph footer = new Paragraph { Margin = new Thickness(0, 20, 0, 0), TextAlignment = TextAlignment.Center };
+            footer.Inlines.Add(new Run("--- End of Report ---") { FontSize = 10, Foreground = Brushes.Gray });
+            doc.Blocks.Add(footer);
+
+            return doc;
         }
     }
 }
