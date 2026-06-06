@@ -15,6 +15,13 @@ namespace POSApp.Core.Interfaces
         Task SyncPendingChangesAsync(CancellationToken ct = default);
 
         /// <summary>
+        /// Mark every SyncLog row as pending again, then immediately push all data
+        /// to Firestore. Use this to force a full re-sync (e.g., after placing
+        /// firebase-credentials.json for the first time).
+        /// </summary>
+        Task<SyncResult> ResetAndForceSyncAsync(CancellationToken ct = default);
+
+        /// <summary>
         /// Whether the device currently has internet connectivity.
         /// </summary>
         bool IsOnline { get; }
@@ -41,6 +48,8 @@ namespace POSApp.Core.Interfaces
         public int PushedCount { get; init; }
         public int FailedCount { get; init; }
         public string? ErrorMessage { get; init; }
+        public string? SkipReason { get; init; }
+        public bool WasSkipped => SkipReason is not null;
         public DateTime Timestamp { get; init; } = DateTime.Now;
     }
 }

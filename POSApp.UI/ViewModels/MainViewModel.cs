@@ -1,5 +1,4 @@
 using System.Windows.Input;
-using System.Windows;
 using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +10,8 @@ namespace POSApp.UI.ViewModels
     {
         private string _currentUserInfo = string.Empty;
         private bool _isSyncInProgress;
+
+        public event Action<SyncResult>? SyncResultReady;
 
         public ICommand OpenSaleCommand { get; }
         public ICommand OpenWholeSaleCommand { get; }
@@ -180,43 +181,20 @@ namespace POSApp.UI.ViewModels
             backupWindow?.ShowDialog();
         }
 
-        // Temporary helper for verifying background sync during development.
         private async Task SyncNowAsync()
         {
-            if (_isSyncInProgress)
-                return;
-
+            if (_isSyncInProgress) return;
+            _isSyncInProgress = true;
             try
             {
-                _isSyncInProgress = true;
-                var sync = App.Services?.GetService<ISyncService>();
-                if (sync == null)
-                {
-                    MessageBox.Show("Sync service is not registered.", "Sync", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                MessageBox.Show(
-                    $"Starting sync...\n\nOnline: {sync.IsOnline}\nPending: {sync.PendingCount}",
-                    "Sync",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-
-                await sync.SyncPendingChangesAsync();
-
-                MessageBox.Show(
-                    $"Sync completed.\n\nPending now: {sync.PendingCount}",
-                    "Sync",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                var sync = App.Services?.GetRequiredService<ISyncService>();
+                if (sync is null) return;
+                var result = await sync.ResetAndForceSyncAsync();
+                SyncResultReady?.Invoke(result);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    ex.Message,
-                    "Sync error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                SyncResultReady?.Invoke(new SyncResult { Success = false, ErrorMessage = ex.Message, Timestamp = DateTime.Now });
             }
             finally
             {

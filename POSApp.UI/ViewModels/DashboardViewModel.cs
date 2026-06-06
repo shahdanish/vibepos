@@ -11,6 +11,7 @@ namespace POSApp.UI.ViewModels
         private readonly ISaleRepository _saleRepository;
         private readonly IProductRepository _productRepository;
         private readonly IExpenseRepository _expenseRepository;
+        private readonly ISyncService _syncService;
 
         private decimal _todaySales;
         private decimal _todayExpenses;
@@ -44,17 +45,53 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _lowStockCount, value);
         }
 
-        public ICommand RefreshCommand { get; }
+        private bool _isSyncing;
+        public bool IsSyncing
+        {
+            get => _isSyncing;
+            set => SetProperty(ref _isSyncing, value);
+        }
 
-        public DashboardViewModel(ISaleRepository saleRepository, IProductRepository productRepository, IExpenseRepository expenseRepository)
+        // View subscribes to this to show the result dialog
+        public event Action<SyncResult>? SyncResultReady;
+
+        public ICommand RefreshCommand { get; }
+        public ICommand ForceSyncCommand { get; }
+
+        public DashboardViewModel(ISaleRepository saleRepository, IProductRepository productRepository, IExpenseRepository expenseRepository, ISyncService syncService)
         {
             _saleRepository = saleRepository;
             _productRepository = productRepository;
             _expenseRepository = expenseRepository;
+            _syncService = syncService;
 
-            RefreshCommand = new RelayCommand(async _ => await LoadDashboard());
+            RefreshCommand    = new RelayCommand(async _ => await LoadDashboard());
+            ForceSyncCommand  = new RelayCommand(async _ => await ForceSyncAll(), _ => !IsSyncing);
 
             _ = LoadDashboard();
+        }
+
+        private async Task ForceSyncAll()
+        {
+            IsSyncing = true;
+            try
+            {
+                var result = await _syncService.ResetAndForceSyncAsync();
+                SyncResultReady?.Invoke(result);
+            }
+            catch (Exception ex)
+            {
+                SyncResultReady?.Invoke(new SyncResult
+                {
+                    Success = false,
+                    ErrorMessage = ex.Message,
+                    Timestamp = DateTime.Now
+                });
+            }
+            finally
+            {
+                IsSyncing = false;
+            }
         }
 
         private async Task LoadDashboard()

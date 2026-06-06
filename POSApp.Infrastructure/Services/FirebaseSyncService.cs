@@ -168,6 +168,144 @@ namespace POSApp.Infrastructure.Services
             await SyncPendingChangesAsync(ct);
         }
 
+        /// <summary>
+        /// Reset all SyncLog rows to pending, then push all data to Firestore in one pass.
+        /// Everything runs in a single DbContext scope to avoid cross-scope read issues.
+        /// </summary>
+        public async Task<SyncResult> ResetAndForceSyncAsync(CancellationToken ct = default)
+        {
+            Log("=== ResetAndForceSyncAsync CALLED ===");
+
+            if (_firestoreDb is null)
+            {
+                var credPath = Path.Combine(AppContext.BaseDirectory, "firebase-credentials.json");
+                var reason = $"firebase-credentials.json not found.\n\nExpected location:\n{credPath}\n\nDownload it from Firebase Console → Project Settings → Service Accounts → Generate new private key.";
+                Log($"SKIP: Firestore not initialized — credentials missing at {credPath}");
+                return new SyncResult { SkipReason = reason, Timestamp = DateTime.Now };
+            }
+
+            if (!_connectivityDetector.IsOnline)
+            {
+                Log("SKIP: device is offline.");
+                return new SyncResult { SkipReason = "No internet connection detected.\n\nPlease check your network and try again.", Timestamp = DateTime.Now };
+            }
+
+            if (!await _syncSemaphore.WaitAsync(5000, ct))
+            {
+                Log("SKIP: another sync is in progress (waited 5 s).");
+                return new SyncResult { SkipReason = "A sync is already in progress. Please wait a moment and try again.", Timestamp = DateTime.Now };
+            }
+
+            int pushed = 0, failed = 0;
+            string? errorMsg = null;
+
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                // ── Step 1: raw SQL reset so EF change-tracker is bypassed ──────
+                var resetCount = await db.Database.ExecuteSqlRawAsync("UPDATE SyncLogs SET SyncedAt = NULL", ct);
+                Log($"Reset {resetCount} SyncLog rows to pending via SQL.");
+
+                // ── Step 2: backfill any entities with no SyncLog at all ─────────
+                await AddMissingLogsAsync(db, ct);
+                await db.SaveChangesAsync(ct);
+
+                // ── Step 3: read pending and push — same scope, guaranteed fresh ─
+                var pendingEntries = await db.SyncLogs
+                    .Where(s => s.SyncedAt == null)
+                    .OrderBy(s => s.CreatedAt)
+                    .ToListAsync(ct);
+
+                Log($"Pending after reset: {pendingEntries.Count}");
+
+                var latestPerEntity = pendingEntries
+                    .GroupBy(s => new { s.EntityType, s.EntityId })
+                    .Select(g => g.Last())
+                    .ToList();
+
+                foreach (var logEntry in latestPerEntity)
+                {
+                    try
+                    {
+                        var entityData = await LoadEntityAsync(db, logEntry.EntityType, logEntry.EntityId, ct);
+                        if (entityData is not null)
+                        {
+                            var docRef = _firestoreDb.Collection(logEntry.EntityType.ToLowerInvariant())
+                                                     .Document(logEntry.EntityId.ToString());
+                            await docRef.SetAsync(entityData, SetOptions.MergeAll, ct);
+                        }
+
+                        var relatedLogs = pendingEntries
+                            .Where(s => s.EntityType == logEntry.EntityType && s.EntityId == logEntry.EntityId);
+                        foreach (var r in relatedLogs)
+                            r.SyncedAt = DateTime.Now;
+
+                        Log($"Pushed {logEntry.EntityType}/{logEntry.EntityId}");
+                        pushed++;
+                    }
+                    catch (Exception ex)
+                    {
+                        failed++;
+                        errorMsg = ex.Message;
+                        Log($"Failed {logEntry.EntityType}/{logEntry.EntityId}: {ex.Message}");
+                    }
+                }
+
+                await db.SaveChangesAsync(ct);
+                Log($"=== ResetAndForceSyncAsync DONE: pushed={pushed}, failed={failed} ===");
+
+                return new SyncResult
+                {
+                    Success = failed == 0,
+                    PushedCount = pushed,
+                    FailedCount = failed,
+                    ErrorMessage = errorMsg,
+                    Timestamp = DateTime.Now
+                };
+            }
+            catch (Exception ex)
+            {
+                Log($"❌ ResetAndForceSyncAsync ERROR: {ex.GetType().Name}: {ex.Message}");
+                return new SyncResult { Success = false, ErrorMessage = ex.Message, Timestamp = DateTime.Now };
+            }
+            finally
+            {
+                _syncSemaphore.Release();
+            }
+        }
+
+        private async Task AddMissingLogsAsync(AppDbContext db, CancellationToken ct)
+        {
+            var createdAt = DateTime.Now;
+            var existing = await db.SyncLogs.Select(s => new { s.EntityType, s.EntityId }).ToListAsync(ct);
+            var existingSet = existing.Select(e => $"{e.EntityType}:{e.EntityId}").ToHashSet();
+
+            var newLogs = new List<SyncLog>();
+
+            void AddIfMissing(string type, int id)
+            {
+                if (!existingSet.Contains($"{type}:{id}"))
+                    newLogs.Add(new SyncLog { EntityType = type, EntityId = id, Operation = "Create", CreatedAt = createdAt });
+            }
+
+            foreach (var p in await db.Products.AsNoTracking().Select(p => p.Id).ToListAsync(ct))
+                AddIfMissing(nameof(Product), p);
+            foreach (var s in await db.Sales.AsNoTracking().Select(s => s.Id).ToListAsync(ct))
+                AddIfMissing(nameof(Sale), s);
+            foreach (var c in await db.Categories.AsNoTracking().Select(c => c.Id).ToListAsync(ct))
+                AddIfMissing(nameof(Category), c);
+            foreach (var c in await db.Customers.AsNoTracking().Select(c => c.Id).ToListAsync(ct))
+                AddIfMissing(nameof(Customer), c);
+
+            if (newLogs.Count > 0)
+            {
+                await db.SyncLogs.AddRangeAsync(newLogs, ct);
+                Log($"Added {newLogs.Count} missing SyncLog entries.");
+            }
+        }
+
         public async Task LogChangeAsync(string entityType, int entityId, string operation, CancellationToken ct = default)
         {
             // SyncLog entries are auto-created by SyncLogInterceptor.

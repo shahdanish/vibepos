@@ -138,6 +138,8 @@
         <!-- Footer actions -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right"
                     Margin="20,15,20,20">
+            <Button Content="☁ Force Sync to Firebase" Command="{Binding ForceSyncCommand}"
+                    Style="{StaticResource WarningButton}" Padding="14,8" Margin="0,0,10,0"/>
             <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
                     Style="{StaticResource InfoButton}" Padding="14,8" Margin="0,0,10,0"/>
             <Button Content="Close" Click="Close_Click"

@@ -9,11 +9,26 @@ namespace POSApp.UI.Views
         {
             InitializeComponent();
             DataContext = viewModel;
+            viewModel.SyncResultReady += OnSyncResultReady;
         }
 
-        private void Close_Click(object sender, RoutedEventArgs e)
+        private void OnSyncResultReady(Core.Interfaces.SyncResult result)
         {
-            Close();
+            if (result.WasSkipped)
+            {
+                SyncAlertDialog.ShowWarning(this, result.SkipReason!);
+            }
+            else if (result.Success)
+            {
+                SyncAlertDialog.ShowSuccess(this, result.PushedCount, result.Timestamp);
+            }
+            else
+            {
+                SyncAlertDialog.ShowError(this, result.PushedCount, result.FailedCount,
+                    result.ErrorMessage ?? "Unknown error");
+            }
         }
+
+        private void Close_Click(object sender, RoutedEventArgs e) => Close();
     }
 }
