@@ -1,5 +1,9 @@
 using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
@@ -21,6 +25,11 @@ namespace POSApp.UI.ViewModels
         private string? _newCustomerAddress;
         private decimal _newCustomerInitialBalance;
 
+        // Last payment tracking for receipt reprinting
+        private CustomerPayment? _lastPayment;
+        private Customer? _lastPaymentCustomer;
+        private decimal _balanceBeforeLastPayment;
+
         public ObservableCollection<Customer> Customers { get; } = new();
         public ObservableCollection<CustomerPayment> Payments { get; } = new();
 
@@ -30,10 +39,7 @@ namespace POSApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref _selectedCustomer, value))
-                {
-                    // Load payments asynchronously with proper error handling
                     _ = LoadPaymentsSafe();
-                }
             }
         }
 
@@ -76,6 +82,7 @@ namespace POSApp.UI.ViewModels
         public ICommand AddPaymentCommand { get; }
         public ICommand AddCustomerCommand { get; }
         public ICommand RefreshCommand { get; }
+        public ICommand PrintReceiptCommand { get; }
 
         public CustomerLedgerViewModel(ICustomerRepository customerRepository, ICustomerPaymentRepository paymentRepository)
         {
@@ -85,58 +92,38 @@ namespace POSApp.UI.ViewModels
             AddPaymentCommand = new RelayCommand(async _ => await AddPayment());
             AddCustomerCommand = new RelayCommand(async _ => await AddCustomer());
             RefreshCommand = new RelayCommand(async _ => await LoadCustomers());
+            PrintReceiptCommand = new RelayCommand(_ => ReprintLastReceipt(), _ => _lastPayment != null);
 
-            // Load customers on initialization with proper error handling
             _ = LoadCustomersSafe();
         }
 
         private async Task LoadCustomersSafe()
         {
-            try
-            {
-                await LoadCustomers();
-            }
-            catch (Exception ex)
-            {
-                NotificationHelper.OperationFailed("load customers", ex.Message);
-            }
+            try { await LoadCustomers(); }
+            catch (Exception ex) { NotificationHelper.OperationFailed("load customers", ex.Message); }
         }
 
         private async Task LoadCustomers()
         {
             var customers = await _customerRepository.GetAllAsync();
             Customers.Clear();
-            
-            // Show customers with balances first
             foreach (var customer in customers.OrderByDescending(c => c.CurrentBalance))
-            {
                 Customers.Add(customer);
-            }
         }
 
         private async Task LoadPaymentsSafe()
         {
-            try
-            {
-                await LoadPayments();
-            }
-            catch (Exception ex)
-            {
-                NotificationHelper.OperationFailed("load payment history", ex.Message);
-            }
+            try { await LoadPayments(); }
+            catch (Exception ex) { NotificationHelper.OperationFailed("load payment history", ex.Message); }
         }
 
         private async Task LoadPayments()
         {
             Payments.Clear();
-            
             if (SelectedCustomer == null) return;
-
             var payments = await _paymentRepository.GetByCustomerIdAsync(SelectedCustomer.Id);
             foreach (var payment in payments)
-            {
                 Payments.Add(payment);
-            }
         }
 
         private async Task AddCustomer()
@@ -201,6 +188,10 @@ namespace POSApp.UI.ViewModels
 
             try
             {
+                // Capture balance before the payment is applied
+                decimal balanceBefore = SelectedCustomer.CurrentBalance;
+                var customerSnapshot = SelectedCustomer;
+
                 var payment = new CustomerPayment
                 {
                     CustomerId = SelectedCustomer.Id,
@@ -211,22 +202,138 @@ namespace POSApp.UI.ViewModels
 
                 await _paymentRepository.AddAsync(payment);
 
-                // Clear form
+                // Store for reprinting
+                _lastPayment = payment;
+                _lastPaymentCustomer = customerSnapshot;
+                _balanceBeforeLastPayment = balanceBefore;
+
                 PaymentAmount = 0;
                 PaymentNote = null;
 
-                // Reload customer list to get updated balances
                 await LoadCustomers();
-
-                // Re-select the same customer to refresh their payment history
                 SelectedCustomer = Customers.FirstOrDefault(c => c.Id == payment.CustomerId);
 
-                NotificationHelper.ShowSuccess($"Payment of Rs.{payment.AmountPaid:N2} recorded successfully!");
+                NotificationHelper.ShowSuccess($"Payment of Rs.{payment.AmountPaid:N2} recorded!");
+
+                // Auto-print receipt
+                PrintPaymentReceipt(payment, customerSnapshot, balanceBefore);
             }
             catch (Exception ex)
             {
                 NotificationHelper.OperationFailed("record payment", ex.Message);
             }
+        }
+
+        private void ReprintLastReceipt()
+        {
+            if (_lastPayment == null || _lastPaymentCustomer == null) return;
+            PrintPaymentReceipt(_lastPayment, _lastPaymentCustomer, _balanceBeforeLastPayment);
+        }
+
+        private static void PrintPaymentReceipt(CustomerPayment payment, Customer customer, decimal balanceBefore)
+        {
+            try
+            {
+                var doc = new FlowDocument
+                {
+                    FontFamily = new FontFamily("Segoe UI"),
+                    FontSize = 12,
+                    TextAlignment = TextAlignment.Left
+                };
+
+                // Store header
+                var header = new Paragraph { Margin = new Thickness(0, 0, 0, 2), TextAlignment = TextAlignment.Center };
+                header.Inlines.Add(new Bold(new Run("Shahjee super store")) { FontSize = 22 });
+                header.Inlines.Add(new LineBreak());
+                header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 13 });
+                header.Inlines.Add(new LineBreak());
+                header.Inlines.Add(new Run("0332-3324911") { FontSize = 13 });
+                doc.Blocks.Add(header);
+
+                // Title
+                doc.Blocks.Add(new Paragraph(new Bold(new Run("Payment Receipt / رسید")))
+                {
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 15,
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(1),
+                    Padding = new Thickness(3),
+                    Margin = new Thickness(0, 2, 0, 4)
+                });
+
+                // Date and customer info
+                doc.Blocks.Add(Ln($"Date:      {payment.PaymentDate:dd-MMM-yyyy  hh:mm tt}"));
+                doc.Blocks.Add(Ln($"Customer:  {customer.Name}"));
+                if (!string.IsNullOrWhiteSpace(customer.Phone))
+                    doc.Blocks.Add(Ln($"Phone:     {customer.Phone}"));
+                if (!string.IsNullOrWhiteSpace(payment.Note))
+                    doc.Blocks.Add(Ln($"Note:      {payment.Note}"));
+
+                doc.Blocks.Add(Separator());
+
+                // Balance breakdown table
+                decimal remaining = balanceBefore - payment.AmountPaid;
+                var table = new Table { CellSpacing = 0 };
+                table.Columns.Add(new TableColumn { Width = new GridLength(2, GridUnitType.Star) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(1.2, GridUnitType.Star) });
+                var tg = new TableRowGroup();
+                table.RowGroups.Add(tg);
+
+                AddTableRow(tg, "Previous Balance:", $"Rs. {balanceBefore:N2}", bold: false);
+                AddTableRow(tg, "Amount Paid:", $"Rs. {payment.AmountPaid:N2}", bold: false);
+                AddTableRow(tg, "Remaining Balance:", $"Rs. {remaining:N2}", bold: true);
+                doc.Blocks.Add(table);
+
+                doc.Blocks.Add(Separator());
+
+                // Footer
+                doc.Blocks.Add(new Paragraph(new Bold(new Run("Thank you for your payment!")))
+                {
+                    TextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(0, 4, 0, 2)
+                });
+
+                // Configure and print
+                var printDialog = new PrintDialog();
+                bool small = SettingsManager.LoadSettings().UseSmallBillFormat;
+                if (small)
+                {
+                    doc.PageWidth = 280;
+                    doc.PageHeight = double.NaN;
+                    doc.ColumnWidth = 260;
+                    doc.PagePadding = new Thickness(5);
+                    doc.FontSize = 10;
+                }
+                else
+                {
+                    doc.PageWidth = printDialog.PrintableAreaWidth;
+                    doc.PageHeight = printDialog.PrintableAreaHeight;
+                    doc.ColumnWidth = printDialog.PrintableAreaWidth;
+                    doc.PagePadding = new Thickness(40);
+                }
+                printDialog.PrintDocument(((IDocumentPaginatorSource)doc).DocumentPaginator, "Payment Receipt");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("print payment receipt", ex.Message);
+            }
+        }
+
+        private static Paragraph Ln(string text) =>
+            new Paragraph(new Run(text)) { Margin = new Thickness(0, 1, 0, 1) };
+
+        private static Paragraph Separator() =>
+            new Paragraph(new Run("─────────────────────────────────")) { Margin = new Thickness(0, 3, 0, 3) };
+
+        private static void AddTableRow(TableRowGroup group, string label, string value, bool bold)
+        {
+            var row = new TableRow();
+            var lp = new Paragraph(new Run(label)) { Margin = new Thickness(0) };
+            var vp = new Paragraph(new Run(value)) { TextAlignment = TextAlignment.Right, Margin = new Thickness(0) };
+            if (bold) { lp.FontWeight = FontWeights.Bold; vp.FontWeight = FontWeights.Bold; }
+            row.Cells.Add(new TableCell(lp) { Padding = new Thickness(2, 1, 2, 1) });
+            row.Cells.Add(new TableCell(vp) { Padding = new Thickness(2, 1, 2, 1) });
+            group.Rows.Add(row);
         }
     }
 }

@@ -298,7 +298,7 @@ namespace POSApp.UI.ViewModels
             var header = new Paragraph();
             header.Margin = new System.Windows.Thickness(0, 0, 0, 2);
             header.TextAlignment = System.Windows.TextAlignment.Center;
-            header.Inlines.Add(new Bold(new Run("ShahJee Super Store")) { FontSize = 24 });
+            header.Inlines.Add(new Bold(new Run("Shahjee super store")) { FontSize = 24 });
             header.Inlines.Add(new LineBreak());
             header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
             header.Inlines.Add(new LineBreak());

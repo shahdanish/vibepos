@@ -17,10 +17,11 @@ namespace POSApp.UI.ViewModels
         private string _productId = string.Empty;
         private string _barcode = string.Empty;
         private string _productName = string.Empty;
-        private decimal _costPrice;
-        private decimal _unitPrice;
-        private decimal _wholesalePrice;
-        private int _stock;
+        private decimal? _costPrice;
+        private decimal? _unitPrice;
+        private decimal? _wholesalePrice;
+        private int? _stock;
+        private int? _minStockThreshold;
         private string? _rack;
         private Category? _selectedCategory;
         private bool _showDeletedProducts = false;
@@ -58,28 +59,34 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _productName, value);
         }
 
-        public decimal CostPrice
+        public decimal? CostPrice
         {
             get => _costPrice;
             set => SetProperty(ref _costPrice, value);
         }
 
-        public decimal UnitPrice
+        public decimal? UnitPrice
         {
             get => _unitPrice;
             set => SetProperty(ref _unitPrice, value);
         }
 
-        public decimal WholesalePrice
+        public decimal? WholesalePrice
         {
             get => _wholesalePrice;
             set => SetProperty(ref _wholesalePrice, value);
         }
 
-        public int Stock
+        public int? Stock
         {
             get => _stock;
             set => SetProperty(ref _stock, value);
+        }
+
+        public int? MinStockThreshold
+        {
+            get => _minStockThreshold;
+            set => SetProperty(ref _minStockThreshold, value);
         }
 
         public string? Rack
@@ -93,6 +100,8 @@ namespace POSApp.UI.ViewModels
             get => _selectedCategory;
             set => SetProperty(ref _selectedCategory, value);
         }
+
+        public Action? OnProductAdded { get; set; }
 
         public bool ShowDeletedProducts
         {
@@ -167,7 +176,8 @@ namespace POSApp.UI.ViewModels
             CostPrice = product.CostPrice;
             UnitPrice = product.UnitPrice;
             WholesalePrice = product.WholesalePrice;
-            Stock = product.Stock;
+            Stock = product.Stock == 0 ? (int?)null : product.Stock;
+            MinStockThreshold = product.MinStockThreshold == 0 ? (int?)null : product.MinStockThreshold;
             Rack = product.Rack;
             SelectedCategory = Categories.FirstOrDefault(c => c.Id == product.CategoryId);
         }
@@ -180,17 +190,12 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
-            // Auto-generate Product ID if not provided
-            if (string.IsNullOrWhiteSpace(ProductId))
-            {
-                await GenerateProductId();
-            }
+            // Always auto-generate the internal Product ID
+            await GenerateProductId();
 
-            // Auto-fill barcode with Product ID if empty
+            // Use barcode as-is; if not provided, fall back to the generated Product ID
             if (string.IsNullOrWhiteSpace(Barcode))
-            {
                 Barcode = ProductId;
-            }
 
             try
             {
@@ -199,10 +204,11 @@ namespace POSApp.UI.ViewModels
                     ProductId = ProductId,
                     Barcode = Barcode,
                     ProductName = ProductName,
-                    CostPrice = CostPrice,
-                    UnitPrice = UnitPrice,
-                    WholesalePrice = WholesalePrice,
-                    Stock = Stock,
+                    CostPrice = CostPrice ?? 0,
+                    UnitPrice = UnitPrice ?? 0,
+                    WholesalePrice = WholesalePrice ?? 0,
+                    Stock = Stock ?? 0,
+                    MinStockThreshold = MinStockThreshold ?? 0,
                     Rack = Rack,
                     CategoryId = SelectedCategory?.Id
                 };
@@ -212,6 +218,7 @@ namespace POSApp.UI.ViewModels
 
                 await LoadData();
                 ClearForm();
+                OnProductAdded?.Invoke();
             }
             catch (Exception ex)
             {
@@ -225,13 +232,14 @@ namespace POSApp.UI.ViewModels
 
             try
             {
-                SelectedProduct.ProductId = ProductId;
-                SelectedProduct.Barcode = string.IsNullOrWhiteSpace(Barcode) ? ProductId : Barcode;
+                // ProductId is immutable once created — only barcode is user-editable
+                SelectedProduct.Barcode = string.IsNullOrWhiteSpace(Barcode) ? SelectedProduct.ProductId : Barcode;
                 SelectedProduct.ProductName = ProductName;
-                SelectedProduct.CostPrice = CostPrice;
-                SelectedProduct.UnitPrice = UnitPrice;
-                SelectedProduct.WholesalePrice = WholesalePrice;
-                SelectedProduct.Stock = Stock;
+                SelectedProduct.CostPrice = CostPrice ?? 0;
+                SelectedProduct.UnitPrice = UnitPrice ?? 0;
+                SelectedProduct.WholesalePrice = WholesalePrice ?? 0;
+                SelectedProduct.Stock = Stock ?? 0;
+                SelectedProduct.MinStockThreshold = MinStockThreshold ?? 0;
                 SelectedProduct.Rack = Rack;
                 SelectedProduct.CategoryId = SelectedCategory?.Id;
 
@@ -296,10 +304,11 @@ namespace POSApp.UI.ViewModels
             ProductId = string.Empty;
             Barcode = string.Empty;
             ProductName = string.Empty;
-            CostPrice = 0;
-            UnitPrice = 0;
-            WholesalePrice = 0;
-            Stock = 0;
+            CostPrice = null;
+            UnitPrice = null;
+            WholesalePrice = null;
+            Stock = null;
+            MinStockThreshold = null;
             Rack = null;
             SelectedCategory = null;
         }

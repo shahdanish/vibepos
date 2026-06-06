@@ -16,10 +16,10 @@
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="15">
             <Grid>
-                <TextBlock Text="WHOLE SALE" FontSize="28" FontWeight="Bold" 
+                <TextBlock Text="WHOLESALE SALE" FontSize="28" FontWeight="Bold"
                            Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding InvoiceNumber, StringFormat='Invoice #: {0}'}" 
-                           FontSize="18" FontWeight="Bold" Foreground="Yellow" 
+                <TextBlock Text="{Binding InvoiceNumber, StringFormat='Invoice #: {0}'}"
+                           FontSize="18" FontWeight="Bold" Foreground="Yellow"
                            HorizontalAlignment="Right" VerticalAlignment="Center"/>
             </Grid>
         </Border>
@@ -33,36 +33,109 @@
             </Grid.RowDefinitions>
 
             <!-- Top Sections -->
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" MaxHeight="250" Margin="0,0,0,10">
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" MaxHeight="300" Margin="0,0,0,10">
                 <StackPanel>
                     <!-- Customer & Payment Info -->
                     <Border Style="{StaticResource CardBorder}">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                <TextBlock Text="Customer Name" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}" 
-                                         FontSize="13" Padding="6"/>
-                            </StackPanel>
+                            <!-- Row 1: Customer Info -->
+                            <Grid Grid.Row="0" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="1" Margin="10,0">
-                                <TextBlock Text="Payment Method" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                <ComboBox SelectedItem="{Binding PaymentType}" FontSize="13" Padding="6">
-                                    <ComboBoxItem Content="Cash" IsSelected="True"/>
-                                    <ComboBoxItem Content="Credit Card"/>
-                                    <ComboBoxItem Content="Bank Transfer"/>
-                                </ComboBox>
-                            </StackPanel>
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="Customer Name" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                    <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="13" Padding="6"/>
+                                </StackPanel>
 
-                            <StackPanel Grid.Column="2" Margin="10,0,0,0">
-                                <TextBlock Text="Sale Date" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
-                                <DatePicker SelectedDate="{Binding SaleDate}" FontSize="13" Padding="6"/>
-                            </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="10,0">
+                                    <TextBlock Text="Mobile Number" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                    <TextBox Text="{Binding MobileNumber, UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="13" Padding="6"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Margin="10,0">
+                                    <TextBlock Text="Payment Method" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                    <ComboBox ItemsSource="{Binding PaymentTypes}"
+                                              SelectedItem="{Binding PaymentType}"
+                                              FontSize="13" Padding="6"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3" Margin="10,0,0,0">
+                                    <TextBlock Text="Sale Date" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                    <DatePicker SelectedDate="{Binding SaleDate}" FontSize="13" Padding="6"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Row 1b: Credit customer selector -->
+                            <Grid Grid.Row="1" Margin="0,0,0,8"
+                                  Visibility="{Binding IsCreditPayment, Converter={StaticResource BoolToVis}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="Select Credit Customer" FontWeight="Bold" Margin="0,0,0,5"
+                                               FontSize="12" Foreground="{DynamicResource DangerBrush}"/>
+                                    <ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}"
+                                              DisplayMemberPath="Name" IsEditable="True" IsTextSearchEnabled="True"
+                                              FontSize="13" Padding="6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="10,0">
+                                    <TextBlock Text="Outstanding Balance" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"
+                                               Foreground="{DynamicResource DangerBrush}"/>
+                                    <TextBox Text="{Binding PreBalance, StringFormat='Rs. {0:N2}', Mode=OneWay}"
+                                             FontSize="13" Padding="6" IsReadOnly="True" Background="#FFF9C4"/>
+                                </StackPanel>
+                                <Border Grid.Column="2" Background="#FFF3E0" Padding="8" CornerRadius="4" Margin="10,0,0,0"
+                                        VerticalAlignment="Bottom">
+                                    <TextBlock Text="⚠ Credit sale: amount will be added to customer's outstanding balance."
+                                               FontSize="11" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"/>
+                                </Border>
+                            </Grid>
+
+                            <!-- Row 2: Bill Note & Settings -->
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="Bill Note (Optional)" FontWeight="Bold" Margin="0,0,0,5" FontSize="12"/>
+                                    <TextBox Text="{Binding BillNote, UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="13" Padding="6"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="10,0" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <CheckBox Content="Auto Add" IsChecked="{Binding AutoAddItem}"
+                                              FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Margin="10,0" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <CheckBox Content="Auto Print" IsChecked="{Binding AutoPrint}"
+                                              FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PurpleBrush}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3" Margin="10,0,0,0" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <CheckBox Content="Small Bill" IsChecked="{Binding UseSmallBillFormat}"
+                                              FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}"/>
+                                </StackPanel>
+                            </Grid>
                         </Grid>
                     </Border>
 
@@ -120,7 +193,14 @@
                                          IsReadOnly="True" Background="#f0f0f0" TextAlignment="Center"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
+                            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <StackPanel Margin="0,0,15,0" VerticalAlignment="Center"
+                                            Visibility="{Binding IsLastScannedCostVisible, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="Item Cost" FontWeight="Bold" FontSize="10" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding LastScannedCost, StringFormat={}{0:N2}}"
+                                               FontSize="14" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" TextAlignment="Center"/>
+                                </StackPanel>
+
                                 <Button Content="Add Item" Command="{Binding AddItemCommand}"
                                         Style="{StaticResource SuccessButton}" Padding="15,8"/>
                             </StackPanel>
@@ -137,24 +217,36 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Sale Items" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Grid.Row="0" Text="Wholesale Sale Items" Style="{StaticResource SectionTitle}"/>
 
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding SaleItems}" AutoGenerateColumns="False" 
-                              CanUserAddRows="False" AlternatingRowBackground="#F9F9F9" 
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding SaleItems}" AutoGenerateColumns="False"
+                              CanUserAddRows="False" AlternatingRowBackground="#F9F9F9"
                               HeadersVisibility="All" GridLinesVisibility="Horizontal" BorderThickness="0"
                               HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" Width="120"/>
-                            <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
-                            <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, StringFormat=N2}" Width="100" ElementStyle="{StaticResource RightAlignStyle}"/>
-                            <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="70" ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Disc %" Binding="{Binding DiscountPercent}" Width="70" ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
+                            <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" IsReadOnly="True" Width="120"/>
+                            <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" IsReadOnly="True" Width="*"/>
+                            <DataGridTextColumn Header="Unit Price" Width="100" ElementStyle="{StaticResource RightAlignStyle}">
+                                <DataGridTextColumn.Binding>
+                                    <Binding Path="UnitPrice" StringFormat="N2" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Qty" Width="70" ElementStyle="{StaticResource CenterAlignStyle}">
+                                <DataGridTextColumn.Binding>
+                                    <Binding Path="Quantity" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Disc %" Width="70" ElementStyle="{StaticResource CenterAlignStyle}">
+                                <DataGridTextColumn.Binding>
+                                    <Binding Path="DiscountPercent" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}" IsReadOnly="True" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTemplateColumn Header="Action" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Del" Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                                CommandParameter="{Binding}" Style="{StaticResource DangerButton}" 
+                                        <Button Content="Del" Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}" Style="{StaticResource DangerButton}"
                                                 Padding="6,2" FontSize="11"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -174,15 +266,24 @@
                 <!-- Left: Action Buttons -->
                 <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,10,0">
                     <WrapPanel VerticalAlignment="Bottom" HorizontalAlignment="Left">
-                        <Button Content="NEW SALE" Command="{Binding NewCommand}" 
+                        <Button Content="NEW SALE" Command="{Binding NewCommand}"
                                 Style="{StaticResource InfoButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
-                        <Button Content="SAVE SALE" Command="{Binding SaveCommand}" 
+                        <Button Content="QUICK SALE" Command="{Binding QuickSaleCommand}"
+                                Style="{StaticResource SuccessButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"
+                                ToolTip="Open a new wholesale sale window"/>
+                        <Button Content="{Binding ModeSwitchLabel}" Command="{Binding SwitchModeCommand}"
+                                Style="{StaticResource InfoButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="130"
+                                ToolTip="Switch to Retail Sale mode (cart is preserved)"/>
+                        <Button Content="SAVE SALE" Command="{Binding SaveCommand}"
                                 Style="{StaticResource SuccessButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
                         <Button Content="{Binding PrintButtonText}" Command="{Binding PrintCommand}"
                                 Style="{StaticResource PurpleButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
-                        <Button Content="CANCEL" Command="{Binding CancelCommand}" 
+                        <Button Content="🖩 CALC" Click="Calculator_Click"
+                                Style="{StaticResource NeutralButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="90"
+                                ToolTip="Open floating calculator"/>
+                        <Button Content="CANCEL" Command="{Binding CancelCommand}"
                                 Style="{StaticResource WarningButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
-                        <Button Content="CLOSE" Click="Exit_Click" 
+                        <Button Content="CLOSE" Click="Exit_Click"
                                 Style="{StaticResource NeutralButton}" Padding="15,10" Margin="0,0,0,5" MinWidth="110"/>
                     </WrapPanel>
                 </Border>
@@ -192,13 +293,13 @@
                     <StackPanel>
                         <Grid Margin="0,0,0,8">
                             <TextBlock Text="Discount Products:" FontSize="13" VerticalAlignment="Center"/>
-                            <TextBox Text="{Binding DiscountOnProducts, UpdateSourceTrigger=PropertyChanged}" 
+                            <TextBox Text="{Binding DiscountOnProducts, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="13" Padding="6" Width="120" HorizontalAlignment="Right" TextAlignment="Right"/>
                         </Grid>
 
                         <Grid Margin="0,0,0,8">
                             <TextBlock Text="Discount Bill:" FontSize="13" VerticalAlignment="Center"/>
-                            <TextBox Text="{Binding DiscountOnBill, UpdateSourceTrigger=PropertyChanged}" 
+                            <TextBox Text="{Binding DiscountOnBill, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="13" Padding="6" Width="120" HorizontalAlignment="Right" TextAlignment="Right"/>
                         </Grid>
 
@@ -206,24 +307,24 @@
 
                         <Grid Margin="0,8,0,8">
                             <TextBlock Text="TOTAL BILL:" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBox Text="{Binding TotalBill, StringFormat=Rs. {0:N2}, Mode=OneWay}" 
+                            <TextBox Text="{Binding TotalBill, StringFormat=Rs. {0:N2}, Mode=OneWay}"
                                      Style="{StaticResource TotalDisplay}" Width="180" HorizontalAlignment="Right"/>
                         </Grid>
 
                         <Grid Margin="0,0,0,8">
                             <TextBlock Text="Cash Received:" FontSize="14" FontWeight="Bold"/>
-                            <TextBox Text="{Binding ReceiveCash, UpdateSourceTrigger=PropertyChanged}" 
-                                     FontSize="14" FontWeight="Bold" Padding="8" Width="180" 
-                                     HorizontalAlignment="Right" TextAlignment="Right" BorderThickness="2" 
+                            <TextBox Text="{Binding ReceiveCash, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="14" FontWeight="Bold" Padding="8" Width="180"
+                                     HorizontalAlignment="Right" TextAlignment="Right" BorderThickness="2"
                                      BorderBrush="{DynamicResource SuccessBrush}"/>
                         </Grid>
 
                         <Grid>
                             <TextBlock Text="Balance:" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource InfoBrush}"/>
-                            <TextBox Text="{Binding Balance, StringFormat=Rs. {0:N2}, Mode=OneWay}" 
-                                     FontSize="16" FontWeight="Bold" Padding="8" Width="180" 
-                                     HorizontalAlignment="Right" TextAlignment="Right" IsReadOnly="True" 
-                                     Background="#E3F2FD" Foreground="{DynamicResource InfoBrush}" BorderThickness="2" 
+                            <TextBox Text="{Binding Balance, StringFormat=Rs. {0:N2}, Mode=OneWay}"
+                                     FontSize="16" FontWeight="Bold" Padding="8" Width="180"
+                                     HorizontalAlignment="Right" TextAlignment="Right" IsReadOnly="True"
+                                     Background="#E3F2FD" Foreground="{DynamicResource InfoBrush}" BorderThickness="2"
                                      BorderBrush="{DynamicResource InfoBrush}"/>
                         </Grid>
                     </StackPanel>

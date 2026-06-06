@@ -378,7 +378,7 @@ namespace POSApp.UI.ViewModels
         private static void AddStoreHeader(FlowDocument doc, string title)
         {
             Paragraph header = new Paragraph { Margin = new Thickness(0, 0, 0, 2), TextAlignment = TextAlignment.Center };
-            header.Inlines.Add(new Bold(new Run("ShahJee Super Store")) { FontSize = 24 });
+            header.Inlines.Add(new Bold(new Run("Shahjee super store")) { FontSize = 24 });
             header.Inlines.Add(new LineBreak());
             header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
             header.Inlines.Add(new LineBreak());

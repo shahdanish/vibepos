@@ -9,6 +9,12 @@ namespace POSApp.UI.Views
         {
             InitializeComponent();
             DataContext = viewModel;
+
+            viewModel.OnProductAdded = () =>
+            {
+                BarcodeBox.Clear();
+                BarcodeBox.Focus();
+            };
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)

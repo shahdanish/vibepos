@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:POSApp.UI.Views"
         mc:Ignorable="d"
         Title="Product Management - Shah Jee Super Store" Height="700" Width="1200"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -41,8 +41,7 @@
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}" 
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" Width="100"/>
-                            <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="120"/>
+                            <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="140"/>
                             <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
                             <DataGridTextColumn Header="Category" Binding="{Binding Category.Name}" Width="100"/>
                             <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, StringFormat=N2}" Width="70"/>
@@ -80,19 +79,9 @@
                     <StackPanel>
                         <TextBlock Text="Product Details" Style="{StaticResource SectionTitle}"/>
 
-                        <TextBlock Text="Product ID" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding ProductId, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,10,0"/>
-                            <Button Grid.Column="1" Content="Auto" Command="{Binding GenerateIdCommand}" 
-                                    Style="{StaticResource InfoButton}" Padding="10,8" ToolTip="Auto-generate 5-digit ID"/>
-                        </Grid>
-
                         <TextBlock Text="Barcode" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
+                        <TextBox x:Name="BarcodeBox" Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"
+                                 ToolTip="Scan or type the product barcode. Product ID is auto-generated."/>
 
                         <TextBlock Text="Product Name *" FontWeight="SemiBold" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
@@ -102,16 +91,25 @@
                                   DisplayMemberPath="Name" Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Cost Price (Rs)" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding CostPrice, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
+                        <TextBox Text="{Binding CostPrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                                 Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Retail Price (Rs)" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
+                        <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                                 Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Wholesale Price (Rs)" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding WholesalePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
+                        <TextBox Text="{Binding WholesalePrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                                 Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Stock Quantity" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding Stock, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
+                        <TextBox Text="{Binding Stock, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                                 Padding="8" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Low Stock Alert (qty)" FontWeight="SemiBold" Margin="0,0,0,5"
+                                   ToolTip="Product appears in Dashboard low-stock alerts when stock falls to or below this number"/>
+                        <TextBox Text="{Binding MinStockThreshold, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                                 Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Rack/Location" FontWeight="SemiBold" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding Rack, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,15"/>

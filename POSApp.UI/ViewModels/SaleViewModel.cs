@@ -302,6 +302,9 @@ namespace POSApp.UI.ViewModels
         public decimal TotalPurchasePrice => SaleItems?.Sum(item => item.CostPrice * item.Quantity) ?? 0;
 
         public Action? OpenQuickSaleWindow { get; set; }
+        public Action? SwitchMode { get; set; }
+
+        public virtual string ModeSwitchLabel => "⇄ WHOLESALE";
 
         public ICommand AddItemCommand { get; }
         public ICommand ScanCommand { get; }
@@ -311,6 +314,7 @@ namespace POSApp.UI.ViewModels
         public ICommand CancelCommand { get; }
         public ICommand PrintCommand { get; }
         public ICommand QuickSaleCommand { get; }
+        public ICommand SwitchModeCommand { get; }
 
         public SaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository)
         {
@@ -339,6 +343,7 @@ namespace POSApp.UI.ViewModels
             CancelCommand = new RelayCommand(_ => Cancel());
             PrintCommand = new RelayCommand(async _ => await PrintInvoice());
             QuickSaleCommand = new RelayCommand(_ => OpenQuickSaleWindow?.Invoke());
+            SwitchModeCommand = new RelayCommand(_ => SwitchMode?.Invoke());
 
             _ = LoadData();
         }
@@ -600,6 +605,17 @@ namespace POSApp.UI.ViewModels
 
                 await _saleRepository.AddAsync(sale);
 
+                // Decrement stock for each sold item
+                foreach (var item in SaleItems)
+                {
+                    var product = Products.FirstOrDefault(p => p.ProductId == item.ProductId);
+                    if (product != null)
+                    {
+                        product.Stock = Math.Max(0, product.Stock - item.Quantity);
+                        await _productRepository.UpdateAsync(product);
+                    }
+                }
+
                 // Update customer balance for credit sales
                 if (PaymentType == "Credit" && SelectedCustomer != null)
                 {
@@ -650,6 +666,36 @@ namespace POSApp.UI.ViewModels
         private void Cancel()
         {
             // Close window logic will be handled in code-behind
+        }
+
+        public void LoadState(SaleViewModel source)
+        {
+            CustomerName = source.CustomerName;
+            MobileNumber = source.MobileNumber;
+            Address = source.Address;
+            Phone = source.Phone;
+            PaymentType = source.PaymentType;
+            SelectedCustomer = source.SelectedCustomer;
+            BillNote = source.BillNote;
+            DiscountOnProducts = source.DiscountOnProducts;
+            DiscountOnBill = source.DiscountOnBill;
+            ReceiveCash = source.ReceiveCash;
+            PreBalance = source.PreBalance;
+
+            SaleItems.Clear();
+            foreach (var item in source.SaleItems)
+            {
+                SaleItems.Add(new SaleItemViewModel
+                {
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    Quantity = item.Quantity,
+                    CostPrice = item.CostPrice,
+                    UnitPrice = item.UnitPrice,
+                    DiscountPercent = item.DiscountPercent,
+                });
+            }
+            CalculateTotals();
         }
 
         private async Task PrintInvoice()
@@ -727,7 +773,7 @@ namespace POSApp.UI.ViewModels
             Paragraph header = new Paragraph();
             header.Margin = new Thickness(0, 0, 0, 2);
             header.TextAlignment = TextAlignment.Center;
-            header.Inlines.Add(new Bold(new Run("ShahJee Super Store")) { FontSize = 24 });
+            header.Inlines.Add(new Bold(new Run("Shahjee super store")) { FontSize = 24 });
             header.Inlines.Add(new LineBreak());
             header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
             header.Inlines.Add(new LineBreak());
@@ -781,7 +827,16 @@ namespace POSApp.UI.ViewModels
             row3.Cells.Add(MetaCell($"Mobile: {MobileNumber ?? ""}"));
             metaGroup.Rows.Add(row3);
 
-            // Row 4: Bill Note (only printed when provided)
+            // Row 4: Salesperson
+            var salesperson = SessionManager.CurrentUser?.Username;
+            if (!string.IsNullOrWhiteSpace(salesperson))
+            {
+                TableRow spRow = new TableRow();
+                spRow.Cells.Add(MetaCell($"Salesperson: {salesperson}", columnSpan: 2));
+                metaGroup.Rows.Add(spRow);
+            }
+
+            // Row 5: Bill Note (only printed when provided)
             if (!string.IsNullOrWhiteSpace(BillNote))
             {
                 TableRow noteRow = new TableRow();
@@ -792,7 +847,6 @@ namespace POSApp.UI.ViewModels
             metaTable.RowGroups.Add(metaGroup);
             doc.Blocks.Add(metaTable);
 
-            doc.Blocks.Add(new Paragraph(new Run("---------------------------------------------")) { Margin = new Thickness(0, 1, 0, 1) });
 
             // --- ITEMS TABLE ---
             Table itemsTable = new Table() { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
@@ -901,7 +955,7 @@ namespace POSApp.UI.ViewModels
 
             // --- FOOTER ---
             Paragraph footer = new Paragraph();
-            footer.Margin = new Thickness(0, 20, 0, 0);
+            footer.Margin = new Thickness(0, 5, 0, 0);
             footer.TextAlignment = TextAlignment.Center;
             footer.Inlines.Add(new Bold(new Run("Thank You For Your Business!")) { FontSize = 14 });
             footer.Inlines.Add(new LineBreak());

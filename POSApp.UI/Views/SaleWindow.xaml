@@ -224,17 +224,29 @@
                               HeadersVisibility="All" GridLinesVisibility="Horizontal" BorderThickness="0"
                               HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" Width="120"/>
-                            <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
-                            <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, StringFormat=N2}" Width="100" ElementStyle="{StaticResource RightAlignStyle}"/>
-                            <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="70" ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Disc %" Binding="{Binding DiscountPercent}" Width="70" ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
+                            <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" IsReadOnly="True" Width="120"/>
+                            <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" IsReadOnly="True" Width="*"/>
+                            <DataGridTextColumn Header="Unit Price" Width="100" ElementStyle="{StaticResource RightAlignStyle}">
+                                <DataGridTextColumn.Binding>
+                                    <Binding Path="UnitPrice" StringFormat="N2" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Qty" Width="70" ElementStyle="{StaticResource CenterAlignStyle}">
+                                <DataGridTextColumn.Binding>
+                                    <Binding Path="Quantity" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Disc %" Width="70" ElementStyle="{StaticResource CenterAlignStyle}">
+                                <DataGridTextColumn.Binding>
+                                    <Binding Path="DiscountPercent" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}" IsReadOnly="True" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTemplateColumn Header="Action" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Del" Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                                CommandParameter="{Binding}" Style="{StaticResource DangerButton}" 
+                                        <Button Content="Del" Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}" Style="{StaticResource DangerButton}"
                                                 Padding="6,2" FontSize="11"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -259,13 +271,19 @@
                         <Button Content="QUICK SALE" Command="{Binding QuickSaleCommand}"
                                 Style="{StaticResource SuccessButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"
                                 ToolTip="Open a new sale window for a quick customer"/>
+                        <Button Content="{Binding ModeSwitchLabel}" Command="{Binding SwitchModeCommand}"
+                                Style="{StaticResource InfoButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="130"
+                                ToolTip="Switch to Wholesale mode (cart is preserved)"/>
                         <Button Content="SAVE SALE" Command="{Binding SaveCommand}"
                                 Style="{StaticResource SuccessButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
                         <Button Content="{Binding PrintButtonText}" Command="{Binding PrintCommand}"
                                 Style="{StaticResource PurpleButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
-                        <Button Content="CANCEL" Command="{Binding CancelCommand}" 
+                        <Button Content="🖩 CALC" Click="Calculator_Click"
+                                Style="{StaticResource NeutralButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="90"
+                                ToolTip="Open floating calculator"/>
+                        <Button Content="CANCEL" Command="{Binding CancelCommand}"
                                 Style="{StaticResource WarningButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
-                        <Button Content="CLOSE" Click="Exit_Click" 
+                        <Button Content="CLOSE" Click="Exit_Click"
                                 Style="{StaticResource NeutralButton}" Padding="15,10" Margin="0,0,0,5" MinWidth="110"/>
                     </WrapPanel>
                 </Border>

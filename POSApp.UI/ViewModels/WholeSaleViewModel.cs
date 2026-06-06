@@ -13,6 +13,8 @@ namespace POSApp.UI.ViewModels
         protected override decimal GetUnitPriceForProduct(Product product)
             => product.WholesalePrice > 0 ? product.WholesalePrice : product.UnitPrice;
 
-        protected override string InvoiceTitle => "Whole Sale Bill / Invoice";
+        protected override string InvoiceTitle => "Wholesale Bill / Invoice";
+
+        public override string ModeSwitchLabel => "⇄ RETAIL SALE";
     }
 }

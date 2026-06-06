@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:POSApp.UI.Views"
         mc:Ignorable="d"
         Title="Sales Reports - Shah Jee Super Store" Height="850" Width="1400"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

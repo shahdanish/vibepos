@@ -80,6 +80,7 @@ namespace POSApp.UI.ViewModels
                     LowStockProducts.Add(new LowStockItem
                     {
                         ProductName = product.ProductName,
+                        Barcode = product.Barcode,
                         Stock = product.Stock,
                         Threshold = product.MinStockThreshold
                     });
@@ -123,7 +124,9 @@ namespace POSApp.UI.ViewModels
     public sealed class LowStockItem
     {
         public string ProductName { get; set; } = string.Empty;
+        public string Barcode { get; set; } = string.Empty;
         public int Stock { get; set; }
         public int Threshold { get; set; }
+        public bool IsOutOfStock => Stock <= 0;
     }
 }

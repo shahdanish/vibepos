@@ -80,7 +80,7 @@ namespace POSApp.Infrastructure.Repositories
         {
             return await _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.Stock <= p.MinStockThreshold)
+                .Where(p => !p.IsDeleted && p.MinStockThreshold > 0 && p.Stock <= p.MinStockThreshold)
                 .OrderBy(p => p.Stock)
                 .ToListAsync(ct);
         }

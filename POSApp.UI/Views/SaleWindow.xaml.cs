@@ -7,6 +7,7 @@ namespace POSApp.UI.Views
     public partial class SaleWindow : Window
     {
         private readonly SaleViewModel _viewModel;
+        private WholeSaleWindow? _wholeSalePartner;
 
         public SaleWindow(SaleViewModel viewModel)
         {
@@ -19,6 +20,30 @@ namespace POSApp.UI.Views
                 var quickWindow = App.Services!.GetRequiredService<SaleWindow>();
                 quickWindow.Title = "Quick Sale - Shah Jee Super Store";
                 quickWindow.Show();
+            };
+
+            viewModel.SwitchMode = () =>
+            {
+                // Recreate partner if it was closed (X button)
+                if (_wholeSalePartner == null || !_wholeSalePartner.IsLoaded)
+                {
+                    _wholeSalePartner = App.Services!.GetRequiredService<WholeSaleWindow>();
+                    var wsVm = (WholeSaleViewModel)_wholeSalePartner.DataContext;
+
+                    // Seed the wholesale cart from the current sale state on first open
+                    wsVm.LoadState(viewModel);
+
+                    // Wire the partner's switch button to come straight back here
+                    wsVm.SwitchMode = () =>
+                    {
+                        _wholeSalePartner.Hide();
+                        Show();
+                    };
+                }
+
+                _wholeSalePartner.Title = "Wholesale Sale - Shah Jee Super Store";
+                _wholeSalePartner.Show();
+                Hide();
             };
 
             // Enable keyboard shortcuts
@@ -45,6 +70,11 @@ namespace POSApp.UI.Views
                 MessageBox.Show("Undo sale feature requires additional implementation.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
+        }
+
+        private void Calculator_Click(object sender, RoutedEventArgs e)
+        {
+            CalculatorWindow.ShowCalculator();
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
