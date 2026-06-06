@@ -44,6 +44,12 @@ POSApp_Installer/
 *.nupkg
 
 # Firebase credentials (contains private key — NEVER commit)
+firebase-credential.json
 firebase-credentials.json
+clients/*/firebase-credential.json
 clients/*/firebase-credentials.json
+
+# App settings with secrets
+appsettings.json
+clients/*/appsettings.json
 
