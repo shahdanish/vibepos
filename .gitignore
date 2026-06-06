@@ -45,4 +45,5 @@ POSApp_Installer/
 
 # Firebase credentials (contains private key — NEVER commit)
 firebase-credentials.json
+clients/*/firebase-credentials.json
 

@@ -1,7 +1,7 @@
-using System.Configuration;
-using System.Data;
+using System.IO;
 using System.Windows; // WPF Application
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using POSApp.Data;
 using POSApp.Core.Interfaces;
@@ -105,9 +105,21 @@ public partial class App : System.Windows.Application
             dbContext.Database.Migrate();
         }
 
+        // Load per-client configuration from appsettings.json
+        var config = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+            .Build();
+
+        var credentialsPath = config["Firebase:CredentialsPath"];
+
+        // Resolve absolute path if relative (relative = next to the .exe)
+        if (!string.IsNullOrWhiteSpace(credentialsPath) && !Path.IsPathRooted(credentialsPath))
+            credentialsPath = Path.Combine(AppContext.BaseDirectory, credentialsPath);
+
         // Initialize Firebase sync background service
         var syncService = Services.GetRequiredService<ISyncService>() as FirebaseSyncService;
-        syncService?.Initialize();
+        syncService?.Initialize(credentialsPath);
 
         // Show login window first
         var loginWindow = Services.GetRequiredService<LoginWindow>();
