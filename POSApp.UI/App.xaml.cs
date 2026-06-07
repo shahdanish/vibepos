@@ -45,6 +45,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<IPurchaseRepository, PurchaseRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+        services.AddScoped<IPharmacyRepository, PharmacyRepository>();
+        services.AddScoped<IDoctorRepository, DoctorRepository>();
 
         // Add ViewModels
         services.AddTransient<LoginViewModel>();
@@ -66,6 +68,10 @@ public partial class App : System.Windows.Application
         services.AddTransient<PurchaseReturnViewModel>();
         services.AddTransient<SupplierManagementViewModel>();
         services.AddTransient<BackupRestoreViewModel>();
+        services.AddTransient<PharmacyManagementViewModel>();
+        services.AddTransient<PharmacyFormViewModel>();
+        services.AddTransient<DoctorManagementViewModel>();
+        services.AddTransient<DoctorFormViewModel>();
 
         // Add Windows
         services.AddTransient<LoginWindow>();
@@ -87,6 +93,12 @@ public partial class App : System.Windows.Application
         services.AddTransient<PurchaseReturnWindow>();
         services.AddTransient<SupplierManagementWindow>();
         services.AddTransient<BackupRestoreWindow>();
+        services.AddTransient<PharmacyManagementWindow>();
+        services.AddTransient<PharmacyFormDialog>();
+        services.AddTransient<DoctorManagementWindow>();
+        services.AddTransient<DoctorFormDialog>();
+        services.AddTransient<PharmacySaleViewModel>();
+        services.AddTransient<PharmacySaleWindow>();
 
         // Add Sync Services (Firebase background sync)
         services.AddSingleton<ISyncService, FirebaseSyncService>();

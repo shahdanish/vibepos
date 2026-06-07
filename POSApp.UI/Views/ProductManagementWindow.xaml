@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:POSApp.UI.Views"
+        xmlns:conv="clr-namespace:POSApp.UI.Converters"
         mc:Ignorable="d"
         Title="Product Management - Shah Jee Super Store" Height="700" Width="1200"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
@@ -49,6 +50,8 @@
                             <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, StringFormat=N2}" Width="70"/>
                             <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="60"/>
                             <DataGridTextColumn Header="Rack" Binding="{Binding Rack}" Width="60"/>
+                            <DataGridTextColumn x:Name="BatchColumn" Header="Batch No" Binding="{Binding BatchNo}" Width="90"/>
+                            <DataGridTextColumn x:Name="ExpiryColumn" Header="Expiry" Binding="{Binding ExpiryDate, StringFormat=MM/yyyy}" Width="75"/>
                             <DataGridTemplateColumn Header="Status" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -80,8 +83,24 @@
                         <TextBlock Text="Product Details" Style="{StaticResource SectionTitle}"/>
 
                         <TextBlock Text="Barcode" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox x:Name="BarcodeBox" Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"
-                                 ToolTip="Scan or type the product barcode. Product ID is auto-generated."/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="BarcodeBox"
+                                     Grid.Column="0"
+                                     Text="{Binding Barcode, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="8"
+                                     ToolTip="Scan or type a barcode, or click Auto to generate one."
+                                     LostFocus="BarcodeBox_LostFocus"/>
+                            <Button Grid.Column="1"
+                                    Content="Auto"
+                                    Command="{Binding GenerateBarcodeCommand}"
+                                    Style="{StaticResource InfoButton}"
+                                    Padding="10,8" Margin="6,0,0,0"
+                                    ToolTip="Generate a unique numeric barcode"/>
+                        </Grid>
 
                         <TextBlock Text="Product Name *" FontWeight="SemiBold" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
@@ -112,7 +131,17 @@
                                  Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Rack/Location" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding Rack, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,15"/>
+                        <TextBox Text="{Binding Rack, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
+
+                        <!-- Pharmacy-only fields -->
+                        <StackPanel Visibility="{Binding PharmacyFieldsVisibility}">
+                            <TextBlock Text="Batch No" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding BatchNo, UpdateSourceTrigger=PropertyChanged}" Padding="8" Margin="0,0,0,10"/>
+
+                            <TextBlock Text="Expiry Date" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <DatePicker SelectedDate="{Binding ExpiryDate}" Margin="0,0,0,15"
+                                        DisplayDateStart="2020-01-01"/>
+                        </StackPanel>
 
                         <StackPanel>
                             <Button Content="Add New Product" Command="{Binding AddCommand}" 

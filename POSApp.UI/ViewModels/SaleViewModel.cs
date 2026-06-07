@@ -368,7 +368,8 @@ namespace POSApp.UI.ViewModels
             if (e.PropertyName == nameof(SaleItemViewModel.Total) ||
                 e.PropertyName == nameof(SaleItemViewModel.UnitPrice) ||
                 e.PropertyName == nameof(SaleItemViewModel.Quantity) ||
-                e.PropertyName == nameof(SaleItemViewModel.DiscountPercent))
+                e.PropertyName == nameof(SaleItemViewModel.DiscountPercent) ||
+                e.PropertyName == nameof(SaleItemViewModel.DiscountType))
             {
                 CalculateTotals();
             }
@@ -596,9 +597,10 @@ namespace POSApp.UI.ViewModels
                         ProductId = item.ProductId,
                         ProductName = item.ProductName,
                         Quantity = item.Quantity,
-                        CostPrice = item.CostPrice, // Save cost price for profit calculation
+                        CostPrice = item.CostPrice,
                         UnitPrice = item.UnitPrice,
                         DiscountPercent = item.DiscountPercent,
+                        DiscountType = item.DiscountType,
                         Total = item.Total
                     });
                 }
@@ -693,6 +695,7 @@ namespace POSApp.UI.ViewModels
                     CostPrice = item.CostPrice,
                     UnitPrice = item.UnitPrice,
                     DiscountPercent = item.DiscountPercent,
+                    DiscountType = item.DiscountType,
                 });
             }
             CalculateTotals();
@@ -761,6 +764,8 @@ namespace POSApp.UI.ViewModels
         }
 
         protected virtual string InvoiceTitle => "Bill / Invoice";
+
+        protected virtual bool ShowCostPriceOnReceipt => false;
 
         private FlowDocument CreateProfessionalInvoice()
         {
@@ -853,19 +858,23 @@ namespace POSApp.UI.ViewModels
             if (UseSmallBillFormat)
             {
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.4, GridUnitType.Star) }); // S.No
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(2.1, GridUnitType.Star) }); // Product Name
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.6, GridUnitType.Star) }); // Qty
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.9, GridUnitType.Star) }); // Price
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.7, GridUnitType.Star) }); // Disc
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1.1, GridUnitType.Star) }); // Total
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(2.0, GridUnitType.Star) }); // Product Name
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.5, GridUnitType.Star) }); // Qty
+                if (ShowCostPriceOnReceipt)
+                    itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.8, GridUnitType.Star) }); // Cost
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.8, GridUnitType.Star) }); // Price
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.6, GridUnitType.Star) }); // Disc
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1.0, GridUnitType.Star) }); // Total
             }
             else
             {
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.5, GridUnitType.Star) }); // S.No
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(2.5, GridUnitType.Star) }); // Product Name
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Qty
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.8, GridUnitType.Star) }); // Qty
+                if (ShowCostPriceOnReceipt)
+                    itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Cost
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Price
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Disc
+                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.8, GridUnitType.Star) }); // Disc
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Total
             }
 
@@ -887,6 +896,8 @@ namespace POSApp.UI.ViewModels
             headerRow.Cells.Add(ItemCell("S.No", TextAlignment.Center));
             headerRow.Cells.Add(ItemCell("Product Name", TextAlignment.Left));
             headerRow.Cells.Add(ItemCell("Qty", TextAlignment.Center));
+            if (ShowCostPriceOnReceipt)
+                headerRow.Cells.Add(ItemCell("Cost", TextAlignment.Right));
             headerRow.Cells.Add(ItemCell("Price", TextAlignment.Right));
             headerRow.Cells.Add(ItemCell("Disc", TextAlignment.Right));
             headerRow.Cells.Add(ItemCell("Total", TextAlignment.Center));
@@ -900,8 +911,10 @@ namespace POSApp.UI.ViewModels
                 row.Cells.Add(ItemCell(serialNo++.ToString(), TextAlignment.Center));
                 row.Cells.Add(ItemCell(item.ProductName, TextAlignment.Left));
                 row.Cells.Add(ItemCell(item.Quantity.ToString(), TextAlignment.Center));
+                if (ShowCostPriceOnReceipt)
+                    row.Cells.Add(ItemCell(item.CostPrice.ToString("N0"), TextAlignment.Right));
                 row.Cells.Add(ItemCell(item.UnitPrice.ToString("N0"), TextAlignment.Right));
-                row.Cells.Add(ItemCell(item.DiscountPercent.ToString("N0"), TextAlignment.Right));
+                row.Cells.Add(ItemCell(item.EffectiveDiscountAmount > 0 ? item.EffectiveDiscountAmount.ToString("N0") : "", TextAlignment.Right));
                 row.Cells.Add(ItemCell(item.Total.ToString("N2"), TextAlignment.Right));
                 itemsGroup.Rows.Add(row);
             }
@@ -974,7 +987,10 @@ namespace POSApp.UI.ViewModels
         private decimal _costPrice;
         private decimal _unitPrice;
         private decimal _discountPercent;
+        private string _discountType = "%";
         private decimal _total;
+        private string? _batchNo;
+        private DateTime? _expiryDate;
 
         public string ProductId
         {
@@ -1027,11 +1043,46 @@ namespace POSApp.UI.ViewModels
             {
                 if (SetProperty(ref _discountPercent, value))
                 {
-                    // Auto-calculate total when discount changes
+                    CalculateTotal();
+                    OnPropertyChanged(nameof(EffectiveDiscountAmount));
+                    OnPropertyChanged(nameof(DiscountDisplay));
+                }
+            }
+        }
+
+        public string DiscountType
+        {
+            get => _discountType;
+            set
+            {
+                if (SetProperty(ref _discountType, value))
+                {
+                    OnPropertyChanged(nameof(DiscountTypeIsPercent));
+                    OnPropertyChanged(nameof(DiscountTypeIsPKR));
+                    OnPropertyChanged(nameof(EffectiveDiscountAmount));
+                    OnPropertyChanged(nameof(DiscountDisplay));
                     CalculateTotal();
                 }
             }
         }
+
+        public bool DiscountTypeIsPercent
+        {
+            get => _discountType == "%";
+            set { if (value) DiscountType = "%"; }
+        }
+
+        public bool DiscountTypeIsPKR
+        {
+            get => _discountType == "PKR";
+            set { if (value) DiscountType = "PKR"; }
+        }
+
+        public decimal EffectiveDiscountAmount =>
+            _discountType == "%" ? (UnitPrice * Quantity * DiscountPercent) / 100 : DiscountPercent;
+
+        public string DiscountDisplay =>
+            _discountType == "%" ? $"{_discountPercent:N0}%" : $"Rs {_discountPercent:N0}";
 
         public decimal Total
         {
@@ -1039,9 +1090,23 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _total, value);
         }
 
+        public string? BatchNo
+        {
+            get => _batchNo;
+            set => SetProperty(ref _batchNo, value);
+        }
+
+        public DateTime? ExpiryDate
+        {
+            get => _expiryDate;
+            set => SetProperty(ref _expiryDate, value);
+        }
+
         private void CalculateTotal()
         {
-            Total = (UnitPrice * Quantity) - ((UnitPrice * Quantity * DiscountPercent) / 100);
+            Total = _discountType == "%"
+                ? (UnitPrice * Quantity) - ((UnitPrice * Quantity * DiscountPercent) / 100)
+                : (UnitPrice * Quantity) - DiscountPercent;
         }
     }
 }

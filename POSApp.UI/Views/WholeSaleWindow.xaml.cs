@@ -7,6 +7,7 @@ namespace POSApp.UI.Views
     public partial class WholeSaleWindow : Window
     {
         private readonly WholeSaleViewModel _viewModel;
+        private SaleWindow? _salePartner;
 
         public WholeSaleWindow(WholeSaleViewModel viewModel)
         {
@@ -21,14 +22,25 @@ namespace POSApp.UI.Views
                 quickWindow.Show();
             };
 
-            // Default standalone switch (overridden when opened as a partner from SaleWindow)
+            // Default standalone switch (overridden when opened as a partner from SaleWindow).
+            // Creates a Sale partner once and reuses it; never transfers cart items.
             viewModel.SwitchMode = () =>
             {
-                var saleWindow = App.Services!.GetRequiredService<SaleWindow>();
-                var saleVm = (SaleViewModel)saleWindow.DataContext;
-                saleVm.LoadState(viewModel);
-                saleWindow.Title = "Sale - Shah Jee Super Store";
-                saleWindow.Show();
+                if (_salePartner == null || !_salePartner.IsLoaded)
+                {
+                    _salePartner = App.Services!.GetRequiredService<SaleWindow>();
+                    var saleVm = (SaleViewModel)_salePartner.DataContext;
+
+                    // Wire the sale partner's switch button to come back here
+                    saleVm.SwitchMode = () =>
+                    {
+                        _salePartner.Hide();
+                        Show();
+                    };
+                }
+
+                _salePartner.Title = "Sale - Shah Jee Super Store";
+                _salePartner.Show();
                 Hide();
             };
         }

@@ -1,0 +1,173 @@
+<Window x:Class="POSApp.UI.Views.DoctorManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Doctor Management - Master Pharmaceuticals Distributor"
+        Height="650" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Icon="/app-icon.png">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
+            <TextBlock Text="Doctor Management" FontSize="24" FontWeight="Bold"
+                       Foreground="White" HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Toolbar -->
+        <Border Grid.Row="1" Background="{DynamicResource BrandAccentBrush}" Padding="12,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Padding="8,6" FontSize="13"
+                         MaxWidth="400" HorizontalAlignment="Left">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <VisualBrush AlignmentX="Left" Stretch="None">
+                                                <VisualBrush.Visual>
+                                                    <TextBlock Text="🔍  Search by name, phone, or city…"
+                                                               Foreground="#999" Margin="8,6"/>
+                                                </VisualBrush.Visual>
+                                            </VisualBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <CheckBox Grid.Column="1"
+                          Content="Show Inactive"
+                          IsChecked="{Binding ShowInactive}"
+                          Foreground="White" FontSize="13"
+                          VerticalAlignment="Center" Margin="16,0"/>
+
+                <Button Grid.Column="2"
+                        Content="＋  Add Doctor"
+                        Command="{Binding AddCommand}"
+                        Style="{StaticResource SuccessButton}"
+                        Padding="14,6" FontSize="13"/>
+            </Grid>
+        </Border>
+
+        <!-- Doctor DataGrid -->
+        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="16,12,16,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <DataGrid ItemsSource="{Binding Doctors}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          RowBackground="White"
+                          AlternatingRowBackground="#F9F9F9"
+                          CanUserSortColumns="True"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="Doctor Name" Binding="{Binding Name}" Width="*" MinWidth="160"/>
+                        <DataGridTextColumn Header="Specialization" Binding="{Binding Specialization}" Width="160"/>
+                        <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="120"/>
+                        <DataGridTextColumn Header="City" Binding="{Binding City}" Width="110"/>
+
+                        <!-- Status badge -->
+                        <DataGridTemplateColumn Header="Status" Width="85">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#4CAF50"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                        <Setter Property="Background" Value="#9E9E9E"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="White">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="Active"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Text" Value="Inactive"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Action buttons per row -->
+                        <DataGridTemplateColumn Header="Actions" Width="240" CanUserSort="False">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="4,2">
+
+                                        <Button Content="✏ Edit"
+                                                Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource InfoButton}"
+                                                Padding="8,4" FontSize="12" Margin="0,0,4,0"/>
+
+                                        <Button Command="{Binding DataContext.ToggleActiveCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Padding="8,4" FontSize="12" Margin="0,0,4,0">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource WarningButton}">
+                                                    <Setter Property="Content" Value="⏸ Deactivate"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Content" Value="▶ Activate"/>
+                                                            <Setter Property="Background" Value="#4CAF50"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+
+                                        <Button Content="🗑 Delete"
+                                                Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource DangerButton}"
+                                                Padding="8,4" FontSize="12"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Footer -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,8">
+            <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
+                    Style="{StaticResource InfoButton}" Padding="12,6" Margin="0,0,8,0"/>
+            <Button Content="✕ Close" Click="Close_Click"
+                    Style="{StaticResource NeutralButton}" Padding="12,6"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -236,11 +236,129 @@
                                     <Binding Path="Quantity" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Disc %" Width="70" ElementStyle="{StaticResource CenterAlignStyle}">
-                                <DataGridTextColumn.Binding>
-                                    <Binding Path="DiscountPercent" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
-                                </DataGridTextColumn.Binding>
-                            </DataGridTextColumn>
+                            <DataGridTemplateColumn Header="Discount" Width="145" SortMemberPath="DiscountPercent">
+                                <!-- Read-only display: shows "10%" or "Rs 50" -->
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DiscountDisplay}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                   Padding="6,0" FontSize="12"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <!-- Edit mode: pill toggle + numeric input -->
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="3,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- % / Rs toggle pill -->
+                                            <Border Grid.Column="0" CornerRadius="4"
+                                                    BorderBrush="#BDBDBD" BorderThickness="1"
+                                                    Margin="0,0,5,0" VerticalAlignment="Center"
+                                                    Background="#F5F5F5">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <ToggleButton IsChecked="{Binding DiscountTypeIsPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                  Width="30" Height="24" Padding="0" FontSize="11"
+                                                                  ToolTip="Percentage discount"
+                                                                  BorderThickness="0,0,1,0" BorderBrush="#BDBDBD">
+                                                        <ToggleButton.Style>
+                                                            <Style TargetType="ToggleButton">
+                                                                <Setter Property="Content" Value="%"/>
+                                                                <Setter Property="Background" Value="Transparent"/>
+                                                                <Setter Property="Foreground" Value="#616161"/>
+                                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                <Setter Property="Cursor" Value="Hand"/>
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="ToggleButton">
+                                                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                                                    CornerRadius="3,0,0,3">
+                                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsChecked" Value="True">
+                                                                                    <Setter TargetName="Bd" Property="Background" Value="#1565C0"/>
+                                                                                    <Setter Property="Foreground" Value="White"/>
+                                                                                </Trigger>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter TargetName="Bd" Property="Background" Value="#E3F2FD"/>
+                                                                                </Trigger>
+                                                                                <MultiTrigger>
+                                                                                    <MultiTrigger.Conditions>
+                                                                                        <Condition Property="IsChecked" Value="True"/>
+                                                                                        <Condition Property="IsMouseOver" Value="True"/>
+                                                                                    </MultiTrigger.Conditions>
+                                                                                    <Setter TargetName="Bd" Property="Background" Value="#1976D2"/>
+                                                                                    <Setter Property="Foreground" Value="White"/>
+                                                                                </MultiTrigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </ToggleButton.Style>
+                                                    </ToggleButton>
+                                                    <ToggleButton IsChecked="{Binding DiscountTypeIsPKR, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                  Width="30" Height="24" Padding="0" FontSize="11"
+                                                                  ToolTip="Fixed amount discount (PKR)"
+                                                                  BorderThickness="0">
+                                                        <ToggleButton.Style>
+                                                            <Style TargetType="ToggleButton">
+                                                                <Setter Property="Content" Value="Rs"/>
+                                                                <Setter Property="Background" Value="Transparent"/>
+                                                                <Setter Property="Foreground" Value="#616161"/>
+                                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                <Setter Property="Cursor" Value="Hand"/>
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="ToggleButton">
+                                                                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                                                    CornerRadius="0,3,3,0">
+                                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsChecked" Value="True">
+                                                                                    <Setter TargetName="Bd" Property="Background" Value="#2E7D32"/>
+                                                                                    <Setter Property="Foreground" Value="White"/>
+                                                                                </Trigger>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter TargetName="Bd" Property="Background" Value="#E8F5E9"/>
+                                                                                </Trigger>
+                                                                                <MultiTrigger>
+                                                                                    <MultiTrigger.Conditions>
+                                                                                        <Condition Property="IsChecked" Value="True"/>
+                                                                                        <Condition Property="IsMouseOver" Value="True"/>
+                                                                                    </MultiTrigger.Conditions>
+                                                                                    <Setter TargetName="Bd" Property="Background" Value="#388E3C"/>
+                                                                                    <Setter Property="Foreground" Value="White"/>
+                                                                                </MultiTrigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </ToggleButton.Style>
+                                                    </ToggleButton>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Discount value input -->
+                                            <TextBox Grid.Column="1"
+                                                     Text="{Binding DiscountPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     TextAlignment="Right" Padding="4,2" FontSize="12"
+                                                     VerticalAlignment="Center"
+                                                     BorderBrush="#BDBDBD" BorderThickness="1"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}" IsReadOnly="True" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTemplateColumn Header="Action" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>

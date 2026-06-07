@@ -28,6 +28,8 @@ namespace POSApp.Data
         public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<UserFavorite> UserFavorites { get; set; }
+        public DbSet<Pharmacy> Pharmacies { get; set; }
+        public DbSet<Doctor> Doctors { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -50,6 +52,18 @@ namespace POSApp.Data
             // Configure Sale entity
             modelBuilder.Entity<Sale>()
                 .HasKey(s => s.Id);
+
+            modelBuilder.Entity<Sale>()
+                .HasOne(s => s.Pharmacy)
+                .WithMany()
+                .HasForeignKey(s => s.PharmacyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Sale>()
+                .HasOne(s => s.Doctor)
+                .WithMany()
+                .HasForeignKey(s => s.DoctorId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Sale>()
                 .Property(s => s.TotalBill)
@@ -278,6 +292,22 @@ namespace POSApp.Data
                 .HasForeignKey(f => f.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Configure Pharmacy
+            modelBuilder.Entity<Pharmacy>()
+                .HasKey(p => p.Id);
+            modelBuilder.Entity<Pharmacy>()
+                .HasIndex(p => p.LicenseNo)
+                .IsUnique()
+                .HasFilter("[LicenseNo] IS NOT NULL AND [IsDeleted] = 0");
+            modelBuilder.Entity<Pharmacy>()
+                .HasQueryFilter(p => !p.IsDeleted);
+
+            // Configure Doctor
+            modelBuilder.Entity<Doctor>()
+                .HasKey(d => d.Id);
+            modelBuilder.Entity<Doctor>()
+                .HasQueryFilter(d => !d.IsDeleted);
+
             // Seed sample data
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Medicine", Description = "Medical products", CreatedDate = new DateTime(2025, 1, 1) },
@@ -319,6 +349,15 @@ namespace POSApp.Data
                     Username = "ali",
                     PasswordHash = "ali443",
                     Role = "Admin",
+                    CreatedDate = new DateTime(2025, 1, 1),
+                    IsActive = true
+                },
+                new User
+                {
+                    Id = 4,
+                    Username = "alico",
+                    PasswordHash = "1",
+                    Role = "PharmacyUser",
                     CreatedDate = new DateTime(2025, 1, 1),
                     IsActive = true
                 }

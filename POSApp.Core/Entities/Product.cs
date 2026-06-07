@@ -14,6 +14,8 @@ namespace POSApp.Core.Entities
         public decimal ProfitMarginPercentage { get; set; } = 200; // Default 200% profit margin
         public bool IsDeleted { get; set; } = false; // Soft delete flag
         public string? Rack { get; set; }
+        public string? BatchNo { get; set; }
+        public DateTime? ExpiryDate { get; set; }
         public int? CategoryId { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }

@@ -19,11 +19,15 @@ namespace POSApp.Core.Entities
         public decimal TotalBill { get; set; }
         public decimal ReceiveCash { get; set; }
         public decimal Balance { get; set; }
-        public bool AutoPrinted { get; set; } // Track if auto-printed
+        public bool AutoPrinted { get; set; }
+        public int? PharmacyId { get; set; }
+        public int? DoctorId { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        // Navigation property
+        // Navigation properties
         public Customer? Customer { get; set; }
+        public Pharmacy? Pharmacy { get; set; }
+        public Doctor? Doctor { get; set; }
         public List<SaleItem> SaleItems { get; set; } = new List<SaleItem>();
     }
 }

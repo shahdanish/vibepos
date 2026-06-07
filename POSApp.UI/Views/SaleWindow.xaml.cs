@@ -24,14 +24,11 @@ namespace POSApp.UI.Views
 
             viewModel.SwitchMode = () =>
             {
-                // Recreate partner if it was closed (X button)
+                // Recreate partner only if it was closed; never transfer cart items
                 if (_wholeSalePartner == null || !_wholeSalePartner.IsLoaded)
                 {
                     _wholeSalePartner = App.Services!.GetRequiredService<WholeSaleWindow>();
                     var wsVm = (WholeSaleViewModel)_wholeSalePartner.DataContext;
-
-                    // Seed the wholesale cart from the current sale state on first open
-                    wsVm.LoadState(viewModel);
 
                     // Wire the partner's switch button to come straight back here
                     wsVm.SwitchMode = () =>

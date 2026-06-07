@@ -14,6 +14,7 @@ namespace POSApp.UI.ViewModels
             => product.WholesalePrice > 0 ? product.WholesalePrice : product.UnitPrice;
 
         protected override string InvoiceTitle => "Wholesale Bill / Invoice";
+        protected override bool ShowCostPriceOnReceipt => true;
 
         public override string ModeSwitchLabel => "⇄ RETAIL SALE";
     }

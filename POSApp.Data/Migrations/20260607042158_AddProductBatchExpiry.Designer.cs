@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using POSApp.Data;
 
@@ -10,9 +11,11 @@ using POSApp.Data;
 namespace POSApp.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260607042158_AddProductBatchExpiry")]
+    partial class AddProductBatchExpiry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -649,9 +652,6 @@ namespace POSApp.Data.Migrations
                     b.Property<decimal>("DiscountOnProducts")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("DoctorId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("InvoiceNumber")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -662,9 +662,6 @@ namespace POSApp.Data.Migrations
                     b.Property<string>("PaymentType")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int?>("PharmacyId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Phone")
                         .HasColumnType("TEXT");
@@ -691,10 +688,6 @@ namespace POSApp.Data.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("PharmacyId");
-
                     b.ToTable("Sales");
                 });
 
@@ -709,10 +702,6 @@ namespace POSApp.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DiscountType")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProductId")
@@ -1031,21 +1020,7 @@ namespace POSApp.Data.Migrations
                         .WithMany()
                         .HasForeignKey("CustomerId");
 
-                    b.HasOne("POSApp.Core.Entities.Doctor", "Doctor")
-                        .WithMany()
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("POSApp.Core.Entities.Pharmacy", "Pharmacy")
-                        .WithMany()
-                        .HasForeignKey("PharmacyId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Customer");
-
-                    b.Navigation("Doctor");
-
-                    b.Navigation("Pharmacy");
                 });
 
             modelBuilder.Entity("POSApp.Core.Entities.SaleItem", b =>

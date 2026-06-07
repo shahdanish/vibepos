@@ -23,6 +23,8 @@ namespace POSApp.UI.ViewModels
         private int? _stock;
         private int? _minStockThreshold;
         private string? _rack;
+        private string? _batchNo;
+        private DateTime? _expiryDate;
         private Category? _selectedCategory;
         private bool _showDeletedProducts = false;
 
@@ -95,6 +97,23 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _rack, value);
         }
 
+        public string? BatchNo
+        {
+            get => _batchNo;
+            set => SetProperty(ref _batchNo, value);
+        }
+
+        public DateTime? ExpiryDate
+        {
+            get => _expiryDate;
+            set => SetProperty(ref _expiryDate, value);
+        }
+
+        public Visibility PharmacyFieldsVisibility =>
+            SessionManager.CurrentUser?.Role == "PharmacyUser"
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
         public Category? SelectedCategory
         {
             get => _selectedCategory;
@@ -122,6 +141,7 @@ namespace POSApp.UI.ViewModels
         public ICommand ClearCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand GenerateIdCommand { get; }
+        public ICommand GenerateBarcodeCommand { get; }
 
         public ProductManagementViewModel(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
@@ -135,6 +155,7 @@ namespace POSApp.UI.ViewModels
             ClearCommand = new RelayCommand(_ => ClearForm());
             RefreshCommand = new RelayCommand(async _ => await LoadData());
             GenerateIdCommand = new RelayCommand(async _ => await GenerateProductId());
+            GenerateBarcodeCommand = new RelayCommand(_ => GenerateBarcode());
 
             _ = LoadData();
         }
@@ -179,6 +200,8 @@ namespace POSApp.UI.ViewModels
             Stock = product.Stock == 0 ? (int?)null : product.Stock;
             MinStockThreshold = product.MinStockThreshold == 0 ? (int?)null : product.MinStockThreshold;
             Rack = product.Rack;
+            BatchNo = product.BatchNo;
+            ExpiryDate = product.ExpiryDate;
             SelectedCategory = Categories.FirstOrDefault(c => c.Id == product.CategoryId);
         }
 
@@ -188,6 +211,20 @@ namespace POSApp.UI.ViewModels
             {
                 NotificationHelper.ValidationError("Product Name");
                 return;
+            }
+
+            // Duplicate barcode guard — if barcode already exists, switch to edit mode instead
+            if (!string.IsNullOrWhiteSpace(Barcode))
+            {
+                var dup = await _productRepository.GetByBarcodeAsync(Barcode.Trim());
+                if (dup != null)
+                {
+                    NotificationHelper.ShowInfo(
+                        "A product with this barcode already exists. We've loaded it for editing instead.");
+                    var inList = Products.FirstOrDefault(p => p.Id == dup.Id) ?? dup;
+                    SelectedProduct = inList;
+                    return;
+                }
             }
 
             // Always auto-generate the internal Product ID
@@ -210,6 +247,8 @@ namespace POSApp.UI.ViewModels
                     Stock = Stock ?? 0,
                     MinStockThreshold = MinStockThreshold ?? 0,
                     Rack = Rack,
+                    BatchNo = string.IsNullOrWhiteSpace(BatchNo) ? null : BatchNo.Trim(),
+                    ExpiryDate = ExpiryDate,
                     CategoryId = SelectedCategory?.Id
                 };
 
@@ -241,6 +280,8 @@ namespace POSApp.UI.ViewModels
                 SelectedProduct.Stock = Stock ?? 0;
                 SelectedProduct.MinStockThreshold = MinStockThreshold ?? 0;
                 SelectedProduct.Rack = Rack;
+                SelectedProduct.BatchNo = string.IsNullOrWhiteSpace(BatchNo) ? null : BatchNo.Trim();
+                SelectedProduct.ExpiryDate = ExpiryDate;
                 SelectedProduct.CategoryId = SelectedCategory?.Id;
 
                 await _productRepository.UpdateAsync(SelectedProduct);
@@ -310,7 +351,34 @@ namespace POSApp.UI.ViewModels
             Stock = null;
             MinStockThreshold = null;
             Rack = null;
+            BatchNo = null;
+            ExpiryDate = null;
             SelectedCategory = null;
+        }
+
+        private void GenerateBarcode()
+        {
+            // 12-digit timestamp barcode: yyMMddHHmmss — unique per second, numeric, readable
+            Barcode = DateTime.Now.ToString("yyMMddHHmmss");
+        }
+
+        public async Task ValidateBarcodeAsync()
+        {
+            var trimmed = Barcode?.Trim();
+            if (string.IsNullOrWhiteSpace(trimmed)) return;
+
+            // Skip check when editing and the barcode hasn't changed
+            if (SelectedProduct != null && SelectedProduct.Barcode == trimmed) return;
+
+            var existing = await _productRepository.GetByBarcodeAsync(trimmed);
+            if (existing == null) return;
+
+            NotificationHelper.ShowInfo(
+                "A product with this barcode already exists. We've loaded it for editing instead.");
+
+            // Find the in-list instance so the DataGrid row highlights correctly
+            var inList = Products.FirstOrDefault(p => p.Id == existing.Id) ?? existing;
+            SelectedProduct = inList;
         }
 
         private async Task GenerateProductId()
