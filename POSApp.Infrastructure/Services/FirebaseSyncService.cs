@@ -683,7 +683,7 @@ namespace POSApp.Infrastructure.Services
                 ["id"] = u.Id,
                 ["username"] = u.Username,
                 // SECURITY: Never push password hashes to Firestore
-                ["role"] = u.Role,
+                ["role"] = u.RoleName,
                 ["isActive"] = u.IsActive,
                 ["createdDate"] = u.CreatedDate.ToString("O"),
                 ["modifiedDate"] = u.ModifiedDate?.ToString("O") ?? "",

@@ -110,7 +110,7 @@ namespace POSApp.UI.ViewModels
         }
 
         public Visibility PharmacyFieldsVisibility =>
-            SessionManager.CurrentUser?.Role == "PharmacyUser"
+            SessionManager.HasPermission(POSApp.Core.Entities.Permissions.PharmacyManage)
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 

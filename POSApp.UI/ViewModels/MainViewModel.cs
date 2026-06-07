@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,12 +13,31 @@ namespace POSApp.UI.ViewModels
         private string _currentUserInfo = string.Empty;
         private bool _isSyncInProgress;
 
+        public event Action<SyncResult>? SyncResultReady;
+
+        // ── Visibility ────────────────────────────────────────────────────────
+
         public Visibility SaleButtonVisibility =>
             PermissionManager.CanAccessSale(SessionManager.CurrentUser)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+                ? Visibility.Visible : Visibility.Collapsed;
 
-        public event Action<SyncResult>? SyncResultReady;
+        public Visibility PharmacyButtonVisibility =>
+            PermissionManager.CanManagePharmacies(SessionManager.CurrentUser)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+        public Visibility PharmacySaleButtonVisibility =>
+            SessionManager.HasPermission(Permissions.PharmacySale)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+        public Visibility DoctorButtonVisibility =>
+            PermissionManager.CanManageDoctors(SessionManager.CurrentUser)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+        public Visibility UserManagementVisibility =>
+            SessionManager.HasPermission(Permissions.UsersManage)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+        // ── Commands ──────────────────────────────────────────────────────────
 
         public ICommand OpenSaleCommand { get; }
         public ICommand OpenWholeSaleCommand { get; }
@@ -37,9 +57,13 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenDoctorManagementCommand { get; }
         public ICommand OpenPharmacySaleCommand { get; }
         public ICommand OpenBackupRestoreCommand { get; }
+        public ICommand OpenUserManagementCommand { get; }
+        public ICommand OpenRoleManagementCommand { get; }
         public ICommand SyncNowCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ExitCommand { get; }
+
+        // ── Properties ────────────────────────────────────────────────────────
 
         public string CurrentUserInfo
         {
@@ -48,217 +72,152 @@ namespace POSApp.UI.ViewModels
         }
 
         public string StoreTitle =>
-            SessionManager.CurrentUser?.Role == "PharmacyUser"
+            SessionManager.HasPermission(Permissions.PharmacySale)
                 ? "Master Pharmaceuticals Distributor"
                 : "Shah Jee Super Store";
 
-        public System.Windows.Visibility DoctorButtonVisibility =>
-            PermissionManager.CanManageDoctors(SessionManager.CurrentUser)
-                ? System.Windows.Visibility.Visible
-                : System.Windows.Visibility.Collapsed;
-
-        public System.Windows.Visibility PharmacyButtonVisibility =>
-            PermissionManager.CanManagePharmacies(SessionManager.CurrentUser)
-                ? System.Windows.Visibility.Visible
-                : System.Windows.Visibility.Collapsed;
-
-        public System.Windows.Visibility PharmacySaleButtonVisibility =>
-            PermissionManager.CanManagePharmacies(SessionManager.CurrentUser)
-                ? System.Windows.Visibility.Visible
-                : System.Windows.Visibility.Collapsed;
-
         public MainViewModel()
         {
-            // Set current user info
             if (SessionManager.CurrentUser != null)
-            {
-                CurrentUserInfo = $"Logged in as: {SessionManager.CurrentUser.Username} ({SessionManager.CurrentUser.Role})";
-            }
+                CurrentUserInfo = $"Logged in as: {SessionManager.CurrentUser.Username} ({SessionManager.CurrentUser.RoleName})";
 
-            OpenSaleCommand = new RelayCommand(_ => OpenSale());
-            OpenWholeSaleCommand = new RelayCommand(_ => OpenWholeSale());
-            OpenSaleReturnCommand = new RelayCommand(_ => OpenSaleReturn());
-            OpenSalesReportCommand = new RelayCommand(_ => OpenSalesReport());
+            OpenSaleCommand             = new RelayCommand(_ => OpenSale());
+            OpenWholeSaleCommand        = new RelayCommand(_ => OpenWholeSale());
+            OpenSaleReturnCommand       = new RelayCommand(_ => OpenSaleReturn());
+            OpenSalesReportCommand      = new RelayCommand(_ => OpenSalesReport());
             OpenProductManagementCommand = new RelayCommand(_ => OpenProductManagement());
             OpenCategoryManagementCommand = new RelayCommand(_ => OpenCategoryManagement());
-            OpenDashboardCommand = new RelayCommand(_ => OpenDashboard());
-            OpenExpenseCommand = new RelayCommand(_ => OpenExpense());
-            OpenShiftCommand = new RelayCommand(_ => OpenShift());
-            OpenCustomerLedgerCommand = new RelayCommand(_ => OpenCustomerLedger());
-            OpenDailySummaryCommand = new RelayCommand(_ => OpenDailySummary());
-            OpenPurchaseEntryCommand = new RelayCommand(_ => OpenPurchaseEntry());
-            OpenPurchaseReturnCommand = new RelayCommand(_ => OpenPurchaseReturn());
+            OpenDashboardCommand        = new RelayCommand(_ => OpenDashboard());
+            OpenExpenseCommand          = new RelayCommand(_ => OpenExpense());
+            OpenShiftCommand            = new RelayCommand(_ => OpenShift());
+            OpenCustomerLedgerCommand   = new RelayCommand(_ => OpenCustomerLedger());
+            OpenDailySummaryCommand     = new RelayCommand(_ => OpenDailySummary());
+            OpenPurchaseEntryCommand    = new RelayCommand(_ => OpenPurchaseEntry());
+            OpenPurchaseReturnCommand   = new RelayCommand(_ => OpenPurchaseReturn());
             OpenSupplierManagementCommand = new RelayCommand(_ => OpenSupplierManagement());
             OpenPharmacyManagementCommand = new RelayCommand(_ => OpenPharmacyManagement());
             OpenDoctorManagementCommand = new RelayCommand(_ => OpenDoctorManagement());
-            OpenPharmacySaleCommand = new RelayCommand(_ => OpenPharmacySale());
-            OpenBackupRestoreCommand = new RelayCommand(_ => OpenBackupRestore());
-            SyncNowCommand = new AsyncRelayCommand(SyncNowAsync, () => !_isSyncInProgress);
-            LogoutCommand = new RelayCommand(_ => Logout());
-            ExitCommand = new RelayCommand(_ => Exit());
+            OpenPharmacySaleCommand     = new RelayCommand(_ => OpenPharmacySale());
+            OpenBackupRestoreCommand    = new RelayCommand(_ => OpenBackupRestore());
+            OpenUserManagementCommand   = new RelayCommand(_ => OpenUserManagement());
+            OpenRoleManagementCommand   = new RelayCommand(_ => OpenRoleManagement());
+            SyncNowCommand              = new AsyncRelayCommand(SyncNowAsync, () => !_isSyncInProgress);
+            LogoutCommand               = new RelayCommand(_ => Logout());
+            ExitCommand                 = new RelayCommand(_ => Exit());
         }
+
+        // ── Navigation handlers ───────────────────────────────────────────────
 
         private void OpenSale()
         {
             if (!PermissionManager.CanAccessSale(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to access the sale screen.");
-                return;
-            }
-            var saleWindow = App.Services?.GetRequiredService<SaleWindow>();
-            saleWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to access the sale screen."); return; }
+            App.Services?.GetRequiredService<SaleWindow>().ShowDialog();
         }
 
         private void OpenWholeSale()
         {
             if (!PermissionManager.CanAccessSale(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to access the wholesale screen.");
-                return;
-            }
-            var wholeSaleWindow = App.Services?.GetRequiredService<WholeSaleWindow>();
-            wholeSaleWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to access the wholesale screen."); return; }
+            App.Services?.GetRequiredService<WholeSaleWindow>().ShowDialog();
         }
 
         private void OpenSaleReturn()
         {
             if (!PermissionManager.CanAccessSale(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to access sale return.");
-                return;
-            }
-            var saleReturnWindow = App.Services?.GetRequiredService<SaleReturnWindow>();
-            saleReturnWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to access sale return."); return; }
+            App.Services?.GetRequiredService<SaleReturnWindow>().ShowDialog();
         }
 
         private void OpenSalesReport()
-        {
-            var reportWindow = App.Services?.GetRequiredService<SalesReportWindow>();
-            reportWindow?.ShowDialog();
-        }
+            => App.Services?.GetRequiredService<SalesReportWindow>().ShowDialog();
 
         private void OpenProductManagement()
-        {
-            var productWindow = App.Services?.GetRequiredService<ProductManagementWindow>();
-            productWindow?.ShowDialog();
-        }
+            => App.Services?.GetRequiredService<ProductManagementWindow>().ShowDialog();
 
         private void OpenCategoryManagement()
-        {
-            var categoryWindow = App.Services?.GetRequiredService<CategoryManagementWindow>();
-            categoryWindow?.ShowDialog();
-        }
+            => App.Services?.GetRequiredService<CategoryManagementWindow>().ShowDialog();
 
         private void OpenDashboard()
-        {
-            var dashboardWindow = App.Services?.GetRequiredService<DashboardWindow>();
-            dashboardWindow?.ShowDialog();
-        }
+            => App.Services?.GetRequiredService<DashboardWindow>().ShowDialog();
 
         private void OpenExpense()
-        {
-            var expenseWindow = App.Services?.GetRequiredService<ExpenseWindow>();
-            expenseWindow?.ShowDialog();
-        }
+            => App.Services?.GetRequiredService<ExpenseWindow>().ShowDialog();
 
         private void OpenShift()
-        {
-            var shiftWindow = App.Services?.GetRequiredService<ShiftWindow>();
-            shiftWindow?.ShowDialog();
-        }
+            => App.Services?.GetRequiredService<ShiftWindow>().ShowDialog();
 
         private void OpenCustomerLedger()
-        {
-            var ledgerWindow = App.Services?.GetRequiredService<CustomerLedgerWindow>();
-            ledgerWindow?.ShowDialog();
-        }
+            => App.Services?.GetRequiredService<CustomerLedgerWindow>().ShowDialog();
 
         private void OpenDailySummary()
         {
             if (!PermissionManager.CanAccessDailySummary(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to access daily summary.");
-                return;
-            }
-            var dailySummaryWindow = App.Services?.GetRequiredService<DailySummaryWindow>();
-            dailySummaryWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to access daily summary."); return; }
+            App.Services?.GetRequiredService<DailySummaryWindow>().ShowDialog();
         }
 
         private void OpenPurchaseEntry()
         {
             if (!PermissionManager.CanManagePurchases(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to manage purchases.");
-                return;
-            }
-            var purchaseWindow = App.Services?.GetRequiredService<PurchaseEntryWindow>();
-            purchaseWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage purchases."); return; }
+            App.Services?.GetRequiredService<PurchaseEntryWindow>().ShowDialog();
         }
 
         private void OpenPurchaseReturn()
         {
             if (!PermissionManager.CanManagePurchases(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to manage purchases.");
-                return;
-            }
-            var purchaseReturnWindow = App.Services?.GetRequiredService<PurchaseReturnWindow>();
-            purchaseReturnWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage purchases."); return; }
+            App.Services?.GetRequiredService<PurchaseReturnWindow>().ShowDialog();
         }
 
         private void OpenSupplierManagement()
         {
             if (!PermissionManager.CanManageSuppliers(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to manage suppliers.");
-                return;
-            }
-            var supplierWindow = App.Services?.GetRequiredService<SupplierManagementWindow>();
-            supplierWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage suppliers."); return; }
+            App.Services?.GetRequiredService<SupplierManagementWindow>().ShowDialog();
         }
 
         private void OpenDoctorManagement()
         {
             if (!PermissionManager.CanManageDoctors(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to manage doctors.");
-                return;
-            }
-            var doctorWindow = App.Services?.GetRequiredService<DoctorManagementWindow>();
-            doctorWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage doctors."); return; }
+            App.Services?.GetRequiredService<DoctorManagementWindow>().ShowDialog();
         }
 
         private void OpenPharmacySale()
         {
-            if (!PermissionManager.CanManagePharmacies(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to access pharmacy sale.");
-                return;
-            }
-            var window = App.Services?.GetRequiredService<PharmacySaleWindow>();
-            window?.ShowDialog();
+            if (!SessionManager.HasPermission(Permissions.PharmacySale))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to access pharmacy sale."); return; }
+            App.Services?.GetRequiredService<PharmacySaleWindow>().ShowDialog();
         }
 
         private void OpenPharmacyManagement()
         {
             if (!PermissionManager.CanManagePharmacies(SessionManager.CurrentUser))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to manage pharmacies.");
-                return;
-            }
-            var pharmacyWindow = App.Services?.GetRequiredService<PharmacyManagementWindow>();
-            pharmacyWindow?.ShowDialog();
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage pharmacies."); return; }
+            App.Services?.GetRequiredService<PharmacyManagementWindow>().ShowDialog();
         }
 
         private void OpenBackupRestore()
         {
-            if (!PermissionManager.CanAccess(SessionManager.CurrentUser, "BackupRestore"))
-            {
-                NotificationHelper.ValidationErrorCustom("You don't have permission to access backup/restore.");
-                return;
-            }
-            var backupWindow = App.Services?.GetRequiredService<BackupRestoreWindow>();
-            backupWindow?.ShowDialog();
+            if (!SessionManager.HasPermission(Permissions.BackupAccess))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to access backup/restore."); return; }
+            App.Services?.GetRequiredService<BackupRestoreWindow>().ShowDialog();
+        }
+
+        private void OpenUserManagement()
+        {
+            if (!SessionManager.HasPermission(Permissions.UsersManage))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage users."); return; }
+            App.Services?.GetRequiredService<UserManagementWindow>().ShowDialog();
+        }
+
+        private void OpenRoleManagement()
+        {
+            if (!SessionManager.HasPermission(Permissions.UsersManage))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage roles."); return; }
+            App.Services?.GetRequiredService<RoleManagementWindow>().ShowDialog();
         }
 
         private async Task SyncNowAsync()
@@ -284,24 +243,14 @@ namespace POSApp.UI.ViewModels
 
         private void Logout()
         {
-            // Clear session
             SessionManager.Logout();
-
-            // Close main window
-            var mainWindow = System.Windows.Application.Current.MainWindow;
+            var mainWindow = Application.Current.MainWindow;
             mainWindow?.Close();
-
-            // Show login window again
             var loginWindow = App.Services.GetRequiredService<LoginWindow>();
             loginWindow.Show();
-
-            // Update app's main window reference
-            System.Windows.Application.Current.MainWindow = loginWindow;
+            Application.Current.MainWindow = loginWindow;
         }
 
-        private void Exit()
-        {
-            System.Windows.Application.Current.Shutdown();
-        }
+        private void Exit() => Application.Current.Shutdown();
     }
 }

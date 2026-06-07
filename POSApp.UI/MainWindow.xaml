@@ -76,6 +76,19 @@
                 <Button Content="📒 Khata" Command="{Binding OpenCustomerLedgerCommand}"
                         Style="{StaticResource NavButtonStyle}" Margin="4"/>
 
+                <!-- ── Administration (Admin only) ── -->
+                <Border Visibility="{Binding UserManagementVisibility}"
+                        Background="#1AEE5350" CornerRadius="8"
+                        BorderBrush="#44EE5350" BorderThickness="1"
+                        Padding="6,4" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="👥 Users" Command="{Binding OpenUserManagementCommand}"
+                                Style="{StaticResource NavButtonStyle}" Margin="3,0"/>
+                        <Button Content="🔐 Roles" Command="{Binding OpenRoleManagementCommand}"
+                                Style="{StaticResource NavButtonStyle}" Margin="3,0"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- ── System ── -->
                 <Button Content="🗄 Backup" Command="{Binding OpenBackupRestoreCommand}"
                         Style="{StaticResource InfoButton}" Margin="4"/>

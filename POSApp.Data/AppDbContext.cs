@@ -12,16 +12,19 @@ namespace POSApp.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
         public DbSet<SyncLog> SyncLogs { get; set; }
-        
+
         // New Features
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Shift> Shifts { get; set; }
         public DbSet<HoldSale> HoldSales { get; set; }
         public DbSet<HoldSaleItem> HoldSaleItems { get; set; }
         public DbSet<CustomerPayment> CustomerPayments { get; set; }
-        
+
         // New Features
         public DbSet<DailySalesSummary> DailySalesSummaries { get; set; }
         public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
@@ -129,6 +132,38 @@ namespace POSApp.Data
             modelBuilder.Entity<Category>()
                 .HasKey(c => c.Id);
 
+            // Configure Role entity
+            modelBuilder.Entity<Role>()
+                .HasKey(r => r.Id);
+
+            modelBuilder.Entity<Role>()
+                .HasIndex(r => r.Name)
+                .IsUnique();
+
+            // Configure Permission entity
+            modelBuilder.Entity<Permission>()
+                .HasKey(p => p.Id);
+
+            modelBuilder.Entity<Permission>()
+                .HasIndex(p => p.Name)
+                .IsUnique();
+
+            // Configure RolePermission (composite PK junction table)
+            modelBuilder.Entity<RolePermission>()
+                .HasKey(rp => new { rp.RoleId, rp.PermissionId });
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Role)
+                .WithMany(r => r.RolePermissions)
+                .HasForeignKey(rp => rp.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Permission)
+                .WithMany(p => p.RolePermissions)
+                .HasForeignKey(rp => rp.PermissionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Configure User entity
             modelBuilder.Entity<User>()
                 .HasKey(u => u.Id);
@@ -136,6 +171,16 @@ namespace POSApp.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Username)
                 .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.UserRole)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Ignore computed property
+            modelBuilder.Entity<User>()
+                .Ignore(u => u.RoleName);
 
             // Configure ApplicationSetting entity
             modelBuilder.Entity<ApplicationSetting>()
@@ -156,7 +201,7 @@ namespace POSApp.Data
             modelBuilder.Entity<Customer>()
                 .Property(c => c.CurrentBalance)
                 .HasPrecision(18, 2);
-            
+
             // Customer loyalty fields
             modelBuilder.Entity<Customer>()
                 .Property(c => c.TotalPurchases)
@@ -225,7 +270,7 @@ namespace POSApp.Data
 
             modelBuilder.Entity<SyncLog>()
                 .HasIndex(s => new { s.EntityType, s.EntityId });
-            
+
             // Configure DailySalesSummary
             modelBuilder.Entity<DailySalesSummary>()
                 .Property(d => d.OpeningBalance)
@@ -245,7 +290,7 @@ namespace POSApp.Data
             modelBuilder.Entity<DailySalesSummary>()
                 .Property(d => d.Variance)
                 .HasPrecision(18, 2);
-            
+
             // Configure PurchaseOrder
             modelBuilder.Entity<PurchaseOrder>()
                 .Property(p => p.TotalAmount)
@@ -253,7 +298,7 @@ namespace POSApp.Data
             modelBuilder.Entity<PurchaseOrder>()
                 .HasIndex(p => p.PurchaseNumber)
                 .IsUnique();
-            
+
             // Configure PurchaseOrderItem
             modelBuilder.Entity<PurchaseOrderItem>()
                 .Property(p => p.UnitCost)
@@ -266,7 +311,7 @@ namespace POSApp.Data
                 .WithMany(p => p.Items)
                 .HasForeignKey(p => p.PurchaseOrderId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             // Configure Supplier
             modelBuilder.Entity<Supplier>()
                 .HasKey(s => s.Id);
@@ -276,7 +321,7 @@ namespace POSApp.Data
             modelBuilder.Entity<Supplier>()
                 .HasIndex(s => s.SupplierId)
                 .IsUnique();
-            
+
             // Configure UserFavorite
             modelBuilder.Entity<UserFavorite>()
                 .HasIndex(f => new { f.UserId, f.ProductId })
@@ -308,7 +353,8 @@ namespace POSApp.Data
             modelBuilder.Entity<Doctor>()
                 .HasQueryFilter(d => !d.IsDeleted);
 
-            // Seed sample data
+            // ── Seed Data ────────────────────────────────────────────────────────
+
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Medicine", Description = "Medical products", CreatedDate = new DateTime(2025, 1, 1) },
                 new Category { Id = 2, Name = "Stationery", Description = "Office and school supplies", CreatedDate = new DateTime(2025, 1, 1) }
@@ -323,44 +369,65 @@ namespace POSApp.Data
                 new Customer { Id = 1, CustomerId = "CASH", Name = "Cash", PreBalance = 0, CreatedDate = new DateTime(2025, 1, 1) }
             );
 
-            // Seed default users
+            // Seed Roles
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "Admin", Description = "Full access to all features", IsSystemRole = true, CreatedDate = new DateTime(2025, 1, 1) },
+                new Role { Id = 2, Name = "Manager", Description = "Operations and reports — no admin functions", IsSystemRole = true, CreatedDate = new DateTime(2025, 1, 1) },
+                new Role { Id = 3, Name = "Cashier", Description = "Sales screens only", IsSystemRole = true, CreatedDate = new DateTime(2025, 1, 1) },
+                new Role { Id = 4, Name = "PharmacyUser", Description = "Pharmacy operations and reports", IsSystemRole = true, CreatedDate = new DateTime(2025, 1, 1) }
+            );
+
+            // Seed Permissions (20 permissions grouped by category)
+            modelBuilder.Entity<Permission>().HasData(
+                // Sales (1-5)
+                new Permission { Id = 1,  Name = "Sale.Access",            DisplayName = "Access Sale Screen",          Category = "Sales" },
+                new Permission { Id = 2,  Name = "WholeSale.Access",       DisplayName = "Access Wholesale Screen",     Category = "Sales" },
+                new Permission { Id = 3,  Name = "SaleReturn.Access",      DisplayName = "Access Sale Return",          Category = "Sales" },
+                new Permission { Id = 4,  Name = "CustomerLedger.Access",  DisplayName = "Access Customer Ledger",      Category = "Sales" },
+                new Permission { Id = 5,  Name = "HoldSale.Access",        DisplayName = "Access Hold Sale",            Category = "Sales" },
+                // Reports (6-8)
+                new Permission { Id = 6,  Name = "Reports.Sales",          DisplayName = "View Sales Reports",          Category = "Reports" },
+                new Permission { Id = 7,  Name = "Reports.Daily",          DisplayName = "View Daily Summary",          Category = "Reports" },
+                new Permission { Id = 8,  Name = "Dashboard.Access",       DisplayName = "Access Dashboard",            Category = "Reports" },
+                // Products (9-10)
+                new Permission { Id = 9,  Name = "Products.Manage",        DisplayName = "Manage Products",             Category = "Products" },
+                new Permission { Id = 10, Name = "Categories.Manage",      DisplayName = "Manage Categories",           Category = "Products" },
+                // Operations (11-14)
+                new Permission { Id = 11, Name = "Expenses.Manage",        DisplayName = "Manage Expenses",             Category = "Operations" },
+                new Permission { Id = 12, Name = "Shifts.Manage",          DisplayName = "Manage Cash Register/Shifts", Category = "Operations" },
+                new Permission { Id = 13, Name = "Purchases.Manage",       DisplayName = "Manage Purchase Orders",      Category = "Operations" },
+                new Permission { Id = 14, Name = "Suppliers.Manage",       DisplayName = "Manage Suppliers",            Category = "Operations" },
+                // Administration (15-17)
+                new Permission { Id = 15, Name = "Users.Manage",           DisplayName = "Manage Users & Roles",        Category = "Administration" },
+                new Permission { Id = 16, Name = "Settings.System",        DisplayName = "System Settings",             Category = "Administration" },
+                new Permission { Id = 17, Name = "Backup.Access",          DisplayName = "Backup & Restore",            Category = "Administration" },
+                // Pharmacy (18-20)
+                new Permission { Id = 18, Name = "Pharmacy.Sale",          DisplayName = "Access Pharmacy Sale",        Category = "Pharmacy" },
+                new Permission { Id = 19, Name = "Pharmacy.Manage",        DisplayName = "Manage Pharmacies",           Category = "Pharmacy" },
+                new Permission { Id = 20, Name = "Doctors.Manage",         DisplayName = "Manage Doctors",              Category = "Pharmacy" }
+            );
+
+            // Seed RolePermissions
+            // Admin (1): all 20
+            var adminPerms = Enumerable.Range(1, 20).Select(i => new RolePermission { RoleId = 1, PermissionId = i });
+            // Manager (2): 1-14 (no administration, no pharmacy)
+            var managerPerms = Enumerable.Range(1, 14).Select(i => new RolePermission { RoleId = 2, PermissionId = i });
+            // Cashier (3): 1-5 (sales only)
+            var cashierPerms = Enumerable.Range(1, 5).Select(i => new RolePermission { RoleId = 3, PermissionId = i });
+            // PharmacyUser (4): customer ledger, hold sale, reports, products, operations, pharmacy
+            var pharmacyPerms = new[] { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20 }
+                .Select(i => new RolePermission { RoleId = 4, PermissionId = i });
+
+            modelBuilder.Entity<RolePermission>().HasData(
+                adminPerms.Concat(managerPerms).Concat(cashierPerms).Concat(pharmacyPerms).ToArray()
+            );
+
+            // Seed default users (RoleId replaces the old Role string)
             modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    Id = 1,
-                    Username = "admin",
-                    PasswordHash = "admin123", // In production, use proper hashing like BCrypt
-                    Role = "Admin",
-                    CreatedDate = new DateTime(2025, 1, 1),
-                    IsActive = true
-                },
-                new User
-                {
-                    Id = 2,
-                    Username = "cashier",
-                    PasswordHash = "cashier123",
-                    Role = "Cashier",
-                    CreatedDate = new DateTime(2025, 1, 1),
-                    IsActive = true
-                },
-                new User
-                {
-                    Id = 3,
-                    Username = "ali",
-                    PasswordHash = "ali443",
-                    Role = "Admin",
-                    CreatedDate = new DateTime(2025, 1, 1),
-                    IsActive = true
-                },
-                new User
-                {
-                    Id = 4,
-                    Username = "alico",
-                    PasswordHash = "1",
-                    Role = "PharmacyUser",
-                    CreatedDate = new DateTime(2025, 1, 1),
-                    IsActive = true
-                }
+                new User { Id = 1, Username = "admin",   PasswordHash = "admin123",   RoleId = 1, CreatedDate = new DateTime(2025, 1, 1), IsActive = true },
+                new User { Id = 2, Username = "cashier", PasswordHash = "cashier123", RoleId = 3, CreatedDate = new DateTime(2025, 1, 1), IsActive = true },
+                new User { Id = 3, Username = "ali",     PasswordHash = "ali443",     RoleId = 1, CreatedDate = new DateTime(2025, 1, 1), IsActive = true },
+                new User { Id = 4, Username = "alico",   PasswordHash = "1",          RoleId = 4, CreatedDate = new DateTime(2025, 1, 1), IsActive = true }
             );
 
             // Seed default application settings

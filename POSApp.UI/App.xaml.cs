@@ -47,6 +47,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
 
         // Add ViewModels
         services.AddTransient<LoginViewModel>();
@@ -99,6 +101,14 @@ public partial class App : System.Windows.Application
         services.AddTransient<DoctorFormDialog>();
         services.AddTransient<PharmacySaleViewModel>();
         services.AddTransient<PharmacySaleWindow>();
+        services.AddTransient<UserManagementViewModel>();
+        services.AddTransient<UserFormViewModel>();
+        services.AddTransient<RoleManagementViewModel>();
+        services.AddTransient<RoleFormViewModel>();
+        services.AddTransient<UserManagementWindow>();
+        services.AddTransient<UserFormDialog>();
+        services.AddTransient<RoleManagementWindow>();
+        services.AddTransient<RoleFormDialog>();
 
         // Add Sync Services (Firebase background sync)
         services.AddSingleton<ISyncService, FirebaseSyncService>();

@@ -77,8 +77,12 @@ namespace POSApp.UI.ViewModels
 
                 if (user != null)
                 {
-                    // Login successful
-                    SessionManager.CurrentUser = user;
+                    // Load permissions from the eagerly-loaded role
+                    var permissions = user.UserRole?.RolePermissions
+                        .Select(rp => rp.Permission.Name)
+                        ?? Enumerable.Empty<string>();
+
+                    SessionManager.SetSession(user, permissions);
 
                     // Update last login date
                     user.LastLoginDate = DateTime.Now;

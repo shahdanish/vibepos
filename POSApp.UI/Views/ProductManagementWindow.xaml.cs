@@ -18,7 +18,7 @@ namespace POSApp.UI.Views
             };
 
             // DataGridColumn is not a FrameworkElement so visibility must be set in code-behind
-            var isPharmacy = SessionManager.CurrentUser?.Role == "PharmacyUser";
+            var isPharmacy = SessionManager.HasPermission(POSApp.Core.Entities.Permissions.PharmacyManage);
             BatchColumn.Visibility = isPharmacy ? Visibility.Visible : Visibility.Collapsed;
             ExpiryColumn.Visibility = isPharmacy ? Visibility.Visible : Visibility.Collapsed;
         }
