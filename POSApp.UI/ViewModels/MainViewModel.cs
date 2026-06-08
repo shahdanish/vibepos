@@ -37,6 +37,10 @@ namespace POSApp.UI.ViewModels
             SessionManager.HasPermission(Permissions.UsersManage)
                 ? Visibility.Visible : Visibility.Collapsed;
 
+        public Visibility EmployeeButtonVisibility =>
+            PermissionManager.CanManageEmployees(SessionManager.CurrentUser)
+                ? Visibility.Visible : Visibility.Collapsed;
+
         // ── Commands ──────────────────────────────────────────────────────────
 
         public ICommand OpenSaleCommand { get; }
@@ -57,6 +61,8 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenDoctorManagementCommand { get; }
         public ICommand OpenPharmacySaleCommand { get; }
         public ICommand OpenBackupRestoreCommand { get; }
+        public ICommand OpenEmployeeManagementCommand { get; }
+        public ICommand OpenSalarySlipCommand { get; }
         public ICommand OpenUserManagementCommand { get; }
         public ICommand OpenRoleManagementCommand { get; }
         public ICommand SyncNowCommand { get; }
@@ -76,8 +82,12 @@ namespace POSApp.UI.ViewModels
                 ? "Master Pharmaceuticals Distributor"
                 : "Shah Jee Super Store";
 
-        public MainViewModel()
+        public DashboardViewModel DashboardViewModel { get; }
+
+        public MainViewModel(DashboardViewModel dashboardViewModel)
         {
+            DashboardViewModel = dashboardViewModel;
+
             if (SessionManager.CurrentUser != null)
                 CurrentUserInfo = $"Logged in as: {SessionManager.CurrentUser.Username} ({SessionManager.CurrentUser.RoleName})";
 
@@ -99,6 +109,8 @@ namespace POSApp.UI.ViewModels
             OpenDoctorManagementCommand = new RelayCommand(_ => OpenDoctorManagement());
             OpenPharmacySaleCommand     = new RelayCommand(_ => OpenPharmacySale());
             OpenBackupRestoreCommand    = new RelayCommand(_ => OpenBackupRestore());
+            OpenEmployeeManagementCommand = new RelayCommand(_ => OpenEmployeeManagement());
+            OpenSalarySlipCommand       = new RelayCommand(_ => OpenSalarySlip());
             OpenUserManagementCommand   = new RelayCommand(_ => OpenUserManagement());
             OpenRoleManagementCommand   = new RelayCommand(_ => OpenRoleManagement());
             SyncNowCommand              = new AsyncRelayCommand(SyncNowAsync, () => !_isSyncInProgress);
@@ -139,7 +151,7 @@ namespace POSApp.UI.ViewModels
             => App.Services?.GetRequiredService<CategoryManagementWindow>().ShowDialog();
 
         private void OpenDashboard()
-            => App.Services?.GetRequiredService<DashboardWindow>().ShowDialog();
+            => DashboardViewModel.RefreshCommand.Execute(null);
 
         private void OpenExpense()
             => App.Services?.GetRequiredService<ExpenseWindow>().ShowDialog();
@@ -197,6 +209,20 @@ namespace POSApp.UI.ViewModels
             if (!PermissionManager.CanManagePharmacies(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage pharmacies."); return; }
             App.Services?.GetRequiredService<PharmacyManagementWindow>().ShowDialog();
+        }
+
+        private void OpenEmployeeManagement()
+        {
+            if (!PermissionManager.CanManageEmployees(SessionManager.CurrentUser))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage employees."); return; }
+            App.Services?.GetRequiredService<EmployeeManagementWindow>().ShowDialog();
+        }
+
+        private void OpenSalarySlip()
+        {
+            if (!PermissionManager.CanManageSalary(SessionManager.CurrentUser))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage salary slips."); return; }
+            App.Services?.GetRequiredService<SalarySlipWindow>().ShowDialog();
         }
 
         private void OpenBackupRestore()

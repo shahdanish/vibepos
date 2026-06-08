@@ -984,6 +984,7 @@ namespace POSApp.UI.ViewModels
         private string _productId = string.Empty;
         private string _productName = string.Empty;
         private int _quantity;
+        private int _bonus;
         private decimal _costPrice;
         private decimal _unitPrice;
         private decimal _discountPercent;
@@ -1010,11 +1011,14 @@ namespace POSApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref _quantity, value))
-                {
-                    // Auto-calculate total when quantity changes
                     CalculateTotal();
-                }
             }
+        }
+
+        public int Bonus
+        {
+            get => _bonus;
+            set => SetProperty(ref _bonus, value);
         }
 
         public decimal CostPrice

@@ -1,0 +1,253 @@
+<Window x:Class="POSApp.UI.Views.SalarySlipWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Salary Slip Generator - Master Pharmaceuticals Distributor"
+        Height="750" Width="1050"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Icon="/app-icon.png">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
+            <TextBlock Text="Salary Slip Generator" FontSize="24" FontWeight="Bold"
+                       Foreground="White" HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Main content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="16,12,16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="420"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ── Left: Generate Slip Form ───────────────────────────── -->
+                <Border Grid.Column="0" Style="{StaticResource CardBorder}">
+                    <StackPanel Margin="16">
+
+                        <TextBlock Text="Generate New Salary Slip" FontSize="15"
+                                   FontWeight="Bold" Margin="0,0,0,14"/>
+
+                        <!-- Employee selector -->
+                        <TextBlock Text="Employee *" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding Employees}"
+                                  SelectedItem="{Binding SelectedEmployee}"
+                                  DisplayMemberPath="Name"
+                                  Padding="8,6" Margin="0,0,0,14" FontSize="13"/>
+
+                        <!-- Month / Year -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Month *" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                <ComboBox ItemsSource="{Binding Months}"
+                                          SelectedItem="{Binding SelectedMonth}"
+                                          Padding="8,6" FontSize="13">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Year *" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                <ComboBox ItemsSource="{Binding Years}"
+                                          SelectedItem="{Binding SelectedYear}"
+                                          Padding="8,6" FontSize="13"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Earnings section -->
+                        <Border Background="#E8F4FD" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
+                            <TextBlock Text="Earnings" FontWeight="Bold"/>
+                        </Border>
+
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Basic Salary (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                                <TextBox Text="{Binding BasicSalary, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,5" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="House Rent Allow. (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                                <TextBox Text="{Binding HouseRentAllowance, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,5" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Medical Allow. (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                                <TextBox Text="{Binding MedicalAllowance, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,5" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Other Allow. (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                                <TextBox Text="{Binding OtherAllowances, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,5" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Deductions section -->
+                        <Border Background="#FFF3E0" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
+                            <TextBlock Text="Deductions" FontWeight="Bold"/>
+                        </Border>
+
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Income Tax (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                                <TextBox Text="{Binding IncomeTax, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,5" FontSize="12"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="EOBI (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                                <TextBox Text="{Binding EobiDeduction, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,5" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Margin="0,0,0,14">
+                            <TextBlock Text="Other Deductions (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                            <TextBox Text="{Binding OtherDeductions, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="8,5" FontSize="12"/>
+                        </StackPanel>
+
+                        <!-- Summary band -->
+                        <Border Background="#1A6B9A" CornerRadius="4" Padding="12,8" Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                    <TextBlock Text="Gross Salary" Foreground="White" FontSize="10" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding GrossSalary, StringFormat=Rs. \{0:N0\}}"
+                                               Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                    <TextBlock Text="Deductions" Foreground="#FFD0D0" FontSize="10" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalDeductions, StringFormat=Rs. \{0:N0\}}"
+                                               Foreground="#FFD0D0" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                    <TextBlock Text="NET SALARY" Foreground="#90EE90" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding NetSalary, StringFormat=Rs. \{0:N0\}}"
+                                               Foreground="#90EE90" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Notes -->
+                        <TextBlock Text="Notes (optional)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                        <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,5" Margin="0,0,0,14" FontSize="12"
+                                 Height="48" TextWrapping="Wrap" AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"/>
+
+                        <!-- Action buttons -->
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="🖨 Save &amp; Print"
+                                    Command="{Binding SaveAndPrintCommand}"
+                                    Style="{StaticResource SuccessButton}"
+                                    Padding="14,8" FontSize="13" Margin="0,0,8,0"/>
+                            <Button Content="↺ Clear"
+                                    Command="{Binding ClearFormCommand}"
+                                    Style="{StaticResource NeutralButton}"
+                                    Padding="14,8" FontSize="13"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Right: Salary Slip History ─────────────────────────── -->
+                <Border Grid.Column="2" Style="{StaticResource CardBorder}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="#E8F4FD" Padding="12,8">
+                            <TextBlock Text="Previous Salary Slips" FontWeight="Bold" FontSize="13"/>
+                        </Border>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <DataGrid ItemsSource="{Binding EmployeeSlips}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      SelectionMode="Single"
+                                      GridLinesVisibility="Horizontal"
+                                      HeadersVisibility="Column"
+                                      RowBackground="White"
+                                      AlternatingRowBackground="#F9F9F9"
+                                      BorderThickness="0">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Slip No"   Binding="{Binding SlipNumber}" Width="140"/>
+                                    <DataGridTextColumn Header="Period"    Binding="{Binding MonthName}"  Width="120"/>
+                                    <DataGridTextColumn Header="Net Salary"
+                                                        Binding="{Binding NetSalary, StringFormat=Rs. \{0:N2\}}"
+                                                        Width="120"/>
+                                    <DataGridTextColumn Header="Generated" Binding="{Binding GeneratedDate, StringFormat=dd-MMM-yy}" Width="90"/>
+
+                                    <DataGridTemplateColumn Header="Actions" Width="160" CanUserSort="False">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="4,2">
+                                                    <Button Content="🖨 Print"
+                                                            Command="{Binding DataContext.PrintExistingCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource InfoButton}"
+                                                            Padding="8,4" FontSize="12" Margin="0,0,4,0"/>
+                                                    <Button Content="🗑 Delete"
+                                                            Command="{Binding DataContext.DeleteSlipCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource DangerButton}"
+                                                            Padding="8,4" FontSize="12"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,8">
+            <Button Content="✕ Close" Click="Close_Click"
+                    Style="{StaticResource NeutralButton}" Padding="12,6"/>
+        </StackPanel>
+    </Grid>
+</Window>

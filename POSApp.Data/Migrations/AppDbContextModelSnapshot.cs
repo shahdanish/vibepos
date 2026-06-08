@@ -286,6 +286,66 @@ namespace POSApp.Data.Migrations
                     b.ToTable("Doctors");
                 });
 
+            modelBuilder.Entity("POSApp.Core.Entities.Employee", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("BasicSalary")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CellNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Cnic")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmployeeCode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FatherName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("JoiningDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Employees");
+                });
+
             modelBuilder.Entity("POSApp.Core.Entities.Expense", b =>
                 {
                     b.Property<int>("Id")
@@ -376,6 +436,188 @@ namespace POSApp.Data.Migrations
                     b.HasIndex("HoldSaleId");
 
                     b.ToTable("HoldSaleItems");
+                });
+
+            modelBuilder.Entity("POSApp.Core.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Category = "Sales",
+                            DisplayName = "Access Sale Screen",
+                            Name = "Sale.Access"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Category = "Sales",
+                            DisplayName = "Access Wholesale Screen",
+                            Name = "WholeSale.Access"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Category = "Sales",
+                            DisplayName = "Access Sale Return",
+                            Name = "SaleReturn.Access"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Category = "Sales",
+                            DisplayName = "Access Customer Ledger",
+                            Name = "CustomerLedger.Access"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Category = "Sales",
+                            DisplayName = "Access Hold Sale",
+                            Name = "HoldSale.Access"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Category = "Reports",
+                            DisplayName = "View Sales Reports",
+                            Name = "Reports.Sales"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Category = "Reports",
+                            DisplayName = "View Daily Summary",
+                            Name = "Reports.Daily"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Category = "Reports",
+                            DisplayName = "Access Dashboard",
+                            Name = "Dashboard.Access"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Category = "Products",
+                            DisplayName = "Manage Products",
+                            Name = "Products.Manage"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Category = "Products",
+                            DisplayName = "Manage Categories",
+                            Name = "Categories.Manage"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Category = "Operations",
+                            DisplayName = "Manage Expenses",
+                            Name = "Expenses.Manage"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Category = "Operations",
+                            DisplayName = "Manage Cash Register/Shifts",
+                            Name = "Shifts.Manage"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Category = "Operations",
+                            DisplayName = "Manage Purchase Orders",
+                            Name = "Purchases.Manage"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Category = "Operations",
+                            DisplayName = "Manage Suppliers",
+                            Name = "Suppliers.Manage"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Category = "Administration",
+                            DisplayName = "Manage Users & Roles",
+                            Name = "Users.Manage"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Category = "Administration",
+                            DisplayName = "System Settings",
+                            Name = "Settings.System"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Category = "Administration",
+                            DisplayName = "Backup & Restore",
+                            Name = "Backup.Access"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Category = "Pharmacy",
+                            DisplayName = "Access Pharmacy Sale",
+                            Name = "Pharmacy.Sale"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Category = "Pharmacy",
+                            DisplayName = "Manage Pharmacies",
+                            Name = "Pharmacy.Manage"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Category = "Pharmacy",
+                            DisplayName = "Manage Doctors",
+                            Name = "Doctors.Manage"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Category = "HR",
+                            DisplayName = "Manage Employees",
+                            Name = "Employees.Manage"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Category = "HR",
+                            DisplayName = "Manage Salary Slips",
+                            Name = "Salary.Manage"
+                        });
                 });
 
             modelBuilder.Entity("POSApp.Core.Entities.Pharmacy", b =>
@@ -614,6 +856,436 @@ namespace POSApp.Data.Migrations
                     b.ToTable("PurchaseOrderItems");
                 });
 
+            modelBuilder.Entity("POSApp.Core.Entities.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsSystemRole")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Full access to all features",
+                            IsSystemRole = true,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Operations and reports — no admin functions",
+                            IsSystemRole = true,
+                            Name = "Manager"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Sales screens only",
+                            IsSystemRole = true,
+                            Name = "Cashier"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Pharmacy operations and reports",
+                            IsSystemRole = true,
+                            Name = "PharmacyUser"
+                        });
+                });
+
+            modelBuilder.Entity("POSApp.Core.Entities.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 3
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 4
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 5
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 6
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 7
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 8
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 9
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 10
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 11
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 12
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 13
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 14
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 15
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 16
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 17
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 18
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 19
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 20
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 21
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 22
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 3
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 4
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 5
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 6
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 7
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 8
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 9
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 10
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 11
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 12
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 13
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 14
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 3
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 4
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            PermissionId = 5
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 4
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 5
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 6
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 7
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 8
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 9
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 10
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 11
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 12
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 13
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 14
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 18
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 19
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 20
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 21
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            PermissionId = 22
+                        });
+                });
+
+            modelBuilder.Entity("POSApp.Core.Entities.SalarySlip", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("BasicSalary")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("EobiDeduction")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GeneratedByUsername")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("GeneratedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("HouseRentAllowance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("IncomeTax")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("MedicalAllowance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OtherAllowances")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OtherDeductions")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SlipNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("SalarySlips");
+                });
+
             modelBuilder.Entity("POSApp.Core.Entities.Sale", b =>
                 {
                     b.Property<int>("Id")
@@ -702,6 +1374,9 @@ namespace POSApp.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Bonus")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("CostPrice")
@@ -884,15 +1559,16 @@ namespace POSApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -906,7 +1582,7 @@ namespace POSApp.Data.Migrations
                             CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             PasswordHash = "admin123",
-                            Role = "Admin",
+                            RoleId = 1,
                             Username = "admin"
                         },
                         new
@@ -915,7 +1591,7 @@ namespace POSApp.Data.Migrations
                             CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             PasswordHash = "cashier123",
-                            Role = "Cashier",
+                            RoleId = 3,
                             Username = "cashier"
                         },
                         new
@@ -924,7 +1600,7 @@ namespace POSApp.Data.Migrations
                             CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             PasswordHash = "ali443",
-                            Role = "Admin",
+                            RoleId = 1,
                             Username = "ali"
                         },
                         new
@@ -933,7 +1609,7 @@ namespace POSApp.Data.Migrations
                             CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             PasswordHash = "1",
-                            Role = "PharmacyUser",
+                            RoleId = 4,
                             Username = "alico"
                         });
                 });
@@ -1025,6 +1701,36 @@ namespace POSApp.Data.Migrations
                     b.Navigation("PurchaseOrder");
                 });
 
+            modelBuilder.Entity("POSApp.Core.Entities.RolePermission", b =>
+                {
+                    b.HasOne("POSApp.Core.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("POSApp.Core.Entities.Role", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("POSApp.Core.Entities.SalarySlip", b =>
+                {
+                    b.HasOne("POSApp.Core.Entities.Employee", "Employee")
+                        .WithMany("SalarySlips")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("POSApp.Core.Entities.Sale", b =>
                 {
                     b.HasOne("POSApp.Core.Entities.Customer", "Customer")
@@ -1065,6 +1771,17 @@ namespace POSApp.Data.Migrations
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("POSApp.Core.Entities.User", b =>
+                {
+                    b.HasOne("POSApp.Core.Entities.Role", "UserRole")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UserRole");
+                });
+
             modelBuilder.Entity("POSApp.Core.Entities.UserFavorite", b =>
                 {
                     b.HasOne("POSApp.Core.Entities.Product", "Product")
@@ -1094,14 +1811,31 @@ namespace POSApp.Data.Migrations
                     b.Navigation("Payments");
                 });
 
+            modelBuilder.Entity("POSApp.Core.Entities.Employee", b =>
+                {
+                    b.Navigation("SalarySlips");
+                });
+
             modelBuilder.Entity("POSApp.Core.Entities.HoldSale", b =>
                 {
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("POSApp.Core.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("POSApp.Core.Entities.PurchaseOrder", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("POSApp.Core.Entities.Role", b =>
+                {
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("POSApp.Core.Entities.Sale", b =>

@@ -31,30 +31,77 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="Quick Reports" Style="{StaticResource SectionTitle}" Margin="0,0,0,15"/>
 
                 <WrapPanel Grid.Row="1">
-                    <Button Content="TODAY" Command="{Binding ShowTodayCommand}" 
+                    <Button Content="TODAY" Command="{Binding ShowTodayCommand}"
                             Style="{StaticResource SuccessButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
                             FontSize="14" FontWeight="Bold"/>
-                    <Button Content="THIS WEEK" Command="{Binding ShowThisWeekCommand}" 
+                    <Button Content="THIS WEEK" Command="{Binding ShowThisWeekCommand}"
                             Style="{StaticResource InfoButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
                             FontSize="14" FontWeight="Bold"/>
-                    <Button Content="THIS MONTH" Command="{Binding ShowThisMonthCommand}" 
+                    <Button Content="THIS MONTH" Command="{Binding ShowThisMonthCommand}"
                             Style="{StaticResource WarningButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
                             FontSize="14" FontWeight="Bold"/>
-                    <Button Content="THIS YEAR" Command="{Binding ShowThisYearCommand}" 
+                    <Button Content="THIS YEAR" Command="{Binding ShowThisYearCommand}"
                             Style="{StaticResource PurpleButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
                             FontSize="14" FontWeight="Bold"/>
-                    <Button Content="CUSTOM RANGE" Command="{Binding ShowCustomRangeCommand}" 
+                    <Button Content="CUSTOM RANGE" Command="{Binding ShowCustomRangeCommand}"
                             Style="{StaticResource NeutralButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="150"
                             FontSize="14" FontWeight="Bold"/>
-                    <Button Content="INVOICE SEARCH" Command="{Binding ShowInvoiceSearchCommand}" 
+                    <Button Content="INVOICE SEARCH" Command="{Binding ShowInvoiceSearchCommand}"
                             Style="{StaticResource PrimaryButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="170"
                             FontSize="14" FontWeight="Bold"/>
                 </WrapPanel>
+
+                <!-- Pharmacy Filters — visible only for pharmacy users -->
+                <Border Grid.Row="2" Visibility="{Binding PharmacyFilterVisibility}"
+                        Background="#EFF8F1" BorderBrush="#27ae60" BorderThickness="0,1,0,0"
+                        Padding="0,10,0,0" Margin="0,4,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="Pharmacy:" FontWeight="Bold" FontSize="12"
+                                   Foreground="#27ae60" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding PharmacyOptions}"
+                                  SelectedItem="{Binding PharmacyFilter}"
+                                  FontSize="12" Padding="6,4"
+                                  ToolTip="Filter by pharmacy"/>
+
+                        <TextBlock Grid.Column="2" Text="Doctor:" FontWeight="Bold" FontSize="12"
+                                   Foreground="#27ae60" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                        <ComboBox Grid.Column="3"
+                                  ItemsSource="{Binding DoctorOptions}"
+                                  SelectedItem="{Binding DoctorFilter}"
+                                  FontSize="12" Padding="6,4"
+                                  ToolTip="Filter by doctor"/>
+
+                        <TextBlock Grid.Column="4" Text="Product:" FontWeight="Bold" FontSize="12"
+                                   Foreground="#27ae60" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                        <ComboBox Grid.Column="5"
+                                  ItemsSource="{Binding ProductOptions}"
+                                  SelectedItem="{Binding ProductFilter}"
+                                  FontSize="12" Padding="6,4"
+                                  ToolTip="Filter by product (matches any item in the sale)"/>
+
+                        <Button Grid.Column="6" Content="Clear Filters"
+                                Command="{Binding ClearFiltersCommand}"
+                                Style="{StaticResource NeutralButton}"
+                                Padding="10,5" Margin="12,0,0,0" FontSize="11"/>
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
 
@@ -125,21 +172,22 @@
                     <!-- Data Grid -->
                     <DataGrid Grid.Row="2" ItemsSource="{Binding Sales}" SelectedItem="{Binding SelectedSale}"
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
-                              AlternatingRowBackground="#F9F9F9" HeadersVisibility="All" 
+                              AlternatingRowBackground="#F9F9F9" HeadersVisibility="All"
                               GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#DDD">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Invoice #" Binding="{Binding InvoiceNumber}" Width="120"/>
                             <DataGridTextColumn Header="Date" Binding="{Binding SaleDate, StringFormat=dd/MM/yyyy}" Width="100"/>
                             <DataGridTextColumn Header="Type" Binding="{Binding SaleType}" Width="90"/>
-                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="*" MinWidth="120"/>
-                            <DataGridTextColumn Header="Items" Binding="{Binding SaleItems.Count}" Width="60" ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Discount" Binding="{Binding DiscountOnBill, StringFormat=N2}" Width="90" ElementStyle="{StaticResource RightAlignStyle}"/>
+                            <DataGridTextColumn Header="Customer / Pharmacy" Binding="{Binding CustomerName}" Width="*" MinWidth="120"/>
+                            <DataGridTextColumn Header="Doctor" Binding="{Binding Doctor.Name}" Width="110" MinWidth="80"/>
+                            <DataGridTextColumn Header="Items" Binding="{Binding SaleItems.Count}" Width="55" ElementStyle="{StaticResource CenterAlignStyle}"/>
+                            <DataGridTextColumn Header="Discount" Binding="{Binding DiscountOnBill, StringFormat=N2}" Width="85" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTextColumn Header="Total (Rs)" Binding="{Binding TotalBill, StringFormat=N2}" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTemplateColumn Header="Action" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="View" Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                                CommandParameter="{Binding}" Style="{StaticResource InfoButton}" 
+                                        <Button Content="View" Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}" Style="{StaticResource InfoButton}"
                                                 Padding="8,4" FontSize="11"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

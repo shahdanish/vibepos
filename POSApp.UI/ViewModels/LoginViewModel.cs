@@ -109,11 +109,8 @@ namespace POSApp.UI.ViewModels
 
                             await Task.Delay(100);
 
-                            // Create MainViewModel
-                            var mainViewModel = new MainViewModel();
-
-                            // Create MainWindow
-                            var mainWindow = new MainWindow(mainViewModel);
+                            // Create MainWindow via DI (resolves MainViewModel + DashboardViewModel)
+                            var mainWindow = App.Services.GetRequiredService<MainWindow>();
 
                             // Show it
                             Application.Current.MainWindow = mainWindow;

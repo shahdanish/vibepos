@@ -13,6 +13,9 @@ namespace POSApp.UI.ViewModels
     public sealed class SalesReportViewModel : ViewModelBase
     {
         private readonly ISaleRepository _saleRepository;
+        private readonly IPharmacyRepository _pharmacyRepository;
+        private readonly IDoctorRepository _doctorRepository;
+        private readonly IProductRepository _productRepository;
         private string _invoiceNumber = string.Empty;
         private DateTime _startDate = DateTime.Now.Date;
         private DateTime _endDate = DateTime.Now.Date;
@@ -23,7 +26,16 @@ namespace POSApp.UI.ViewModels
         private Visibility _customRangeVisibility = Visibility.Collapsed;
         private Visibility _selectedSaleVisibility = Visibility.Collapsed;
 
+        // Pharmacy filters
+        private string? _pharmacyFilter;
+        private string? _doctorFilter;
+        private string? _productFilter;
+        private List<Sale> _allSales = new();
+
         public ObservableCollection<Sale> Sales { get; } = new();
+        public ObservableCollection<string> PharmacyOptions { get; } = new();
+        public ObservableCollection<string> DoctorOptions { get; } = new();
+        public ObservableCollection<string> ProductOptions { get; } = new();
 
         public string InvoiceNumber
         {
@@ -85,6 +97,31 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _selectedSaleVisibility, value);
         }
 
+        // Pharmacy filter properties — only shown for pharmacy users
+        public bool IsPharmacyUser { get; } =
+            SessionManager.HasPermission(Permissions.PharmacySale);
+
+        public Visibility PharmacyFilterVisibility =>
+            IsPharmacyUser ? Visibility.Visible : Visibility.Collapsed;
+
+        public string? PharmacyFilter
+        {
+            get => _pharmacyFilter;
+            set { if (SetProperty(ref _pharmacyFilter, value)) ApplyFilters(); }
+        }
+
+        public string? DoctorFilter
+        {
+            get => _doctorFilter;
+            set { if (SetProperty(ref _doctorFilter, value)) ApplyFilters(); }
+        }
+
+        public string? ProductFilter
+        {
+            get => _productFilter;
+            set { if (SetProperty(ref _productFilter, value)) ApplyFilters(); }
+        }
+
         // Summary Properties
         public int TotalSales => Sales.Count;
         public decimal TotalRevenue => Sales.Sum(s => s.TotalBill);
@@ -106,13 +143,21 @@ namespace POSApp.UI.ViewModels
         public ICommand PrintReportCommand { get; }
         public ICommand ExportCommand { get; }
         public ICommand RefreshCommand { get; }
+        public ICommand ClearFiltersCommand { get; }
 
         private bool _isAdmin = false;
         private bool _canExport = false;
 
-        public SalesReportViewModel(ISaleRepository saleRepository)
+        public SalesReportViewModel(
+            ISaleRepository saleRepository,
+            IPharmacyRepository pharmacyRepository,
+            IDoctorRepository doctorRepository,
+            IProductRepository productRepository)
         {
             _saleRepository = saleRepository;
+            _pharmacyRepository = pharmacyRepository;
+            _doctorRepository = doctorRepository;
+            _productRepository = productRepository;
 
             // Check if current user is admin
             _isAdmin = SessionManager.IsAdmin;
@@ -131,6 +176,7 @@ namespace POSApp.UI.ViewModels
             PrintReportCommand = new RelayCommand(_ => PrintReport());
             ExportCommand = new RelayCommand(_ => ExportToExcel(), _ => _canExport); // Admin only
             RefreshCommand = new RelayCommand(async _ => await RefreshData());
+            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
 
             // If not admin, show warning and close window
             if (!_isAdmin)
@@ -149,8 +195,13 @@ namespace POSApp.UI.ViewModels
                 return; // Exit constructor without loading data
             }
 
-            // Only load data for admins
-            _ = ShowToday();
+            // Data loaded externally via LoadAsync() called from the window's Loaded event
+        }
+
+        public async Task LoadAsync()
+        {
+            await LoadFilterOptionsAsync();
+            await ShowToday();
         }
 
         private async Task ShowToday()
@@ -221,12 +272,8 @@ namespace POSApp.UI.ViewModels
             try
             {
                 var sale = await _saleRepository.GetByInvoiceNumberAsync(InvoiceNumber);
-                Sales.Clear();
-
-                if (sale != null)
-                    Sales.Add(sale);
-
-                UpdateSummary();
+                _allSales = sale != null ? new List<Sale> { sale } : new List<Sale>();
+                ApplyFilters();
             }
             catch (Exception ex)
             {
@@ -251,17 +298,70 @@ namespace POSApp.UI.ViewModels
             try
             {
                 var sales = await _saleRepository.GetByDateRangeAsync(start, end);
-                Sales.Clear();
-
-                foreach (var sale in sales.OrderByDescending(s => s.SaleDate))
-                    Sales.Add(sale);
-
-                UpdateSummary();
+                _allSales = sales.OrderByDescending(s => s.SaleDate).ToList();
+                ApplyFilters();
             }
             catch (Exception ex)
             {
                 NotificationHelper.OperationFailed("load sales", ex.Message);
             }
+        }
+
+        private async Task LoadFilterOptionsAsync()
+        {
+            var pharmacies = await _pharmacyRepository.GetAllAsync(includeInactive: false);
+            PharmacyOptions.Clear();
+            PharmacyOptions.Add("All Pharmacies");
+            foreach (var p in pharmacies.OrderBy(x => x.Name))
+                PharmacyOptions.Add(p.Name);
+            PharmacyFilter = "All Pharmacies";
+
+            var doctors = await _doctorRepository.GetAllAsync(includeInactive: false);
+            DoctorOptions.Clear();
+            DoctorOptions.Add("All Doctors");
+            foreach (var d in doctors.OrderBy(x => x.Name))
+                DoctorOptions.Add(d.Name);
+            DoctorFilter = "All Doctors";
+
+            var products = await _productRepository.GetAllAsync();
+            ProductOptions.Clear();
+            ProductOptions.Add("All Products");
+            foreach (var p in products.OrderBy(x => x.ProductName))
+                ProductOptions.Add(p.ProductName);
+            ProductFilter = "All Products";
+        }
+
+        private void ApplyFilters()
+        {
+            var filtered = _allSales.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(_pharmacyFilter) && _pharmacyFilter != "All Pharmacies")
+                filtered = filtered.Where(s =>
+                    s.SaleType == "PharmacySale" &&
+                    s.CustomerName.Equals(_pharmacyFilter, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(_doctorFilter) && _doctorFilter != "All Doctors")
+                filtered = filtered.Where(s =>
+                    s.Doctor != null &&
+                    s.Doctor.Name.Equals(_doctorFilter, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(_productFilter) && _productFilter != "All Products")
+                filtered = filtered.Where(s =>
+                    s.SaleItems.Any(i =>
+                        i.ProductName.Equals(_productFilter, StringComparison.OrdinalIgnoreCase)));
+
+            Sales.Clear();
+            foreach (var s in filtered)
+                Sales.Add(s);
+
+            UpdateSummary();
+        }
+
+        private void ClearFilters()
+        {
+            PharmacyFilter = "All Pharmacies";
+            DoctorFilter = "All Doctors";
+            ProductFilter = "All Products";
         }
 
         private void ViewDetails(Sale? sale)

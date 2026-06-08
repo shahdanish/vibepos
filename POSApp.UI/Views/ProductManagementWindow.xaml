@@ -113,7 +113,17 @@
                         <TextBox Text="{Binding CostPrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
                                  Padding="8" Margin="0,0,0,10"/>
 
-                        <TextBlock Text="Retail Price (Rs)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Retail Price (Rs)" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <Border Grid.Column="1" Background="#e67e22" CornerRadius="4" Padding="6,2" VerticalAlignment="Center"
+                                    Visibility="{Binding IsPharmacyUser, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Auto −15%" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                        </Grid>
                         <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
                                  Padding="8" Margin="0,0,0,10"/>
 

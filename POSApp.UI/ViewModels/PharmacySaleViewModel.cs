@@ -48,6 +48,7 @@ namespace POSApp.UI.ViewModels
         private decimal _discountPercent;
         private bool _autoAddItem = true;
         private bool _autoPrint = false;
+        private bool _isSampleSale;
         private decimal _lastScannedCost;
         private bool _isLastScannedCostVisible;
         private readonly DispatcherTimer _costHideTimer;
@@ -220,6 +221,12 @@ namespace POSApp.UI.ViewModels
             }
         }
 
+        public bool IsSampleSale
+        {
+            get => _isSampleSale;
+            set => SetProperty(ref _isSampleSale, value);
+        }
+
         public decimal LastScannedCost
         {
             get => _lastScannedCost;
@@ -279,10 +286,12 @@ namespace POSApp.UI.ViewModels
         public ICommand ClearCommand { get; }
         public ICommand AddPharmacyCommand { get; }
         public ICommand AddDoctorCommand { get; }
+        public ICommand AddProductCommand { get; }
 
-        // Raised by the view to open Add Pharmacy / Add Doctor dialogs
+        // Raised by the view to open Add Pharmacy / Add Doctor / Add Product dialogs
         public event Action? OpenAddPharmacyRequested;
         public event Action? OpenAddDoctorRequested;
+        public event Action? OpenAddProductRequested;
 
         // ----------------------------------------------------------------
         // Constructor
@@ -325,6 +334,7 @@ namespace POSApp.UI.ViewModels
             ClearCommand = new RelayCommand(_ => ConfirmClear());
             AddPharmacyCommand = new RelayCommand(_ => OpenAddPharmacyRequested?.Invoke());
             AddDoctorCommand = new RelayCommand(_ => OpenAddDoctorRequested?.Invoke());
+            AddProductCommand = new RelayCommand(_ => OpenAddProductRequested?.Invoke());
 
             _ = LoadDataAsync();
         }
@@ -359,6 +369,15 @@ namespace POSApp.UI.ViewModels
         {
             _allDoctors = (await _doctorRepository.GetAllAsync(includeInactive: false)).ToList();
             FilterDoctors(DoctorSearchText);
+        }
+
+        public async Task ReloadProductsAsync()
+        {
+            var products = await _productRepository.GetAllAsync();
+            _allProductsList = products.ToList();
+            AllProducts.Clear();
+            foreach (var p in _allProductsList) AllProducts.Add(p);
+            FilterProducts(ProductSearchText);
         }
 
         // ----------------------------------------------------------------
@@ -603,6 +622,7 @@ namespace POSApp.UI.ViewModels
                         ProductId = item.ProductId,
                         ProductName = item.ProductName,
                         Quantity = item.Quantity,
+                        Bonus = item.Bonus,
                         CostPrice = item.CostPrice,
                         UnitPrice = item.UnitPrice,
                         DiscountPercent = item.DiscountPercent,
@@ -617,7 +637,7 @@ namespace POSApp.UI.ViewModels
                     var product = AllProducts.FirstOrDefault(p => p.ProductId == item.ProductId);
                     if (product != null)
                     {
-                        product.Stock = Math.Max(0, product.Stock - item.Quantity);
+                        product.Stock = Math.Max(0, product.Stock - (item.Quantity + item.Bonus));
                         await _productRepository.UpdateAsync(product);
                     }
                 }
@@ -667,6 +687,7 @@ namespace POSApp.UI.ViewModels
             BarcodeInput = string.Empty;
             LastScannedCost = 0;
             IsLastScannedCostVisible = false;
+            IsSampleSale = false;
             _ = LoadDataAsync();
         }
 
@@ -871,15 +892,16 @@ namespace POSApp.UI.ViewModels
             var tblSP = new StackPanel { Width = cW };
             tblSP.Children.Add(TblRow(true, "Sr.#", "Item Name", "Qty", "Bon.", "Batch", "Expiry", "Sale Price", "Total"));
 
-            int sr = 1, totalQty = 0;
+            int sr = 1, totalQty = 0, totalBonus = 0;
             foreach (var item in SaleItems)
             {
                 totalQty += item.Quantity;
+                totalBonus += item.Bonus;
                 tblSP.Children.Add(TblRow(false,
                     sr++.ToString(),
                     item.ProductName,
                     item.Quantity.ToString(),
-                    "",
+                    item.Bonus > 0 ? item.Bonus.ToString() : "",
                     item.BatchNo ?? "",
                     item.ExpiryDate?.ToString("MM/yy") ?? "",
                     item.UnitPrice.ToString("N2"),
@@ -902,6 +924,11 @@ namespace POSApp.UI.ViewModels
             Grid.SetColumn(grossLbl, 1); grossG.Children.Add(grossLbl);
             var grossQtyTB = new TextBlock { Text = totalQty.ToString(), FontFamily = F, FontSize = 9, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Padding = new Thickness(3, 2, 3, 2) };
             Grid.SetColumn(grossQtyTB, 2); grossG.Children.Add(grossQtyTB);
+            if (totalBonus > 0)
+            {
+                var grossBonTB = new TextBlock { Text = totalBonus.ToString(), FontFamily = F, FontSize = 9, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Padding = new Thickness(3, 2, 3, 2) };
+                Grid.SetColumn(grossBonTB, 3); grossG.Children.Add(grossBonTB);
+            }
             tblSP.Children.Add(grossG);
             content.Children.Add(tblSP);
 
@@ -910,6 +937,21 @@ namespace POSApp.UI.ViewModels
             netG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             netG.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             netG.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            if (IsSampleSale)
+            {
+                var sampleLbl = new TextBlock
+                {
+                    Text = "SAMPLE PRODUCT",
+                    FontFamily = F,
+                    FontSize = 13,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = Brushes.Black,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+                Grid.SetColumn(sampleLbl, 0);
+                netG.Children.Add(sampleLbl);
+            }
             var netLbl = new TextBlock { Text = "Net Total", FontFamily = F, FontSize = 15, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) };
             Grid.SetColumn(netLbl, 1); netG.Children.Add(netLbl);
             var netBox = new Border
@@ -1081,7 +1123,7 @@ namespace POSApp.UI.ViewModels
                 row.Cells.Add(TC(sr++.ToString(), TextAlignment.Center));
                 row.Cells.Add(TC(item.ProductName, TextAlignment.Left));
                 row.Cells.Add(TC(item.Quantity.ToString(), TextAlignment.Center));
-                row.Cells.Add(TC("", TextAlignment.Center)); // Bon. — not a feature
+                row.Cells.Add(TC(item.Bonus > 0 ? item.Bonus.ToString() : "", TextAlignment.Center));
                 row.Cells.Add(TC(item.BatchNo ?? "", TextAlignment.Center));
                 row.Cells.Add(TC(item.ExpiryDate.HasValue ? item.ExpiryDate.Value.ToString("MM/yy") : "", TextAlignment.Center));
                 row.Cells.Add(TC(item.UnitPrice.ToString("N2"), TextAlignment.Right));

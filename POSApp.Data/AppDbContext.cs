@@ -34,6 +34,10 @@ namespace POSApp.Data
         public DbSet<Pharmacy> Pharmacies { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
 
+        // HR Module
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<SalarySlip> SalarySlips { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             if (!options.IsConfigured)
@@ -353,6 +357,44 @@ namespace POSApp.Data
             modelBuilder.Entity<Doctor>()
                 .HasQueryFilter(d => !d.IsDeleted);
 
+            // Configure Employee
+            modelBuilder.Entity<Employee>()
+                .HasKey(e => e.Id);
+            modelBuilder.Entity<Employee>()
+                .HasQueryFilter(e => !e.IsDeleted);
+            modelBuilder.Entity<Employee>()
+                .Property(e => e.BasicSalary)
+                .HasPrecision(18, 2);
+
+            // Configure SalarySlip
+            modelBuilder.Entity<SalarySlip>()
+                .HasKey(s => s.Id);
+            modelBuilder.Entity<SalarySlip>()
+                .HasOne(s => s.Employee)
+                .WithMany(e => e.SalarySlips)
+                .HasForeignKey(s => s.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SalarySlip>()
+                .Property(s => s.BasicSalary).HasPrecision(18, 2);
+            modelBuilder.Entity<SalarySlip>()
+                .Property(s => s.HouseRentAllowance).HasPrecision(18, 2);
+            modelBuilder.Entity<SalarySlip>()
+                .Property(s => s.MedicalAllowance).HasPrecision(18, 2);
+            modelBuilder.Entity<SalarySlip>()
+                .Property(s => s.OtherAllowances).HasPrecision(18, 2);
+            modelBuilder.Entity<SalarySlip>()
+                .Property(s => s.IncomeTax).HasPrecision(18, 2);
+            modelBuilder.Entity<SalarySlip>()
+                .Property(s => s.EobiDeduction).HasPrecision(18, 2);
+            modelBuilder.Entity<SalarySlip>()
+                .Property(s => s.OtherDeductions).HasPrecision(18, 2);
+            // Computed columns — not stored in DB
+            modelBuilder.Entity<SalarySlip>()
+                .Ignore(s => s.GrossSalary)
+                .Ignore(s => s.TotalDeductions)
+                .Ignore(s => s.NetSalary)
+                .Ignore(s => s.MonthName);
+
             // ── Seed Data ────────────────────────────────────────────────────────
 
             modelBuilder.Entity<Category>().HasData(
@@ -404,18 +446,21 @@ namespace POSApp.Data
                 // Pharmacy (18-20)
                 new Permission { Id = 18, Name = "Pharmacy.Sale",          DisplayName = "Access Pharmacy Sale",        Category = "Pharmacy" },
                 new Permission { Id = 19, Name = "Pharmacy.Manage",        DisplayName = "Manage Pharmacies",           Category = "Pharmacy" },
-                new Permission { Id = 20, Name = "Doctors.Manage",         DisplayName = "Manage Doctors",              Category = "Pharmacy" }
+                new Permission { Id = 20, Name = "Doctors.Manage",         DisplayName = "Manage Doctors",              Category = "Pharmacy" },
+                // HR (21-22)
+                new Permission { Id = 21, Name = "Employees.Manage",       DisplayName = "Manage Employees",            Category = "HR" },
+                new Permission { Id = 22, Name = "Salary.Manage",          DisplayName = "Manage Salary Slips",         Category = "HR" }
             );
 
             // Seed RolePermissions
-            // Admin (1): all 20
+            // Admin (1): 1-20 (no HR — employees/salary are pharmacy-only)
             var adminPerms = Enumerable.Range(1, 20).Select(i => new RolePermission { RoleId = 1, PermissionId = i });
             // Manager (2): 1-14 (no administration, no pharmacy)
             var managerPerms = Enumerable.Range(1, 14).Select(i => new RolePermission { RoleId = 2, PermissionId = i });
             // Cashier (3): 1-5 (sales only)
             var cashierPerms = Enumerable.Range(1, 5).Select(i => new RolePermission { RoleId = 3, PermissionId = i });
-            // PharmacyUser (4): customer ledger, hold sale, reports, products, operations, pharmacy
-            var pharmacyPerms = new[] { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20 }
+            // PharmacyUser (4): customer ledger, hold sale, reports, products, operations, pharmacy, HR
+            var pharmacyPerms = new[] { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20, 21, 22 }
                 .Select(i => new RolePermission { RoleId = 4, PermissionId = i });
 
             modelBuilder.Entity<RolePermission>().HasData(

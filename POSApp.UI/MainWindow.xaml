@@ -3,11 +3,112 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:POSApp.UI"
+        xmlns:views="clr-namespace:POSApp.UI.Views"
         mc:Ignorable="d"
         Title="Shah Jee Super Store - POS System" Height="600" Width="1000"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
         Icon="pack://application:,,,/POSApp.UI;component/app.ico">
+
+    <Window.Resources>
+
+        <!-- ── Sub-item style (inside every dropdown) ─────────────────────── -->
+        <Style x:Key="DropItemStyle" TargetType="MenuItem">
+            <Setter Property="Foreground"       Value="White"/>
+            <Setter Property="Background"       Value="Transparent"/>
+            <Setter Property="Padding"          Value="16,9"/>
+            <Setter Property="FontSize"         Value="13"/>
+            <Setter Property="BorderThickness"  Value="0"/>
+            <Setter Property="Cursor"           Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="BD"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header"
+                                              RecognizesAccessKey="True"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="BD" Property="Background" Value="#6B3410"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#AAAAAA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Separator inside dropdowns ─────────────────────────────────── -->
+        <Style x:Key="DropSepStyle" TargetType="Separator">
+            <Setter Property="Background" Value="#C87941"/>
+            <Setter Property="Height"     Value="1"/>
+            <Setter Property="Margin"     Value="10,3"/>
+        </Style>
+
+        <!-- ── Top-level dropdown trigger (with popup) ────────────────────── -->
+        <Style x:Key="NavDropStyle" TargetType="MenuItem">
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="Padding"         Value="14,8"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Grid>
+                            <Border x:Name="BD"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="4"
+                                    Padding="{TemplateBinding Padding}"
+                                    Margin="2,0">
+                                <ContentPresenter ContentSource="Header"
+                                                  RecognizesAccessKey="True"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                   Placement="Bottom"
+                                   PopupAnimation="Fade">
+                                <Border Background="#8B4513"
+                                        BorderBrush="#6B3410"
+                                        BorderThickness="0,0,1,1"
+                                        CornerRadius="0,0,6,6"
+                                        MinWidth="185"
+                                        Padding="0,4,0,4">
+                                    <Border.Effect>
+                                        <DropShadowEffect ShadowDepth="4" BlurRadius="8"
+                                                          Opacity="0.4" Color="Black" Direction="270"/>
+                                    </Border.Effect>
+                                    <StackPanel IsItemsHost="True"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="BD" Property="Background" Value="#A0522D"/>
+                            </Trigger>
+                            <Trigger Property="IsSubmenuOpen" Value="True">
+                                <Setter TargetName="BD" Property="Background" Value="#6B3410"/>
+                                <Setter TargetName="BD" Property="CornerRadius" Value="4,4,0,0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
     <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -15,101 +116,110 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
+        <!-- ── Header ────────────────────────────────────────────────────── -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
             <Grid>
                 <TextBlock Text="{Binding StoreTitle}" FontSize="32" FontWeight="Bold"
                            Foreground="White" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding CurrentUserInfo}" FontSize="12" FontWeight="SemiBold" 
-                           Foreground="{DynamicResource BrandGoldBrush}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+
+                <!-- Right: user info + logout -->
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Orientation="Horizontal" Margin="0,0,8,0">
+                    <TextBlock Text="{Binding CurrentUserInfo}"
+                               FontSize="12" FontWeight="SemiBold"
+                               Foreground="{DynamicResource BrandGoldBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,14,0"/>
+                    <Button Content="⇦ Logout"
+                            Command="{Binding LogoutCommand}"
+                            Style="{StaticResource WarningButton}"
+                            Padding="10,5" FontSize="12"/>
+                </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Navigation Toolbar -->
-        <Border Grid.Row="1" Background="{DynamicResource BrandAccentBrush}" Padding="10">
+        <!-- ── Navigation Toolbar ────────────────────────────────────────── -->
+        <Border Grid.Row="1" Background="{DynamicResource BrandAccentBrush}" Padding="8,4">
             <Border.Effect>
                 <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.15" Direction="270" Color="Black"/>
             </Border.Effect>
-            <WrapPanel HorizontalAlignment="Center">
 
-                <!-- ── Pharmacy Group (PharmacyUser only) ── -->
-                <Border Visibility="{Binding PharmacySaleButtonVisibility}"
-                        Background="#1A90EE50" CornerRadius="8"
-                        BorderBrush="#4490EE50" BorderThickness="1"
-                        Padding="6,4" Margin="0,0,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="💊 Pharmacy Sale" Command="{Binding OpenPharmacySaleCommand}"
-                                Style="{StaticResource NavButtonStyle}" Margin="3,0"/>
-                        <Button Content="🏥 Pharmacies" Command="{Binding OpenPharmacyManagementCommand}"
-                                Style="{StaticResource NavButtonStyle}" Margin="3,0"/>
-                        <Button Content="⚕ Doctors" Command="{Binding OpenDoctorManagementCommand}"
-                                Style="{StaticResource NavButtonStyle}" Margin="3,0"/>
-                    </StackPanel>
-                </Border>
+            <Menu Background="Transparent" BorderThickness="0" VerticalAlignment="Center">
 
-                <!-- ── General Menu ── -->
-                <Button Content="🛒 Sale" Command="{Binding OpenSaleCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"
-                        Visibility="{Binding SaleButtonVisibility}"/>
-                <Button Content="📦 Whole Sale" Command="{Binding OpenWholeSaleCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"
-                        Visibility="{Binding SaleButtonVisibility}"/>
-                <Button Content="↩ Sale Return" Command="{Binding OpenSaleReturnCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"
-                        Visibility="{Binding SaleButtonVisibility}"/>
-                <Button Content="🏷 Products" Command="{Binding OpenProductManagementCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="📂 Categories" Command="{Binding OpenCategoryManagementCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="📊 Dashboard" Command="{Binding OpenDashboardCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="📈 Sales Report" Command="{Binding OpenSalesReportCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="🛒 Purchase" Command="{Binding OpenPurchaseEntryCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="↩ Purch. Return" Command="{Binding OpenPurchaseReturnCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="💰 Expenses" Command="{Binding OpenExpenseCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="🏪 Cash Register" Command="{Binding OpenShiftCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
-                <Button Content="📒 Khata" Command="{Binding OpenCustomerLedgerCommand}"
-                        Style="{StaticResource NavButtonStyle}" Margin="4"/>
+                <!-- ── SALES — Admin / default role only (no SaleAccess for PharmacyUser) -->
+                <MenuItem Header="📊 Sales"
+                          Style="{StaticResource NavDropStyle}"
+                          Visibility="{Binding SaleButtonVisibility}">
+                    <MenuItem Header="🛒 Sale"          Command="{Binding OpenSaleCommand}"        Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="📦 Whole Sale"    Command="{Binding OpenWholeSaleCommand}"   Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="↩ Sale Return"   Command="{Binding OpenSaleReturnCommand}"  Style="{StaticResource DropItemStyle}"/>
+                </MenuItem>
 
-                <!-- ── Administration (Admin only) ── -->
-                <Border Visibility="{Binding UserManagementVisibility}"
-                        Background="#1AEE5350" CornerRadius="8"
-                        BorderBrush="#44EE5350" BorderThickness="1"
-                        Padding="6,4" Margin="0,0,8,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="👥 Users" Command="{Binding OpenUserManagementCommand}"
-                                Style="{StaticResource NavButtonStyle}" Margin="3,0"/>
-                        <Button Content="🔐 Roles" Command="{Binding OpenRoleManagementCommand}"
-                                Style="{StaticResource NavButtonStyle}" Margin="3,0"/>
-                    </StackPanel>
-                </Border>
+                <!-- ── PHARMACY — PharmacyUser only -->
+                <MenuItem Header="💊 Pharmacy"
+                          Style="{StaticResource NavDropStyle}"
+                          Visibility="{Binding PharmacySaleButtonVisibility}">
+                    <MenuItem Header="💊 Pharmacy Sale" Command="{Binding OpenPharmacySaleCommand}"        Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="🏥 Pharmacies"    Command="{Binding OpenPharmacyManagementCommand}" Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="⚕ Doctors"        Command="{Binding OpenDoctorManagementCommand}"   Style="{StaticResource DropItemStyle}"/>
+                </MenuItem>
 
-                <!-- ── System ── -->
-                <Button Content="🗄 Backup" Command="{Binding OpenBackupRestoreCommand}"
-                        Style="{StaticResource InfoButton}" Margin="4"/>
-                <Button Content="⇦ Logout" Command="{Binding LogoutCommand}"
-                        Style="{StaticResource WarningButton}" Margin="4"/>
-                <Button Content="✕ Exit" Command="{Binding ExitCommand}"
-                        Style="{StaticResource NeutralButton}" Margin="4"/>
-            </WrapPanel>
+                <!-- ── HR — PharmacyUser only -->
+                <MenuItem Header="👥 HR"
+                          Style="{StaticResource NavDropStyle}"
+                          Visibility="{Binding EmployeeButtonVisibility}">
+                    <MenuItem Header="👤 Employees"    Command="{Binding OpenEmployeeManagementCommand}" Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="💰 Salary Slips" Command="{Binding OpenSalarySlipCommand}"        Style="{StaticResource DropItemStyle}"/>
+                </MenuItem>
+
+                <!-- ── INVENTORY — both roles -->
+                <MenuItem Header="📦 Inventory" Style="{StaticResource NavDropStyle}">
+                    <MenuItem Header="🏷 Products"      Command="{Binding OpenProductManagementCommand}"  Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="📂 Categories"    Command="{Binding OpenCategoryManagementCommand}" Style="{StaticResource DropItemStyle}"/>
+                    <Separator Style="{StaticResource DropSepStyle}"/>
+                    <MenuItem Header="🛒 Purchase"      Command="{Binding OpenPurchaseEntryCommand}"      Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="↩ Purch. Return" Command="{Binding OpenPurchaseReturnCommand}"     Style="{StaticResource DropItemStyle}"/>
+                </MenuItem>
+
+                <!-- ── FINANCE — both roles -->
+                <MenuItem Header="💰 Finance" Style="{StaticResource NavDropStyle}">
+                    <MenuItem Header="🏪 Cash Register" Command="{Binding OpenShiftCommand}"         Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="💸 Expenses"       Command="{Binding OpenExpenseCommand}"       Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="📒 Khata"          Command="{Binding OpenCustomerLedgerCommand}" Style="{StaticResource DropItemStyle}"/>
+                </MenuItem>
+
+                <!-- ── REPORTS — both roles -->
+                <MenuItem Header="📈 Reports" Style="{StaticResource NavDropStyle}">
+                    <MenuItem Header="📊 Dashboard"    Command="{Binding OpenDashboardCommand}"    Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="📈 Sales Report" Command="{Binding OpenSalesReportCommand}"  Style="{StaticResource DropItemStyle}"/>
+                </MenuItem>
+
+                <!-- ── ADMIN — both roles; Users/Roles hidden for PharmacyUser -->
+                <MenuItem Header="⚙ Admin" Style="{StaticResource NavDropStyle}">
+                    <MenuItem Header="👥 Users"
+                              Command="{Binding OpenUserManagementCommand}"
+                              Style="{StaticResource DropItemStyle}"
+                              Visibility="{Binding UserManagementVisibility}"/>
+                    <MenuItem Header="🔐 Roles"
+                              Command="{Binding OpenRoleManagementCommand}"
+                              Style="{StaticResource DropItemStyle}"
+                              Visibility="{Binding UserManagementVisibility}"/>
+                    <Separator Style="{StaticResource DropSepStyle}"
+                               Visibility="{Binding UserManagementVisibility}"/>
+                    <MenuItem Header="🗄 Backup" Command="{Binding OpenBackupRestoreCommand}" Style="{StaticResource DropItemStyle}"/>
+                    <Separator Style="{StaticResource DropSepStyle}"/>
+                    <MenuItem Header="✕ Exit"   Command="{Binding ExitCommand}"             Style="{StaticResource DropItemStyle}"/>
+                </MenuItem>
+
+                <!-- ── Sync button (always visible) -->
+                <MenuItem Header="☁ Sync" Style="{StaticResource NavDropStyle}"
+                          Command="{Binding SyncNowCommand}"/>
+
+            </Menu>
         </Border>
 
-        <!-- Main Content Area -->
-        <Grid Grid.Row="2" Margin="30">
-            <Border Style="{StaticResource ElevatedCardBorder}" Padding="40">
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Text="Welcome to POS System" FontSize="36" FontWeight="Bold" 
-                               Foreground="{DynamicResource BrandPrimaryBrush}" Margin="0,0,0,20"
-                               HorizontalAlignment="Center"/>
-                    <TextBlock Text="Please select an option from the menu above" FontSize="18" 
-                               Foreground="#888" HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Border>
-        </Grid>
+        <!-- ── Main Content — embedded Dashboard ── -->
+        <views:DashboardView Grid.Row="2" DataContext="{Binding DashboardViewModel}"/>
+
     </Grid>
 </Window>

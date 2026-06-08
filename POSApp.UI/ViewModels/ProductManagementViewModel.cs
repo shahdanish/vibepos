@@ -64,7 +64,11 @@ namespace POSApp.UI.ViewModels
         public decimal? CostPrice
         {
             get => _costPrice;
-            set => SetProperty(ref _costPrice, value);
+            set
+            {
+                if (SetProperty(ref _costPrice, value) && value.HasValue && value.Value > 0 && IsPharmacyUser)
+                    UnitPrice = Math.Round(value.Value * 0.85m, 2);
+            }
         }
 
         public decimal? UnitPrice
@@ -109,6 +113,9 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _expiryDate, value);
         }
 
+        public bool IsPharmacyUser { get; } =
+            SessionManager.HasPermission(POSApp.Core.Entities.Permissions.PharmacySale);
+
         public Visibility PharmacyFieldsVisibility =>
             SessionManager.HasPermission(POSApp.Core.Entities.Permissions.PharmacyManage)
                 ? Visibility.Visible
@@ -142,6 +149,7 @@ namespace POSApp.UI.ViewModels
         public ICommand RefreshCommand { get; }
         public ICommand GenerateIdCommand { get; }
         public ICommand GenerateBarcodeCommand { get; }
+        public ICommand AutoRetailPriceCommand { get; }
 
         public ProductManagementViewModel(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
@@ -156,6 +164,13 @@ namespace POSApp.UI.ViewModels
             RefreshCommand = new RelayCommand(async _ => await LoadData());
             GenerateIdCommand = new RelayCommand(async _ => await GenerateProductId());
             GenerateBarcodeCommand = new RelayCommand(_ => GenerateBarcode());
+            AutoRetailPriceCommand = new RelayCommand(_ =>
+            {
+                if (CostPrice.HasValue && CostPrice.Value > 0)
+                    UnitPrice = Math.Round(CostPrice.Value * 0.85m, 2);
+                else
+                    NotificationHelper.ValidationErrorCustom("Enter Cost Price first to auto-calculate Retail Price.");
+            });
 
             _ = LoadData();
         }

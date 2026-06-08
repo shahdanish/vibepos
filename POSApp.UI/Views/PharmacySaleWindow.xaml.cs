@@ -17,6 +17,7 @@ namespace POSApp.UI.Views
 
             _vm.OpenAddPharmacyRequested += OnOpenAddPharmacy;
             _vm.OpenAddDoctorRequested += OnOpenAddDoctor;
+            _vm.OpenAddProductRequested += OnOpenAddProduct;
 
             Loaded += async (_, _) => await _vm.LoadDataAsync();
 
@@ -41,6 +42,14 @@ namespace POSApp.UI.Views
                 await _vm.ReloadDoctorsAsync();
         }
 
+        private async void OnOpenAddProduct()
+        {
+            var window = App.Services!.GetRequiredService<ProductManagementWindow>();
+            window.Owner = this;
+            window.ShowDialog();
+            await _vm.ReloadProductsAsync();
+        }
+
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -50,6 +59,7 @@ namespace POSApp.UI.Views
         {
             _vm.OpenAddPharmacyRequested -= OnOpenAddPharmacy;
             _vm.OpenAddDoctorRequested -= OnOpenAddDoctor;
+            _vm.OpenAddProductRequested -= OnOpenAddProduct;
             base.OnClosed(e);
         }
 
@@ -57,7 +67,11 @@ namespace POSApp.UI.Views
         {
             private readonly Action _execute;
             public RelayCommandAdapter(Action execute) => _execute = execute;
-            public event EventHandler? CanExecuteChanged;
+            public event EventHandler? CanExecuteChanged
+            {
+                add { CommandManager.RequerySuggested += value; }
+                remove { CommandManager.RequerySuggested -= value; }
+            }
             public bool CanExecute(object? parameter) => true;
             public void Execute(object? parameter) => _execute();
         }

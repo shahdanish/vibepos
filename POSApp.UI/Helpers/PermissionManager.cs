@@ -33,5 +33,11 @@ namespace POSApp.UI.Helpers
 
         public static bool CanManageDoctors(User? user)
             => user != null && SessionManager.HasPermission(Permissions.DoctorsManage);
+
+        public static bool CanManageEmployees(User? user)
+            => user != null && SessionManager.HasPermission(Permissions.EmployeesManage);
+
+        public static bool CanManageSalary(User? user)
+            => user != null && SessionManager.HasPermission(Permissions.SalaryManage);
     }
 }

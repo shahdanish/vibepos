@@ -14,273 +14,295 @@
         </Grid.RowDefinitions>
 
         <!-- Header bar -->
-        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="15">
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="12,8">
             <Grid>
-                <TextBlock Text="PHARMACY SALE" FontSize="28" FontWeight="Bold"
+                <TextBlock Text="PHARMACY SALE" FontSize="22" FontWeight="Bold"
                            Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Background="#E65000" CornerRadius="5" Padding="12,4">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSampleSale}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="★  SAMPLE PRODUCT  ★" FontSize="13" FontWeight="Bold"
+                               Foreground="White" VerticalAlignment="Center"/>
+                </Border>
                 <TextBlock Text="{Binding InvoiceNumber, StringFormat='Invoice #: {0}'}"
-                           FontSize="18" FontWeight="Bold" Foreground="Yellow"
+                           FontSize="16" FontWeight="Bold" Foreground="Yellow"
                            HorizontalAlignment="Right" VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
         <!-- Main content -->
-        <Grid Grid.Row="1" Margin="15">
+        <Grid Grid.Row="1" Margin="10,8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Top Sections -->
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" MaxHeight="300" Margin="0,0,0,10">
+            <!-- Single compact top card: all header fields + scan in 2 rows -->
+            <Border Grid.Row="0" Style="{StaticResource CardBorder}" Padding="10" Margin="0,0,0,8">
                 <StackPanel>
 
-                    <!-- Pharmacy / Doctor / Payment / Date -->
-                    <Border Style="{StaticResource CardBorder}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                    <!-- Row 1: Pharmacy | Doctor | Payment | Date -->
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="145"/>
+                            <ColumnDefinition Width="135"/>
+                        </Grid.ColumnDefinitions>
 
-                            <!-- Row 1: Pharmacy, Doctor, Payment, Date -->
-                            <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <!-- Pharmacy -->
+                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                            <TextBlock FontWeight="Bold" FontSize="11" Margin="0,0,0,3">
+                                <Run Text="Pharmacy " Foreground="{DynamicResource DangerBrush}"/>
+                                <Run Text="*" Foreground="{DynamicResource DangerBrush}"/>
+                            </TextBlock>
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="28"/>
                                 </Grid.ColumnDefinitions>
-
-                                <!-- Pharmacy dropdown -->
-                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock FontWeight="Bold" FontSize="12" Margin="0,0,0,5">
-                                        <Run Text="Pharmacy " Foreground="{DynamicResource DangerBrush}"/>
-                                        <Run Text="*" Foreground="{DynamicResource DangerBrush}"/>
-                                    </TextBlock>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="32"/>
-                                        </Grid.ColumnDefinitions>
-                                        <ComboBox Grid.Column="0"
-                                                  x:Name="PharmacyCombo"
-                                                  ItemsSource="{Binding FilteredPharmacies}"
-                                                  SelectedItem="{Binding SelectedPharmacy}"
-                                                  DisplayMemberPath="DisplayLabel"
-                                                  IsEditable="True"
-                                                  IsTextSearchEnabled="False"
-                                                  Text="{Binding PharmacySearchText, UpdateSourceTrigger=PropertyChanged}"
-                                                  StaysOpenOnEdit="True"
-                                                  FontSize="13" Padding="6"/>
-                                        <Button Grid.Column="1" Content="＋" ToolTip="Add new pharmacy"
-                                                Command="{Binding AddPharmacyCommand}"
-                                                Width="30" Height="30"
-                                                FontSize="18" FontWeight="Bold"
-                                                Background="#27ae60" Foreground="White"
-                                                BorderThickness="0"
-                                                Cursor="Hand" Margin="3,0,0,0">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                </Border>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Background" Value="#219a52"/>
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                    </Grid>
-                                </StackPanel>
-
-                                <!-- Doctor dropdown -->
-                                <StackPanel Grid.Column="1" Margin="10,0">
-                                    <TextBlock Text="Doctor (optional)" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="32"/>
-                                        </Grid.ColumnDefinitions>
-                                        <ComboBox Grid.Column="0"
-                                                  x:Name="DoctorCombo"
-                                                  ItemsSource="{Binding FilteredDoctors}"
-                                                  SelectedItem="{Binding SelectedDoctor}"
-                                                  DisplayMemberPath="DisplayLabel"
-                                                  IsEditable="True"
-                                                  IsTextSearchEnabled="False"
-                                                  Text="{Binding DoctorSearchText, UpdateSourceTrigger=PropertyChanged}"
-                                                  StaysOpenOnEdit="True"
-                                                  FontSize="13" Padding="6"/>
-                                        <Button Grid.Column="1" Content="＋" ToolTip="Add new doctor"
-                                                Command="{Binding AddDoctorCommand}"
-                                                Width="30" Height="30"
-                                                FontSize="18" FontWeight="Bold"
-                                                Background="#27ae60" Foreground="White"
-                                                BorderThickness="0"
-                                                Cursor="Hand" Margin="3,0,0,0">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                </Border>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter Property="Background" Value="#219a52"/>
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                    </Grid>
-                                </StackPanel>
-
-                                <!-- Payment Method -->
-                                <StackPanel Grid.Column="2" Margin="10,0">
-                                    <TextBlock Text="Payment Method" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                    <ComboBox ItemsSource="{Binding PaymentTypes}"
-                                              SelectedItem="{Binding PaymentType}"
-                                              FontSize="13" Padding="6"/>
-                                </StackPanel>
-
-                                <!-- Sale Date -->
-                                <StackPanel Grid.Column="3" Margin="10,0,0,0">
-                                    <TextBlock Text="Sale Date" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                    <DatePicker SelectedDate="{Binding SaleDate}" FontSize="13" Padding="6"/>
-                                </StackPanel>
+                                <ComboBox Grid.Column="0" x:Name="PharmacyCombo"
+                                          ItemsSource="{Binding FilteredPharmacies}"
+                                          SelectedItem="{Binding SelectedPharmacy}"
+                                          DisplayMemberPath="DisplayLabel"
+                                          IsEditable="True" IsTextSearchEnabled="False"
+                                          Text="{Binding PharmacySearchText, UpdateSourceTrigger=PropertyChanged}"
+                                          StaysOpenOnEdit="True" FontSize="12" Padding="5"/>
+                                <Button Grid.Column="1" Content="＋" ToolTip="Add new pharmacy"
+                                        Command="{Binding AddPharmacyCommand}"
+                                        Width="26" Height="26" FontSize="15" FontWeight="Bold"
+                                        Background="#27ae60" Foreground="White"
+                                        BorderThickness="0" Cursor="Hand" Margin="2,0,0,0">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#219a52"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
                             </Grid>
+                        </StackPanel>
 
-                            <!-- Row 2: Bill Note + checkboxes -->
-                            <Grid Grid.Row="1">
+                        <!-- Doctor -->
+                        <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                            <TextBlock Text="Doctor (optional)" FontWeight="Bold" FontSize="11" Margin="0,0,0,3"/>
+                            <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="28"/>
                                 </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="Bill Note (Optional)" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                    <TextBox Text="{Binding BillNote, UpdateSourceTrigger=PropertyChanged}"
-                                             FontSize="13" Padding="6"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Margin="10,0" VerticalAlignment="Bottom" Orientation="Horizontal">
-                                    <CheckBox Content="Auto Add" IsChecked="{Binding AutoAddItem}"
-                                              FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Margin="10,0,0,0" VerticalAlignment="Bottom" Orientation="Horizontal">
-                                    <CheckBox Content="Auto Print" IsChecked="{Binding AutoPrint}"
-                                              FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PurpleBrush}"/>
-                                </StackPanel>
+                                <ComboBox Grid.Column="0" x:Name="DoctorCombo"
+                                          ItemsSource="{Binding FilteredDoctors}"
+                                          SelectedItem="{Binding SelectedDoctor}"
+                                          DisplayMemberPath="DisplayLabel"
+                                          IsEditable="True" IsTextSearchEnabled="False"
+                                          Text="{Binding DoctorSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                          StaysOpenOnEdit="True" FontSize="12" Padding="5"/>
+                                <Button Grid.Column="1" Content="＋" ToolTip="Add new doctor"
+                                        Command="{Binding AddDoctorCommand}"
+                                        Width="26" Height="26" FontSize="15" FontWeight="Bold"
+                                        Background="#27ae60" Foreground="White"
+                                        BorderThickness="0" Cursor="Hand" Margin="2,0,0,0">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#219a52"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
                             </Grid>
-                        </Grid>
-                    </Border>
+                        </StackPanel>
 
-                    <!-- Product Entry -->
-                    <Border Style="{StaticResource CardBorder}" Margin="0,0,0,5">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1.3*"/>
-                                <ColumnDefinition Width="1.3*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <!-- Payment -->
+                        <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                            <TextBlock Text="Payment" FontWeight="Bold" FontSize="11" Margin="0,0,0,3"/>
+                            <ComboBox ItemsSource="{Binding PaymentTypes}"
+                                      SelectedItem="{Binding PaymentType}"
+                                      FontSize="12" Padding="5"/>
+                        </StackPanel>
 
-                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                <TextBlock Text="Scan Barcode" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                <TextBox x:Name="BarcodeBox"
-                                         Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="13" Padding="6">
-                                    <TextBox.InputBindings>
-                                        <KeyBinding Key="Enter" Command="{Binding ScanCommand}"/>
-                                    </TextBox.InputBindings>
-                                </TextBox>
-                            </StackPanel>
+                        <!-- Date -->
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="Sale Date" FontWeight="Bold" FontSize="11" Margin="0,0,0,3"/>
+                            <DatePicker SelectedDate="{Binding SaleDate}" FontSize="12" Padding="5"/>
+                        </StackPanel>
+                    </Grid>
 
-                            <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                <TextBlock Text="Select Product" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                <ComboBox ItemsSource="{Binding FilteredProducts}"
+                    <!-- Row 2: Bill Note | Barcode | Product | AutoAdd | AutoPrint | Sample -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                            <TextBlock Text="Bill Note (Optional)" FontWeight="Bold" FontSize="11" Margin="0,0,0,3"/>
+                            <TextBox Text="{Binding BillNote, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="12" Padding="5"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                            <TextBlock Text="Scan Barcode" FontWeight="Bold" FontSize="11" Margin="0,0,0,3"/>
+                            <TextBox x:Name="BarcodeBox"
+                                     Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="12" Padding="5">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding ScanCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                            <TextBlock Text="Select Product" FontWeight="Bold" FontSize="11" Margin="0,0,0,3"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="28"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="0"
+                                          ItemsSource="{Binding FilteredProducts}"
                                           SelectedItem="{Binding SelectedProduct}"
                                           DisplayMemberPath="ProductName"
-                                          IsEditable="True"
-                                          IsTextSearchEnabled="False"
+                                          IsEditable="True" IsTextSearchEnabled="False"
                                           Text="{Binding ProductSearchText, UpdateSourceTrigger=PropertyChanged}"
-                                          StaysOpenOnEdit="True"
-                                          FontSize="13" Padding="6"/>
-                            </StackPanel>
+                                          StaysOpenOnEdit="True" FontSize="12" Padding="5"/>
+                                <Button Grid.Column="1" Content="＋" ToolTip="Add new product"
+                                        Command="{Binding AddProductCommand}"
+                                        Width="26" Height="26" FontSize="15" FontWeight="Bold"
+                                        Background="#27ae60" Foreground="White"
+                                        BorderThickness="0" Cursor="Hand" Margin="2,0,0,0">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#219a52"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
 
-                            <StackPanel Grid.Column="2" Margin="0,0,10,0">
-                                <TextBlock Text="Price (Rs)" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="13" Padding="6" TextAlignment="Right"/>
-                            </StackPanel>
+                        <StackPanel Grid.Column="3" Margin="0,0,12,0" VerticalAlignment="Bottom">
+                            <CheckBox Content="Auto Add" IsChecked="{Binding AutoAddItem}"
+                                      FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
+                        </StackPanel>
 
-                            <StackPanel Grid.Column="3" Margin="0,0,10,0">
-                                <TextBlock Text="Qty" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="13" Padding="6" TextAlignment="Center"/>
-                            </StackPanel>
+                        <StackPanel Grid.Column="4" Margin="0,0,12,0" VerticalAlignment="Bottom">
+                            <CheckBox Content="Auto Print" IsChecked="{Binding AutoPrint}"
+                                      FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PurpleBrush}"/>
+                        </StackPanel>
 
-                            <StackPanel Grid.Column="4" Margin="0,0,10,0">
-                                <TextBlock Text="Disc %" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                <TextBox Text="{Binding DiscountPercent, UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="13" Padding="6" TextAlignment="Center"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="5" Margin="0,0,10,0">
-                                <TextBlock Text="Stock" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
-                                <TextBox Text="{Binding SelectedProduct.Stock}"
-                                         FontSize="13" Padding="6" IsReadOnly="True"
-                                         Background="#f0f0f0" TextAlignment="Center"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <StackPanel Margin="0,0,15,0" VerticalAlignment="Center"
-                                            Visibility="{Binding IsLastScannedCostVisible, Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="Item Cost" FontWeight="Bold" FontSize="10"
-                                               Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding LastScannedCost, StringFormat={}{0:N2}}"
-                                               FontSize="14" FontWeight="Bold"
-                                               Foreground="{DynamicResource WarningBrush}" TextAlignment="Center"/>
-                                </StackPanel>
-                                <Button Content="Add Item" Command="{Binding AddItemCommand}"
-                                        Style="{StaticResource SuccessButton}" Padding="15,8"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                        <!-- Sample Sale toggle -->
+                        <StackPanel Grid.Column="5" VerticalAlignment="Bottom">
+                            <TextBlock Text="Sample Sale" FontSize="10" FontWeight="SemiBold"
+                                       Margin="0,0,0,2" HorizontalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#999"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSampleSale}" Value="True">
+                                                <Setter Property="Foreground" Value="#E65000"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <ToggleButton IsChecked="{Binding IsSampleSale}"
+                                          Width="60" Height="22" Cursor="Hand"
+                                          ToolTip="Mark this as a Sample Product Sale — receipt will be tagged">
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton">
+                                        <Setter Property="Background" Value="#AAAAAA"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Content" Value="OFF"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="FontSize" Value="10"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ToggleButton">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="11" Padding="6,0">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter Property="Background" Value="#E65000"/>
+                                                <Setter Property="Content" Value="ON"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Opacity" Value="0.85"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ToggleButton.Style>
+                            </ToggleButton>
+                        </StackPanel>
+                    </Grid>
 
                 </StackPanel>
-            </ScrollViewer>
+            </Border>
 
             <!-- Items Grid -->
-            <Border Grid.Row="1" Style="{StaticResource CardBorder}">
+            <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="10">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-
                     <TextBlock Grid.Row="0" Text="Sale Items" Style="{StaticResource SectionTitle}"/>
-
                     <DataGrid Grid.Row="1" ItemsSource="{Binding SaleItems}"
                               AutoGenerateColumns="False" CanUserAddRows="False"
                               AlternatingRowBackground="#F9F9F9"
@@ -288,38 +310,43 @@
                               BorderThickness="0"
                               HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" IsReadOnly="True" Width="120"/>
+                            <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" IsReadOnly="True" Width="110"/>
                             <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" IsReadOnly="True" Width="*"/>
-                            <DataGridTextColumn Header="Unit Price" Width="100" ElementStyle="{StaticResource RightAlignStyle}">
+                            <DataGridTextColumn Header="Unit Price" Width="95" ElementStyle="{StaticResource RightAlignStyle}">
                                 <DataGridTextColumn.Binding>
                                     <Binding Path="UnitPrice" StringFormat="N2" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Qty" Width="70" ElementStyle="{StaticResource CenterAlignStyle}">
+                            <DataGridTextColumn Header="Qty" Width="65" ElementStyle="{StaticResource CenterAlignStyle}">
                                 <DataGridTextColumn.Binding>
                                     <Binding Path="Quantity" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Disc %" Width="70" ElementStyle="{StaticResource CenterAlignStyle}">
+                            <DataGridTextColumn Header="Bonus" Width="65" ElementStyle="{StaticResource CenterAlignStyle}">
+                                <DataGridTextColumn.Binding>
+                                    <Binding Path="Bonus" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                                </DataGridTextColumn.Binding>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Disc %" Width="65" ElementStyle="{StaticResource CenterAlignStyle}">
                                 <DataGridTextColumn.Binding>
                                     <Binding Path="DiscountPercent" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
                             <DataGridTextColumn Header="Batch No" Binding="{Binding BatchNo}"
-                                                IsReadOnly="True" Width="90" ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Expiry" Width="70" IsReadOnly="True"
+                                                IsReadOnly="True" Width="85" ElementStyle="{StaticResource CenterAlignStyle}"/>
+                            <DataGridTextColumn Header="Expiry" Width="65" IsReadOnly="True"
                                                 Binding="{Binding ExpiryDate, StringFormat=MM/yyyy}"
                                                 ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}"
-                                                IsReadOnly="True" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
-                            <DataGridTemplateColumn Header="Action" Width="80">
+                                                IsReadOnly="True" Width="100" ElementStyle="{StaticResource RightAlignStyle}"/>
+                            <DataGridTemplateColumn Header="Del" Width="60">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Del"
+                                        <Button Content="✕"
                                                 Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource DangerButton}"
-                                                Padding="6,2" FontSize="11"/>
+                                                Padding="4,2" FontSize="11"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -329,60 +356,54 @@
             </Border>
 
             <!-- Bottom: Actions + Totals -->
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="2" Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="350"/>
+                    <ColumnDefinition Width="305"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Action Buttons -->
-                <Border Grid.Column="0" Style="{StaticResource CardBorder}" Margin="0,0,10,0">
-                    <WrapPanel VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                <Border Grid.Column="0" Style="{StaticResource CardBorder}" Padding="10" Margin="0,0,8,0">
+                    <WrapPanel VerticalAlignment="Center" HorizontalAlignment="Left">
                         <Button Content="NEW SALE" Command="{Binding NewSaleCommand}"
-                                Style="{StaticResource InfoButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
+                                Style="{StaticResource InfoButton}" Padding="10,7" Margin="0,0,6,0" MinWidth="90"/>
                         <Button Content="SAVE SALE" Command="{Binding SaveCommand}"
-                                Style="{StaticResource SuccessButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
+                                Style="{StaticResource SuccessButton}" Padding="10,7" Margin="0,0,6,0" MinWidth="90"/>
                         <Button Content="PRINT" Command="{Binding PrintCommand}"
-                                Style="{StaticResource PurpleButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
+                                Style="{StaticResource PurpleButton}" Padding="10,7" Margin="0,0,6,0" MinWidth="70"/>
                         <Button Content="CLEAR" Command="{Binding ClearCommand}"
-                                Style="{StaticResource WarningButton}" Padding="15,10" Margin="0,0,8,5" MinWidth="110"/>
+                                Style="{StaticResource WarningButton}" Padding="10,7" Margin="0,0,6,0" MinWidth="70"/>
                         <Button Content="CLOSE" Click="Exit_Click"
-                                Style="{StaticResource NeutralButton}" Padding="15,10" Margin="0,0,0,5" MinWidth="110"/>
+                                Style="{StaticResource NeutralButton}" Padding="10,7" MinWidth="70"/>
                     </WrapPanel>
                 </Border>
 
-                <!-- Totals Panel -->
-                <Border Grid.Column="1" Style="{StaticResource ElevatedCardBorder}" Padding="15">
+                <Border Grid.Column="1" Style="{StaticResource ElevatedCardBorder}" Padding="12">
                     <StackPanel>
-                        <Grid Margin="0,0,0,8">
-                            <TextBlock Text="Discount on Bill:" FontSize="13" VerticalAlignment="Center"/>
+                        <Grid Margin="0,0,0,5">
+                            <TextBlock Text="Discount on Bill:" FontSize="12" VerticalAlignment="Center"/>
                             <TextBox Text="{Binding DiscountOnBill, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="13" Padding="6" Width="120"
+                                     FontSize="12" Padding="5" Width="110"
                                      HorizontalAlignment="Right" TextAlignment="Right"/>
                         </Grid>
-
-                        <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="0,8,0,0"/>
-
-                        <Grid Margin="0,8,0,8">
-                            <TextBlock Text="TOTAL BILL:" FontSize="16" FontWeight="Bold"
+                        <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="0,5,0,0"/>
+                        <Grid Margin="0,5,0,5">
+                            <TextBlock Text="TOTAL BILL:" FontSize="15" FontWeight="Bold"
                                        Foreground="{DynamicResource DangerBrush}"/>
                             <TextBox Text="{Binding TotalBill, StringFormat=Rs. {0:N2}, Mode=OneWay}"
-                                     Style="{StaticResource TotalDisplay}" Width="180" HorizontalAlignment="Right"/>
+                                     Style="{StaticResource TotalDisplay}" Width="160" HorizontalAlignment="Right"/>
                         </Grid>
-
-                        <Grid Margin="0,0,0,8">
-                            <TextBlock Text="Cash Received:" FontSize="14" FontWeight="Bold"/>
+                        <Grid Margin="0,0,0,5">
+                            <TextBlock Text="Cash Received:" FontSize="13" FontWeight="Bold"/>
                             <TextBox Text="{Binding ReceiveCash, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="14" FontWeight="Bold" Padding="8" Width="180"
+                                     FontSize="13" FontWeight="Bold" Padding="6" Width="160"
                                      HorizontalAlignment="Right" TextAlignment="Right"
                                      BorderThickness="2" BorderBrush="{DynamicResource SuccessBrush}"/>
                         </Grid>
-
                         <Grid>
-                            <TextBlock Text="Balance:" FontSize="14" FontWeight="Bold"
+                            <TextBlock Text="Balance:" FontSize="13" FontWeight="Bold"
                                        Foreground="{DynamicResource InfoBrush}"/>
                             <TextBox Text="{Binding Balance, StringFormat=Rs. {0:N2}, Mode=OneWay}"
-                                     FontSize="16" FontWeight="Bold" Padding="8" Width="180"
+                                     FontSize="14" FontWeight="Bold" Padding="6" Width="160"
                                      HorizontalAlignment="Right" TextAlignment="Right"
                                      IsReadOnly="True" Background="#E3F2FD"
                                      Foreground="{DynamicResource InfoBrush}"
@@ -391,6 +412,7 @@
                     </StackPanel>
                 </Border>
             </Grid>
+
         </Grid>
     </Grid>
 </Window>

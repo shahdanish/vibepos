@@ -49,6 +49,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<ISalarySlipRepository, SalarySlipRepository>();
 
         // Add ViewModels
         services.AddTransient<LoginViewModel>();
@@ -74,6 +76,9 @@ public partial class App : System.Windows.Application
         services.AddTransient<PharmacyFormViewModel>();
         services.AddTransient<DoctorManagementViewModel>();
         services.AddTransient<DoctorFormViewModel>();
+        services.AddTransient<EmployeeManagementViewModel>();
+        services.AddTransient<EmployeeFormViewModel>();
+        services.AddTransient<SalarySlipViewModel>();
 
         // Add Windows
         services.AddTransient<LoginWindow>();
@@ -101,6 +106,9 @@ public partial class App : System.Windows.Application
         services.AddTransient<DoctorFormDialog>();
         services.AddTransient<PharmacySaleViewModel>();
         services.AddTransient<PharmacySaleWindow>();
+        services.AddTransient<EmployeeManagementWindow>();
+        services.AddTransient<EmployeeFormDialog>();
+        services.AddTransient<SalarySlipWindow>();
         services.AddTransient<UserManagementViewModel>();
         services.AddTransient<UserFormViewModel>();
         services.AddTransient<RoleManagementViewModel>();

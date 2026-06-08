@@ -27,6 +27,8 @@ namespace POSApp.Infrastructure.Repositories
             return await _context.Sales
                 .Include(s => s.SaleItems)
                 .Include(s => s.Customer)
+                .Include(s => s.Pharmacy)
+                .Include(s => s.Doctor)
                 .FirstOrDefaultAsync(s => s.InvoiceNumber == invoiceNumber, ct);
         }
 
@@ -35,6 +37,8 @@ namespace POSApp.Infrastructure.Repositories
             return await _context.Sales
                 .Include(s => s.SaleItems)
                 .Include(s => s.Customer)
+                .Include(s => s.Pharmacy)
+                .Include(s => s.Doctor)
                 .OrderByDescending(s => s.SaleDate)
                 .ToListAsync(ct);
         }
@@ -47,6 +51,8 @@ namespace POSApp.Infrastructure.Repositories
             return await _context.Sales
                 .Include(s => s.SaleItems)
                 .Include(s => s.Customer)
+                .Include(s => s.Pharmacy)
+                .Include(s => s.Doctor)
                 .Where(s => s.SaleDate >= startDate && s.SaleDate < endDate)
                 .OrderByDescending(s => s.SaleDate)
                 .ToListAsync(ct);
@@ -60,6 +66,8 @@ namespace POSApp.Infrastructure.Repositories
             return await _context.Sales
                 .Include(s => s.SaleItems)
                 .Include(s => s.Customer)
+                .Include(s => s.Pharmacy)
+                .Include(s => s.Doctor)
                 .Where(s => s.SaleDate >= start && s.SaleDate < end)
                 .OrderByDescending(s => s.SaleDate)
                 .ToListAsync(ct);

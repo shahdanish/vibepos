@@ -15218,6 +15218,1091 @@
       "id": "ui_app_icon_app_icon",
       "community": 72,
       "norm_label": "app icon - cash register pos"
+    },
+    {
+      "id": "entities_employee",
+      "label": "Employee.cs",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Entities\\Employee.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "entities_employee_posapp_core_entities",
+      "label": "POSApp.Core.Entities",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Entities\\Employee.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "entities_employee_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Entities\\Employee.cs",
+      "source_location": "L3"
+    },
+    {
+      "id": "entities_salaryslip",
+      "label": "SalarySlip.cs",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Entities\\SalarySlip.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "entities_salaryslip_posapp_core_entities",
+      "label": "POSApp.Core.Entities",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Entities\\SalarySlip.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "entities_salaryslip_salaryslip",
+      "label": "SalarySlip",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Entities\\SalarySlip.cs",
+      "source_location": "L3"
+    },
+    {
+      "id": "interfaces_iemployeerepository",
+      "label": "IEmployeeRepository.cs",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "interfaces_iemployeerepository_posapp_core_interfaces",
+      "label": "POSApp.Core.Interfaces",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L3"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository",
+      "label": "IEmployeeRepository",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L5"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository_getbyidasync",
+      "label": ".GetByIdAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "label": "CancellationToken",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "label": "Task",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "posapp_core_interfaces_iemployeerepository_cs_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository_getallasync",
+      "label": ".GetAllAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "posapp_core_interfaces_iemployeerepository_cs_ienumerable",
+      "label": "IEnumerable",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository_searchasync",
+      "label": ".SearchAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L9"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository_cnicexistsasync",
+      "label": ".CnicExistsAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L10"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository_generateemployeecodeasync",
+      "label": ".GenerateEmployeeCodeAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L11"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository_addasync",
+      "label": ".AddAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L12"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository_updateasync",
+      "label": ".UpdateAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L13"
+    },
+    {
+      "id": "interfaces_iemployeerepository_iemployeerepository_softdeleteasync",
+      "label": ".SoftDeleteAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "interfaces_isalarysliprepository",
+      "label": "ISalarySlipRepository.cs",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_posapp_core_interfaces",
+      "label": "POSApp.Core.Interfaces",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L3"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_isalarysliprepository",
+      "label": "ISalarySlipRepository",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L5"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_isalarysliprepository_getbyidasync",
+      "label": ".GetByIdAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "posapp_core_interfaces_isalarysliprepository_cs_cancellationtoken",
+      "label": "CancellationToken",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "posapp_core_interfaces_isalarysliprepository_cs_task",
+      "label": "Task",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "posapp_core_interfaces_isalarysliprepository_cs_salaryslip",
+      "label": "SalarySlip",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_isalarysliprepository_getbyemployeeasync",
+      "label": ".GetByEmployeeAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "posapp_core_interfaces_isalarysliprepository_cs_ienumerable",
+      "label": "IEnumerable",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_isalarysliprepository_slipexistsasync",
+      "label": ".SlipExistsAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L9"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_isalarysliprepository_generateslipnumberasync",
+      "label": ".GenerateSlipNumberAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L10"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_isalarysliprepository_addasync",
+      "label": ".AddAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L11"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_isalarysliprepository_updateasync",
+      "label": ".UpdateAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L12"
+    },
+    {
+      "id": "interfaces_isalarysliprepository_isalarysliprepository_softdeleteasync",
+      "label": ".SoftDeleteAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L13"
+    },
+    {
+      "id": "repositories_employeerepository",
+      "label": "EmployeeRepository.cs",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "repositories_employeerepository_posapp_infrastructure_repositories",
+      "label": "POSApp.Infrastructure.Repositories",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L6"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository",
+      "label": "EmployeeRepository",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "iemployeerepository",
+      "label": "IEmployeeRepository",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "posapp_infrastructure_repositories_employeerepository_cs_appdbcontext",
+      "label": "AppDbContext",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L10"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository_getbyidasync",
+      "label": ".GetByIdAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "label": "CancellationToken",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "label": "Task",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "posapp_infrastructure_repositories_employeerepository_cs_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository_getallasync",
+      "label": ".GetAllAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L17"
+    },
+    {
+      "id": "posapp_infrastructure_repositories_employeerepository_cs_ienumerable",
+      "label": "IEnumerable",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L17"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository_searchasync",
+      "label": ".SearchAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L23"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository_cnicexistsasync",
+      "label": ".CnicExistsAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L38"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository_generateemployeecodeasync",
+      "label": ".GenerateEmployeeCodeAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L44"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository_addasync",
+      "label": ".AddAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L51"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository_updateasync",
+      "label": ".UpdateAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L58"
+    },
+    {
+      "id": "repositories_employeerepository_employeerepository_softdeleteasync",
+      "label": ".SoftDeleteAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L65"
+    },
+    {
+      "id": "repositories_salarysliprepository",
+      "label": "SalarySlipRepository.cs",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "repositories_salarysliprepository_posapp_infrastructure_repositories",
+      "label": "POSApp.Infrastructure.Repositories",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L6"
+    },
+    {
+      "id": "repositories_salarysliprepository_salarysliprepository",
+      "label": "SalarySlipRepository",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "isalarysliprepository",
+      "label": "ISalarySlipRepository",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "posapp_infrastructure_repositories_salarysliprepository_cs_appdbcontext",
+      "label": "AppDbContext",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L10"
+    },
+    {
+      "id": "repositories_salarysliprepository_salarysliprepository_getbyidasync",
+      "label": ".GetByIdAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "posapp_infrastructure_repositories_salarysliprepository_cs_cancellationtoken",
+      "label": "CancellationToken",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "posapp_infrastructure_repositories_salarysliprepository_cs_task",
+      "label": "Task",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "posapp_infrastructure_repositories_salarysliprepository_cs_salaryslip",
+      "label": "SalarySlip",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "repositories_salarysliprepository_salarysliprepository_getbyemployeeasync",
+      "label": ".GetByEmployeeAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L19"
+    },
+    {
+      "id": "posapp_infrastructure_repositories_salarysliprepository_cs_ienumerable",
+      "label": "IEnumerable",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L19"
+    },
+    {
+      "id": "repositories_salarysliprepository_salarysliprepository_slipexistsasync",
+      "label": ".SlipExistsAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L26"
+    },
+    {
+      "id": "repositories_salarysliprepository_salarysliprepository_generateslipnumberasync",
+      "label": ".GenerateSlipNumberAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L34"
+    },
+    {
+      "id": "repositories_salarysliprepository_salarysliprepository_addasync",
+      "label": ".AddAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L40"
+    },
+    {
+      "id": "repositories_salarysliprepository_salarysliprepository_updateasync",
+      "label": ".UpdateAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L47"
+    },
+    {
+      "id": "repositories_salarysliprepository_salarysliprepository_softdeleteasync",
+      "label": ".SoftDeleteAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L53"
+    },
+    {
+      "id": "viewmodels_employeemanagementviewmodel",
+      "label": "EmployeeManagementViewModel.cs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "viewmodels_employeemanagementviewmodel_posapp_ui_viewmodels",
+      "label": "POSApp.UI.ViewModels",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "label": "EmployeeManagementViewModel",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L9"
+    },
+    {
+      "id": "viewmodelbase",
+      "label": "ViewModelBase",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_iemployeerepository",
+      "label": "IEmployeeRepository",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L11"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_string",
+      "label": "string",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L13"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_bool",
+      "label": "bool",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L14"
+    },
+    {
+      "id": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_loaddataasync",
+      "label": ".LoadDataAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L64"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_task",
+      "label": "Task",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L64"
+    },
+    {
+      "id": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_toggleactiveasync",
+      "label": ".ToggleActiveAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L75"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L75"
+    },
+    {
+      "id": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_deleteasync",
+      "label": ".DeleteAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L100"
+    },
+    {
+      "id": "viewmodels_employeeformviewmodel",
+      "label": "EmployeeFormViewModel.cs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "viewmodels_employeeformviewmodel_posapp_ui_viewmodels",
+      "label": "POSApp.UI.ViewModels",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L6"
+    },
+    {
+      "id": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "label": "EmployeeFormViewModel",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeeformviewmodel_cs_iemployeerepository",
+      "label": "IEmployeeRepository",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L10"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeeformviewmodel_cs_int",
+      "label": "int",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L11"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeeformviewmodel_cs_string",
+      "label": "string",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L13"
+    },
+    {
+      "id": "datetime",
+      "label": "DateTime",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L20"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeeformviewmodel_cs_decimal",
+      "label": "decimal",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L21"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeeformviewmodel_cs_bool",
+      "label": "bool",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L24"
+    },
+    {
+      "id": "viewmodels_employeeformviewmodel_employeeformviewmodel_loademployeeasync",
+      "label": ".LoadEmployeeAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L109"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeeformviewmodel_cs_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L109"
+    },
+    {
+      "id": "posapp_ui_viewmodels_employeeformviewmodel_cs_task",
+      "label": "Task",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L109"
+    },
+    {
+      "id": "viewmodels_employeeformviewmodel_employeeformviewmodel_saveasync",
+      "label": ".SaveAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L133"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel",
+      "label": "SalarySlipViewModel.cs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_posapp_ui_viewmodels",
+      "label": "POSApp.UI.ViewModels",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L11"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "label": "SalarySlipViewModel",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L13"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_iemployeerepository",
+      "label": "IEmployeeRepository",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L15"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_isalarysliprepository",
+      "label": "ISalarySlipRepository",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L16"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L18"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_int",
+      "label": "int",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L19"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_decimal",
+      "label": "decimal",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L21"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_string",
+      "label": "string",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L28"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_bool",
+      "label": "bool",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L29"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_monthname",
+      "label": ".MonthName()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L127"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_loademployeesasync",
+      "label": ".LoadEmployeesAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L147"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_task",
+      "label": "Task",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L147"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_loademployeeslipsasync",
+      "label": ".LoadEmployeeSlipsAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L155"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_onsalarychanged",
+      "label": ".OnSalaryChanged()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L164"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_saveandprintasync",
+      "label": ".SaveAndPrintAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L171"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_deleteslipasync",
+      "label": ".DeleteSlipAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L225"
+    },
+    {
+      "id": "posapp_ui_viewmodels_salaryslipviewmodel_cs_salaryslip",
+      "label": "SalarySlip",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L225"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_clearform",
+      "label": ".ClearForm()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L243"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_printslip",
+      "label": ".PrintSlip()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L256"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "label": ".BuildSalarySlipDocument()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L271"
+    },
+    {
+      "id": "flowdocument",
+      "label": "FlowDocument",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L271"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildnetsalaryband",
+      "label": ".BuildNetSalaryBand()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L416"
+    },
+    {
+      "id": "border",
+      "label": "Border",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L416"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsignaturetable",
+      "label": ".BuildSignatureTable()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L460"
+    },
+    {
+      "id": "uielement",
+      "label": "UIElement",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L460"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_hrline",
+      "label": ".HrLine()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L502"
+    },
+    {
+      "id": "paragraph",
+      "label": "Paragraph",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L502"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_sectionheader",
+      "label": ".SectionHeader()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L505"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_tablecell",
+      "label": ".TableCell()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L509"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_labelcell",
+      "label": ".LabelCell()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L512"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_valuecell",
+      "label": ".ValueCell()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L515"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_colheadercell",
+      "label": ".ColHeaderCell()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L518"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_amountcell",
+      "label": ".AmountCell()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L522"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_boldcell",
+      "label": ".BoldCell()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L529"
+    },
+    {
+      "id": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_boldamountcell",
+      "label": ".BoldAmountCell()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L533"
+    },
+    {
+      "id": "views_employeemanagementwindow_xaml",
+      "label": "EmployeeManagementWindow.xaml.cs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "views_employeemanagementwindow_xaml_posapp_ui_views",
+      "label": "POSApp.UI.Views",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L6"
+    },
+    {
+      "id": "views_employeemanagementwindow_xaml_employeemanagementwindow",
+      "label": "EmployeeManagementWindow",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "employeemanagementviewmodel",
+      "label": "EmployeeManagementViewModel",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L10"
+    },
+    {
+      "id": "views_employeemanagementwindow_xaml_employeemanagementwindow_openformdialog",
+      "label": ".OpenFormDialog()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L21"
+    },
+    {
+      "id": "posapp_ui_views_employeemanagementwindow_xaml_cs_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L21"
+    },
+    {
+      "id": "views_employeemanagementwindow_xaml_employeemanagementwindow_opensalaryslipforemployee",
+      "label": ".OpenSalarySlipForEmployee()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L30"
+    },
+    {
+      "id": "views_employeemanagementwindow_xaml_employeemanagementwindow_close_click",
+      "label": ".Close_Click()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L38"
+    },
+    {
+      "id": "posapp_ui_views_employeemanagementwindow_xaml_cs_routedeventargs",
+      "label": "RoutedEventArgs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L38"
+    },
+    {
+      "id": "views_employeeformdialog_xaml",
+      "label": "EmployeeFormDialog.xaml.cs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "views_employeeformdialog_xaml_posapp_ui_views",
+      "label": "POSApp.UI.Views",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L5"
+    },
+    {
+      "id": "views_employeeformdialog_xaml_employeeformdialog",
+      "label": "EmployeeFormDialog",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "employeeformviewmodel",
+      "label": "EmployeeFormViewModel",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L9"
+    },
+    {
+      "id": "views_employeeformdialog_xaml_employeeformdialog_loademployeeasync",
+      "label": ".LoadEmployeeAsync()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L19"
+    },
+    {
+      "id": "posapp_ui_views_employeeformdialog_xaml_cs_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L19"
+    },
+    {
+      "id": "posapp_ui_views_employeeformdialog_xaml_cs_task",
+      "label": "Task",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L19"
+    },
+    {
+      "id": "views_employeeformdialog_xaml_employeeformdialog_cancel_click",
+      "label": ".Cancel_Click()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L24"
+    },
+    {
+      "id": "posapp_ui_views_employeeformdialog_xaml_cs_routedeventargs",
+      "label": "RoutedEventArgs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L24"
+    },
+    {
+      "id": "views_salaryslipwindow_xaml",
+      "label": "SalarySlipWindow.xaml.cs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "views_salaryslipwindow_xaml_posapp_ui_views",
+      "label": "POSApp.UI.Views",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L5"
+    },
+    {
+      "id": "views_salaryslipwindow_xaml_salaryslipwindow",
+      "label": "SalarySlipWindow",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "salaryslipviewmodel",
+      "label": "SalarySlipViewModel",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L9"
+    },
+    {
+      "id": "views_salaryslipwindow_xaml_salaryslipwindow_preselectemployee",
+      "label": ".PreSelectEmployee()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L18"
+    },
+    {
+      "id": "posapp_ui_views_salaryslipwindow_xaml_cs_employee",
+      "label": "Employee",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L18"
+    },
+    {
+      "id": "views_salaryslipwindow_xaml_salaryslipwindow_close_click",
+      "label": ".Close_Click()",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L29"
+    },
+    {
+      "id": "posapp_ui_views_salaryslipwindow_xaml_cs_routedeventargs",
+      "label": "RoutedEventArgs",
+      "file_type": "code",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L29"
     }
   ],
   "links": [
@@ -39408,5 +40493,2813 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "da0717ac31fcacf5f71fff4e0bd4ecd0d199623e"
+  "built_at_commit": "da0717ac31fcacf5f71fff4e0bd4ecd0d199623e",
+  "edges": [
+    {
+      "source": "entities_employee",
+      "target": "entities_employee_posapp_core_entities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Entities\\Employee.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "entities_employee",
+      "target": "entities_employee_employee",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Entities\\Employee.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "entities_salaryslip",
+      "target": "entities_salaryslip_posapp_core_entities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Entities\\SalarySlip.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "entities_salaryslip",
+      "target": "entities_salaryslip_salaryslip",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Entities\\SalarySlip.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository",
+      "target": "interfaces_iemployeerepository_posapp_core_interfaces",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository_getbyidasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_getbyidasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_getbyidasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_getbyidasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository_getallasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_getallasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_getallasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_getallasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_ienumerable",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_getallasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository_searchasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_searchasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_searchasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_searchasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_ienumerable",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_searchasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository_cnicexistsasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_cnicexistsasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_cnicexistsasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository_generateemployeecodeasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_generateemployeecodeasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_generateemployeecodeasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository_addasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_addasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_addasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_addasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository_updateasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_updateasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_updateasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_updateasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository",
+      "target": "interfaces_iemployeerepository_iemployeerepository_softdeleteasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_softdeleteasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_iemployeerepository_iemployeerepository_softdeleteasync",
+      "target": "posapp_core_interfaces_iemployeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\IEmployeeRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_posapp_core_interfaces",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_isalarysliprepository",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_isalarysliprepository_getbyidasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_getbyidasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_getbyidasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_getbyidasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_isalarysliprepository_getbyemployeeasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_getbyemployeeasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_getbyemployeeasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_getbyemployeeasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_ienumerable",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_getbyemployeeasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_isalarysliprepository_slipexistsasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_slipexistsasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_slipexistsasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_isalarysliprepository_generateslipnumberasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_generateslipnumberasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_generateslipnumberasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_isalarysliprepository_addasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_addasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_addasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_addasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_isalarysliprepository_updateasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_updateasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_updateasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_updateasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository",
+      "target": "interfaces_isalarysliprepository_isalarysliprepository_softdeleteasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_softdeleteasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "interfaces_isalarysliprepository_isalarysliprepository_softdeleteasync",
+      "target": "posapp_core_interfaces_isalarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Core\\Interfaces\\ISalarySlipRepository.cs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_employeerepository",
+      "target": "entityframeworkcore",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository",
+      "target": "interfaces",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository",
+      "target": "data",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository",
+      "target": "repositories_employeerepository_posapp_infrastructure_repositories",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository",
+      "target": "repositories_employeerepository_employeerepository",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "iemployeerepository",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_appdbcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "repositories_employeerepository_employeerepository_getbyidasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_getbyidasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_getbyidasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_getbyidasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "repositories_employeerepository_employeerepository_getallasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_getallasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_getallasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_getallasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_ienumerable",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_getallasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "repositories_employeerepository_employeerepository_searchasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_searchasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_searchasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_searchasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_ienumerable",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_searchasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "repositories_employeerepository_employeerepository_cnicexistsasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_cnicexistsasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_cnicexistsasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "repositories_employeerepository_employeerepository_generateemployeecodeasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_generateemployeecodeasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L44",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_generateemployeecodeasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L44",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "repositories_employeerepository_employeerepository_addasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_addasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L51",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_addasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L51",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_addasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L51",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "repositories_employeerepository_employeerepository_updateasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_updateasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L58",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_updateasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L58",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_updateasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L58",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository",
+      "target": "repositories_employeerepository_employeerepository_softdeleteasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_softdeleteasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L65",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_employeerepository_employeerepository_softdeleteasync",
+      "target": "posapp_infrastructure_repositories_employeerepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\EmployeeRepository.cs",
+      "source_location": "L65",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_salarysliprepository",
+      "target": "entityframeworkcore",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository",
+      "target": "interfaces",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository",
+      "target": "data",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository",
+      "target": "repositories_salarysliprepository_posapp_infrastructure_repositories",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository",
+      "target": "repositories_salarysliprepository_salarysliprepository",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "isalarysliprepository",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_appdbcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "repositories_salarysliprepository_salarysliprepository_getbyidasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_getbyidasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_getbyidasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_getbyidasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "repositories_salarysliprepository_salarysliprepository_getbyemployeeasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_getbyemployeeasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_getbyemployeeasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_getbyemployeeasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_ienumerable",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_getbyemployeeasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "repositories_salarysliprepository_salarysliprepository_slipexistsasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_slipexistsasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_slipexistsasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "repositories_salarysliprepository_salarysliprepository_generateslipnumberasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_generateslipnumberasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L34",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_generateslipnumberasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L34",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "repositories_salarysliprepository_salarysliprepository_addasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_addasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L40",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_addasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L40",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_addasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L40",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "repositories_salarysliprepository_salarysliprepository_updateasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_updateasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L47",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_updateasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L47",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_updateasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L47",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository",
+      "target": "repositories_salarysliprepository_salarysliprepository_softdeleteasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_softdeleteasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_cancellationtoken",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "repositories_salarysliprepository_salarysliprepository_softdeleteasync",
+      "target": "posapp_infrastructure_repositories_salarysliprepository_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.Infrastructure\\Repositories\\SalarySlipRepository.cs",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel",
+      "target": "objectmodel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel",
+      "target": "input",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel",
+      "target": "interfaces",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel",
+      "target": "helpers",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel",
+      "target": "viewmodels_employeemanagementviewmodel_posapp_ui_viewmodels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel",
+      "target": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "target": "viewmodelbase",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "target": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_iemployeerepository",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "target": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "target": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_bool",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "target": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_loaddataasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_loaddataasync",
+      "target": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L64",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "target": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_toggleactiveasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_toggleactiveasync",
+      "target": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L75",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_toggleactiveasync",
+      "target": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L75",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel",
+      "target": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_deleteasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_deleteasync",
+      "target": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L100",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_deleteasync",
+      "target": "posapp_ui_viewmodels_employeemanagementviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L100",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_toggleactiveasync",
+      "target": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_loaddataasync",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_deleteasync",
+      "target": "viewmodels_employeemanagementviewmodel_employeemanagementviewmodel_loaddataasync",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeManagementViewModel.cs",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel",
+      "target": "input",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel",
+      "target": "interfaces",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel",
+      "target": "helpers",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel",
+      "target": "viewmodels_employeeformviewmodel_posapp_ui_viewmodels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel",
+      "target": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "viewmodelbase",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "posapp_ui_viewmodels_employeeformviewmodel_cs_iemployeerepository",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "posapp_ui_viewmodels_employeeformviewmodel_cs_int",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "posapp_ui_viewmodels_employeeformviewmodel_cs_string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "datetime",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "posapp_ui_viewmodels_employeeformviewmodel_cs_decimal",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "posapp_ui_viewmodels_employeeformviewmodel_cs_bool",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "viewmodels_employeeformviewmodel_employeeformviewmodel_loademployeeasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel_loademployeeasync",
+      "target": "posapp_ui_viewmodels_employeeformviewmodel_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L109",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel_loademployeeasync",
+      "target": "posapp_ui_viewmodels_employeeformviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L109",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel",
+      "target": "viewmodels_employeeformviewmodel_employeeformviewmodel_saveasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L133",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_employeeformviewmodel_employeeformviewmodel_saveasync",
+      "target": "posapp_ui_viewmodels_employeeformviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\EmployeeFormViewModel.cs",
+      "source_location": "L133",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "objectmodel",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "windows",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "controls",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "documents",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "input",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "media",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "interfaces",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "helpers",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_posapp_ui_viewmodels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodelbase",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_iemployeerepository",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_isalarysliprepository",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_int",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_decimal",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_string",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L28",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_bool",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_monthname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L127",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_loademployeesasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_loademployeesasync",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L147",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_loademployeeslipsasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_loademployeeslipsasync",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L155",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_onsalarychanged",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_saveandprintasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L171",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_saveandprintasync",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L171",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_deleteslipasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L225",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_deleteslipasync",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L225",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_deleteslipasync",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L225",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_clearform",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L243",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_printslip",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L256",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_printslip",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L256",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L271",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "posapp_ui_viewmodels_salaryslipviewmodel_cs_salaryslip",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L271",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "flowdocument",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L271",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildnetsalaryband",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L416",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildnetsalaryband",
+      "target": "border",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L416",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsignaturetable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L460",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsignaturetable",
+      "target": "uielement",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L460",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_hrline",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L502",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_hrline",
+      "target": "paragraph",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L502",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_sectionheader",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L505",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_sectionheader",
+      "target": "paragraph",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L505",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_tablecell",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L509",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_tablecell",
+      "target": "textalignment",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L509",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_tablecell",
+      "target": "tablecell",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L509",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_labelcell",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L512",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_labelcell",
+      "target": "tablecell",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L512",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_valuecell",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L515",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_valuecell",
+      "target": "tablecell",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L515",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_colheadercell",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L518",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_colheadercell",
+      "target": "tablecell",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L518",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_amountcell",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L522",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_amountcell",
+      "target": "tablecell",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L522",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_boldcell",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L529",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_boldcell",
+      "target": "tablecell",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L529",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_boldamountcell",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L533",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_boldamountcell",
+      "target": "tablecell",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L533",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_saveandprintasync",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_printslip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L211",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_saveandprintasync",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_loademployeeslipsasync",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L212",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_deleteslipasync",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_loademployeeslipsasync",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L235",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_printslip",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L261",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_hrline",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L303",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "tablecell",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L313",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_sectionheader",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L323",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_labelcell",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L336",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_valuecell",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L337",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_colheadercell",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L363",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_amountcell",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L373",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_boldcell",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L386",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_boldamountcell",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L387",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildnetsalaryband",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L395",
+      "weight": 1.0
+    },
+    {
+      "source": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsalaryslipdocument",
+      "target": "viewmodels_salaryslipviewmodel_salaryslipviewmodel_buildsignaturetable",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\ViewModels\\SalarySlipViewModel.cs",
+      "source_location": "L411",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml",
+      "target": "windows",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml",
+      "target": "viewmodels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml",
+      "target": "dependencyinjection",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml",
+      "target": "views_employeemanagementwindow_xaml_posapp_ui_views",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml",
+      "target": "views_employeemanagementwindow_xaml_employeemanagementwindow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml_employeemanagementwindow",
+      "target": "window",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml_employeemanagementwindow",
+      "target": "employeemanagementviewmodel",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml_employeemanagementwindow",
+      "target": "views_employeemanagementwindow_xaml_employeemanagementwindow_openformdialog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml_employeemanagementwindow_openformdialog",
+      "target": "posapp_ui_views_employeemanagementwindow_xaml_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml_employeemanagementwindow",
+      "target": "views_employeemanagementwindow_xaml_employeemanagementwindow_opensalaryslipforemployee",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml_employeemanagementwindow_opensalaryslipforemployee",
+      "target": "posapp_ui_views_employeemanagementwindow_xaml_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml_employeemanagementwindow",
+      "target": "views_employeemanagementwindow_xaml_employeemanagementwindow_close_click",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeemanagementwindow_xaml_employeemanagementwindow_close_click",
+      "target": "posapp_ui_views_employeemanagementwindow_xaml_cs_routedeventargs",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeManagementWindow.xaml.cs",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "views_employeeformdialog_xaml",
+      "target": "windows",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeeformdialog_xaml",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeeformdialog_xaml",
+      "target": "viewmodels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeeformdialog_xaml",
+      "target": "views_employeeformdialog_xaml_posapp_ui_views",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeeformdialog_xaml",
+      "target": "views_employeeformdialog_xaml_employeeformdialog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeeformdialog_xaml_employeeformdialog",
+      "target": "window",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeeformdialog_xaml_employeeformdialog",
+      "target": "employeeformviewmodel",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "views_employeeformdialog_xaml_employeeformdialog",
+      "target": "views_employeeformdialog_xaml_employeeformdialog_loademployeeasync",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeeformdialog_xaml_employeeformdialog_loademployeeasync",
+      "target": "posapp_ui_views_employeeformdialog_xaml_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "views_employeeformdialog_xaml_employeeformdialog_loademployeeasync",
+      "target": "posapp_ui_views_employeeformdialog_xaml_cs_task",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "views_employeeformdialog_xaml_employeeformdialog",
+      "target": "views_employeeformdialog_xaml_employeeformdialog_cancel_click",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "views_employeeformdialog_xaml_employeeformdialog_cancel_click",
+      "target": "posapp_ui_views_employeeformdialog_xaml_cs_routedeventargs",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\EmployeeFormDialog.xaml.cs",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "views_salaryslipwindow_xaml",
+      "target": "windows",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "views_salaryslipwindow_xaml",
+      "target": "entities",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "views_salaryslipwindow_xaml",
+      "target": "viewmodels",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "views_salaryslipwindow_xaml",
+      "target": "views_salaryslipwindow_xaml_posapp_ui_views",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "views_salaryslipwindow_xaml",
+      "target": "views_salaryslipwindow_xaml_salaryslipwindow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "views_salaryslipwindow_xaml_salaryslipwindow",
+      "target": "window",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "views_salaryslipwindow_xaml_salaryslipwindow",
+      "target": "salaryslipviewmodel",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "views_salaryslipwindow_xaml_salaryslipwindow",
+      "target": "views_salaryslipwindow_xaml_salaryslipwindow_preselectemployee",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "views_salaryslipwindow_xaml_salaryslipwindow_preselectemployee",
+      "target": "posapp_ui_views_salaryslipwindow_xaml_cs_employee",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "views_salaryslipwindow_xaml_salaryslipwindow",
+      "target": "views_salaryslipwindow_xaml_salaryslipwindow_close_click",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "views_salaryslipwindow_xaml_salaryslipwindow_close_click",
+      "target": "posapp_ui_views_salaryslipwindow_xaml_cs_routedeventargs",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "POSApp.UI\\Views\\SalarySlipWindow.xaml.cs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "parameter_type"
+    }
+  ]
 }

@@ -12,6 +12,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = viewModel;
         viewModel.SyncResultReady += OnSyncResultReady;
+        viewModel.DashboardViewModel.SyncResultReady += OnSyncResultReady;
     }
 
     private void OnSyncResultReady(SyncResult result)
