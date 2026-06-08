@@ -7,7 +7,8 @@ namespace POSApp.Core.Entities
         public decimal AmountPaid { get; set; }
         public DateTime PaymentDate { get; set; } = DateTime.Now;
         public string? Note { get; set; }
-        
+        public string? InvoiceNumber { get; set; }
+
         public Customer? Customer { get; set; }
     }
 }

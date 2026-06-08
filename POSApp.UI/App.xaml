@@ -289,6 +289,7 @@
             <converters:CostPriceEncryptorConverter x:Key="CostPriceEncryptor"/>
             <converters:PurchaseCostEncryptorConverter x:Key="PurchaseCostEncryptor"/>
             <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
+            <converters:NullableDecimalConverter x:Key="NullableDecimalConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

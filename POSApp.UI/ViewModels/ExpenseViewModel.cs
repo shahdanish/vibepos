@@ -13,12 +13,23 @@ namespace POSApp.UI.ViewModels
     public sealed class ExpenseViewModel : ViewModelBase
     {
         private readonly IExpenseRepository _expenseRepository;
+        private readonly IExpenseCategoryRepository _categoryRepository;
+
+        // Sentinel representing "all categories" in the filter dropdown.
+        private static readonly ExpenseCategory AllCategoriesOption = new() { Id = 0, Name = "All Categories" };
 
         // Add-expense form
         private string _description = string.Empty;
         private decimal _amount;
         private string? _note;
         private decimal _totalExpenses;
+        private ExpenseCategory? _selectedCategory;
+
+        // Category management form
+        private ExpenseCategory? _selectedFilterCategory;
+        private ExpenseCategory? _selectedManageCategory;
+        private string _categoryNameInput = string.Empty;
+        private string? _categoryDescriptionInput;
 
         // Report period selection
         private string _selectedPeriod = "Daily";
@@ -27,6 +38,58 @@ namespace POSApp.UI.ViewModels
         private DateTime _customEndDate = DateTime.Now.Date;
 
         public ObservableCollection<Expense> Expenses { get; } = new();
+
+        // Real categories (used by the Add form and the management list).
+        public ObservableCollection<ExpenseCategory> Categories { get; } = new();
+
+        // Categories prefixed with "All Categories" for the list filter.
+        public ObservableCollection<ExpenseCategory> FilterCategories { get; } = new();
+
+        // ── Category properties ──────────────────────────────────────────────
+
+        /// <summary>Category chosen on the Add-expense form (optional).</summary>
+        public ExpenseCategory? SelectedCategory
+        {
+            get => _selectedCategory;
+            set => SetProperty(ref _selectedCategory, value);
+        }
+
+        /// <summary>Category used to filter the expense list. Id 0 = all.</summary>
+        public ExpenseCategory? SelectedFilterCategory
+        {
+            get => _selectedFilterCategory;
+            set
+            {
+                if (SetProperty(ref _selectedFilterCategory, value))
+                    _ = LoadExpenses();
+            }
+        }
+
+        /// <summary>Category selected in the management list (for edit/delete).</summary>
+        public ExpenseCategory? SelectedManageCategory
+        {
+            get => _selectedManageCategory;
+            set
+            {
+                if (SetProperty(ref _selectedManageCategory, value) && value != null)
+                {
+                    CategoryNameInput = value.Name;
+                    CategoryDescriptionInput = value.Description;
+                }
+            }
+        }
+
+        public string CategoryNameInput
+        {
+            get => _categoryNameInput;
+            set => SetProperty(ref _categoryNameInput, value);
+        }
+
+        public string? CategoryDescriptionInput
+        {
+            get => _categoryDescriptionInput;
+            set => SetProperty(ref _categoryDescriptionInput, value);
+        }
 
         // ── Add-expense form properties ──────────────────────────────────────
 
@@ -138,6 +201,10 @@ namespace POSApp.UI.ViewModels
 
         public ICommand AddExpenseCommand { get; }
         public ICommand DeleteExpenseCommand { get; }
+        public ICommand AddCategoryCommand { get; }
+        public ICommand UpdateCategoryCommand { get; }
+        public ICommand DeleteCategoryCommand { get; }
+        public ICommand ClearCategoryFormCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand PreviousPeriodCommand { get; }
         public ICommand NextPeriodCommand { get; }
@@ -148,12 +215,17 @@ namespace POSApp.UI.ViewModels
         public ICommand SetYearlyCommand { get; }
         public ICommand SetCustomCommand { get; }
 
-        public ExpenseViewModel(IExpenseRepository expenseRepository)
+        public ExpenseViewModel(IExpenseRepository expenseRepository, IExpenseCategoryRepository categoryRepository)
         {
             _expenseRepository = expenseRepository;
+            _categoryRepository = categoryRepository;
 
             AddExpenseCommand     = new RelayCommand(async _ => await AddExpense());
             DeleteExpenseCommand  = new RelayCommand(async p => await DeleteExpense(p));
+            AddCategoryCommand    = new RelayCommand(async _ => await AddCategory());
+            UpdateCategoryCommand = new RelayCommand(async _ => await UpdateCategory(), _ => _selectedManageCategory != null);
+            DeleteCategoryCommand = new RelayCommand(async _ => await DeleteCategory(), _ => _selectedManageCategory != null);
+            ClearCategoryFormCommand = new RelayCommand(_ => ClearCategoryForm());
             RefreshCommand        = new RelayCommand(async _ => await LoadExpenses());
             PreviousPeriodCommand = new RelayCommand(_ => NavigatePeriod(-1), _ => !IsCustomPeriod);
             NextPeriodCommand     = new RelayCommand(_ => NavigatePeriod(+1), _ => !IsCustomPeriod);
@@ -164,7 +236,14 @@ namespace POSApp.UI.ViewModels
             SetYearlyCommand      = new RelayCommand(_ => SelectedPeriod = "Yearly");
             SetCustomCommand      = new RelayCommand(_ => SelectedPeriod = "Custom");
 
-            _ = LoadExpenses();
+            _selectedFilterCategory = AllCategoriesOption;
+            _ = InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
+            await LoadCategories();
+            await LoadExpenses();
         }
 
         // ── Date range helpers ────────────────────────────────────────────────
@@ -208,7 +287,10 @@ namespace POSApp.UI.ViewModels
             try
             {
                 var (start, end) = GetDateRange();
-                var expenses = await _expenseRepository.GetByDateRangeAsync(start, end);
+                int? categoryId = _selectedFilterCategory != null && _selectedFilterCategory.Id != 0
+                    ? _selectedFilterCategory.Id
+                    : null;
+                var expenses = await _expenseRepository.GetByDateRangeAsync(start, end, categoryId);
                 Expenses.Clear();
                 foreach (var e in expenses)
                     Expenses.Add(e);
@@ -218,6 +300,115 @@ namespace POSApp.UI.ViewModels
             {
                 NotificationHelper.OperationFailed("load expenses", ex.Message);
             }
+        }
+
+        // ── Category operations ───────────────────────────────────────────────
+
+        private async Task LoadCategories()
+        {
+            try
+            {
+                var categories = (await _categoryRepository.GetAllAsync()).ToList();
+
+                Categories.Clear();
+                foreach (var c in categories)
+                    Categories.Add(c);
+
+                // Rebuild the filter list, preserving the current selection by Id.
+                int previousFilterId = _selectedFilterCategory?.Id ?? 0;
+                FilterCategories.Clear();
+                FilterCategories.Add(AllCategoriesOption);
+                foreach (var c in categories)
+                    FilterCategories.Add(c);
+
+                _selectedFilterCategory = FilterCategories.FirstOrDefault(c => c.Id == previousFilterId) ?? AllCategoriesOption;
+                OnPropertyChanged(nameof(SelectedFilterCategory));
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("load expense categories", ex.Message);
+            }
+        }
+
+        private async Task AddCategory()
+        {
+            if (string.IsNullOrWhiteSpace(CategoryNameInput))
+            {
+                NotificationHelper.ValidationError("Category name");
+                return;
+            }
+
+            try
+            {
+                await _categoryRepository.AddAsync(new ExpenseCategory
+                {
+                    Name = CategoryNameInput.Trim(),
+                    Description = string.IsNullOrWhiteSpace(CategoryDescriptionInput) ? null : CategoryDescriptionInput.Trim()
+                });
+
+                ClearCategoryForm();
+                await LoadCategories();
+                NotificationHelper.ShowSuccess("Category added successfully!");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("add category", ex.Message);
+            }
+        }
+
+        private async Task UpdateCategory()
+        {
+            if (SelectedManageCategory == null) return;
+
+            if (string.IsNullOrWhiteSpace(CategoryNameInput))
+            {
+                NotificationHelper.ValidationError("Category name");
+                return;
+            }
+
+            try
+            {
+                SelectedManageCategory.Name = CategoryNameInput.Trim();
+                SelectedManageCategory.Description = string.IsNullOrWhiteSpace(CategoryDescriptionInput) ? null : CategoryDescriptionInput.Trim();
+                await _categoryRepository.UpdateAsync(SelectedManageCategory);
+
+                ClearCategoryForm();
+                await LoadCategories();
+                await LoadExpenses();
+                NotificationHelper.ShowSuccess("Category updated successfully!");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("update category", ex.Message);
+            }
+        }
+
+        private async Task DeleteCategory()
+        {
+            if (SelectedManageCategory == null) return;
+
+            if (!NotificationHelper.Confirm($"Delete category '{SelectedManageCategory.Name}'?\nExpenses in this category will become uncategorised."))
+                return;
+
+            try
+            {
+                await _categoryRepository.DeleteAsync(SelectedManageCategory.Id);
+                ClearCategoryForm();
+                await LoadCategories();
+                await LoadExpenses();
+                NotificationHelper.ShowSuccess("Category deleted.");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("delete category", ex.Message);
+            }
+        }
+
+        private void ClearCategoryForm()
+        {
+            SelectedManageCategory = null;
+            CategoryNameInput = string.Empty;
+            CategoryDescriptionInput = null;
         }
 
         private async Task AddExpense()
@@ -241,7 +432,8 @@ namespace POSApp.UI.ViewModels
                     Description = Description,
                     Amount = Amount,
                     Date = DateTime.Now,
-                    Note = Note
+                    Note = Note,
+                    CategoryId = SelectedCategory != null && SelectedCategory.Id != 0 ? SelectedCategory.Id : null
                 };
 
                 await _expenseRepository.AddAsync(expense);
@@ -249,6 +441,7 @@ namespace POSApp.UI.ViewModels
                 Description = string.Empty;
                 Amount = 0;
                 Note = null;
+                SelectedCategory = null;
 
                 await LoadExpenses();
                 NotificationHelper.ShowSuccess("Expense added successfully!");
@@ -320,8 +513,9 @@ namespace POSApp.UI.ViewModels
                 var table = new Table { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
                 table.Columns.Add(new TableColumn { Width = new GridLength(0.35, GridUnitType.Star) }); // #
                 table.Columns.Add(new TableColumn { Width = new GridLength(2.0, GridUnitType.Star) });  // Description
+                table.Columns.Add(new TableColumn { Width = new GridLength(1.2, GridUnitType.Star) });  // Category
                 table.Columns.Add(new TableColumn { Width = new GridLength(1.0, GridUnitType.Star) });  // Amount
-                table.Columns.Add(new TableColumn { Width = new GridLength(1.5, GridUnitType.Star) });  // Note
+                table.Columns.Add(new TableColumn { Width = new GridLength(1.3, GridUnitType.Star) });  // Note
 
                 var tg = new TableRowGroup();
                 table.RowGroups.Add(tg);
@@ -330,6 +524,7 @@ namespace POSApp.UI.ViewModels
                 var headerRow = new TableRow { Background = Brushes.LightGray };
                 headerRow.Cells.Add(HCell("#"));
                 headerRow.Cells.Add(HCell("Description"));
+                headerRow.Cells.Add(HCell("Category"));
                 headerRow.Cells.Add(HCell("Amount (Rs.)"));
                 headerRow.Cells.Add(HCell("Note"));
                 tg.Rows.Add(headerRow);
@@ -341,6 +536,7 @@ namespace POSApp.UI.ViewModels
                     var row = new TableRow();
                     row.Cells.Add(DCell(i.ToString(), TextAlignment.Center));
                     row.Cells.Add(DCell(e.Description, TextAlignment.Left));
+                    row.Cells.Add(DCell(e.Category?.Name ?? "—", TextAlignment.Left));
                     row.Cells.Add(DCell($"{e.Amount:N2}", TextAlignment.Right));
                     row.Cells.Add(DCell(e.Note ?? string.Empty, TextAlignment.Left));
                     tg.Rows.Add(row);

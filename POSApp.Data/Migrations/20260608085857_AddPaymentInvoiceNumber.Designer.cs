@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using POSApp.Data;
 
@@ -10,9 +11,11 @@ using POSApp.Data;
 namespace POSApp.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260608085857_AddPaymentInvoiceNumber")]
+    partial class AddPaymentInvoiceNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -359,9 +362,6 @@ namespace POSApp.Data.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
@@ -374,33 +374,7 @@ namespace POSApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.ToTable("Expenses");
-                });
-
-            modelBuilder.Entity("POSApp.Core.Entities.ExpenseCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ExpenseCategories");
                 });
 
             modelBuilder.Entity("POSApp.Core.Entities.HoldSale", b =>
@@ -1676,16 +1650,6 @@ namespace POSApp.Data.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("POSApp.Core.Entities.Expense", b =>
-                {
-                    b.HasOne("POSApp.Core.Entities.ExpenseCategory", "Category")
-                        .WithMany("Expenses")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("POSApp.Core.Entities.HoldSaleItem", b =>
                 {
                     b.HasOne("POSApp.Core.Entities.HoldSale", "HoldSale")
@@ -1846,11 +1810,6 @@ namespace POSApp.Data.Migrations
             modelBuilder.Entity("POSApp.Core.Entities.Employee", b =>
                 {
                     b.Navigation("SalarySlips");
-                });
-
-            modelBuilder.Entity("POSApp.Core.Entities.ExpenseCategory", b =>
-                {
-                    b.Navigation("Expenses");
                 });
 
             modelBuilder.Entity("POSApp.Core.Entities.HoldSale", b =>

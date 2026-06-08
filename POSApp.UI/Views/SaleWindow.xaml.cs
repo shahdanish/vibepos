@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using POSApp.UI.ViewModels;
 
@@ -24,59 +25,68 @@ namespace POSApp.UI.Views
 
             viewModel.SwitchMode = () =>
             {
-                // Recreate partner only if it was closed; never transfer cart items
                 if (_wholeSalePartner == null || !_wholeSalePartner.IsLoaded)
                 {
                     _wholeSalePartner = App.Services!.GetRequiredService<WholeSaleWindow>();
                     var wsVm = (WholeSaleViewModel)_wholeSalePartner.DataContext;
 
-                    // Wire the partner's switch button to come straight back here
                     wsVm.SwitchMode = () =>
                     {
                         _wholeSalePartner.Hide();
                         Show();
+                        Activate();
+                    };
+
+                    // Restore this Sale window when Wholesale is closed via X or CLOSE
+                    _wholeSalePartner.Closed += (s, e) =>
+                    {
+                        if (!IsVisible) { Show(); Activate(); }
                     };
                 }
 
-                _wholeSalePartner.Title = "Wholesale Sale - Shah Jee Super Store";
                 _wholeSalePartner.Show();
+                _wholeSalePartner.Activate();
                 Hide();
             };
 
-            // Enable keyboard shortcuts
-            KeyDown += SaleWindow_KeyDown;
+            PreviewKeyDown += SaleWindow_KeyDown;
         }
 
-        private void SaleWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void SaleWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            // Check for Ctrl+S - New Sale
-            if (e.Key == System.Windows.Input.Key.S &&
-                (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) == System.Windows.Input.ModifierKeys.Control)
-            {
-                e.Handled = true;
-                _viewModel.NewCommand.Execute(null);
-                return;
-            }
+            var ctrl = Keyboard.Modifiers == ModifierKeys.Control;
 
-            // Check for Ctrl+W - Undo Last Sale (reverse last transaction)
-            if (e.Key == System.Windows.Input.Key.W &&
-                (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) == System.Windows.Input.ModifierKeys.Control)
-            {
-                e.Handled = true;
-                // Implement undo logic here if needed
-                MessageBox.Show("Undo sale feature requires additional implementation.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (ctrl && e.Key == Key.N) { e.Handled = true; _viewModel.NewCommand.Execute(null); }
+            else if (ctrl && e.Key == Key.P) { e.Handled = true; _viewModel.PrintCommand.Execute(null); }
+            else if (ctrl && e.Key == Key.Enter) { e.Handled = true; _viewModel.SaveCommand.Execute(null); }
+            else if (ctrl && e.Key == Key.W) { e.Handled = true; _viewModel.SwitchModeCommand.Execute(null); }
+            else if (ctrl && e.Key == Key.Q) { e.Handled = true; _viewModel.QuickSaleCommand.Execute(null); }
+            else if (ctrl && e.Key == Key.M) { e.Handled = true; CalculatorWindow.ShowCalculator(); }
+            else if (e.Key == Key.Escape) { e.Handled = true; Close(); }
+        }
+
+        // After a product is picked, the VM auto-adds it (and nulls SelectedProduct) via
+        // its SelectedProduct setter. Setting SelectedItem = null on an editable ComboBox
+        // does NOT clear the edit text, so the previous product's name lingers and breaks
+        // the next type-to-search. Clear the text here so each new search starts blank.
+        private void ProductCombo_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (sender is not System.Windows.Controls.ComboBox combo || combo.SelectedItem == null)
                 return;
-            }
+            if (!_viewModel.AutoAddItem)
+                return;
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                combo.SelectedItem = null;
+                combo.Text = string.Empty;
+            }), System.Windows.Threading.DispatcherPriority.Input);
         }
 
         private void Calculator_Click(object sender, RoutedEventArgs e)
-        {
-            CalculatorWindow.ShowCalculator();
-        }
+            => CalculatorWindow.ShowCalculator();
 
         private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+            => Close();
     }
 }

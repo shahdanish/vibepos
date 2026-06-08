@@ -1,7 +1,7 @@
 <Window x:Class="POSApp.UI.Views.CustomerLedgerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Customer Ledger (Khata) - Shah Jee Super Store" Height="700" Width="1000"
+        Title="Customer Ledger (Khata) - Shah Jee Super Store" Height="720" Width="1180"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
@@ -10,25 +10,30 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
-            <TextBlock Text="📒 Customer Ledger (Khata)" FontSize="24" FontWeight="Bold"
-                       Foreground="White" HorizontalAlignment="Center"/>
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="20,12">
+            <Grid>
+                <TextBlock Text="📒 Customer Ledger (Khata)" FontSize="24" FontWeight="Bold"
+                           Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <Button Content="Close" Click="Close_Click" HorizontalAlignment="Right"
+                        Style="{StaticResource NeutralButton}" Padding="16,8"/>
+            </Grid>
         </Border>
 
         <!-- Main Content -->
-        <Grid Grid.Row="1" Margin="20">
+        <Grid Grid.Row="1" Margin="16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="1.1*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Customer List -->
+            <!-- ════════════ Customer List ════════════ -->
             <Border Grid.Column="0" Style="{StaticResource CardBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
@@ -36,9 +41,24 @@
 
                     <TextBlock Grid.Row="0" Text="Customers" Style="{StaticResource SectionTitle}"/>
 
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding Customers}"
+                    <!-- Search box -->
+                    <Border Grid.Row="1" Background="#F0F4F8" CornerRadius="6" Padding="8,4" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🔍" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox Grid.Column="1" Text="{Binding CustomerSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center"
+                                     FontSize="13" ToolTip="Search by name, phone, or customer ID"/>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding Customers}"
                               SelectedItem="{Binding SelectedCustomer}"
-                              AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
+                              AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
                             <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="100"/>
@@ -56,20 +76,22 @@
                         </DataGrid.RowStyle>
                     </DataGrid>
 
-                    <Button Grid.Row="2" Content="🔄 Refresh" Command="{Binding RefreshCommand}"
-                            Style="{StaticResource InfoButton}" Padding="8,6" Margin="0,10,0,0"/>
+                    <Button Grid.Row="3" Content="🔄 Refresh" Command="{Binding RefreshCommand}"
+                            Style="{StaticResource InfoButton}" Padding="8,6" Margin="0,8,0,0"/>
                 </Grid>
             </Border>
 
-            <!-- Payment History -->
+            <!-- ════════════ Payment History ════════════ -->
             <Border Grid.Column="2" Style="{StaticResource CardBorder}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <!-- Customer info -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,8">
                         <TextBlock Text="Payment History" Style="{StaticResource SectionTitle}"/>
                         <TextBlock FontSize="13" Foreground="Gray">
                             <Run Text="Customer: "/>
@@ -82,77 +104,141 @@
                         </TextBlock>
                     </StackPanel>
 
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding Payments}"
-                              AutoGenerateColumns="False" IsReadOnly="True">
+                    <!-- Date range filter bar -->
+                    <Border Grid.Row="1" Background="#F0F4F8" CornerRadius="8" Padding="8,6" Margin="0,0,0,8">
+                        <StackPanel>
+                            <WrapPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <Button Content="All" Command="{Binding FilterAllCommand}"
+                                        Padding="10,5" Margin="0,0,5,0" FontSize="12"
+                                        Style="{StaticResource InfoButton}"/>
+                                <Button Content="Today" Command="{Binding FilterTodayCommand}"
+                                        Padding="10,5" Margin="0,0,5,0" FontSize="12"
+                                        Style="{StaticResource SuccessButton}"/>
+                                <Button Content="This Week" Command="{Binding FilterWeekCommand}"
+                                        Padding="10,5" Margin="0,0,5,0" FontSize="12"
+                                        Style="{StaticResource InfoButton}"/>
+                                <Button Content="This Month" Command="{Binding FilterMonthCommand}"
+                                        Padding="10,5" Margin="0,0,5,0" FontSize="12"
+                                        Style="{StaticResource InfoButton}"/>
+                                <Button Content="Custom Range" Command="{Binding FilterCustomCommand}"
+                                        Padding="10,5" FontSize="12"
+                                        Style="{StaticResource WarningButton}"/>
+                            </WrapPanel>
+
+                            <!-- Custom range pickers (shown only for Custom) -->
+                            <StackPanel Orientation="Horizontal"
+                                        Visibility="{Binding IsCustomRange, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="From:" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12"/>
+                                <DatePicker SelectedDate="{Binding FilterStartDate}" Margin="0,0,12,0" Width="130"/>
+                                <TextBlock Text="To:" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12"/>
+                                <DatePicker SelectedDate="{Binding FilterEndDate}" Width="130"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding Payments}"
+                              SelectedItem="{Binding SelectedPayment}"
+                              AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat=dd/MM/yy hh:mm tt}" Width="130"/>
-                            <DataGridTextColumn Header="Amount (Rs.)" Binding="{Binding AmountPaid, StringFormat=N2}" Width="100"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat=dd/MM/yy hh:mm tt}" Width="120"/>
+                            <DataGridTextColumn Header="Invoice #" Binding="{Binding InvoiceNumber}" Width="80"/>
+                            <DataGridTextColumn Header="Amount (Rs.)" Binding="{Binding AmountPaid, StringFormat=N2}" Width="100"
+                                                ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="*"/>
+                            <DataGridTemplateColumn Header="Actions" Width="130">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Edit"
+                                                    Command="{Binding DataContext.EditPaymentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource InfoButton}" Padding="8,3" FontSize="11" Margin="0,0,4,0"/>
+                                            <Button Content="Delete"
+                                                    Command="{Binding DataContext.DeletePaymentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource DangerButton}" Padding="8,3" FontSize="11"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
             </Border>
 
-            <!-- Right Panel: Add Customer + Record Payment -->
+            <!-- ════════════ Right Panel: Customer editor + Record Payment ════════════ -->
             <Border Grid.Column="4" Style="{StaticResource CardBorder}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
 
-                        <!-- Add Customer Section -->
-                        <TextBlock Text="Add New Customer" Style="{StaticResource SectionTitle}"/>
+                        <!-- Customer editor (add / edit / delete) -->
+                        <TextBlock Text="{Binding CustomerFormTitle}" Style="{StaticResource SectionTitle}"/>
 
                         <TextBlock Text="Name *" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
                         <TextBox Text="{Binding NewCustomerName, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="7" Margin="0,0,0,10" FontSize="13"/>
+                                 Padding="7" Margin="0,0,0,8" FontSize="13"/>
 
                         <TextBlock Text="Phone" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
                         <TextBox Text="{Binding NewCustomerPhone, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="7" Margin="0,0,0,10" FontSize="13"/>
+                                 Padding="7" Margin="0,0,0,8" FontSize="13"/>
 
                         <TextBlock Text="Address" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
                         <TextBox Text="{Binding NewCustomerAddress, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="7" Margin="0,0,0,10" FontSize="13"/>
+                                 Padding="7" Margin="0,0,0,8" FontSize="13"/>
 
-                        <TextBlock Text="Initial Balance (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                        <TextBlock Text="Initial Balance (Rs.)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"
+                                   Visibility="{Binding IsNewCustomer, Converter={StaticResource BoolToVis}}"/>
                         <TextBox Text="{Binding NewCustomerInitialBalance, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="7" Margin="0,0,0,12" FontSize="13" TextAlignment="Right"/>
+                                 Padding="7" Margin="0,0,0,10" FontSize="13" TextAlignment="Right"
+                                 Visibility="{Binding IsNewCustomer, Converter={StaticResource BoolToVis}}"/>
 
-                        <Button Content="➕ Add Customer" Command="{Binding AddCustomerCommand}"
-                                Style="{StaticResource InfoButton}" Padding="10,8" Margin="0,0,0,16"/>
+                        <Button Content="{Binding SaveCustomerButtonText}" Command="{Binding SaveCustomerCommand}"
+                                Style="{StaticResource SuccessButton}" Padding="10,8" Margin="0,0,0,6"/>
+                        <UniformGrid Columns="2" Margin="0,0,0,16">
+                            <Button Content="🆕 New" Command="{Binding NewCustomerCommand}"
+                                    Style="{StaticResource NeutralButton}" Padding="8,7" Margin="0,0,4,0"/>
+                            <Button Content="🗑 Delete" Command="{Binding DeleteCustomerCommand}"
+                                    Style="{StaticResource DangerButton}" Padding="8,7" Margin="4,0,0,0"/>
+                        </UniformGrid>
 
                         <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Margin="0,0,0,16"/>
 
-                        <!-- Record Payment Section -->
+                        <!-- Record / Edit Payment -->
                         <TextBlock Text="Record Payment" Style="{StaticResource SectionTitle}"/>
 
-                        <TextBlock Text="Select Customer" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
-                        <ComboBox ItemsSource="{Binding Customers}"
-                                  SelectedItem="{Binding SelectedCustomer}"
-                                  DisplayMemberPath="Name"
-                                  IsEditable="True" IsTextSearchEnabled="True"
-                                  FontSize="13" Padding="6" Margin="0,0,0,6"/>
+                        <TextBlock FontSize="12" Margin="0,0,0,4">
+                            <Run Text="For: " FontWeight="SemiBold"/>
+                            <Run Text="{Binding SelectedCustomer.Name, FallbackValue='— select a customer —'}" FontWeight="SemiBold"
+                                 Foreground="{DynamicResource BrandPrimaryBrush}"/>
+                        </TextBlock>
 
-                        <!-- Outstanding balance preview -->
                         <TextBlock FontSize="12" Margin="0,0,0,10" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold">
                             <Run Text="Outstanding: Rs. "/>
                             <Run Text="{Binding SelectedCustomer.CurrentBalance, StringFormat=N2, FallbackValue='0.00'}"/>
                         </TextBlock>
 
+                        <TextBlock Text="Invoice # (Optional)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                        <TextBox Text="{Binding PaymentInvoiceNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="7" Margin="0,0,0,8" FontSize="13"
+                                 ToolTip="Reference invoice or bill number for this payment"/>
+
                         <TextBlock Text="Amount (Rs.) *" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
                         <TextBox Text="{Binding PaymentAmount, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="7" Margin="0,0,0,10" FontSize="13" TextAlignment="Right"/>
+                                 Padding="7" Margin="0,0,0,8" FontSize="13" TextAlignment="Right"/>
 
                         <TextBlock Text="Note (Optional)" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
                         <TextBox Text="{Binding PaymentNote, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="7" Margin="0,0,0,14" FontSize="13"
-                                 TextWrapping="Wrap" AcceptsReturn="True" Height="55"/>
+                                 Padding="7" Margin="0,0,0,12" FontSize="13"
+                                 TextWrapping="Wrap" AcceptsReturn="True" Height="50"/>
 
-                        <Button Content="✅ Record Payment" Command="{Binding AddPaymentCommand}"
-                                Style="{StaticResource SuccessButton}" Padding="10,8" Margin="0,0,0,10"/>
+                        <Button Content="{Binding SavePaymentButtonText}" Command="{Binding AddPaymentCommand}"
+                                Style="{StaticResource SuccessButton}" Padding="10,8" Margin="0,0,0,6"/>
+                        <Button Content="✖ Cancel Edit" Command="{Binding CancelPaymentEditCommand}"
+                                Style="{StaticResource NeutralButton}" Padding="10,6" Margin="0,0,0,6"
+                                Visibility="{Binding IsEditingPayment, Converter={StaticResource BoolToVis}}"/>
                         <Button Content="🖨️ Reprint Last Receipt" Command="{Binding PrintReceiptCommand}"
-                                Style="{StaticResource InfoButton}" Padding="10,8" Margin="0,0,0,10"/>
-                        <Button Content="Close" Click="Close_Click"
-                                Style="{StaticResource NeutralButton}" Padding="10,8"/>
+                                Style="{StaticResource InfoButton}" Padding="10,8"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>

@@ -20,6 +20,7 @@ namespace POSApp.Data
 
         // New Features
         public DbSet<Expense> Expenses { get; set; }
+        public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<Shift> Shifts { get; set; }
         public DbSet<HoldSale> HoldSales { get; set; }
         public DbSet<HoldSaleItem> HoldSaleItems { get; set; }
@@ -226,6 +227,16 @@ namespace POSApp.Data
             modelBuilder.Entity<Expense>()
                 .Property(e => e.Amount)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Expense>()
+                .HasOne(e => e.Category)
+                .WithMany(c => c.Expenses)
+                .HasForeignKey(e => e.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Configure ExpenseCategory
+            modelBuilder.Entity<ExpenseCategory>()
+                .HasKey(c => c.Id);
 
             // Configure Shift
             modelBuilder.Entity<Shift>()

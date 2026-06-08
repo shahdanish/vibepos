@@ -32,43 +32,75 @@ namespace POSApp.UI.Views
         public CalculatorWindow()
         {
             InitializeComponent();
+            PreviewKeyDown += Calc_PreviewKeyDown;
+        }
+
+        private void Calc_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            string? tag = e.Key switch
+            {
+                System.Windows.Input.Key.D0 or System.Windows.Input.Key.NumPad0 => "0",
+                System.Windows.Input.Key.D1 or System.Windows.Input.Key.NumPad1 => "1",
+                System.Windows.Input.Key.D2 or System.Windows.Input.Key.NumPad2 => "2",
+                System.Windows.Input.Key.D3 or System.Windows.Input.Key.NumPad3 => "3",
+                System.Windows.Input.Key.D4 or System.Windows.Input.Key.NumPad4 => "4",
+                System.Windows.Input.Key.D5 or System.Windows.Input.Key.NumPad5 => "5",
+                System.Windows.Input.Key.D6 or System.Windows.Input.Key.NumPad6 => "6",
+                System.Windows.Input.Key.D7 or System.Windows.Input.Key.NumPad7 => "7",
+                System.Windows.Input.Key.D8 or System.Windows.Input.Key.NumPad8 => "8",
+                System.Windows.Input.Key.D9 or System.Windows.Input.Key.NumPad9 => "9",
+                System.Windows.Input.Key.OemPeriod or System.Windows.Input.Key.Decimal => ".",
+                System.Windows.Input.Key.Add or System.Windows.Input.Key.OemPlus
+                    when System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.None => "+",
+                System.Windows.Input.Key.Subtract or System.Windows.Input.Key.OemMinus => "-",
+                System.Windows.Input.Key.Multiply => "*",
+                System.Windows.Input.Key.Divide or System.Windows.Input.Key.OemQuestion => "/",
+                System.Windows.Input.Key.Enter or System.Windows.Input.Key.Return => "=",
+                System.Windows.Input.Key.Back => "BS",
+                System.Windows.Input.Key.Escape => "C",
+                System.Windows.Input.Key.Delete => "C",
+                _ => null
+            };
+
+            // Handle % (Shift+5)
+            if (e.Key == System.Windows.Input.Key.D5 &&
+                System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                tag = "%";
+
+            if (tag == null) return;
+
+            e.Handled = true;
+
+            // Reuse the same logic as button click
+            HandleInput(tag);
+            MainDisplay.Text = _currentInput;
+            ExpressionDisplay.Text = _expression;
         }
 
         private void Btn_Click(object sender, RoutedEventArgs e)
         {
             var tag = (string)((Button)sender).Tag;
+            HandleInput(tag);
+            MainDisplay.Text = _currentInput;
+            ExpressionDisplay.Text = _expression;
+        }
 
+        private void HandleInput(string tag)
+        {
             switch (tag)
             {
                 case "0": case "1": case "2": case "3": case "4":
                 case "5": case "6": case "7": case "8": case "9":
                     AppendDigit(tag);
                     break;
-                case ".":
-                    AppendDecimal();
-                    break;
-                case "+": case "-": case "*": case "/":
-                    SetOperator(tag);
-                    break;
-                case "=":
-                    Calculate();
-                    break;
-                case "C":
-                    Clear();
-                    break;
-                case "BS":
-                    Backspace();
-                    break;
-                case "%":
-                    ApplyPercent();
-                    break;
-                case "NEG":
-                    Negate();
-                    break;
+                case ".": AppendDecimal(); break;
+                case "+": case "-": case "*": case "/": SetOperator(tag); break;
+                case "=": Calculate(); break;
+                case "C": Clear(); break;
+                case "BS": Backspace(); break;
+                case "%": ApplyPercent(); break;
+                case "NEG": Negate(); break;
             }
-
-            MainDisplay.Text = _currentInput;
-            ExpressionDisplay.Text = _expression;
         }
 
         private void AppendDigit(string digit)

@@ -37,6 +37,7 @@ public partial class App : System.Windows.Application
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         // Phase-1 feature repositories
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
+        services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IHoldSaleRepository, HoldSaleRepository>();
         services.AddScoped<ICustomerPaymentRepository, CustomerPaymentRepository>();

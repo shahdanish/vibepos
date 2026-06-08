@@ -68,8 +68,18 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="{Binding PeriodDescription}" FontSize="20" FontWeight="Bold"
-                               Foreground="{DynamicResource BrandPrimaryBrush}" Margin="0,0,0,10"/>
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="{Binding PeriodDescription}" FontSize="20" FontWeight="Bold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource BrandPrimaryBrush}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <TextBlock Text="Category:" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <ComboBox ItemsSource="{Binding FilterCategories}"
+                                      SelectedItem="{Binding SelectedFilterCategory}"
+                                      DisplayMemberPath="Name"
+                                      MinWidth="180" Padding="6" FontSize="13"/>
+                        </StackPanel>
+                    </Grid>
 
                     <!-- Navigator / Custom Range -->
                     <Grid Grid.Row="1" Margin="0,0,0,12">
@@ -116,6 +126,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Date / Time" Binding="{Binding Date, StringFormat=dd/MM/yyyy hh:mm tt}" Width="160"/>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" MinWidth="150"/>
+                            <DataGridTextColumn Header="Category" Binding="{Binding Category.Name, TargetNullValue='—'}" Width="140"/>
                             <DataGridTextColumn Header="Amount (Rs.)" Binding="{Binding Amount, StringFormat=N2}" Width="130"
                                                 ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="160"/>
@@ -158,6 +169,12 @@
                                 <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                          Padding="8" FontSize="13" Margin="0,0,0,12"/>
 
+                                <TextBlock Text="Category" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                <ComboBox ItemsSource="{Binding Categories}"
+                                          SelectedItem="{Binding SelectedCategory}"
+                                          DisplayMemberPath="Name"
+                                          Padding="6" FontSize="13" Margin="0,0,0,12"/>
+
                                 <TextBlock Text="Amount (Rs.) *" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                 <TextBox Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
                                          Padding="8" FontSize="13" TextAlignment="Right" Margin="0,0,0,12"/>
@@ -170,6 +187,40 @@
                                 <Button Content="Add Expense" Command="{Binding AddExpenseCommand}"
                                         Style="{StaticResource SuccessButton}" Padding="12,10" FontSize="14"
                                         FontWeight="Bold" Margin="0,0,0,8"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Manage Categories -->
+                        <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,15,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Manage Categories" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource BrandPrimaryBrush}" Margin="0,0,0,12"/>
+
+                                <ListBox ItemsSource="{Binding Categories}"
+                                         SelectedItem="{Binding SelectedManageCategory}"
+                                         DisplayMemberPath="Name"
+                                         Height="120" FontSize="13" Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Name *" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding CategoryNameInput, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8" FontSize="13" Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Description (Optional)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding CategoryDescriptionInput, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8" FontSize="13" Margin="0,0,0,12"/>
+
+                                <UniformGrid Columns="2" Margin="0,0,0,6">
+                                    <Button Content="Add New" Command="{Binding AddCategoryCommand}"
+                                            Style="{StaticResource SuccessButton}" Padding="8,8" Margin="0,0,4,0" FontWeight="Bold"/>
+                                    <Button Content="Update" Command="{Binding UpdateCategoryCommand}"
+                                            Style="{StaticResource InfoButton}" Padding="8,8" Margin="4,0,0,0" FontWeight="Bold"/>
+                                </UniformGrid>
+                                <UniformGrid Columns="2">
+                                    <Button Content="Delete" Command="{Binding DeleteCategoryCommand}"
+                                            Style="{StaticResource DangerButton}" Padding="8,8" Margin="0,0,4,0" FontWeight="Bold"/>
+                                    <Button Content="Clear" Command="{Binding ClearCategoryFormCommand}"
+                                            Style="{StaticResource NeutralButton}" Padding="8,8" Margin="4,0,0,0" FontWeight="Bold"/>
+                                </UniformGrid>
                             </StackPanel>
                         </Border>
                     </StackPanel>

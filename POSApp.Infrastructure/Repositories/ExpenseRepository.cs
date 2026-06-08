@@ -22,14 +22,21 @@ namespace POSApp.Infrastructure.Repositories
         public async Task<IEnumerable<Expense>> GetAllAsync(CancellationToken ct = default)
         {
             return await _context.Expenses
+                .Include(e => e.Category)
                 .OrderByDescending(e => e.Date)
                 .ToListAsync(ct);
         }
 
-        public async Task<IEnumerable<Expense>> GetByDateRangeAsync(DateTime start, DateTime end, CancellationToken ct = default)
+        public async Task<IEnumerable<Expense>> GetByDateRangeAsync(DateTime start, DateTime end, int? categoryId = null, CancellationToken ct = default)
         {
-            return await _context.Expenses
-                .Where(e => e.Date >= start.Date && e.Date < end.Date.AddDays(1))
+            var query = _context.Expenses
+                .Include(e => e.Category)
+                .Where(e => e.Date >= start.Date && e.Date < end.Date.AddDays(1));
+
+            if (categoryId.HasValue)
+                query = query.Where(e => e.CategoryId == categoryId.Value);
+
+            return await query
                 .OrderByDescending(e => e.Date)
                 .ToListAsync(ct);
         }

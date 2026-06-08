@@ -28,10 +28,10 @@ namespace POSApp.UI.ViewModels
         private string? _mobileNumber;
         private decimal _preBalance;
         private string? _billNote;
-        private decimal _discountOnProducts;
-        private decimal _discountOnBill;
+        private decimal? _discountOnProducts;
+        private decimal? _discountOnBill;
         private decimal _totalBill;
-        private decimal _receiveCash;
+        private decimal? _receiveCash;
         private decimal _balance;
         private string _productSearchText = string.Empty;
         private string _barcodeInput = string.Empty;
@@ -41,7 +41,6 @@ namespace POSApp.UI.ViewModels
         private decimal _discountPercent;
         private bool _showPurchasePrice = true;
         private bool _autoPrint = false;
-        private bool _autoAddItem = true;
         private bool _useSmallBillFormat = false;
         private decimal _lastScannedCost;
         private bool _isLastScannedCostVisible;
@@ -127,7 +126,7 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _billNote, value);
         }
 
-        public decimal DiscountOnProducts
+        public decimal? DiscountOnProducts
         {
             get => _discountOnProducts;
             set
@@ -137,7 +136,7 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        public decimal DiscountOnBill
+        public decimal? DiscountOnBill
         {
             get => _discountOnBill;
             set
@@ -153,7 +152,7 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _totalBill, value);
         }
 
-        public decimal ReceiveCash
+        public decimal? ReceiveCash
         {
             get => _receiveCash;
             set
@@ -198,14 +197,7 @@ namespace POSApp.UI.ViewModels
                     // is enabled; otherwise the user adjusts qty/disc and clicks Add Item.
                     if (AutoAddItem && SaleItems != null)
                     {
-                        try
-                        {
-                            AddItem();
-                        }
-                        catch
-                        {
-                            // Ignore errors during auto-add
-                        }
+                        AddItem();
                     }
                 }
             }
@@ -253,16 +245,14 @@ namespace POSApp.UI.ViewModels
             }
         }
 
+        /// <summary>
+        /// Product selection always auto-adds to the cart. The toggle is hidden in the UI
+        /// and this is hard-wired to true so both Sale and Wholesale behave consistently.
+        /// </summary>
         public bool AutoAddItem
         {
-            get => _autoAddItem;
-            set
-            {
-                if (SetProperty(ref _autoAddItem, value))
-                {
-                    SettingsManager.SaveSetting(s => s.AutoAddItem = value);
-                }
-            }
+            get => true;
+            set { }
         }
 
         public bool UseSmallBillFormat
@@ -300,6 +290,7 @@ namespace POSApp.UI.ViewModels
         }
 
         public decimal TotalPurchasePrice => SaleItems?.Sum(item => item.CostPrice * item.Quantity) ?? 0;
+        public decimal TotalItemsDiscount => SaleItems?.Sum(item => item.EffectiveDiscountAmount) ?? 0;
 
         public Action? OpenQuickSaleWindow { get; set; }
         public Action? SwitchMode { get; set; }
@@ -326,7 +317,6 @@ namespace POSApp.UI.ViewModels
             var settings = SettingsManager.LoadSettings();
             _autoPrint = settings.AutoPrint;
             _useSmallBillFormat = settings.UseSmallBillFormat;
-            _autoAddItem = settings.AutoAddItem;
             _showPurchasePrice = settings.ShowPurchasePrice;
 
             _costHideTimer = new DispatcherTimer();
@@ -523,15 +513,17 @@ namespace POSApp.UI.ViewModels
             _costHideTimer.Stop();
             _costHideTimer.Start();
 
-            // Force UI refresh
-            OnPropertyChanged(nameof(SaleItems));
-
-            // Reset input fields
-            SelectedProduct = null;
+            // Reset entry fields synchronously
             Quantity = 1;
             UnitPrice = 0;
             DiscountPercent = 0;
-            ProductSearchText = string.Empty; // Auto-clear field
+            ProductSearchText = string.Empty;
+
+            // Defer SelectedProduct reset so it runs after WPF finishes processing the
+            // current ComboBox SelectionChanged event. Setting it synchronously here
+            // (re-entrant setter call) prevents the ComboBox from properly clearing its
+            // internal selection state, which stops subsequent product selections from firing.
+            Application.Current.Dispatcher.BeginInvoke(() => { SelectedProduct = null; });
         }
 
         private void DeleteItem(object? parameter)
@@ -548,15 +540,16 @@ namespace POSApp.UI.ViewModels
             if (SaleItems == null) return;
 
             var subtotal = SaleItems.Sum(item => item.Total);
-            subtotal -= DiscountOnProducts;
-            TotalBill = subtotal - DiscountOnBill;
+            subtotal -= DiscountOnProducts ?? 0;
+            TotalBill = subtotal - (DiscountOnBill ?? 0);
             CalculateBalance();
             OnPropertyChanged(nameof(TotalPurchasePrice));
+            OnPropertyChanged(nameof(TotalItemsDiscount));
         }
 
         private void CalculateBalance()
         {
-            Balance = ReceiveCash - TotalBill;
+            Balance = (ReceiveCash ?? 0) - TotalBill;
         }
 
         private async Task SaveSale(bool printAfterSave = false)
@@ -582,10 +575,10 @@ namespace POSApp.UI.ViewModels
                     MobileNumber = MobileNumber,
                     PreBalance = PreBalance,
                     BillNote = BillNote,
-                    DiscountOnProducts = DiscountOnProducts,
-                    DiscountOnBill = DiscountOnBill,
+                    DiscountOnProducts = DiscountOnProducts ?? 0,
+                    DiscountOnBill = DiscountOnBill ?? 0,
                     TotalBill = TotalBill,
-                    ReceiveCash = ReceiveCash,
+                    ReceiveCash = ReceiveCash ?? 0,
                     Balance = Balance,
                     AutoPrinted = AutoPrint
                 };
@@ -653,10 +646,10 @@ namespace POSApp.UI.ViewModels
             MobileNumber = null;
             PreBalance = 0;
             BillNote = null;
-            DiscountOnProducts = 0;
-            DiscountOnBill = 0;
+            DiscountOnProducts = null;
+            DiscountOnBill = null;
             TotalBill = 0;
-            ReceiveCash = 0;
+            ReceiveCash = null;
             Balance = 0;
             BarcodeInput = string.Empty;
             LastScannedCost = 0;
@@ -680,9 +673,9 @@ namespace POSApp.UI.ViewModels
             SelectedCustomer = source.SelectedCustomer;
             BillNote = source.BillNote;
             DiscountOnProducts = source.DiscountOnProducts;
-            DiscountOnBill = source.DiscountOnBill;
-            ReceiveCash = source.ReceiveCash;
-            PreBalance = source.PreBalance;
+            DiscountOnBill     = source.DiscountOnBill;
+            ReceiveCash        = source.ReceiveCash;
+            PreBalance         = source.PreBalance;
 
             SaleItems.Clear();
             foreach (var item in source.SaleItems)
@@ -954,13 +947,16 @@ namespace POSApp.UI.ViewModels
                 totalsGroup.Rows.Add(row);
             }
 
+            if (TotalItemsDiscount > 0)
+                AddTotalRow("Item Discounts", TotalItemsDiscount.ToString("N2"));
+            var totalDisc = (DiscountOnBill ?? 0) + (DiscountOnProducts ?? 0) + TotalItemsDiscount;
+            if (totalDisc > 0)
+                AddTotalRow("Total Discount", totalDisc.ToString("N2"));
             AddTotalRow("Total Bill", TotalBill.ToString("N2"), bold: true);
             if (PreBalance > 0)
                 AddTotalRow("Previous Balance", PreBalance.ToString("N2"));
-            AddTotalRow("Cash Received", ReceiveCash.ToString("N2"), bold: true);
+            AddTotalRow("Cash Received", (ReceiveCash ?? 0).ToString("N2"), bold: true);
             AddTotalRow("Total Items Quantity", SaleItems.Sum(i => i.Quantity).ToString(), bold: true);
-            if (DiscountOnBill > 0 || DiscountOnProducts > 0)
-                AddTotalRow("Total Discount", (DiscountOnBill + DiscountOnProducts).ToString("N2"));
             AddTotalRow("Balance Amount", Balance.ToString("N2"), bold: true, fontSize: 14);
 
             totalsTable.RowGroups.Add(totalsGroup);

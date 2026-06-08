@@ -10,6 +10,8 @@ using POSApp.UI.Helpers;
 
 namespace POSApp.UI.ViewModels
 {
+    public enum LedgerDateFilter { All, Today, ThisWeek, ThisMonth, Custom }
+
     public sealed class CustomerLedgerViewModel : ViewModelBase
     {
         private readonly ICustomerRepository _customerRepository;
@@ -18,6 +20,22 @@ namespace POSApp.UI.ViewModels
         private Customer? _selectedCustomer;
         private decimal _paymentAmount;
         private string? _paymentNote;
+        private string? _paymentInvoiceNumber;
+
+        // Customer search + edit state
+        private List<Customer> _allCustomers = new();
+        private string _customerSearchText = string.Empty;
+        private Customer? _editingCustomer;       // non-null = editor is updating this customer
+
+        // Payment edit state
+        private CustomerPayment? _selectedPayment;
+        private CustomerPayment? _editingPayment;  // non-null = payment form is editing this payment
+
+        // Date filter state
+        private LedgerDateFilter _activeFilter = LedgerDateFilter.All;
+        private DateTime _filterStartDate = DateTime.Today;
+        private DateTime _filterEndDate = DateTime.Today;
+        private List<CustomerPayment> _allPayments = new();
 
         // Add customer fields
         private string _newCustomerName = string.Empty;
@@ -25,7 +43,7 @@ namespace POSApp.UI.ViewModels
         private string? _newCustomerAddress;
         private decimal _newCustomerInitialBalance;
 
-        // Last payment tracking for receipt reprinting
+        // Last payment tracking
         private CustomerPayment? _lastPayment;
         private Customer? _lastPaymentCustomer;
         private decimal _balanceBeforeLastPayment;
@@ -39,9 +57,37 @@ namespace POSApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref _selectedCustomer, value))
+                {
+                    LoadCustomerIntoEditor(value);
                     _ = LoadPaymentsSafe();
+                }
             }
         }
+
+        public string CustomerSearchText
+        {
+            get => _customerSearchText;
+            set
+            {
+                if (SetProperty(ref _customerSearchText, value))
+                    ApplyCustomerSearch();
+            }
+        }
+
+        public CustomerPayment? SelectedPayment
+        {
+            get => _selectedPayment;
+            set => SetProperty(ref _selectedPayment, value);
+        }
+
+        // Editor mode labels
+        public bool IsEditingCustomer => _editingCustomer != null;
+        public bool IsNewCustomer => _editingCustomer == null;
+        public string CustomerFormTitle => _editingCustomer != null ? "Edit Customer" : "Add New Customer";
+        public string SaveCustomerButtonText => _editingCustomer != null ? "💾 Update Customer" : "➕ Add Customer";
+
+        public bool IsEditingPayment => _editingPayment != null;
+        public string SavePaymentButtonText => _editingPayment != null ? "💾 Update Payment" : "✅ Record Payment";
 
         public decimal PaymentAmount
         {
@@ -53,6 +99,48 @@ namespace POSApp.UI.ViewModels
         {
             get => _paymentNote;
             set => SetProperty(ref _paymentNote, value);
+        }
+
+        public string? PaymentInvoiceNumber
+        {
+            get => _paymentInvoiceNumber;
+            set => SetProperty(ref _paymentInvoiceNumber, value);
+        }
+
+        // Date filter
+        public LedgerDateFilter ActiveFilter
+        {
+            get => _activeFilter;
+            set
+            {
+                if (SetProperty(ref _activeFilter, value))
+                {
+                    OnPropertyChanged(nameof(IsCustomRange));
+                    ApplyFilter();
+                }
+            }
+        }
+
+        public bool IsCustomRange => _activeFilter == LedgerDateFilter.Custom;
+
+        public DateTime FilterStartDate
+        {
+            get => _filterStartDate;
+            set
+            {
+                if (SetProperty(ref _filterStartDate, value) && _activeFilter == LedgerDateFilter.Custom)
+                    ApplyFilter();
+            }
+        }
+
+        public DateTime FilterEndDate
+        {
+            get => _filterEndDate;
+            set
+            {
+                if (SetProperty(ref _filterEndDate, value) && _activeFilter == LedgerDateFilter.Custom)
+                    ApplyFilter();
+            }
         }
 
         public string NewCustomerName
@@ -79,20 +167,40 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _newCustomerInitialBalance, value);
         }
 
-        public ICommand AddPaymentCommand { get; }
-        public ICommand AddCustomerCommand { get; }
+        public ICommand AddPaymentCommand { get; }      // also handles updates (Save)
+        public ICommand DeletePaymentCommand { get; }
+        public ICommand EditPaymentCommand { get; }
+        public ICommand CancelPaymentEditCommand { get; }
+        public ICommand SaveCustomerCommand { get; }    // add or update
+        public ICommand DeleteCustomerCommand { get; }
+        public ICommand NewCustomerCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand PrintReceiptCommand { get; }
+        public ICommand FilterAllCommand { get; }
+        public ICommand FilterTodayCommand { get; }
+        public ICommand FilterWeekCommand { get; }
+        public ICommand FilterMonthCommand { get; }
+        public ICommand FilterCustomCommand { get; }
 
         public CustomerLedgerViewModel(ICustomerRepository customerRepository, ICustomerPaymentRepository paymentRepository)
         {
             _customerRepository = customerRepository;
             _paymentRepository = paymentRepository;
 
-            AddPaymentCommand = new RelayCommand(async _ => await AddPayment());
-            AddCustomerCommand = new RelayCommand(async _ => await AddCustomer());
-            RefreshCommand = new RelayCommand(async _ => await LoadCustomers());
-            PrintReceiptCommand = new RelayCommand(_ => ReprintLastReceipt(), _ => _lastPayment != null);
+            AddPaymentCommand        = new RelayCommand(async _ => await SavePayment());
+            DeletePaymentCommand     = new RelayCommand(async p => await DeletePayment(p));
+            EditPaymentCommand       = new RelayCommand(p => BeginEditPayment(p));
+            CancelPaymentEditCommand = new RelayCommand(_ => ClearPaymentForm());
+            SaveCustomerCommand      = new RelayCommand(async _ => await SaveCustomer());
+            DeleteCustomerCommand    = new RelayCommand(async _ => await DeleteCustomer(), _ => _selectedCustomer != null);
+            NewCustomerCommand       = new RelayCommand(_ => StartNewCustomer());
+            RefreshCommand           = new RelayCommand(async _ => await LoadCustomers());
+            PrintReceiptCommand  = new RelayCommand(_ => ReprintLastReceipt(), _ => _lastPayment != null);
+            FilterAllCommand     = new RelayCommand(_ => ActiveFilter = LedgerDateFilter.All);
+            FilterTodayCommand   = new RelayCommand(_ => ActiveFilter = LedgerDateFilter.Today);
+            FilterWeekCommand    = new RelayCommand(_ => ActiveFilter = LedgerDateFilter.ThisWeek);
+            FilterMonthCommand   = new RelayCommand(_ => ActiveFilter = LedgerDateFilter.ThisMonth);
+            FilterCustomCommand  = new RelayCommand(_ => ActiveFilter = LedgerDateFilter.Custom);
 
             _ = LoadCustomersSafe();
         }
@@ -106,9 +214,122 @@ namespace POSApp.UI.ViewModels
         private async Task LoadCustomers()
         {
             var customers = await _customerRepository.GetAllAsync();
+            _allCustomers = customers.OrderByDescending(c => c.CurrentBalance).ToList();
+            ApplyCustomerSearch();
+        }
+
+        private void ApplyCustomerSearch()
+        {
+            IEnumerable<Customer> filtered = _allCustomers;
+
+            if (!string.IsNullOrWhiteSpace(_customerSearchText))
+            {
+                var term = _customerSearchText.Trim();
+                filtered = filtered.Where(c =>
+                    c.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (c.Phone != null && c.Phone.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.CustomerId != null && c.CustomerId.Contains(term, StringComparison.OrdinalIgnoreCase)));
+            }
+
             Customers.Clear();
-            foreach (var customer in customers.OrderByDescending(c => c.CurrentBalance))
+            foreach (var customer in filtered)
                 Customers.Add(customer);
+        }
+
+        // ── Customer editor ───────────────────────────────────────────────────
+
+        private void LoadCustomerIntoEditor(Customer? customer)
+        {
+            _editingCustomer = customer;
+            if (customer != null)
+            {
+                _newCustomerName = customer.Name;
+                _newCustomerPhone = customer.Phone;
+                _newCustomerAddress = customer.Address;
+                _newCustomerInitialBalance = customer.CurrentBalance;
+            }
+            else
+            {
+                _newCustomerName = string.Empty;
+                _newCustomerPhone = null;
+                _newCustomerAddress = null;
+                _newCustomerInitialBalance = 0;
+            }
+
+            OnPropertyChanged(nameof(NewCustomerName));
+            OnPropertyChanged(nameof(NewCustomerPhone));
+            OnPropertyChanged(nameof(NewCustomerAddress));
+            OnPropertyChanged(nameof(NewCustomerInitialBalance));
+            OnPropertyChanged(nameof(IsEditingCustomer));
+            OnPropertyChanged(nameof(IsNewCustomer));
+            OnPropertyChanged(nameof(CustomerFormTitle));
+            OnPropertyChanged(nameof(SaveCustomerButtonText));
+        }
+
+        private void StartNewCustomer()
+        {
+            SelectedCustomer = null;   // triggers LoadCustomerIntoEditor(null)
+        }
+
+        private async Task SaveCustomer()
+        {
+            if (_editingCustomer != null)
+                await UpdateCustomer();
+            else
+                await AddCustomer();
+        }
+
+        private async Task UpdateCustomer()
+        {
+            if (_editingCustomer == null) return;
+
+            if (string.IsNullOrWhiteSpace(NewCustomerName))
+            {
+                NotificationHelper.ValidationErrorCustom("Please enter the customer name.");
+                return;
+            }
+
+            try
+            {
+                _editingCustomer.Name = NewCustomerName.Trim();
+                _editingCustomer.Phone = NewCustomerPhone;
+                _editingCustomer.CellNo = NewCustomerPhone;
+                _editingCustomer.Address = NewCustomerAddress;
+                _editingCustomer.ModifiedDate = DateTime.Now;
+
+                await _customerRepository.UpdateAsync(_editingCustomer);
+
+                int id = _editingCustomer.Id;
+                await LoadCustomers();
+                SelectedCustomer = Customers.FirstOrDefault(c => c.Id == id);
+
+                NotificationHelper.ShowSuccess("Customer updated.");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("update customer", ex.Message);
+            }
+        }
+
+        private async Task DeleteCustomer()
+        {
+            if (SelectedCustomer == null) return;
+
+            if (!NotificationHelper.Confirm(
+                $"Delete customer '{SelectedCustomer.Name}'?\nThis also removes their payment history. This cannot be undone."))
+                return;
+
+            try
+            {
+                await _customerRepository.DeleteAsync(SelectedCustomer.Id);
+                SelectedCustomer = null;
+                await LoadCustomers();
+                NotificationHelper.ShowSuccess("Customer deleted.");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("delete customer", ex.Message);
+            }
         }
 
         private async Task LoadPaymentsSafe()
@@ -119,11 +340,33 @@ namespace POSApp.UI.ViewModels
 
         private async Task LoadPayments()
         {
-            Payments.Clear();
-            if (SelectedCustomer == null) return;
+            if (SelectedCustomer == null)
+            {
+                _allPayments.Clear();
+                Payments.Clear();
+                return;
+            }
             var payments = await _paymentRepository.GetByCustomerIdAsync(SelectedCustomer.Id);
-            foreach (var payment in payments)
-                Payments.Add(payment);
+            _allPayments = payments.OrderByDescending(p => p.PaymentDate).ToList();
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            IEnumerable<CustomerPayment> filtered = _allPayments;
+
+            filtered = _activeFilter switch
+            {
+                LedgerDateFilter.Today     => filtered.Where(p => p.PaymentDate.Date == DateTime.Today),
+                LedgerDateFilter.ThisWeek  => filtered.Where(p => p.PaymentDate.Date >= DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek)),
+                LedgerDateFilter.ThisMonth => filtered.Where(p => p.PaymentDate.Year == DateTime.Today.Year && p.PaymentDate.Month == DateTime.Today.Month),
+                LedgerDateFilter.Custom    => filtered.Where(p => p.PaymentDate.Date >= _filterStartDate.Date && p.PaymentDate.Date <= _filterEndDate.Date),
+                _                          => filtered
+            };
+
+            Payments.Clear();
+            foreach (var p in filtered)
+                Payments.Add(p);
         }
 
         private async Task AddCustomer()
@@ -172,6 +415,98 @@ namespace POSApp.UI.ViewModels
             }
         }
 
+        // ── Payment add / edit / delete ───────────────────────────────────────
+
+        private async Task SavePayment()
+        {
+            if (_editingPayment != null)
+                await UpdatePayment();
+            else
+                await AddPayment();
+        }
+
+        private void BeginEditPayment(object? param)
+        {
+            if (param is not CustomerPayment payment) return;
+
+            _editingPayment = payment;
+            PaymentAmount = payment.AmountPaid;
+            PaymentInvoiceNumber = payment.InvoiceNumber;
+            PaymentNote = payment.Note;
+
+            OnPropertyChanged(nameof(IsEditingPayment));
+            OnPropertyChanged(nameof(SavePaymentButtonText));
+        }
+
+        private void ClearPaymentForm()
+        {
+            _editingPayment = null;
+            PaymentAmount = 0;
+            PaymentNote = null;
+            PaymentInvoiceNumber = null;
+
+            OnPropertyChanged(nameof(IsEditingPayment));
+            OnPropertyChanged(nameof(SavePaymentButtonText));
+        }
+
+        private async Task UpdatePayment()
+        {
+            if (_editingPayment == null) return;
+
+            if (PaymentAmount <= 0)
+            {
+                NotificationHelper.ValidationErrorCustom("Please enter a valid payment amount.");
+                return;
+            }
+
+            try
+            {
+                _editingPayment.AmountPaid = PaymentAmount;
+                _editingPayment.InvoiceNumber = PaymentInvoiceNumber?.Trim();
+                _editingPayment.Note = PaymentNote;
+
+                await _paymentRepository.UpdateAsync(_editingPayment);
+
+                int? customerId = SelectedCustomer?.Id;
+                ClearPaymentForm();
+                await LoadCustomers();
+                SelectedCustomer = Customers.FirstOrDefault(c => c.Id == customerId);
+
+                NotificationHelper.ShowSuccess("Payment updated.");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("update payment", ex.Message);
+            }
+        }
+
+        private async Task DeletePayment(object? param)
+        {
+            if (param is not CustomerPayment payment) return;
+
+            if (!NotificationHelper.Confirm(
+                $"Delete this payment of Rs.{payment.AmountPaid:N2}?\nThe amount will be added back to the customer's balance."))
+                return;
+
+            try
+            {
+                int? customerId = SelectedCustomer?.Id;
+                await _paymentRepository.DeleteAsync(payment.Id);
+
+                if (_editingPayment?.Id == payment.Id)
+                    ClearPaymentForm();
+
+                await LoadCustomers();
+                SelectedCustomer = Customers.FirstOrDefault(c => c.Id == customerId);
+
+                NotificationHelper.ShowSuccess("Payment deleted.");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("delete payment", ex.Message);
+            }
+        }
+
         private async Task AddPayment()
         {
             if (SelectedCustomer == null)
@@ -188,34 +523,33 @@ namespace POSApp.UI.ViewModels
 
             try
             {
-                // Capture balance before the payment is applied
                 decimal balanceBefore = SelectedCustomer.CurrentBalance;
                 var customerSnapshot = SelectedCustomer;
 
                 var payment = new CustomerPayment
                 {
-                    CustomerId = SelectedCustomer.Id,
-                    AmountPaid = PaymentAmount,
-                    PaymentDate = DateTime.Now,
-                    Note = PaymentNote
+                    CustomerId    = SelectedCustomer.Id,
+                    AmountPaid    = PaymentAmount,
+                    PaymentDate   = DateTime.Now,
+                    Note          = PaymentNote,
+                    InvoiceNumber = PaymentInvoiceNumber?.Trim()
                 };
 
                 await _paymentRepository.AddAsync(payment);
 
-                // Store for reprinting
                 _lastPayment = payment;
                 _lastPaymentCustomer = customerSnapshot;
                 _balanceBeforeLastPayment = balanceBefore;
 
                 PaymentAmount = 0;
                 PaymentNote = null;
+                PaymentInvoiceNumber = null;
 
                 await LoadCustomers();
                 SelectedCustomer = Customers.FirstOrDefault(c => c.Id == payment.CustomerId);
 
                 NotificationHelper.ShowSuccess($"Payment of Rs.{payment.AmountPaid:N2} recorded!");
 
-                // Auto-print receipt
                 PrintPaymentReceipt(payment, customerSnapshot, balanceBefore);
             }
             catch (Exception ex)
@@ -241,7 +575,6 @@ namespace POSApp.UI.ViewModels
                     TextAlignment = TextAlignment.Left
                 };
 
-                // Store header
                 var header = new Paragraph { Margin = new Thickness(0, 0, 0, 2), TextAlignment = TextAlignment.Center };
                 header.Inlines.Add(new Bold(new Run("Shahjee super store")) { FontSize = 22 });
                 header.Inlines.Add(new LineBreak());
@@ -250,7 +583,6 @@ namespace POSApp.UI.ViewModels
                 header.Inlines.Add(new Run("0332-3324911") { FontSize = 13 });
                 doc.Blocks.Add(header);
 
-                // Title
                 doc.Blocks.Add(new Paragraph(new Bold(new Run("Payment Receipt / رسید")))
                 {
                     TextAlignment = TextAlignment.Center,
@@ -261,9 +593,10 @@ namespace POSApp.UI.ViewModels
                     Margin = new Thickness(0, 2, 0, 4)
                 });
 
-                // Date and customer info
                 doc.Blocks.Add(Ln($"Date:      {payment.PaymentDate:dd-MMM-yyyy  hh:mm tt}"));
                 doc.Blocks.Add(Ln($"Customer:  {customer.Name}"));
+                if (!string.IsNullOrWhiteSpace(payment.InvoiceNumber))
+                    doc.Blocks.Add(Ln($"Invoice #: {payment.InvoiceNumber}"));
                 if (!string.IsNullOrWhiteSpace(customer.Phone))
                     doc.Blocks.Add(Ln($"Phone:     {customer.Phone}"));
                 if (!string.IsNullOrWhiteSpace(payment.Note))
@@ -271,7 +604,6 @@ namespace POSApp.UI.ViewModels
 
                 doc.Blocks.Add(Separator());
 
-                // Balance breakdown table
                 decimal remaining = balanceBefore - payment.AmountPaid;
                 var table = new Table { CellSpacing = 0 };
                 table.Columns.Add(new TableColumn { Width = new GridLength(2, GridUnitType.Star) });
@@ -286,14 +618,12 @@ namespace POSApp.UI.ViewModels
 
                 doc.Blocks.Add(Separator());
 
-                // Footer
                 doc.Blocks.Add(new Paragraph(new Bold(new Run("Thank you for your payment!")))
                 {
                     TextAlignment = TextAlignment.Center,
                     Margin = new Thickness(0, 4, 0, 2)
                 });
 
-                // Configure and print
                 var printDialog = new PrintDialog();
                 bool small = SettingsManager.LoadSettings().UseSmallBillFormat;
                 if (small)
