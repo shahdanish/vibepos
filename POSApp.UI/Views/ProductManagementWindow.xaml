@@ -39,20 +39,35 @@
 
                     <TextBlock Grid.Row="0" Text="Products List" Style="{StaticResource SectionTitle}"/>
 
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}" 
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="140"/>
-                            <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
-                            <DataGridTextColumn Header="Category" Binding="{Binding Category.Name}" Width="100"/>
-                            <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, StringFormat=N2}" Width="70"/>
-                            <DataGridTextColumn Header="Retail" Binding="{Binding UnitPrice, StringFormat=N2}" Width="70"/>
-                            <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, StringFormat=N2}" Width="70"/>
-                            <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="60"/>
-                            <DataGridTextColumn Header="Rack" Binding="{Binding Rack}" Width="60"/>
-                            <DataGridTextColumn x:Name="BatchColumn" Header="Batch No" Binding="{Binding BatchNo}" Width="90"/>
-                            <DataGridTextColumn x:Name="ExpiryColumn" Header="Expiry" Binding="{Binding ExpiryDate, StringFormat=MM/yyyy}" Width="75"/>
-                            <DataGridTemplateColumn Header="Status" Width="80">
+                            <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="90"/>
+                            <DataGridTemplateColumn Header="Product Name" Width="*" SortMemberPath="ProductName">
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="ToolTip" Value="{Binding ProductName}"/>
+                                        <Setter Property="ToolTipService.ShowDuration" Value="10000"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ProductName}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Padding="2,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Category" Binding="{Binding Category.Name}" Width="80"/>
+                            <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, StringFormat=N2}" Width="62"/>
+                            <DataGridTextColumn Header="Retail" Binding="{Binding UnitPrice, StringFormat=N2}" Width="62"/>
+                            <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, StringFormat=N2}" Width="58"/>
+                            <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="50"/>
+                            <DataGridTextColumn Header="Rack" Binding="{Binding Rack}" Width="40"/>
+                            <DataGridTextColumn x:Name="BatchColumn" Header="Batch No" Binding="{Binding BatchNo}" Width="68"/>
+                            <DataGridTextColumn x:Name="ExpiryColumn" Header="Expiry" Binding="{Binding ExpiryDate, StringFormat=MM/yyyy}" Width="62"/>
+                            <DataGridTemplateColumn Header="Status" Width="65">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Border Background="{Binding IsDeleted, Converter={StaticResource BoolToBackground}}" 

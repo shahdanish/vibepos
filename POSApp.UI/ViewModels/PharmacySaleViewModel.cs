@@ -699,6 +699,7 @@ namespace POSApp.UI.ViewModels
             try
             {
                 var dlg = new System.Windows.Controls.PrintDialog();
+                if (dlg.ShowDialog() != true) return false;
                 double pageW = dlg.PrintableAreaWidth > 0 ? dlg.PrintableAreaWidth : 793.7;
                 double pageH = dlg.PrintableAreaHeight > 0 ? dlg.PrintableAreaHeight : 1122.5;
 
@@ -739,7 +740,7 @@ namespace POSApp.UI.ViewModels
             string userName = (SessionManager.CurrentUser?.Username ?? "ADMIN").ToUpper();
 
             // ── helpers ───────────────────────────────────────────────────
-            TextBlock MkTB(string text, double sz = 9, bool bold = false,
+            TextBlock MkTB(string text, double sz = 10, bool bold = false,
                            TextAlignment al = TextAlignment.Left, double mB = 0) =>
                 new TextBlock
                 {
@@ -761,19 +762,20 @@ namespace POSApp.UI.ViewModels
             Grid MetaRow(string lbl, string val)
             {
                 var g = new Grid { Margin = new Thickness(0, 0, 0, 2) };
-                g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(88) });
+                g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(95) });
                 g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                var lt = new TextBlock { Text = lbl, FontFamily = F, FontSize = 9.5, FontWeight = FontWeights.Bold };
-                var vt = new TextBlock { Text = val, FontFamily = F, FontSize = 9.5, TextWrapping = TextWrapping.Wrap };
+                var lt = new TextBlock { Text = lbl, FontFamily = F, FontSize = 10.5, FontWeight = FontWeights.Bold };
+                var vt = new TextBlock { Text = val, FontFamily = F, FontSize = 10.5, TextWrapping = TextWrapping.Wrap };
                 Grid.SetColumn(vt, 1);
                 g.Children.Add(lt); g.Children.Add(vt);
                 return g;
             }
 
             // Self-contained row for items table — one Grid per row
-            double[] cws = { 28, 0, 36, 36, 65, 54, 70, 70 }; // Sr|Name(*)|Qty|Bon|Batch|Exp|Price|Total
+            // Columns: Sr | Name(*) | Qty | Bon | Disc% | Batch | Exp | Price | Total
+            double[] cws = { 26, 0, 34, 34, 42, 62, 52, 68, 68 };
             Grid TblRow(bool hdr, string c0, string c1, string c2, string c3,
-                        string c4, string c5, string c6, string c7)
+                        string c4, string c5, string c6, string c7, string c8)
             {
                 var g = new Grid();
                 g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[0]) });
@@ -784,20 +786,20 @@ namespace POSApp.UI.ViewModels
                 g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[5]) });
                 g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[6]) });
                 g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[7]) });
+                g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[8]) });
                 if (hdr) g.Background = new SolidColorBrush(Color.FromRgb(235, 235, 235));
-                // bottom border spanning all columns
                 var bl = new Border { BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 0, 0, hdr ? 0.8 : 0.4) };
-                Grid.SetColumnSpan(bl, 8); g.Children.Add(bl);
-                // cells
-                var texts = new[] { c0, c1, c2, c3, c4, c5, c6, c7 };
+                Grid.SetColumnSpan(bl, 9); g.Children.Add(bl);
+                var texts = new[] { c0, c1, c2, c3, c4, c5, c6, c7, c8 };
                 var aligns = new[] { TextAlignment.Center, TextAlignment.Left, TextAlignment.Center, TextAlignment.Center,
-                                     TextAlignment.Center, TextAlignment.Center, TextAlignment.Right, TextAlignment.Right };
-                for (int i = 0; i < 8; i++)
+                                     TextAlignment.Center, TextAlignment.Center, TextAlignment.Center,
+                                     TextAlignment.Right, TextAlignment.Right };
+                for (int i = 0; i < 9; i++)
                 {
                     var tb = new TextBlock
                     {
                         Text = texts[i], FontFamily = F,
-                        FontSize = hdr ? 10 : 9,
+                        FontSize = hdr ? 11 : 10,
                         FontWeight = hdr ? FontWeights.Bold : FontWeights.Normal,
                         TextAlignment = aligns[i],
                         Padding = new Thickness(3, 2, 3, 2),
@@ -824,7 +826,7 @@ namespace POSApp.UI.ViewModels
 
             // ── HEADER ────────────────────────────────────────────────────
             var hdrSP = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 4) };
-            hdrSP.Children.Add(MkTB("Invoice", 9.5, false, TextAlignment.Center, 2));
+            hdrSP.Children.Add(MkTB("Invoice", 10.5, false, TextAlignment.Center, 2));
             hdrSP.Children.Add(new TextBlock
             {
                 Text = "Master Pharmaceuticals Distributor",
@@ -832,9 +834,9 @@ namespace POSApp.UI.ViewModels
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 3)
             });
-            hdrSP.Children.Add(MkTB("Office #410, 4th Floor Kohistan Tower", 9.5, false, TextAlignment.Center));
-            hdrSP.Children.Add(MkTB("Saddar, Rawalpindi", 9.5, false, TextAlignment.Center, 2));
-            hdrSP.Children.Add(MkTB("NTN#G985456   DSL # 374-89100937-2025", 9, false, TextAlignment.Center));
+            hdrSP.Children.Add(MkTB("Office #410, 4th Floor Kohistan Tower", 10.5, false, TextAlignment.Center));
+            hdrSP.Children.Add(MkTB("Saddar, Rawalpindi", 10.5, false, TextAlignment.Center, 2));
+            hdrSP.Children.Add(MkTB("NTN#G985456   DSL # 374-89100937-2025", 10, false, TextAlignment.Center));
             content.Children.Add(hdrSP);
 
             content.Children.Add(HLine(0.7, 0, 0));
@@ -843,7 +845,7 @@ namespace POSApp.UI.ViewModels
             if (ph != null)
             {
                 var phSP = new StackPanel { Margin = new Thickness(0, 4, 0, 2) };
-                var phTB = new TextBlock { FontFamily = F, FontSize = 9.5, TextWrapping = TextWrapping.Wrap };
+                var phTB = new TextBlock { FontFamily = F, FontSize = 10.5, TextWrapping = TextWrapping.Wrap };
                 if (!string.IsNullOrWhiteSpace(ph.Area))
                     phTB.Inlines.Add(new System.Windows.Documents.Run($"Alias: {ph.Area}    "));
                 phTB.Inlines.Add(new System.Windows.Documents.Run("M/s: "));
@@ -855,7 +857,7 @@ namespace POSApp.UI.ViewModels
                 var licParts = new List<string>();
                 if (!string.IsNullOrWhiteSpace(ph.LicenseNo)) licParts.Add($"LICENSE NO  {ph.LicenseNo}");
                 if (!string.IsNullOrWhiteSpace(ph.Ntn)) licParts.Add($"NTN NO #{ph.Ntn}");
-                if (licParts.Any()) phSP.Children.Add(MkTB(string.Join("        ", licParts), 9));
+                if (licParts.Any()) phSP.Children.Add(MkTB(string.Join("        ", licParts), 10));
 
                 content.Children.Add(phSP);
             }
@@ -880,8 +882,8 @@ namespace POSApp.UI.ViewModels
             metaG.Children.Add(leftMeta);
 
             var rightMeta = new StackPanel { HorizontalAlignment = HorizontalAlignment.Right };
-            rightMeta.Children.Add(MkTB($"NTN:   {ph?.Ntn ?? ""}", 9.5, false, TextAlignment.Right, 2));
-            rightMeta.Children.Add(MkTB($"Sales Person:   {userName}", 9.5, false, TextAlignment.Right, 2));
+            rightMeta.Children.Add(MkTB($"NTN:   {ph?.Ntn ?? ""}", 10.5, false, TextAlignment.Right, 2));
+            rightMeta.Children.Add(MkTB($"Sales Person:   {userName}", 10.5, false, TextAlignment.Right, 2));
             Grid.SetColumn(rightMeta, 1);
             metaG.Children.Add(rightMeta);
             content.Children.Add(metaG);
@@ -890,7 +892,7 @@ namespace POSApp.UI.ViewModels
 
             // ── ITEMS TABLE (StackPanel of per-row Grids) ─────────────────
             var tblSP = new StackPanel { Width = cW };
-            tblSP.Children.Add(TblRow(true, "Sr.#", "Item Name", "Qty", "Bon.", "Batch", "Expiry", "Sale Price", "Total"));
+            tblSP.Children.Add(TblRow(true, "Sr.#", "Item Name", "Qty", "Bon.", "Disc%", "Batch", "Expiry", "Sale Price", "Total"));
 
             int sr = 1, totalQty = 0, totalBonus = 0;
             foreach (var item in SaleItems)
@@ -902,31 +904,33 @@ namespace POSApp.UI.ViewModels
                     item.ProductName,
                     item.Quantity.ToString(),
                     item.Bonus > 0 ? item.Bonus.ToString() : "",
+                    item.DiscountPercent > 0 ? item.DiscountPercent.ToString("N1") + "%" : "",
                     item.BatchNo ?? "",
                     item.ExpiryDate?.ToString("MM/yy") ?? "",
                     item.UnitPrice.ToString("N2"),
                     item.Total.ToString("N2")));
             }
 
-            // Gross total summary row
+            // Gross total summary row — mirrors the 9-column layout
             var grossG = new Grid { Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)) };
-            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
+            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[0]) });
             grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
-            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
-            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(65) });
-            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(54) });
-            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
-            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
+            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[2]) });
+            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[3]) });
+            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[4]) });
+            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[5]) });
+            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[6]) });
+            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[7]) });
+            grossG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(cws[8]) });
             var grossLine = new Border { BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 0, 0, 0.6) };
-            Grid.SetColumnSpan(grossLine, 8); grossG.Children.Add(grossLine);
-            var grossLbl = new TextBlock { Text = "Gross Total:", FontFamily = F, FontSize = 9, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Right, Padding = new Thickness(3, 2, 4, 2) };
+            Grid.SetColumnSpan(grossLine, 9); grossG.Children.Add(grossLine);
+            var grossLbl = new TextBlock { Text = "Gross Total:", FontFamily = F, FontSize = 10, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Right, Padding = new Thickness(3, 2, 4, 2) };
             Grid.SetColumn(grossLbl, 1); grossG.Children.Add(grossLbl);
-            var grossQtyTB = new TextBlock { Text = totalQty.ToString(), FontFamily = F, FontSize = 9, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Padding = new Thickness(3, 2, 3, 2) };
+            var grossQtyTB = new TextBlock { Text = totalQty.ToString(), FontFamily = F, FontSize = 10, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Padding = new Thickness(3, 2, 3, 2) };
             Grid.SetColumn(grossQtyTB, 2); grossG.Children.Add(grossQtyTB);
             if (totalBonus > 0)
             {
-                var grossBonTB = new TextBlock { Text = totalBonus.ToString(), FontFamily = F, FontSize = 9, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Padding = new Thickness(3, 2, 3, 2) };
+                var grossBonTB = new TextBlock { Text = totalBonus.ToString(), FontFamily = F, FontSize = 10, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Padding = new Thickness(3, 2, 3, 2) };
                 Grid.SetColumn(grossBonTB, 3); grossG.Children.Add(grossBonTB);
             }
             tblSP.Children.Add(grossG);
@@ -964,12 +968,35 @@ namespace POSApp.UI.ViewModels
             content.Children.Add(netG);
 
             content.Children.Add(HLine(0.4, 0, 3));
-            content.Children.Add(MkTB($"Total Items: {SaleItems.Count}    |    {AmountInWords((long)Math.Round(TotalBill))} RUPEES ONLY", 9.5, true, TextAlignment.Left));
+            content.Children.Add(MkTB($"Total Items: {SaleItems.Count}    |    {AmountInWords((long)Math.Round(TotalBill))} RUPEES ONLY", 10.5, true, TextAlignment.Left));
 
             // ── FOOTER (pinned to absolute bottom via * spacer row) ───────
             var footer = new StackPanel { Width = cW, Margin = new Thickness(mH, 0, mH, mBot) };
             Grid.SetRow(footer, 2);
             root.Children.Add(footer);
+
+            // ── STAMP AREA (above warranty) ───────────────────────────────
+            var stampGrid = new Grid { Margin = new Thickness(0, 0, 0, 4) };
+            stampGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            stampGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
+            var stampSP = new StackPanel { HorizontalAlignment = HorizontalAlignment.Stretch };
+            stampSP.Children.Add(new Border { Height = 36 }); // blank space for stamp impression
+            stampSP.Children.Add(new Border
+            {
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(0, 1, 0, 0),
+                Margin = new Thickness(0, 0, 0, 4)
+            });
+            stampSP.Children.Add(new TextBlock
+            {
+                Text = "Master Pharmaceutical Distributor",
+                FontFamily = F, FontSize = 10, FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            });
+            Grid.SetColumn(stampSP, 1);
+            stampGrid.Children.Add(stampSP);
+            footer.Children.Add(stampGrid);
 
             footer.Children.Add(HLine(0.6, 0, 5));
             footer.Children.Add(MkTB("Warranty under section 23(1)(i) of the Drug Act 1976.", 7.5, true, TextAlignment.Left, 2));

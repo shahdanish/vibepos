@@ -4,7 +4,8 @@
       "PowerShell(Get-Process -Name POSApp.UI -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Force)",
       "PowerShell(Start-Process $exe)",
-      "PowerShell($exe = \"c:\\\\PROJECTS\\\\POSApp\\\\POSApp.UI\\\\bin\\\\Release\\\\net10.0-windows\\\\win-x64\\\\POSApp.UI.exe\")"
+      "PowerShell($exe = \"c:\\\\PROJECTS\\\\POSApp\\\\POSApp.UI\\\\bin\\\\Release\\\\net10.0-windows\\\\win-x64\\\\POSApp.UI.exe\")",
+      "Bash(dotnet clean *)"
     ]
   }
 }
