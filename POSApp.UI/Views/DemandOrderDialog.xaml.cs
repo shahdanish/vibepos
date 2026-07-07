@@ -15,6 +15,11 @@ namespace POSApp.UI.Views
         {
             InitializeComponent();
             _items = items;
+
+            // Assign display serial numbers (1..n) for the grid.
+            for (int n = 0; n < _items.Count; n++)
+                _items[n].SerialNo = n + 1;
+
             ItemsGrid.ItemsSource = _items;
             TodayDateRun.Text = DateTime.Now.ToString("dd-MMM-yyyy");
             UpdateTotalBill();
@@ -100,12 +105,16 @@ namespace POSApp.UI.Views
                 Margin = new Thickness(0, 0, 0, 6)
             });
 
-            // Items table — columns: S.N.O | Product | QTY | Rs
+            // Print ONLY checked rows. The Price column is printed BLANK for the
+            // recipient (supplier) to fill in manually. The checkbox column is not printed.
+            var printItems = _items.Where(x => x.IsSelected).ToList();
+
+            // Items table — columns: S.No | Item | Qty | Price (Price left blank).
             var table = new Table { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
-            table.Columns.Add(new TableColumn { Width = new GridLength(0.6, GridUnitType.Star) });  // S.N.O
-            table.Columns.Add(new TableColumn { Width = new GridLength(3.0, GridUnitType.Star) });  // Product
-            table.Columns.Add(new TableColumn { Width = new GridLength(0.9, GridUnitType.Star) });  // QTY
-            table.Columns.Add(new TableColumn { Width = new GridLength(1.2, GridUnitType.Star) });  // Rs
+            table.Columns.Add(new TableColumn { Width = new GridLength(0.6, GridUnitType.Star) });  // S.No
+            table.Columns.Add(new TableColumn { Width = new GridLength(3.0, GridUnitType.Star) });  // Item
+            table.Columns.Add(new TableColumn { Width = new GridLength(0.9, GridUnitType.Star) });  // Qty
+            table.Columns.Add(new TableColumn { Width = new GridLength(1.3, GridUnitType.Star) });  // Price (blank)
 
             var group = new TableRowGroup();
 
@@ -118,34 +127,25 @@ namespace POSApp.UI.Views
             }
 
             var headerRow = new TableRow { Background = Brushes.LightGray };
-            headerRow.Cells.Add(Cell("S.N.O",   TextAlignment.Center, isHeader: true));
-            headerRow.Cells.Add(Cell("Product", TextAlignment.Left,   isHeader: true));
-            headerRow.Cells.Add(Cell("QTY",     TextAlignment.Center, isHeader: true));
-            headerRow.Cells.Add(Cell("Rs",      TextAlignment.Right,  isHeader: true));
+            headerRow.Cells.Add(Cell("S.No",  TextAlignment.Center, isHeader: true));
+            headerRow.Cells.Add(Cell("Item",  TextAlignment.Left,   isHeader: true));
+            headerRow.Cells.Add(Cell("Qty",   TextAlignment.Center, isHeader: true));
+            headerRow.Cells.Add(Cell("Price", TextAlignment.Right,  isHeader: true));
             group.Rows.Add(headerRow);
 
             int i = 1;
-            foreach (var item in _items)
+            foreach (var item in printItems)
             {
                 var row = new TableRow();
                 row.Cells.Add(Cell(i++.ToString(), TextAlignment.Center));
                 row.Cells.Add(Cell(item.ProductName, TextAlignment.Left));
                 row.Cells.Add(Cell(item.OrderQuantity.ToString(), TextAlignment.Center, bold: true));
-                row.Cells.Add(Cell($"{item.LineTotal:N2}", TextAlignment.Right));
+                row.Cells.Add(Cell(string.Empty, TextAlignment.Right)); // Price left blank — filled by hand
                 group.Rows.Add(row);
             }
 
             table.RowGroups.Add(group);
             doc.Blocks.Add(table);
-
-            // Total Bill line
-            decimal totalBill = _items.Sum(x => x.LineTotal);
-            doc.Blocks.Add(new Paragraph(new Bold(new Run($"Total Bill:   Rs. {totalBill:N2}")))
-            {
-                TextAlignment = TextAlignment.Right,
-                FontSize = 14,
-                Margin = new Thickness(0, 6, 0, 0)
-            });
 
             // Footer
             doc.Blocks.Add(new Paragraph(new Run("─────────────────────────────────")) { Margin = new Thickness(0, 4, 0, 4) });

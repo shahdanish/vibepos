@@ -151,7 +151,7 @@ namespace POSApp.UI.ViewModels
     public sealed class TopSellingItem
     {
         public string ProductName { get; set; } = string.Empty;
-        public int TotalQuantity { get; set; }
+        public decimal TotalQuantity { get; set; }
         public decimal TotalRevenue { get; set; }
     }
 
@@ -169,6 +169,18 @@ namespace POSApp.UI.ViewModels
     {
         private int _orderQuantity;
         private decimal _costPrice;
+        private bool _isSelected = true;
+
+        /// <summary>Serial number shown in the grid/print (assigned by the dialog).</summary>
+        public int SerialNo { get; set; }
+
+        /// <summary>Row checkbox — only checked rows are printed. Defaults to checked.</summary>
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+
         public string ProductName { get; set; } = string.Empty;
         public string Barcode { get; set; } = string.Empty;
         public int CurrentStock { get; set; }

@@ -6,7 +6,7 @@ namespace POSApp.Core.Entities
         public int SaleId { get; set; }
         public string ProductId { get; set; } = string.Empty;
         public string ProductName { get; set; } = string.Empty;
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public int Bonus { get; set; }
         public decimal CostPrice { get; set; } // Cost price for profit calculation
         public decimal UnitPrice { get; set; } // Selling price

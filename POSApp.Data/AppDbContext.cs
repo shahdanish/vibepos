@@ -96,6 +96,10 @@ namespace POSApp.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<SaleItem>()
+                .Property(si => si.Quantity)
+                .HasPrecision(18, 3);
+
+            modelBuilder.Entity<SaleItem>()
                 .Property(si => si.CostPrice)
                 .HasPrecision(18, 2);
 

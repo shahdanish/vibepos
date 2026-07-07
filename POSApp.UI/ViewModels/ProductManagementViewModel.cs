@@ -27,6 +27,9 @@ namespace POSApp.UI.ViewModels
         private DateTime? _expiryDate;
         private Category? _selectedCategory;
         private bool _showDeletedProducts = false;
+        private string _searchText = string.Empty;
+
+        private readonly List<Product> _allProducts = new();
 
         public ObservableCollection<Product> Products { get; } = new();
         public ObservableCollection<Category> Categories { get; } = new();
@@ -141,6 +144,20 @@ namespace POSApp.UI.ViewModels
             }
         }
 
+        /// <summary>
+        /// Free-text search across every column shown in the product list
+        /// (barcode, name, category, prices, stock, rack, batch, expiry).
+        /// </summary>
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                    ApplyFilter();
+            }
+        }
+
         public ICommand AddCommand { get; }
         public ICommand UpdateCommand { get; }
         public ICommand DeleteCommand { get; }
@@ -190,11 +207,9 @@ namespace POSApp.UI.ViewModels
                 products = await _productRepository.GetAllAsync();
             }
 
-            Products.Clear();
-            foreach (var product in products)
-            {
-                Products.Add(product);
-            }
+            _allProducts.Clear();
+            _allProducts.AddRange(products);
+            ApplyFilter();
 
             var categories = await _categoryRepository.GetAllAsync();
             Categories.Clear();
@@ -202,6 +217,41 @@ namespace POSApp.UI.ViewModels
             {
                 Categories.Add(category);
             }
+        }
+
+        private void ApplyFilter()
+        {
+            IEnumerable<Product> filtered = _allProducts;
+
+            var term = _searchText?.Trim();
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                filtered = _allProducts.Where(p => ProductMatches(p, term));
+            }
+
+            Products.Clear();
+            foreach (var product in filtered)
+                Products.Add(product);
+        }
+
+        /// <summary>
+        /// Matches the search term against every field displayed in the product list.
+        /// </summary>
+        private static bool ProductMatches(Product p, string term)
+        {
+            bool Contains(string? value) =>
+                value != null && value.Contains(term, StringComparison.OrdinalIgnoreCase);
+
+            return Contains(p.Barcode)
+                || Contains(p.ProductName)
+                || Contains(p.Category?.Name)
+                || Contains(p.Rack)
+                || Contains(p.BatchNo)
+                || Contains(p.CostPrice.ToString("0.##"))
+                || Contains(p.UnitPrice.ToString("0.##"))
+                || Contains(p.WholesalePrice.ToString("0.##"))
+                || Contains(p.Stock.ToString())
+                || Contains(p.ExpiryDate?.ToString("MM/yyyy"));
         }
 
         private void LoadProductDetails(Product product)

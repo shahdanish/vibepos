@@ -26,7 +26,7 @@ namespace POSApp.Core.Interfaces
     public sealed class SalesByCategoryDto
     {
         public string CategoryName { get; set; } = string.Empty;
-        public int TotalQuantity { get; set; }
+        public decimal TotalQuantity { get; set; }
         public decimal TotalSales { get; set; }
         public decimal TotalProfit { get; set; }
     }
@@ -35,7 +35,7 @@ namespace POSApp.Core.Interfaces
     {
         public string ProductId { get; set; } = string.Empty;
         public string ProductName { get; set; } = string.Empty;
-        public int TotalQuantity { get; set; }
+        public decimal TotalQuantity { get; set; }
         public decimal TotalSales { get; set; }
         public decimal TotalProfit { get; set; }
     }

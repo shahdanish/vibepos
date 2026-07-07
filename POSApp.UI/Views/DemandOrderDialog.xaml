@@ -40,27 +40,23 @@
                           AlternatingRowBackground="#FFFDF5"
                           CellEditEnding="ItemsGrid_CellEditEnding">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" IsReadOnly="True" Width="*"/>
-                        <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" IsReadOnly="True" Width="120"/>
-                        <DataGridTextColumn Header="Current Stock" Binding="{Binding CurrentStock}" IsReadOnly="True" Width="100"
+                        <DataGridCheckBoxColumn Header="✓" Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                Width="40"/>
+                        <DataGridTextColumn Header="Serial No" Binding="{Binding SerialNo}" IsReadOnly="True" Width="80"
                                             ElementStyle="{StaticResource CenterAlignStyle}"/>
-                        <DataGridTextColumn Header="Min Threshold" Binding="{Binding MinThreshold}" IsReadOnly="True" Width="100"
-                                            ElementStyle="{StaticResource CenterAlignStyle}"/>
-                        <DataGridTextColumn Header="Order Qty" Width="90"
+                        <DataGridTextColumn Header="Item" Binding="{Binding ProductName}" IsReadOnly="True" Width="*"/>
+                        <DataGridTextColumn Header="Quantity" Width="100"
                                             ElementStyle="{StaticResource CenterAlignStyle}">
                             <DataGridTextColumn.Binding>
                                 <Binding Path="OrderQuantity" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="Cost Price (Rs)" Width="110"
+                        <DataGridTextColumn Header="Price" Width="120"
                                             ElementStyle="{StaticResource RightAlignStyle}">
                             <DataGridTextColumn.Binding>
                                 <Binding Path="CostPrice" Mode="TwoWay" StringFormat="N2" UpdateSourceTrigger="PropertyChanged"/>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="Amount (Rs)" Binding="{Binding LineTotal, StringFormat=N2}"
-                                            IsReadOnly="True" Width="110"
-                                            ElementStyle="{StaticResource RightAlignStyle}"/>
                     </DataGrid.Columns>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">

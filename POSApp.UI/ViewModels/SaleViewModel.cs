@@ -36,7 +36,7 @@ namespace POSApp.UI.ViewModels
         private string _productSearchText = string.Empty;
         private string _barcodeInput = string.Empty;
         private Product? _selectedProduct;
-        private int _quantity = 1;
+        private decimal _quantity = 1;
         private decimal _unitPrice;
         private decimal _discountPercent;
         private bool _showPurchasePrice = true;
@@ -203,7 +203,7 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        public int Quantity
+        public decimal Quantity
         {
             get => _quantity;
             set => SetProperty(ref _quantity, value);
@@ -246,12 +246,15 @@ namespace POSApp.UI.ViewModels
         }
 
         /// <summary>
-        /// Product selection always auto-adds to the cart. The toggle is hidden in the UI
-        /// and this is hard-wired to true so both Sale and Wholesale behave consistently.
+        /// Whether picking a product from the dropdown auto-adds it to the cart on the
+        /// SelectedProduct change alone. On the NORMAL Sale screen this is <c>false</c>:
+        /// manual typing must NOT auto-commit the first TextSearch match — the item is
+        /// only added on an EXPLICIT selection (Enter or click), handled in the view.
+        /// WholeSaleViewModel overrides this to <c>true</c> to keep its existing behaviour.
         /// </summary>
-        public bool AutoAddItem
+        public virtual bool AutoAddItem
         {
-            get => true;
+            get => false;
             set { }
         }
 
@@ -606,7 +609,7 @@ namespace POSApp.UI.ViewModels
                     var product = Products.FirstOrDefault(p => p.ProductId == item.ProductId);
                     if (product != null)
                     {
-                        product.Stock = Math.Max(0, product.Stock - item.Quantity);
+                        product.Stock = Math.Max(0, product.Stock - (int)Math.Ceiling(item.Quantity));
                         await _productRepository.UpdateAsync(product);
                     }
                 }
@@ -760,6 +763,12 @@ namespace POSApp.UI.ViewModels
 
         protected virtual bool ShowCostPriceOnReceipt => false;
 
+        /// <summary>Whether the per-item Discount column is printed on the invoice.</summary>
+        protected virtual bool ShowDiscountOnReceipt => true;
+
+        /// <summary>Whether the Date is printed in the invoice metadata block.</summary>
+        protected virtual bool ShowDateOnReceipt => true;
+
         private FlowDocument CreateProfessionalInvoice()
         {
             FlowDocument doc = new FlowDocument();
@@ -808,10 +817,17 @@ namespace POSApp.UI.ViewModels
                 return cell;
             }
 
-            // Row 1: Bill No & Date (with time)
+            // Row 1: Bill No & Date (with time). Date is omitted on formats that hide it.
             TableRow row1 = new TableRow();
-            row1.Cells.Add(MetaCell($"Bill No: {InvoiceNumber}"));
-            row1.Cells.Add(MetaCell($"Date: {SaleDate:dd-MMM-yyyy hh:mm tt}"));
+            if (ShowDateOnReceipt)
+            {
+                row1.Cells.Add(MetaCell($"Bill No: {InvoiceNumber}"));
+                row1.Cells.Add(MetaCell($"Date: {SaleDate:dd-MMM-yyyy hh:mm tt}"));
+            }
+            else
+            {
+                row1.Cells.Add(MetaCell($"Bill No: {InvoiceNumber}", columnSpan: 2));
+            }
             metaGroup.Rows.Add(row1);
 
             // Row 2: Customer
@@ -856,7 +872,8 @@ namespace POSApp.UI.ViewModels
                 if (ShowCostPriceOnReceipt)
                     itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.8, GridUnitType.Star) }); // Cost
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.8, GridUnitType.Star) }); // Price
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.6, GridUnitType.Star) }); // Disc
+                if (ShowDiscountOnReceipt)
+                    itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.6, GridUnitType.Star) }); // Disc
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1.0, GridUnitType.Star) }); // Total
             }
             else
@@ -867,7 +884,8 @@ namespace POSApp.UI.ViewModels
                 if (ShowCostPriceOnReceipt)
                     itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Cost
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Price
-                itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.8, GridUnitType.Star) }); // Disc
+                if (ShowDiscountOnReceipt)
+                    itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(0.8, GridUnitType.Star) }); // Disc
                 itemsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) }); // Total
             }
 
@@ -892,7 +910,8 @@ namespace POSApp.UI.ViewModels
             if (ShowCostPriceOnReceipt)
                 headerRow.Cells.Add(ItemCell("Cost", TextAlignment.Right));
             headerRow.Cells.Add(ItemCell("Price", TextAlignment.Right));
-            headerRow.Cells.Add(ItemCell("Disc", TextAlignment.Right));
+            if (ShowDiscountOnReceipt)
+                headerRow.Cells.Add(ItemCell("Disc", TextAlignment.Right));
             headerRow.Cells.Add(ItemCell("Total", TextAlignment.Center));
             itemsGroup.Rows.Add(headerRow);
 
@@ -907,7 +926,8 @@ namespace POSApp.UI.ViewModels
                 if (ShowCostPriceOnReceipt)
                     row.Cells.Add(ItemCell(item.CostPrice.ToString("N0"), TextAlignment.Right));
                 row.Cells.Add(ItemCell(item.UnitPrice.ToString("N0"), TextAlignment.Right));
-                row.Cells.Add(ItemCell(item.EffectiveDiscountAmount > 0 ? item.EffectiveDiscountAmount.ToString("N0") : "", TextAlignment.Right));
+                if (ShowDiscountOnReceipt)
+                    row.Cells.Add(ItemCell(item.EffectiveDiscountAmount > 0 ? item.EffectiveDiscountAmount.ToString("N0") : "", TextAlignment.Right));
                 row.Cells.Add(ItemCell(item.Total.ToString("N2"), TextAlignment.Right));
                 itemsGroup.Rows.Add(row);
             }
@@ -979,7 +999,7 @@ namespace POSApp.UI.ViewModels
     {
         private string _productId = string.Empty;
         private string _productName = string.Empty;
-        private int _quantity;
+        private decimal _quantity;
         private int _bonus;
         private decimal _costPrice;
         private decimal _unitPrice;
@@ -1001,13 +1021,16 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _productName, value);
         }
 
-        public int Quantity
+        public decimal Quantity
         {
             get => _quantity;
             set
             {
                 if (SetProperty(ref _quantity, value))
+                {
                     CalculateTotal();
+                    OnPropertyChanged(nameof(RevenueCost));
+                }
             }
         }
 
@@ -1020,8 +1043,15 @@ namespace POSApp.UI.ViewModels
         public decimal CostPrice
         {
             get => _costPrice;
-            set => SetProperty(ref _costPrice, value);
+            set
+            {
+                if (SetProperty(ref _costPrice, value))
+                    OnPropertyChanged(nameof(RevenueCost));
+            }
         }
+
+        /// <summary>Total cost basis for this line (cost price × quantity) — shown on the wholesale receipt.</summary>
+        public decimal RevenueCost => CostPrice * Quantity;
 
         public decimal UnitPrice
         {

@@ -637,7 +637,7 @@ namespace POSApp.UI.ViewModels
                     var product = AllProducts.FirstOrDefault(p => p.ProductId == item.ProductId);
                     if (product != null)
                     {
-                        product.Stock = Math.Max(0, product.Stock - (item.Quantity + item.Bonus));
+                        product.Stock = Math.Max(0, product.Stock - ((int)Math.Ceiling(item.Quantity) + item.Bonus));
                         await _productRepository.UpdateAsync(product);
                     }
                 }
@@ -894,7 +894,8 @@ namespace POSApp.UI.ViewModels
             var tblSP = new StackPanel { Width = cW };
             tblSP.Children.Add(TblRow(true, "Sr.#", "Item Name", "Qty", "Bon.", "Disc%", "Batch", "Expiry", "Sale Price", "Total"));
 
-            int sr = 1, totalQty = 0, totalBonus = 0;
+            int sr = 1, totalBonus = 0;
+            decimal totalQty = 0;
             foreach (var item in SaleItems)
             {
                 totalQty += item.Quantity;
@@ -1142,7 +1143,7 @@ namespace POSApp.UI.ViewModels
             tblGrp.Rows.Add(tblHdr);
 
             int sr = 1;
-            int totalQty = 0;
+            decimal totalQty = 0;
             foreach (var item in SaleItems)
             {
                 totalQty += item.Quantity;

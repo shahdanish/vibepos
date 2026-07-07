@@ -37,7 +37,35 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Products List" Style="{StaticResource SectionTitle}"/>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Products List" Style="{StaticResource SectionTitle}"
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" Width="260" Padding="8,6" Margin="0,0,0,8"
+                                 VerticalAlignment="Center"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=150}"
+                                 ToolTip="Search across all columns — barcode, name, category, prices, stock, rack, batch, expiry">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Style.Resources>
+                                        <VisualBrush x:Key="SearchHint" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                            <VisualBrush.Visual>
+                                                <TextBlock Text="🔍  Search products…" Foreground="Gray" Margin="4,0,0,0"/>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Style.Resources>
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Background" Value="{StaticResource SearchHint}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </Grid>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
@@ -60,9 +88,9 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Category" Binding="{Binding Category.Name}" Width="80"/>
-                            <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, StringFormat=N2}" Width="62"/>
-                            <DataGridTextColumn Header="Retail" Binding="{Binding UnitPrice, StringFormat=N2}" Width="62"/>
-                            <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, StringFormat=N2}" Width="58"/>
+                            <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, StringFormat=0.##}" Width="62"/>
+                            <DataGridTextColumn Header="Retail" Binding="{Binding UnitPrice, StringFormat=0.##}" Width="62"/>
+                            <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, StringFormat=0.##}" Width="58"/>
                             <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="50"/>
                             <DataGridTextColumn Header="Rack" Binding="{Binding Rack}" Width="40"/>
                             <DataGridTextColumn x:Name="BatchColumn" Header="Batch No" Binding="{Binding BatchNo}" Width="68"/>
@@ -125,7 +153,7 @@
                                   DisplayMemberPath="Name" Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Cost Price (Rs)" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding CostPrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                        <TextBox Text="{Binding CostPrice, UpdateSourceTrigger=LostFocus, TargetNullValue='', StringFormat=0.##}"
                                  Padding="8" Margin="0,0,0,10"/>
 
                         <Grid Margin="0,0,0,5">
@@ -139,11 +167,11 @@
                                 <TextBlock Text="Auto −15%" FontSize="9" FontWeight="Bold" Foreground="White"/>
                             </Border>
                         </Grid>
-                        <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                        <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=LostFocus, TargetNullValue='', StringFormat=0.##}"
                                  Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Wholesale Price (Rs)" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding WholesalePrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                        <TextBox Text="{Binding WholesalePrice, UpdateSourceTrigger=LostFocus, TargetNullValue='', StringFormat=0.##}"
                                  Padding="8" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Stock Quantity" FontWeight="SemiBold" Margin="0,0,0,5"/>

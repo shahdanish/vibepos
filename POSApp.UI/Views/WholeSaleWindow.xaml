@@ -165,8 +165,11 @@
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
                             <DataGridTextColumn Header="Qty" Width="65" ElementStyle="{StaticResource CenterAlignStyle}">
+                                <!-- LostFocus (not PropertyChanged) so decimal quantities like
+                                     1.5 / 2.5 / 1.3 can be typed: PropertyChanged reparses each
+                                     keystroke and strips the trailing '.' before the fraction. -->
                                 <DataGridTextColumn.Binding>
-                                    <Binding Path="Quantity" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                                    <Binding Path="Quantity" Mode="TwoWay" UpdateSourceTrigger="LostFocus"/>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>
                             <DataGridTemplateColumn Header="Discount" Width="140" SortMemberPath="DiscountPercent">
