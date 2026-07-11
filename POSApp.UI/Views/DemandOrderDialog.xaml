@@ -38,20 +38,21 @@
                           CanUserAddRows="False" CanUserDeleteRows="False"
                           HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                           AlternatingRowBackground="#FFFDF5"
+                          RowHeight="38" ColumnHeaderHeight="36" FontSize="14"
                           CellEditEnding="ItemsGrid_CellEditEnding">
                     <DataGrid.Columns>
                         <DataGridCheckBoxColumn Header="✓" Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Width="40"/>
-                        <DataGridTextColumn Header="Serial No" Binding="{Binding SerialNo}" IsReadOnly="True" Width="80"
+                        <DataGridTextColumn Header="Serial No" Binding="{Binding SerialNo}" IsReadOnly="True" Width="70"
                                             ElementStyle="{StaticResource CenterAlignStyle}"/>
                         <DataGridTextColumn Header="Item" Binding="{Binding ProductName}" IsReadOnly="True" Width="*"/>
-                        <DataGridTextColumn Header="Quantity" Width="100"
+                        <DataGridTextColumn Header="Quantity" Width="90"
                                             ElementStyle="{StaticResource CenterAlignStyle}">
                             <DataGridTextColumn.Binding>
                                 <Binding Path="OrderQuantity" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
                             </DataGridTextColumn.Binding>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="Price" Width="120"
+                        <DataGridTextColumn Header="Price" Width="160"
                                             ElementStyle="{StaticResource RightAlignStyle}">
                             <DataGridTextColumn.Binding>
                                 <Binding Path="CostPrice" Mode="TwoWay" StringFormat="N2" UpdateSourceTrigger="PropertyChanged"/>

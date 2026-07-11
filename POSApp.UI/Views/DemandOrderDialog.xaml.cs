@@ -118,11 +118,13 @@ namespace POSApp.UI.Views
 
             var group = new TableRowGroup();
 
-            TableCell Cell(string text, TextAlignment align, bool bold = false, bool isHeader = false)
+            // vPad controls the row height. Body rows use a taller pad so the blank
+            // Price cell has enough vertical room for the supplier to write prices by hand.
+            TableCell Cell(string text, TextAlignment align, bool bold = false, bool isHeader = false, double vPad = 2)
             {
                 var para = new Paragraph(new Run(text)) { TextAlignment = align, Margin = new Thickness(0) };
                 if (bold || isHeader) para.FontWeight = FontWeights.Bold;
-                var cell = new TableCell(para) { Padding = new Thickness(3, 2, 3, 2), BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black };
+                var cell = new TableCell(para) { Padding = new Thickness(3, vPad, 3, vPad), BorderThickness = new Thickness(0.5), BorderBrush = Brushes.Black };
                 return cell;
             }
 
@@ -137,10 +139,10 @@ namespace POSApp.UI.Views
             foreach (var item in printItems)
             {
                 var row = new TableRow();
-                row.Cells.Add(Cell(i++.ToString(), TextAlignment.Center));
-                row.Cells.Add(Cell(item.ProductName, TextAlignment.Left));
-                row.Cells.Add(Cell(item.OrderQuantity.ToString(), TextAlignment.Center, bold: true));
-                row.Cells.Add(Cell(string.Empty, TextAlignment.Right)); // Price left blank — filled by hand
+                row.Cells.Add(Cell(i++.ToString(), TextAlignment.Center, vPad: 12));
+                row.Cells.Add(Cell(item.ProductName, TextAlignment.Left, vPad: 12));
+                row.Cells.Add(Cell(item.OrderQuantity.ToString(), TextAlignment.Center, bold: true, vPad: 12));
+                row.Cells.Add(Cell(string.Empty, TextAlignment.Right, vPad: 12)); // Price left blank — filled by hand
                 group.Rows.Add(row);
             }
 

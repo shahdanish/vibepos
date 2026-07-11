@@ -155,7 +155,7 @@ namespace POSApp.UI.ViewModels
                 {
                     ProductId = item.ProductId,
                     ProductName = item.ProductName,
-                    OriginalQuantity = item.Quantity,
+                    OriginalQuantity = (int)item.Quantity,
                     ReturnQuantity = 0,
                     UnitCost = item.UnitCost,
                     Total = 0

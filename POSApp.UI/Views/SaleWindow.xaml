@@ -157,8 +157,12 @@
                     <DataGrid Grid.Row="1" ItemsSource="{Binding SaleItems}" AutoGenerateColumns="False"
                               CanUserAddRows="False" AlternatingRowBackground="#F9F9F9"
                               HeadersVisibility="All" GridLinesVisibility="Horizontal" BorderThickness="0"
+                              AlternationCount="99999"
                               HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
+                            <DataGridTextColumn Header="Sr#" IsReadOnly="True" Width="45"
+                                                Binding="{Binding (ItemsControl.AlternationIndex), RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}, Converter={StaticResource RowIndexConverter}}"
+                                                ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" IsReadOnly="True" Width="110"/>
                             <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" IsReadOnly="True" Width="*"/>
                             <DataGridTextColumn Header="Unit Price" Width="95" ElementStyle="{StaticResource RightAlignStyle}">

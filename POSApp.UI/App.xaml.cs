@@ -48,6 +48,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<IMedicalRepRepository, MedicalRepRepository>();
+        services.AddScoped<ICallScheduleRepository, CallScheduleRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -77,6 +79,8 @@ public partial class App : System.Windows.Application
         services.AddTransient<PharmacyFormViewModel>();
         services.AddTransient<DoctorManagementViewModel>();
         services.AddTransient<DoctorFormViewModel>();
+        services.AddTransient<CallScheduleViewModel>();
+        services.AddTransient<MedicalRepFormViewModel>();
         services.AddTransient<EmployeeManagementViewModel>();
         services.AddTransient<EmployeeFormViewModel>();
         services.AddTransient<SalarySlipViewModel>();
@@ -105,6 +109,8 @@ public partial class App : System.Windows.Application
         services.AddTransient<PharmacyFormDialog>();
         services.AddTransient<DoctorManagementWindow>();
         services.AddTransient<DoctorFormDialog>();
+        services.AddTransient<CallScheduleWindow>();
+        services.AddTransient<MedicalRepFormDialog>();
         services.AddTransient<PharmacySaleViewModel>();
         services.AddTransient<PharmacySaleWindow>();
         services.AddTransient<EmployeeManagementWindow>();
@@ -118,6 +124,9 @@ public partial class App : System.Windows.Application
         services.AddTransient<UserFormDialog>();
         services.AddTransient<RoleManagementWindow>();
         services.AddTransient<RoleFormDialog>();
+
+        // Current-user context (backs service/data-layer permission enforcement)
+        services.AddSingleton<ICurrentUserContext, POSApp.UI.Helpers.CurrentUserContext>();
 
         // Add Sync Services (Firebase background sync)
         services.AddSingleton<ISyncService, FirebaseSyncService>();

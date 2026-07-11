@@ -26,7 +26,7 @@ namespace POSApp.UI.ViewModels
         // Existing product mode
         private Product? _selectedProduct;
         private decimal _unitCost;
-        private int _quantity = 1;
+        private decimal _quantity = 1;
 
         // Mode toggle
         private bool _isNewProductMode = false;
@@ -40,7 +40,7 @@ namespace POSApp.UI.ViewModels
         private decimal _newMinStock = 5;
         private string _newRack = string.Empty;
         private Category? _selectedCategory;
-        private int _newQuantity = 1;
+        private decimal _newQuantity = 1;
 
         public ObservableCollection<PurchaseItemLineViewModel> Items { get; } = new();
         public ObservableCollection<Product> Products { get; } = new();
@@ -113,7 +113,7 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        public int Quantity
+        public decimal Quantity
         {
             get => _quantity;
             set
@@ -209,7 +209,7 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _selectedCategory, value);
         }
 
-        public int NewQuantity
+        public decimal NewQuantity
         {
             get => _newQuantity;
             set => SetProperty(ref _newQuantity, value);
@@ -427,7 +427,9 @@ namespace POSApp.UI.ViewModels
                             CostPrice = item.UnitCost,
                             UnitPrice = item.UnitPrice,
                             WholesalePrice = item.WholesalePrice > 0 ? item.WholesalePrice : item.UnitPrice,
-                            Stock = item.Quantity,
+                            // Product.Stock is a whole-unit count app-wide; round the (possibly
+                            // fractional) purchase quantity when posting it to stock.
+                            Stock = (int)Math.Round(item.Quantity, MidpointRounding.AwayFromZero),
                             MinStockThreshold = item.MinStockThreshold,
                             Rack = item.Rack ?? string.Empty,
                             CategoryId = item.CategoryId,
@@ -445,7 +447,7 @@ namespace POSApp.UI.ViewModels
                             product.CostPrice = oldStock > 0
                                 ? Math.Round(((oldStock * oldCost) + (item.Quantity * item.UnitCost)) / (oldStock + item.Quantity), 2)
                                 : item.UnitCost;
-                            product.Stock += item.Quantity;
+                            product.Stock += (int)Math.Round(item.Quantity, MidpointRounding.AwayFromZero);
                             await _productRepository.UpdateAsync(product);
                         }
                     }
@@ -476,7 +478,7 @@ namespace POSApp.UI.ViewModels
 
     public sealed class PurchaseItemLineViewModel : ViewModelBase
     {
-        private int _quantity;
+        private decimal _quantity;
         private decimal _unitCost;
 
         public string ProductId { get; set; } = string.Empty;
@@ -492,7 +494,7 @@ namespace POSApp.UI.ViewModels
 
         public string TypeBadge => IsNewProduct ? "NEW" : "EXISTING";
 
-        public int Quantity
+        public decimal Quantity
         {
             get => _quantity;
             set

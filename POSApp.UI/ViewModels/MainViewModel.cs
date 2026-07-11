@@ -33,6 +33,10 @@ namespace POSApp.UI.ViewModels
             PermissionManager.CanManageDoctors(SessionManager.CurrentUser)
                 ? Visibility.Visible : Visibility.Collapsed;
 
+        public Visibility CallScheduleButtonVisibility =>
+            SessionManager.HasPermission(Permissions.CallScheduleManage)
+                ? Visibility.Visible : Visibility.Collapsed;
+
         public Visibility UserManagementVisibility =>
             SessionManager.HasPermission(Permissions.UsersManage)
                 ? Visibility.Visible : Visibility.Collapsed;
@@ -59,6 +63,7 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenSupplierManagementCommand { get; }
         public ICommand OpenPharmacyManagementCommand { get; }
         public ICommand OpenDoctorManagementCommand { get; }
+        public ICommand OpenCallScheduleCommand { get; }
         public ICommand OpenPharmacySaleCommand { get; }
         public ICommand OpenBackupRestoreCommand { get; }
         public ICommand OpenEmployeeManagementCommand { get; }
@@ -107,6 +112,7 @@ namespace POSApp.UI.ViewModels
             OpenSupplierManagementCommand = new RelayCommand(_ => OpenSupplierManagement());
             OpenPharmacyManagementCommand = new RelayCommand(_ => OpenPharmacyManagement());
             OpenDoctorManagementCommand = new RelayCommand(_ => OpenDoctorManagement());
+            OpenCallScheduleCommand     = new RelayCommand(_ => OpenCallSchedule());
             OpenPharmacySaleCommand     = new RelayCommand(_ => OpenPharmacySale());
             OpenBackupRestoreCommand    = new RelayCommand(_ => OpenBackupRestore());
             OpenEmployeeManagementCommand = new RelayCommand(_ => OpenEmployeeManagement());
@@ -195,6 +201,13 @@ namespace POSApp.UI.ViewModels
             if (!PermissionManager.CanManageDoctors(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage doctors."); return; }
             App.Services?.GetRequiredService<DoctorManagementWindow>().ShowDialog();
+        }
+
+        private void OpenCallSchedule()
+        {
+            if (!SessionManager.HasPermission(Permissions.CallScheduleManage))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to access call scheduling."); return; }
+            App.Services?.GetRequiredService<CallScheduleWindow>().ShowDialog();
         }
 
         private void OpenPharmacySale()

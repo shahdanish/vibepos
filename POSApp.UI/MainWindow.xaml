@@ -166,6 +166,8 @@
                     <MenuItem Header="💊 Pharmacy Sale" Command="{Binding OpenPharmacySaleCommand}"        Style="{StaticResource DropItemStyle}"/>
                     <MenuItem Header="🏥 Pharmacies"    Command="{Binding OpenPharmacyManagementCommand}" Style="{StaticResource DropItemStyle}"/>
                     <MenuItem Header="⚕ Doctors"        Command="{Binding OpenDoctorManagementCommand}"   Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="🗓 Call Schedule"  Command="{Binding OpenCallScheduleCommand}"       Style="{StaticResource DropItemStyle}"
+                              Visibility="{Binding CallScheduleButtonVisibility}"/>
                 </MenuItem>
 
                 <!-- ── HR — PharmacyUser only -->

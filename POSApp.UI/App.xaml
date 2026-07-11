@@ -290,6 +290,7 @@
             <converters:PurchaseCostEncryptorConverter x:Key="PurchaseCostEncryptor"/>
             <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
             <converters:NullableDecimalConverter x:Key="NullableDecimalConverter"/>
+            <converters:RowIndexConverter x:Key="RowIndexConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

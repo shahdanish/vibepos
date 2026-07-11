@@ -34,6 +34,8 @@ namespace POSApp.Data
         public DbSet<UserFavorite> UserFavorites { get; set; }
         public DbSet<Pharmacy> Pharmacies { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
+        public DbSet<MedicalRep> MedicalReps { get; set; }
+        public DbSet<CallSchedule> CallSchedules { get; set; }
 
         // HR Module
         public DbSet<Employee> Employees { get; set; }
@@ -136,6 +138,30 @@ namespace POSApp.Data
             // Index for fast barcode scanning
             modelBuilder.Entity<Product>()
                 .HasIndex(p => p.Barcode);
+
+            // Configure MedicalRep entity
+            modelBuilder.Entity<MedicalRep>()
+                .HasKey(r => r.Id);
+
+            // Configure CallSchedule entity (Medical Rep -> Doctor call scheduling)
+            modelBuilder.Entity<CallSchedule>()
+                .HasKey(c => c.Id);
+
+            modelBuilder.Entity<CallSchedule>()
+                .HasOne(c => c.Doctor)
+                .WithMany()
+                .HasForeignKey(c => c.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CallSchedule>()
+                .HasOne(c => c.MedicalRep)
+                .WithMany()
+                .HasForeignKey(c => c.MedicalRepId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Index the date for fast month/week range lookups building calendar indicators.
+            modelBuilder.Entity<CallSchedule>()
+                .HasIndex(c => c.ScheduleDate);
 
             // Configure Category entity
             modelBuilder.Entity<Category>()
@@ -320,6 +346,9 @@ namespace POSApp.Data
 
             // Configure PurchaseOrderItem
             modelBuilder.Entity<PurchaseOrderItem>()
+                .Property(p => p.Quantity)
+                .HasPrecision(18, 3);
+            modelBuilder.Entity<PurchaseOrderItem>()
                 .Property(p => p.UnitCost)
                 .HasPrecision(18, 2);
             modelBuilder.Entity<PurchaseOrderItem>()
@@ -464,7 +493,9 @@ namespace POSApp.Data
                 new Permission { Id = 20, Name = "Doctors.Manage",         DisplayName = "Manage Doctors",              Category = "Pharmacy" },
                 // HR (21-22)
                 new Permission { Id = 21, Name = "Employees.Manage",       DisplayName = "Manage Employees",            Category = "HR" },
-                new Permission { Id = 22, Name = "Salary.Manage",          DisplayName = "Manage Salary Slips",         Category = "HR" }
+                new Permission { Id = 22, Name = "Salary.Manage",          DisplayName = "Manage Salary Slips",         Category = "HR" },
+                // Pharmacy — call scheduling (23)
+                new Permission { Id = 23, Name = "CallSchedule.Manage",    DisplayName = "Manage Call Schedule",        Category = "Pharmacy" }
             );
 
             // Seed RolePermissions
@@ -474,8 +505,9 @@ namespace POSApp.Data
             var managerPerms = Enumerable.Range(1, 14).Select(i => new RolePermission { RoleId = 2, PermissionId = i });
             // Cashier (3): 1-5 (sales only)
             var cashierPerms = Enumerable.Range(1, 5).Select(i => new RolePermission { RoleId = 3, PermissionId = i });
-            // PharmacyUser (4): customer ledger, hold sale, reports, products, operations, pharmacy, HR
-            var pharmacyPerms = new[] { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20, 21, 22 }
+            // PharmacyUser (4): customer ledger, hold sale, reports, products, operations, pharmacy, HR,
+            // and call scheduling (23) — CallSchedule.Manage is granted ONLY to this role.
+            var pharmacyPerms = new[] { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20, 21, 22, 23 }
                 .Select(i => new RolePermission { RoleId = 4, PermissionId = i });
 
             modelBuilder.Entity<RolePermission>().HasData(

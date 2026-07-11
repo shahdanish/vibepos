@@ -278,6 +278,13 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
+            // Sale price must not represent a loss. Equality (zero margin) is allowed.
+            if ((UnitPrice ?? 0) < (CostPrice ?? 0))
+            {
+                NotificationHelper.ValidationErrorCustom("Sale price cannot be lower than purchase price.");
+                return;
+            }
+
             // Duplicate barcode guard — if barcode already exists, switch to edit mode instead
             if (!string.IsNullOrWhiteSpace(Barcode))
             {
@@ -333,6 +340,13 @@ namespace POSApp.UI.ViewModels
         private async Task UpdateProduct()
         {
             if (SelectedProduct == null) return;
+
+            // Sale price must not represent a loss. Equality (zero margin) is allowed.
+            if ((UnitPrice ?? 0) < (CostPrice ?? 0))
+            {
+                NotificationHelper.ValidationErrorCustom("Sale price cannot be lower than purchase price.");
+                return;
+            }
 
             try
             {

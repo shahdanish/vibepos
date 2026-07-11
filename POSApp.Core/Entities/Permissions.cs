@@ -33,6 +33,7 @@ namespace POSApp.Core.Entities
         public const string PharmacySale = "Pharmacy.Sale";
         public const string PharmacyManage = "Pharmacy.Manage";
         public const string DoctorsManage = "Doctors.Manage";
+        public const string CallScheduleManage = "CallSchedule.Manage";
 
         // HR
         public const string EmployeesManage = "Employees.Manage";
