@@ -11,17 +11,18 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
-        viewModel.SyncResultReady += OnSyncResultReady;
-        viewModel.DashboardViewModel.SyncResultReady += OnSyncResultReady;
+        viewModel.DashboardViewModel.CloudResultReady += OnCloudResultReady;
     }
 
-    private void OnSyncResultReady(SyncResult result)
+    private void OnCloudResultReady(CloudBackupResult result)
     {
         if (result.WasSkipped)
             SyncAlertDialog.ShowWarning(this, result.SkipReason!);
+        else if (result.Success && result.IsRestore)
+            SyncAlertDialog.ShowCloudRestoreSuccess(this, result.SnapshotTime ?? DateTime.Now, result.SizeBytes);
         else if (result.Success)
-            SyncAlertDialog.ShowSuccess(this, result.PushedCount, result.Timestamp);
+            SyncAlertDialog.ShowCloudBackupSuccess(this, result.SizeBytes, result.SnapshotTime ?? DateTime.Now, result.ChunkCount);
         else
-            SyncAlertDialog.ShowError(this, result.PushedCount, result.FailedCount, result.ErrorMessage ?? "Unknown error");
+            SyncAlertDialog.ShowCloudError(this, result.IsRestore, result.ErrorMessage ?? "Unknown error");
     }
 }

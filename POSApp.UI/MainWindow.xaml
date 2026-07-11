@@ -217,10 +217,6 @@
                     <MenuItem Header="✕ Exit"   Command="{Binding ExitCommand}"             Style="{StaticResource DropItemStyle}"/>
                 </MenuItem>
 
-                <!-- ── Sync button (always visible) -->
-                <MenuItem Header="☁ Sync" Style="{StaticResource NavDropStyle}"
-                          Command="{Binding SyncNowCommand}"/>
-
             </Menu>
         </Border>
 

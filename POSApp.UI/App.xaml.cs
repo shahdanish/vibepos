@@ -128,12 +128,17 @@ public partial class App : System.Windows.Application
         // Current-user context (backs service/data-layer permission enforcement)
         services.AddSingleton<ICurrentUserContext, POSApp.UI.Helpers.CurrentUserContext>();
 
-        // Add Sync Services (Firebase background sync)
-        services.AddSingleton<ISyncService, FirebaseSyncService>();
-        
+        // NOTE: The old per-record Firebase mirror (FirebaseSyncService) is intentionally
+        // NOT registered or started anymore. The app now uses ONLY full-database cloud
+        // backup/restore (ICloudBackupService) for disaster recovery, so it no longer
+        // pushes product/customer/sale/etc. documents to Firestore.
+
         // Add new services
         services.AddSingleton<IBarcodeService, BarcodeService>();
         services.AddSingleton<IDatabaseBackupService, DatabaseBackupService>();
+
+        // Full-database cloud backup/restore (disaster recovery)
+        services.AddSingleton<ICloudBackupService, CloudBackupService>();
 
         // Build service provider
         Services = services.BuildServiceProvider();
@@ -157,9 +162,8 @@ public partial class App : System.Windows.Application
         if (!string.IsNullOrWhiteSpace(credentialsPath) && !Path.IsPathRooted(credentialsPath))
             credentialsPath = Path.Combine(AppContext.BaseDirectory, credentialsPath);
 
-        // Initialize Firebase sync background service
-        var syncService = Services.GetRequiredService<ISyncService>() as FirebaseSyncService;
-        syncService?.Initialize(credentialsPath);
+        // Initialize full-database cloud backup (starts the daily auto-backup loop)
+        Services.GetRequiredService<ICloudBackupService>().Initialize(credentialsPath);
 
         // Show login window first
         var loginWindow = Services.GetRequiredService<LoginWindow>();

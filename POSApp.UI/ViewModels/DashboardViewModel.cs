@@ -11,7 +11,7 @@ namespace POSApp.UI.ViewModels
     {
         private readonly ISaleRepository _saleRepository;
         private readonly IProductRepository _productRepository;
-        private readonly ISyncService _syncService;
+        private readonly ICloudBackupService _cloudBackup;
 
         private decimal _todaySales;
         private int _lowStockCount;
@@ -38,23 +38,85 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _isSyncing, value);
         }
 
-        public event Action<SyncResult>? SyncResultReady;
+        public event Action<CloudBackupResult>? CloudResultReady;
 
         public ICommand RefreshCommand { get; }
-        public ICommand ForceSyncCommand { get; }
         public ICommand OpenDemandOrderCommand { get; }
+        public ICommand BackupToCloudCommand { get; }
+        public ICommand RestoreFromCloudCommand { get; }
 
-        public DashboardViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ISyncService syncService)
+        public DashboardViewModel(ISaleRepository saleRepository, IProductRepository productRepository,
+            ICloudBackupService cloudBackup)
         {
             _saleRepository = saleRepository;
             _productRepository = productRepository;
-            _syncService = syncService;
+            _cloudBackup = cloudBackup;
 
-            RefreshCommand          = new RelayCommand(async _ => await LoadDashboard());
-            ForceSyncCommand        = new RelayCommand(async _ => await ForceSyncAll(), _ => !IsSyncing);
-            OpenDemandOrderCommand  = new RelayCommand(_ => OpenDemandOrder());
+            RefreshCommand           = new RelayCommand(async _ => await LoadDashboard());
+            OpenDemandOrderCommand   = new RelayCommand(_ => OpenDemandOrder());
+            BackupToCloudCommand     = new RelayCommand(async _ => await BackupToCloud(), _ => !IsSyncing);
+            RestoreFromCloudCommand  = new RelayCommand(async _ => await RestoreFromCloud(), _ => !IsSyncing);
 
             _ = LoadDashboard();
+        }
+
+        private async Task BackupToCloud()
+        {
+            IsSyncing = true;
+            try
+            {
+                var result = await _cloudBackup.BackupToCloudAsync();
+                CloudResultReady?.Invoke(result);
+            }
+            catch (Exception ex)
+            {
+                CloudResultReady?.Invoke(new CloudBackupResult { Success = false, ErrorMessage = ex.Message });
+            }
+            finally
+            {
+                IsSyncing = false;
+            }
+        }
+
+        private async Task RestoreFromCloud()
+        {
+            // Confirm — restore OVERWRITES all current local data.
+            var info = await _cloudBackup.GetLatestSnapshotInfoAsync();
+            if (info is null)
+            {
+                CloudResultReady?.Invoke(new CloudBackupResult
+                {
+                    IsRestore = true,
+                    SkipReason = "No cloud backup was found for this store (or the device is offline / not configured)."
+                });
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                $"This will OVERWRITE ALL current local data with the last cloud backup taken on " +
+                $"{info.SnapshotTime:dd-MMM-yyyy hh:mm tt}.\n\n" +
+                "A safety copy of the current database is saved as posapp.db.prerestore first.\n\n" +
+                "Do you want to continue?",
+                "Confirm Restore from Cloud",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+
+            if (confirm != MessageBoxResult.Yes)
+                return;
+
+            IsSyncing = true;
+            try
+            {
+                var result = await _cloudBackup.RestoreFromCloudAsync();
+                CloudResultReady?.Invoke(result);
+            }
+            catch (Exception ex)
+            {
+                CloudResultReady?.Invoke(new CloudBackupResult { Success = false, IsRestore = true, ErrorMessage = ex.Message });
+            }
+            finally
+            {
+                IsSyncing = false;
+            }
         }
 
         private void OpenDemandOrder()
@@ -77,29 +139,6 @@ namespace POSApp.UI.ViewModels
 
             var dialog = new DemandOrderDialog(items);
             dialog.Show();
-        }
-
-        private async Task ForceSyncAll()
-        {
-            IsSyncing = true;
-            try
-            {
-                var result = await _syncService.ResetAndForceSyncAsync();
-                SyncResultReady?.Invoke(result);
-            }
-            catch (Exception ex)
-            {
-                SyncResultReady?.Invoke(new SyncResult
-                {
-                    Success = false,
-                    ErrorMessage = ex.Message,
-                    Timestamp = DateTime.Now
-                });
-            }
-            finally
-            {
-                IsSyncing = false;
-            }
         }
 
         private async Task LoadDashboard()

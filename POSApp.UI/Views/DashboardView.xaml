@@ -87,8 +87,10 @@
         <!-- Action buttons -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
                     Margin="20,10,20,12">
-            <Button Content="☁ Force Sync to Firebase" Command="{Binding ForceSyncCommand}"
-                    Style="{StaticResource WarningButton}" Padding="14,8" Margin="0,0,10,0"/>
+            <Button Content="☁⬆ Backup to Cloud" Command="{Binding BackupToCloudCommand}"
+                    Style="{StaticResource PurpleButton}" Padding="14,8" Margin="0,0,10,0"/>
+            <Button Content="⬇ Restore from Cloud" Command="{Binding RestoreFromCloudCommand}"
+                    Style="{StaticResource DangerButton}" Padding="14,8" Margin="0,0,10,0"/>
             <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
                     Style="{StaticResource InfoButton}" Padding="14,8"/>
         </StackPanel>

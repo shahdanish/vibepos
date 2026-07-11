@@ -11,9 +11,6 @@ namespace POSApp.UI.ViewModels
     public sealed class MainViewModel : ViewModelBase
     {
         private string _currentUserInfo = string.Empty;
-        private bool _isSyncInProgress;
-
-        public event Action<SyncResult>? SyncResultReady;
 
         // ── Visibility ────────────────────────────────────────────────────────
 
@@ -70,7 +67,6 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenSalarySlipCommand { get; }
         public ICommand OpenUserManagementCommand { get; }
         public ICommand OpenRoleManagementCommand { get; }
-        public ICommand SyncNowCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ExitCommand { get; }
 
@@ -119,7 +115,6 @@ namespace POSApp.UI.ViewModels
             OpenSalarySlipCommand       = new RelayCommand(_ => OpenSalarySlip());
             OpenUserManagementCommand   = new RelayCommand(_ => OpenUserManagement());
             OpenRoleManagementCommand   = new RelayCommand(_ => OpenRoleManagement());
-            SyncNowCommand              = new AsyncRelayCommand(SyncNowAsync, () => !_isSyncInProgress);
             LogoutCommand               = new RelayCommand(_ => Logout());
             ExitCommand                 = new RelayCommand(_ => Exit());
         }
@@ -257,27 +252,6 @@ namespace POSApp.UI.ViewModels
             if (!SessionManager.HasPermission(Permissions.UsersManage))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage roles."); return; }
             App.Services?.GetRequiredService<RoleManagementWindow>().ShowDialog();
-        }
-
-        private async Task SyncNowAsync()
-        {
-            if (_isSyncInProgress) return;
-            _isSyncInProgress = true;
-            try
-            {
-                var sync = App.Services?.GetRequiredService<ISyncService>();
-                if (sync is null) return;
-                var result = await sync.ResetAndForceSyncAsync();
-                SyncResultReady?.Invoke(result);
-            }
-            catch (Exception ex)
-            {
-                SyncResultReady?.Invoke(new SyncResult { Success = false, ErrorMessage = ex.Message, Timestamp = DateTime.Now });
-            }
-            finally
-            {
-                _isSyncInProgress = false;
-            }
         }
 
         private void Logout()
