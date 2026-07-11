@@ -127,7 +127,9 @@
                             <ComboBox x:Name="ProductCombo"
                                       ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
                                       DisplayMemberPath="ProductName" IsEditable="True" IsTextSearchEnabled="True"
-                                      SelectionChanged="ProductCombo_SelectionChanged"
+                                      StaysOpenOnEdit="True"
+                                      PreviewKeyDown="ProductCombo_PreviewKeyDown"
+                                      DropDownClosed="ProductCombo_DropDownClosed"
                                       FontSize="12" Padding="5"/>
                         </StackPanel>
 

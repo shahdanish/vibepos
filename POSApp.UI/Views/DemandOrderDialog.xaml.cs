@@ -112,9 +112,9 @@ namespace POSApp.UI.Views
             // Items table — columns: S.No | Item | Qty | Price (Price left blank).
             var table = new Table { CellSpacing = 0, BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 1) };
             table.Columns.Add(new TableColumn { Width = new GridLength(0.6, GridUnitType.Star) });  // S.No
-            table.Columns.Add(new TableColumn { Width = new GridLength(3.0, GridUnitType.Star) });  // Item
-            table.Columns.Add(new TableColumn { Width = new GridLength(0.9, GridUnitType.Star) });  // Qty
-            table.Columns.Add(new TableColumn { Width = new GridLength(1.3, GridUnitType.Star) });  // Price (blank)
+            table.Columns.Add(new TableColumn { Width = new GridLength(2.2, GridUnitType.Star) });  // Item
+            table.Columns.Add(new TableColumn { Width = new GridLength(0.8, GridUnitType.Star) });  // Qty
+            table.Columns.Add(new TableColumn { Width = new GridLength(2.6, GridUnitType.Star) });  // Price (blank)
 
             var group = new TableRowGroup();
 

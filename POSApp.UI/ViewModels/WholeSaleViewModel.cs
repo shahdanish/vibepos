@@ -20,7 +20,9 @@ namespace POSApp.UI.ViewModels
 
         public override string ModeSwitchLabel => "⇄ RETAIL SALE";
 
-        // Wholesale keeps its existing behaviour: selecting a product auto-adds it.
-        public override bool AutoAddItem => true;
+        // Wholesale mirrors the NORMAL Sale screen: manual type-to-search must NOT
+        // auto-commit the first TextSearch match. The item is only added on an EXPLICIT
+        // selection (Enter or click), handled in the view. So AutoAddItem stays false
+        // (inherited from the base) — this override is intentionally removed.
     }
 }
