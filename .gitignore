@@ -54,3 +54,10 @@ clients/*/firebase-credentials.json
 appsettings.json
 clients/*/appsettings.json
 
+# Vendor-only licence signing secret — must never be committed
+LicenseSystem/.secret
+*.secret
+
+# Firebase / Google service account keys
+**/firebase-credential*.json
+**/*service-account*.json

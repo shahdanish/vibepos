@@ -9,9 +9,13 @@
     and read the resulting code back to them. They type it into the app and it
     extends their license by one more year.
 
-    IMPORTANT: The $Secret below MUST match RenewalSecret in
-    POSApp.Infrastructure/Services/LicenseService.cs exactly. If you change one,
-    change both — and only ever change it before shipping to customers.
+    IMPORTANT: The secret is NOT stored in this file. It is read from
+    LicenseSystem\.secret (git-ignored) or the POSAPP_RENEWAL_SECRET environment
+    variable, and must match RenewalSecret in
+    POSApp.Infrastructure/Services/LicenseService.cs exactly.
+
+    If you change one, change both — and only ever change it deliberately, because
+    renewal codes you have already handed out stop working.
 
     Full documentation: see README.md in this same LicenseSystem folder.
 #>
@@ -21,8 +25,20 @@ param(
     [string]$ActivationId
 )
 
-# Must be identical to LicenseService.RenewalSecret
-$Secret = "ShahJeePOS::kQ7vN2pR9sT4wX1zA6bC8dE0fG3hJ5kL7mN9pQ2rS4tU6vW::renewal-v1"
+# Must be identical to LicenseService.RenewalSecret.
+# Kept out of source control: put it in LicenseSystem\.secret next to this script,
+# or set POSAPP_RENEWAL_SECRET in your environment.
+$Secret = $env:POSAPP_RENEWAL_SECRET
+if (-not $Secret) {
+    $secretFile = Join-Path $PSScriptRoot ".secret"
+    if (Test-Path $secretFile) {
+        $Secret = (Get-Content $secretFile -Raw).Trim()
+    }
+}
+if (-not $Secret) {
+    Write-Error "No renewal secret found. Create LicenseSystem\.secret containing the secret, or set POSAPP_RENEWAL_SECRET."
+    exit 1
+}
 
 function Convert-ToBase32([byte[]]$data) {
     $alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"

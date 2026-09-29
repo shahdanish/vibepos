@@ -73,11 +73,21 @@ namespace POSApp.Infrastructure.Services
             "You will receive your renewal code on WhatsApp.";
 
         /// <summary>
-        /// Secret used to sign renewal codes. Must EXACTLY match the secret in
-        /// LicenseSystem/generate-renewal-code.ps1. Change it once, before shipping to customers,
-        /// and keep it private. If you change it later, previously issued codes stop working.
+        /// Secret used to sign renewal codes. The vendor tool reads the same value from
+        /// LicenseSystem/.secret (untracked) or the POSAPP_RENEWAL_SECRET environment
+        /// variable — it is deliberately NOT committed alongside this file any more.
+        ///
+        /// Rotated v1 -> v2 after the v1 value was exposed in a public repository.
+        /// Rotating invalidates renewal codes that were issued but not yet entered;
+        /// licences already activated are unaffected, since their expiry is stored on
+        /// the machine.
+        ///
+        /// Note this is a shared secret compiled into the client, so a determined user
+        /// can recover it by decompiling the assembly. It raises the cost of forging a
+        /// code; it does not make it impossible. Asymmetric signing (public key here,
+        /// private key kept by the vendor) is the fix if that ever matters.
         /// </summary>
-        private const string RenewalSecret = "ShahJeePOS::kQ7vN2pR9sT4wX1zA6bC8dE0fG3hJ5kL7mN9pQ2rS4tU6vW::renewal-v1";
+        private const string RenewalSecret = "CounterPointPOS::cPgOmkdpRsnug3hlnYXot50CQjwdZmFL7fsCVokEZ61wpZeH::renewal-v2";
 
         // ---- Storage locations ----------------------------------------------------------
 
