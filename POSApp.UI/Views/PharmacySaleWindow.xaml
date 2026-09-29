@@ -336,7 +336,7 @@
                             <DataGridTextColumn Header="Batch No" Binding="{Binding BatchNo}"
                                                 IsReadOnly="True" Width="85" ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Expiry" Width="65" IsReadOnly="True"
-                                                Binding="{Binding ExpiryDate, StringFormat=MM/yyyy}"
+                                                Binding="{Binding ExpiryDate, Converter={StaticResource DateConverter}, ConverterParameter=monthyear}"
                                                 ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}"
                                                 IsReadOnly="True" Width="100" ElementStyle="{StaticResource RightAlignStyle}"/>

@@ -177,7 +177,7 @@
                               GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#DDD">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Invoice #" Binding="{Binding InvoiceNumber}" Width="120"/>
-                            <DataGridTextColumn Header="Date" Binding="{Binding SaleDate, StringFormat=dd/MM/yyyy}" Width="100"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding SaleDate, Converter={StaticResource DateConverter}}" Width="100"/>
                             <DataGridTextColumn Header="Type" Binding="{Binding SaleType}" Width="90"/>
                             <DataGridTextColumn Header="Customer / Pharmacy" Binding="{Binding CustomerName}" Width="*" MinWidth="120"/>
                             <DataGridTextColumn Header="Doctor" Binding="{Binding Doctor.Name}" Width="110" MinWidth="80"/>

@@ -95,7 +95,7 @@
                             <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="50"/>
                             <DataGridTextColumn Header="Rack" Binding="{Binding Rack}" Width="40"/>
                             <DataGridTextColumn x:Name="BatchColumn" Header="Batch No" Binding="{Binding BatchNo}" Width="68"/>
-                            <DataGridTextColumn x:Name="ExpiryColumn" Header="Expiry" Binding="{Binding ExpiryDate, StringFormat=MM/yyyy}" Width="62"/>
+                            <DataGridTextColumn x:Name="ExpiryColumn" Header="Expiry" Binding="{Binding ExpiryDate, Converter={StaticResource DateConverter}, ConverterParameter=monthyear}" Width="62"/>
                             <DataGridTemplateColumn Header="Status" Width="65">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

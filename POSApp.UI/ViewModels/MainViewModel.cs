@@ -42,8 +42,8 @@ namespace POSApp.UI.ViewModels
             PermissionManager.CanManageEmployees(SessionManager.CurrentUser)
                 ? Visibility.Visible : Visibility.Collapsed;
 
-        /// <summary>Receipt header/footer is shop-wide setup, so it is admin-only.</summary>
-        public Visibility ReceiptSettingsVisibility =>
+        /// <summary>Shop identity, currency and regional setup — admin-only.</summary>
+        public Visibility BusinessSettingsVisibility =>
             SessionManager.HasPermission(Permissions.SystemSettings)
                 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -68,7 +68,7 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenCallScheduleCommand { get; }
         public ICommand OpenPharmacySaleCommand { get; }
         public ICommand OpenBackupRestoreCommand { get; }
-        public ICommand OpenReceiptSettingsCommand { get; }
+        public ICommand OpenBusinessSettingsCommand { get; }
         public ICommand OpenEmployeeManagementCommand { get; }
         public ICommand OpenSalarySlipCommand { get; }
         public ICommand OpenUserManagementCommand { get; }
@@ -118,7 +118,7 @@ namespace POSApp.UI.ViewModels
             OpenCallScheduleCommand     = new RelayCommand(_ => OpenCallSchedule());
             OpenPharmacySaleCommand     = new RelayCommand(_ => OpenPharmacySale());
             OpenBackupRestoreCommand    = new RelayCommand(_ => OpenBackupRestore());
-            OpenReceiptSettingsCommand  = new RelayCommand(_ => OpenReceiptSettings());
+            OpenBusinessSettingsCommand  = new RelayCommand(_ => OpenBusinessSettings());
             OpenEmployeeManagementCommand = new RelayCommand(_ => OpenEmployeeManagement());
             OpenSalarySlipCommand       = new RelayCommand(_ => OpenSalarySlip());
             OpenUserManagementCommand   = new RelayCommand(_ => OpenUserManagement());
@@ -241,11 +241,11 @@ namespace POSApp.UI.ViewModels
             App.Services?.GetRequiredService<SalarySlipWindow>().ShowDialog();
         }
 
-        private void OpenReceiptSettings()
+        private void OpenBusinessSettings()
         {
             if (!SessionManager.HasPermission(Permissions.SystemSettings))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to change receipt settings."); return; }
-            new ReceiptSettingsWindow { Owner = Application.Current.MainWindow }.ShowDialog();
+            new BusinessSettingsWindow { Owner = Application.Current.MainWindow }.ShowDialog();
         }
 
         private void OpenBackupRestore()

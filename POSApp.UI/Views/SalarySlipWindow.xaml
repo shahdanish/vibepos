@@ -216,7 +216,7 @@
                                     <DataGridTextColumn Header="Net Salary"
                                                         Binding="{Binding NetSalary, Converter={StaticResource MoneyConverter}}"
                                                         Width="120"/>
-                                    <DataGridTextColumn Header="Generated" Binding="{Binding GeneratedDate, StringFormat=dd-MMM-yy}" Width="90"/>
+                                    <DataGridTextColumn Header="Generated" Binding="{Binding GeneratedDate, Converter={StaticResource DateConverter}, ConverterParameter=long}" Width="90"/>
 
                                     <DataGridTemplateColumn Header="Actions" Width="160" CanUserSort="False">
                                         <DataGridTemplateColumn.CellTemplate>

@@ -125,7 +125,7 @@
                               AlternatingRowBackground="#F9F9F9" HeadersVisibility="All"
                               GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#DDD">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Date / Time" Binding="{Binding Date, StringFormat=dd/MM/yyyy hh:mm tt}" Width="160"/>
+                            <DataGridTextColumn Header="Date / Time" Binding="{Binding Date, Converter={StaticResource DateConverter}, ConverterParameter=time}" Width="160"/>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" MinWidth="150"/>
                             <DataGridTextColumn Header="Category" Binding="{Binding Category.Name, TargetNullValue='—'}" Width="140"/>
                             <DataGridTextColumn Header="{x:Static helpers:Region.AmountLabel}" Binding="{Binding Amount, StringFormat=N2}" Width="130"

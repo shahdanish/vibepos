@@ -292,6 +292,7 @@
             <converters:NullableDecimalConverter x:Key="NullableDecimalConverter"/>
             <converters:RowIndexConverter x:Key="RowIndexConverter"/>
             <converters:MoneyConverter x:Key="MoneyConverter"/>
+            <converters:DateConverter x:Key="DateConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

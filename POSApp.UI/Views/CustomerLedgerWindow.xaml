@@ -142,7 +142,7 @@
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
                               GridLinesVisibility="Horizontal" HeadersVisibility="Column">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat=dd/MM/yy hh:mm tt}" Width="120"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, Converter={StaticResource DateConverter}, ConverterParameter=shorttime}" Width="120"/>
                             <DataGridTextColumn Header="Invoice #" Binding="{Binding InvoiceNumber}" Width="80"/>
                             <DataGridTextColumn Header="{x:Static helpers:Region.AmountLabel}" Binding="{Binding AmountPaid, StringFormat=N2}" Width="100"
                                                 ElementStyle="{StaticResource RightAlignStyle}"/>
