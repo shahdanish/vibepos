@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using POSApp.UI.Helpers;
 using POSApp.UI.ViewModels;
 
 namespace POSApp.UI.Views
@@ -79,14 +80,8 @@ namespace POSApp.UI.Views
                 TextAlignment = TextAlignment.Left
             };
 
-            // Store header
-            var header = new Paragraph { TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2) };
-            header.Inlines.Add(new Bold(new Run("Shahjee super store")) { FontSize = 22 });
-            header.Inlines.Add(new LineBreak());
-            header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 13 });
-            header.Inlines.Add(new LineBreak());
-            header.Inlines.Add(new Run("0332-3324911") { FontSize = 13 });
-            doc.Blocks.Add(header);
+            // Store header (per-client branding, see Admin -> Receipt Settings)
+            doc.Blocks.Add(ReceiptBranding.BuildHeader(nameFontSize: 22, lineFontSize: 13));
 
             // Title
             doc.Blocks.Add(new Paragraph(new Bold(new Run("📋 Demand / Purchase Order")))

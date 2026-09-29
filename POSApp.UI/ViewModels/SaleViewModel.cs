@@ -776,16 +776,8 @@ namespace POSApp.UI.ViewModels
             doc.FontSize = 12;
             doc.TextAlignment = TextAlignment.Left;
 
-            // --- HEADER ---
-            Paragraph header = new Paragraph();
-            header.Margin = new Thickness(0, 0, 0, 2);
-            header.TextAlignment = TextAlignment.Center;
-            header.Inlines.Add(new Bold(new Run("Shahjee super store")) { FontSize = 24 });
-            header.Inlines.Add(new LineBreak());
-            header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
-            header.Inlines.Add(new LineBreak());
-            header.Inlines.Add(new Run("0332-3324911") { FontSize = 14 });
-            doc.Blocks.Add(header);
+            // --- HEADER (per-client branding, see Admin -> Receipt Settings) ---
+            doc.Blocks.Add(ReceiptBranding.BuildHeader(nameFontSize: 24, lineFontSize: 14));
 
             // --- BILL / INVOICE TITLE ---
             Paragraph titlePara = new Paragraph(new Bold(new Run(InvoiceTitle)))
@@ -982,14 +974,8 @@ namespace POSApp.UI.ViewModels
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);
 
-            // --- FOOTER ---
-            Paragraph footer = new Paragraph();
-            footer.Margin = new Thickness(0, 5, 0, 0);
-            footer.TextAlignment = TextAlignment.Center;
-            footer.Inlines.Add(new Bold(new Run("Thank You For Your Business!")) { FontSize = 14 });
-            footer.Inlines.Add(new LineBreak());
-            footer.Inlines.Add(new Run("Please keep this invoice for your records.") { FontSize = 10, Foreground = Brushes.Gray });
-            doc.Blocks.Add(footer);
+            // --- FOOTER (per-client branding) ---
+            doc.Blocks.Add(ReceiptBranding.BuildFooter());
 
             return doc;
         }

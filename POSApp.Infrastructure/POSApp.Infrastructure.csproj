@@ -4,6 +4,9 @@
     <PackageReference Include="Google.Cloud.Firestore" Version="3.10.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.9" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <!-- License enforcement: DPAPI encryption + registry storage (Windows-only, safe for this app). -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -477,13 +477,7 @@ namespace POSApp.UI.ViewModels
         /// <summary>Shared store header used at the top of every printout.</summary>
         private static void AddStoreHeader(FlowDocument doc, string title)
         {
-            Paragraph header = new Paragraph { Margin = new Thickness(0, 0, 0, 2), TextAlignment = TextAlignment.Center };
-            header.Inlines.Add(new Bold(new Run("Shahjee super store")) { FontSize = 24 });
-            header.Inlines.Add(new LineBreak());
-            header.Inlines.Add(new Run("Dillewali, Mianwali") { FontSize = 14 });
-            header.Inlines.Add(new LineBreak());
-            header.Inlines.Add(new Run("0332-3324911") { FontSize = 14 });
-            doc.Blocks.Add(header);
+            doc.Blocks.Add(ReceiptBranding.BuildHeader(nameFontSize: 24, lineFontSize: 14));
 
             Paragraph titlePara = new Paragraph(new Bold(new Run(title)))
             {
@@ -583,8 +577,9 @@ namespace POSApp.UI.ViewModels
             totals.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totals);
 
-            Paragraph footer = new Paragraph { Margin = new Thickness(0, 20, 0, 0), TextAlignment = TextAlignment.Center };
-            footer.Inlines.Add(new Bold(new Run("Thank You For Your Business!")) { FontSize = 14 });
+            // Closing line only — the small "keep this invoice" note is omitted on reports.
+            Paragraph footer = ReceiptBranding.BuildFooter(includeNote: false);
+            footer.Margin = new Thickness(0, 20, 0, 0);
             doc.Blocks.Add(footer);
 
             return doc;

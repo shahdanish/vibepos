@@ -140,6 +140,9 @@ public partial class App : System.Windows.Application
         // Full-database cloud backup/restore (disaster recovery)
         services.AddSingleton<ICloudBackupService, CloudBackupService>();
 
+        // Yearly time-limited license enforcement
+        services.AddSingleton<ILicenseService, LicenseService>();
+
         // Build service provider
         Services = services.BuildServiceProvider();
 
@@ -164,6 +167,31 @@ public partial class App : System.Windows.Application
 
         // Initialize full-database cloud backup (starts the daily auto-backup loop)
         Services.GetRequiredService<ICloudBackupService>().Initialize(credentialsPath);
+
+        // --- License gate: enforce the yearly period before the app is usable ---------
+        var licenseService = Services.GetRequiredService<ILicenseService>();
+        var license = licenseService.CheckLicense();
+
+        if (license.IsBlocked)
+        {
+            var gate = new LicenseExpiredWindow(licenseService, license);
+            gate.ShowDialog();
+
+            if (!gate.Renewed)
+            {
+                // No valid renewal entered — do not start the app.
+                Shutdown();
+                return;
+            }
+        }
+        else if (license.State == LicenseState.Expiring)
+        {
+            MessageBox.Show(
+                $"Your license will expire in {license.DaysRemaining} day(s), on " +
+                $"{license.ExpiryUtc.ToLocalTime():dd MMM yyyy}.\n\n" +
+                $"{licenseService.RenewalContactMessage}\n{licenseService.RenewalInstructions}",
+                "License Expiring Soon", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
 
         // Show login window first
         var loginWindow = Services.GetRequiredService<LoginWindow>();

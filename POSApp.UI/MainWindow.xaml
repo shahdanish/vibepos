@@ -212,6 +212,10 @@
                               Visibility="{Binding UserManagementVisibility}"/>
                     <Separator Style="{StaticResource DropSepStyle}"
                                Visibility="{Binding UserManagementVisibility}"/>
+                    <MenuItem Header="🧾 Receipt Settings"
+                              Command="{Binding OpenReceiptSettingsCommand}"
+                              Style="{StaticResource DropItemStyle}"
+                              Visibility="{Binding ReceiptSettingsVisibility}"/>
                     <MenuItem Header="🗄 Backup" Command="{Binding OpenBackupRestoreCommand}" Style="{StaticResource DropItemStyle}"/>
                     <Separator Style="{StaticResource DropSepStyle}"/>
                     <MenuItem Header="✕ Exit"   Command="{Binding ExitCommand}"             Style="{StaticResource DropItemStyle}"/>
