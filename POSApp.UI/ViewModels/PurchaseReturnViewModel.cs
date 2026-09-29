@@ -137,7 +137,7 @@ namespace POSApp.UI.ViewModels
 
                 OriginalPurchase = purchase;
                 NotificationHelper.ShowInfo(
-                    $"Purchase found!\n\nSupplier: {purchase.SupplierName ?? "N/A"}\nTotal: Rs.{purchase.TotalAmount:N2}",
+                    $"Purchase found!\n\nSupplier: {purchase.SupplierName ?? "N/A"}\nTotal: {Region.Money(purchase.TotalAmount)}",
                     "Purchase Found");
             }
             catch (Exception ex)

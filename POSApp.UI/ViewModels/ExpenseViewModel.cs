@@ -519,7 +519,7 @@ namespace POSApp.UI.ViewModels
                 headerRow.Cells.Add(HCell("#"));
                 headerRow.Cells.Add(HCell("Description"));
                 headerRow.Cells.Add(HCell("Category"));
-                headerRow.Cells.Add(HCell("Amount (Rs.)"));
+                headerRow.Cells.Add(HCell(Region.AmountLabel));
                 headerRow.Cells.Add(HCell("Note"));
                 tg.Rows.Add(headerRow);
 
@@ -540,7 +540,7 @@ namespace POSApp.UI.ViewModels
                 doc.Blocks.Add(table);
 
                 // Total row
-                doc.Blocks.Add(new Paragraph(new Bold(new Run($"Total Expenses:   Rs. {TotalExpenses:N2}")))
+                doc.Blocks.Add(new Paragraph(new Bold(new Run($"Total Expenses:   {Region.Money(TotalExpenses)}")))
                 {
                     TextAlignment = TextAlignment.Right,
                     FontSize = 13,

@@ -95,12 +95,12 @@ namespace POSApp.UI.Helpers
 
         public static void SaleCompleted(string invoiceNumber, decimal amount)
         {
-            ShowSuccess($"Sale completed successfully!\n\nInvoice: {invoiceNumber}\nTotal: Rs. {amount:N2}", "Sale Completed");
+            ShowSuccess($"Sale completed successfully!\n\nInvoice: {invoiceNumber}\nTotal: {Region.Money(amount)}", "Sale Completed");
         }
 
         public static void ReturnProcessed(string invoiceNumber, decimal refundAmount)
         {
-            ShowSuccess($"Return processed successfully!\n\nInvoice: {invoiceNumber}\nRefund: Rs. {refundAmount:N2}", "Return Processed");
+            ShowSuccess($"Return processed successfully!\n\nInvoice: {invoiceNumber}\nRefund: {Region.Money(refundAmount)}", "Return Processed");
         }
 
         public static void ValidationError(string fieldName)

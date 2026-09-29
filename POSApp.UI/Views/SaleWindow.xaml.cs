@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using POSApp.UI.ViewModels;
+using POSApp.UI.Helpers;
 
 namespace POSApp.UI.Views
 {
@@ -19,7 +20,7 @@ namespace POSApp.UI.Views
             viewModel.OpenQuickSaleWindow = () =>
             {
                 var quickWindow = App.Services!.GetRequiredService<SaleWindow>();
-                quickWindow.Title = "Quick Sale - Shah Jee Super Store";
+                quickWindow.Title = ShopTitleExtension.Build("Quick Sale");
                 quickWindow.Show();
             };
 

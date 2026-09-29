@@ -1074,7 +1074,7 @@ namespace POSApp.UI.ViewModels
                 if (SetProperty(ref _discountType, value))
                 {
                     OnPropertyChanged(nameof(DiscountTypeIsPercent));
-                    OnPropertyChanged(nameof(DiscountTypeIsPKR));
+                    OnPropertyChanged(nameof(DiscountTypeIsAmount));
                     OnPropertyChanged(nameof(EffectiveDiscountAmount));
                     OnPropertyChanged(nameof(DiscountDisplay));
                     CalculateTotal();
@@ -1088,17 +1088,22 @@ namespace POSApp.UI.ViewModels
             set { if (value) DiscountType = "%"; }
         }
 
-        public bool DiscountTypeIsPKR
+        /// <summary>
+        /// Flat-amount discount rather than a percentage. Rows saved before the software
+        /// was made currency-neutral stored this as "PKR", so anything that is not "%"
+        /// counts as an amount.
+        /// </summary>
+        public bool DiscountTypeIsAmount
         {
-            get => _discountType == "PKR";
-            set { if (value) DiscountType = "PKR"; }
+            get => _discountType != "%";
+            set { if (value) DiscountType = "AMT"; }
         }
 
         public decimal EffectiveDiscountAmount =>
             _discountType == "%" ? (UnitPrice * Quantity * DiscountPercent) / 100 : DiscountPercent;
 
         public string DiscountDisplay =>
-            _discountType == "%" ? $"{_discountPercent:N0}%" : $"Rs {_discountPercent:N0}";
+            _discountType == "%" ? $"{_discountPercent:N0}%" : Region.MoneyWhole(_discountPercent);
 
         public decimal Total
         {

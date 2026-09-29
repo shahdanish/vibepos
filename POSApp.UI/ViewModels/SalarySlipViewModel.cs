@@ -362,9 +362,12 @@ namespace POSApp.UI.ViewModels
             var grid   = TwoColGrid(star: true);
 
             var left = new StackPanel();
-            left.Children.Add(new TextBlock { Text = "Master Pharmaceuticals", Foreground = Brushes.White, FontSize = 17, FontWeight = FontWeights.Bold, FontFamily = new FontFamily("Georgia"), Margin = new Thickness(0, 0, 0, 3) });
+            left.Children.Add(new TextBlock { Text = ReceiptBranding.Current.StoreName, Foreground = Brushes.White, FontSize = 17, FontWeight = FontWeights.Bold, FontFamily = new FontFamily("Georgia"), Margin = new Thickness(0, 0, 0, 3) });
             left.Children.Add(new TextBlock { Text = "Distributor  |  Office #410, 4th Floor, Kohistan Tower Saddar, Rawalpindi", Foreground = navyMuted, FontSize = 10, TextWrapping = TextWrapping.Wrap });
-            left.Children.Add(new TextBlock { Text = "NTN# G985456  |  DSL# 374-89100937-2025", Foreground = navyMuted, FontSize = 10, Margin = new Thickness(0, 2, 0, 0) });
+            // Tax/licence numbers come from the shop's own Receipt Settings header note —
+            // never hardcode one client's registration on every installation.
+            if (!string.IsNullOrWhiteSpace(ReceiptBranding.Current.HeaderNote))
+                left.Children.Add(new TextBlock { Text = ReceiptBranding.Current.HeaderNote, Foreground = navyMuted, FontSize = 10, Margin = new Thickness(0, 2, 0, 0) });
             Grid.SetColumn(left, 0);
 
             var right = new StackPanel { HorizontalAlignment = HorizontalAlignment.Right };
@@ -460,7 +463,7 @@ namespace POSApp.UI.ViewModels
 
             var dedStack = new StackPanel();
             dedStack.Children.Add(SectionTitle("Deductions", hdrFg));
-            dedStack.Children.Add(SalaryTable(new[] { ("Income Tax", slip.IncomeTax), ("EOBI", slip.EobiDeduction), ("Other Deductions", slip.OtherDeductions), ("—", 0m) }, hdrBg, hdrFg, textPri, line));
+            dedStack.Children.Add(SalaryTable(new[] { ("Income Tax", slip.IncomeTax), (Region.StatutoryDeductionLabel, slip.EobiDeduction), ("Other Deductions", slip.OtherDeductions), ("—", 0m) }, hdrBg, hdrFg, textPri, line));
             Grid.SetColumn(dedStack, 2);
 
             grid.Children.Add(earnStack);
@@ -477,7 +480,7 @@ namespace POSApp.UI.ViewModels
             hdr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             hdr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(85) });
             hdr.Children.Add(new TextBlock { Text = "Component",    FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = hdrFg, Padding = new Thickness(8, 6, 8, 6) });
-            var ah = new TextBlock { Text = "Amount (Rs.)", FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = hdrFg, TextAlignment = TextAlignment.Right, Padding = new Thickness(8, 6, 8, 6) };
+            var ah = new TextBlock { Text = Region.AmountLabel, FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = hdrFg, TextAlignment = TextAlignment.Right, Padding = new Thickness(8, 6, 8, 6) };
             Grid.SetColumn(ah, 1);
             hdr.Children.Add(ah);
             stack.Children.Add(hdr);
@@ -490,7 +493,7 @@ namespace POSApp.UI.ViewModels
                 rg.Children.Add(new TextBlock { Text = name, FontSize = 11.5, Foreground = textPri, Padding = new Thickness(8, 6, 8, 6) });
                 var ac = new TextBlock
                 {
-                    Text = name == "—" ? "—" : $"Rs. {amount:N2}",
+                    Text = name == "—" ? "—" : $"{Region.Money(amount)}",
                     FontSize = 11.5, FontWeight = FontWeights.Medium,
                     Foreground = textPri, TextAlignment = TextAlignment.Right,
                     Padding = new Thickness(8, 6, 8, 6)
@@ -524,7 +527,7 @@ namespace POSApp.UI.ViewModels
         {
             var stack = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
             stack.Children.Add(new TextBlock { Text = label.ToUpper(), FontSize = 9.5, FontWeight = FontWeights.SemiBold, Foreground = border, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 3) });
-            stack.Children.Add(new TextBlock { Text = $"Rs. {amount:N0}", FontSize = 15, FontWeight = FontWeights.Bold, FontFamily = new FontFamily("Georgia"), Foreground = amtColor, HorizontalAlignment = HorizontalAlignment.Center });
+            stack.Children.Add(new TextBlock { Text = $"{Region.MoneyWhole(amount)}", FontSize = 15, FontWeight = FontWeights.Bold, FontFamily = new FontFamily("Georgia"), Foreground = amtColor, HorizontalAlignment = HorizontalAlignment.Center });
             return new Border { Background = bg, BorderBrush = border, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(10, 9, 10, 9), Child = stack };
         }
 
@@ -532,7 +535,7 @@ namespace POSApp.UI.ViewModels
         {
             var sp = new StackPanel { Orientation = Orientation.Horizontal };
             sp.Children.Add(new TextBlock { Text = "Net Salary in Words: ", Foreground = navyMuted, FontSize = 11 });
-            sp.Children.Add(new TextBlock { Text = AmountInWords(slip.NetSalary), Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeights.SemiBold });
+            sp.Children.Add(new TextBlock { Text = Region.AmountInWords(slip.NetSalary), Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeights.SemiBold });
             return new Border { Background = darkNavy, CornerRadius = new CornerRadius(3), Padding = new Thickness(14, 7, 14, 7), Margin = new Thickness(0, 0, 0, 14), Child = sp };
         }
 
@@ -561,7 +564,7 @@ namespace POSApp.UI.ViewModels
                         Children =
                         {
                             new TextBlock { Text = titles[i], FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = textPri, HorizontalAlignment = HorizontalAlignment.Center },
-                            new TextBlock { Text = "Master Pharmaceuticals", FontSize = 10, Foreground = textSec, HorizontalAlignment = HorizontalAlignment.Center }
+                            new TextBlock { Text = ReceiptBranding.Current.StoreName, FontSize = 10, Foreground = textSec, HorizontalAlignment = HorizontalAlignment.Center }
                         }
                     }
                 });
@@ -592,27 +595,6 @@ namespace POSApp.UI.ViewModels
 
         private static SolidColorBrush C(byte r, byte g, byte b) => new SolidColorBrush(Color.FromRgb(r, g, b));
 
-        // ── Number-to-words (Pakistani: Lakh / Crore) ──────────────────────────
-
-        private static string AmountInWords(decimal amount)
-        {
-            var n = (long)Math.Floor(Math.Abs(amount));
-            return $"{N2W(n)} Rupees Only";
-        }
-
-        private static readonly string[] _ones = { "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen" };
-        private static readonly string[] _tens = { "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety" };
-
-        private static string N2W(long n)
-        {
-            if (n == 0)        return "Zero";
-            if (n < 20)        return _ones[n];
-            if (n < 100)       return _tens[n / 10] + (n % 10 > 0 ? " " + _ones[n % 10] : "");
-            if (n < 1_000)     return _ones[n / 100] + " Hundred" + (n % 100 > 0 ? " " + N2W(n % 100) : "");
-            if (n < 100_000)   return N2W(n / 1_000) + " Thousand" + (n % 1_000 > 0 ? " " + N2W(n % 1_000) : "");
-            if (n < 10_000_000) return N2W(n / 100_000) + " Lakh" + (n % 100_000 > 0 ? " " + N2W(n % 100_000) : "");
-            return N2W(n / 10_000_000) + " Crore" + (n % 10_000_000 > 0 ? " " + N2W(n % 10_000_000) : "");
-        }
 
     }
 }
@@ -624,7 +606,7 @@ namespace POSApp.UI.ViewModels
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 2)
             };
-            header.Inlines.Add(new Run("Master Pharmaceuticals Distributor")
+            header.Inlines.Add(new Run(ReceiptBranding.Current.StoreName)
             {
                 FontSize = 16,
                 FontWeight = FontWeights.Bold
@@ -682,7 +664,7 @@ namespace POSApp.UI.ViewModels
 
             var emp = slip.Employee;
             AddEmpRow("Employee Name:", emp.Name, "Employee Code:", emp.EmployeeCode);
-            AddEmpRow("Father Name:", emp.FatherName ?? "—", "CNIC:", emp.Cnic ?? "—");
+            AddEmpRow("Father Name:", emp.FatherName ?? "—", Region.NationalIdLabelColon, emp.Cnic ?? "—");
             AddEmpRow("Designation:", emp.Designation, "Department:", emp.Department ?? "—");
             AddEmpRow("Cell Number:", emp.CellNumber ?? "—", "Joining Date:", emp.JoiningDate.ToString("dd-MMM-yyyy"));
             doc.Blocks.Add(empTable);
@@ -701,9 +683,9 @@ namespace POSApp.UI.ViewModels
             // Header row
             var salHeaderRow = new TableRow { Background = new SolidColorBrush(Color.FromRgb(0x1a, 0x6b, 0x9a)) };
             salHeaderRow.Cells.Add(ColHeaderCell("Earnings"));
-            salHeaderRow.Cells.Add(ColHeaderCell("Amount (Rs.)"));
+            salHeaderRow.Cells.Add(ColHeaderCell(Region.AmountLabel));
             salHeaderRow.Cells.Add(ColHeaderCell("Deductions"));
-            salHeaderRow.Cells.Add(ColHeaderCell("Amount (Rs.)"));
+            salHeaderRow.Cells.Add(ColHeaderCell(Region.AmountLabel));
             salGroup.Rows.Add(salHeaderRow);
 
             void AddSalRow(string earn, decimal earnAmt, string ded, decimal dedAmt)
@@ -717,7 +699,7 @@ namespace POSApp.UI.ViewModels
             }
 
             AddSalRow("Basic Salary", slip.BasicSalary, "Income Tax", slip.IncomeTax);
-            AddSalRow("House Rent Allowance", slip.HouseRentAllowance, "EOBI", slip.EobiDeduction);
+            AddSalRow("House Rent Allowance", slip.HouseRentAllowance, Region.StatutoryDeductionLabel, slip.EobiDeduction);
             AddSalRow("Medical Allowance", slip.MedicalAllowance, "Other Deductions", slip.OtherDeductions);
             AddSalRow("Other Allowances", slip.OtherAllowances, string.Empty, 0m);
 
@@ -764,7 +746,7 @@ namespace POSApp.UI.ViewModels
                 new Paragraph(new Run("NET SALARY PAYABLE") { FontSize = 13, FontWeight = FontWeights.Bold, Foreground = Brushes.White }))
                 { Padding = new Thickness(12, 8, 12, 8) });
             row.Cells.Add(new TableCell(
-                new Paragraph(new Run($"Rs. {netSalary:N2}") { FontSize = 15, FontWeight = FontWeights.Bold, Foreground = Brushes.White })
+                new Paragraph(new Run($"{Region.Money(netSalary)}") { FontSize = 15, FontWeight = FontWeights.Bold, Foreground = Brushes.White })
                 { TextAlignment = TextAlignment.Right })
                 { Padding = new Thickness(12, 8, 12, 8) });
             group.Rows.Add(row);
@@ -831,7 +813,7 @@ namespace POSApp.UI.ViewModels
 
         private static TableCell AmountCell(decimal amount)
         {
-            var text = amount == 0 ? "—" : $"Rs. {amount:N2}";
+            var text = amount == 0 ? "—" : $"{Region.Money(amount)}";
             return new TableCell(new Paragraph(new Run(text)) { TextAlignment = TextAlignment.Right })
             { Padding = new Thickness(4, 2, 6, 2) };
         }
@@ -841,6 +823,6 @@ namespace POSApp.UI.ViewModels
             { Padding = new Thickness(6, 3, 6, 3) };
 
         private static TableCell BoldAmountCell(decimal amount) =>
-            new TableCell(new Paragraph(new Run($"Rs. {amount:N2}") { FontWeight = FontWeights.Bold }) { TextAlignment = TextAlignment.Right })
+            new TableCell(new Paragraph(new Run($"{Region.Money(amount)}") { FontWeight = FontWeights.Bold }) { TextAlignment = TextAlignment.Right })
             { Padding = new Thickness(4, 3, 6, 3) };
 */

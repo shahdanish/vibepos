@@ -14,16 +14,16 @@ namespace POSApp.UI.Helpers
     public sealed class ReceiptBrandingSettings
     {
         /// <summary>Shop name — the large bold line at the very top of the printout.</summary>
-        public string StoreName { get; set; } = "Shahjee super store";
+        public string StoreName { get; set; } = "Your Store Name";
 
         /// <summary>Street / city line printed under the shop name.</summary>
-        public string StoreAddress { get; set; } = "Dillewali, Mianwali";
+        public string StoreAddress { get; set; } = "Your Store Address";
 
         /// <summary>Contact number printed under the address.</summary>
-        public string StorePhone { get; set; } = "0332-3324911";
+        public string StorePhone { get; set; } = string.Empty;
 
         /// <summary>
-        /// Optional extra header line (NTN / STRN / tagline / second phone). Left blank
+        /// Optional extra header line (tax / registration number, tagline, second phone). Left blank
         /// by default and skipped entirely when empty.
         /// </summary>
         public string HeaderNote { get; set; } = string.Empty;

@@ -148,7 +148,7 @@ namespace POSApp.UI.ViewModels
                     return;
                 }
 
-                SearchStatus = $"✓ {sale.CustomerName}  |  Original: Rs.{sale.TotalBill:N2}  |  Date: {sale.SaleDate:dd-MMM-yyyy}";
+                SearchStatus = $"✓ {sale.CustomerName}  |  Original: {Region.Money(sale.TotalBill)}  |  Date: {sale.SaleDate:dd-MMM-yyyy}";
                 OriginalSale = sale;
             }
             catch (Exception ex)

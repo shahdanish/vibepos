@@ -11,7 +11,7 @@ namespace POSApp.Core.Entities
         public decimal CostPrice { get; set; } // Cost price for profit calculation
         public decimal UnitPrice { get; set; } // Selling price
         public decimal DiscountPercent { get; set; }
-        public string DiscountType { get; set; } = "%"; // "%" or "PKR"
+        public string DiscountType { get; set; } = "%"; // "%" (percentage) or "AMT" (flat amount; legacy rows store "PKR")
         public decimal Total { get; set; }
 
         // Navigation property

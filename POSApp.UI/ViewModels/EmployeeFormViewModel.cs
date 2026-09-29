@@ -140,7 +140,7 @@ namespace POSApp.UI.ViewModels
 
             if (!string.IsNullOrWhiteSpace(Cnic) &&
                 await _employeeRepository.CnicExistsAsync(Cnic, _employeeId == 0 ? null : _employeeId))
-            { NotificationHelper.ValidationError("An employee with this CNIC already exists."); return; }
+            { NotificationHelper.ValidationError($"An employee with this {Region.NationalIdLabel} already exists."); return; }
 
             try
             {

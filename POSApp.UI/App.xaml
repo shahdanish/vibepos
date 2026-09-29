@@ -291,6 +291,7 @@
             <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
             <converters:NullableDecimalConverter x:Key="NullableDecimalConverter"/>
             <converters:RowIndexConverter x:Key="RowIndexConverter"/>
+            <converters:MoneyConverter x:Key="MoneyConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

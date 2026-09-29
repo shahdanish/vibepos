@@ -84,10 +84,11 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _currentUserInfo, value);
         }
 
-        public string StoreTitle =>
-            SessionManager.HasPermission(Permissions.PharmacySale)
-                ? "Master Pharmaceuticals Distributor"
-                : "Shah Jee Super Store";
+        /// <summary>
+        /// The shop name shown across the top of the main window. Comes from the shop's own
+        /// Receipt Settings so one build can ship to any client.
+        /// </summary>
+        public string StoreTitle => ShopTitleExtension.Build(null);
 
         public DashboardViewModel DashboardViewModel { get; }
 

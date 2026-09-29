@@ -1,11 +1,12 @@
 <Window x:Class="POSApp.UI.Views.SalesReportWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:POSApp.UI.Views"
         mc:Ignorable="d"
-        Title="Sales Reports - Shah Jee Super Store" Height="850" Width="1400"
+        Title="{helpers:ShopTitle Sales Reports}" Height="850" Width="1400"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
@@ -182,7 +183,7 @@
                             <DataGridTextColumn Header="Doctor" Binding="{Binding Doctor.Name}" Width="110" MinWidth="80"/>
                             <DataGridTextColumn Header="Items" Binding="{Binding SaleItems.Count}" Width="55" ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Discount" Binding="{Binding DiscountOnBill, StringFormat=N2}" Width="85" ElementStyle="{StaticResource RightAlignStyle}"/>
-                            <DataGridTextColumn Header="Total (Rs)" Binding="{Binding TotalBill, StringFormat=N2}" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
+                            <DataGridTextColumn Header="{x:Static helpers:Region.TotalLabel}" Binding="{Binding TotalBill, StringFormat=N2}" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTemplateColumn Header="Action" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -214,28 +215,28 @@
                         <Border Background="#E3F2FD" Padding="15" Margin="0,0,0,10" CornerRadius="8">
                             <StackPanel>
                                 <TextBlock Text="Total Revenue" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalRevenue, StringFormat=Rs. {0:N2}}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource InfoBrush}"/>
+                                <TextBlock Text="{Binding TotalRevenue, Converter={StaticResource MoneyConverter}}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource InfoBrush}"/>
                             </StackPanel>
                         </Border>
 
                         <Border Background="#FFF3E0" Padding="15" Margin="0,0,0,10" CornerRadius="8">
                             <StackPanel>
                                 <TextBlock Text="Total Cost" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalCost, StringFormat=Rs. {0:N2}}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                <TextBlock Text="{Binding TotalCost, Converter={StaticResource MoneyConverter}}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                             </StackPanel>
                         </Border>
 
                         <Border Background="#F3E5F5" Padding="15" Margin="0,0,0,10" CornerRadius="8">
                             <StackPanel>
                                 <TextBlock Text="Total Profit" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalProfit, StringFormat=Rs. {0:N2}}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource PurpleBrush}"/>
+                                <TextBlock Text="{Binding TotalProfit, Converter={StaticResource MoneyConverter}}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource PurpleBrush}"/>
                             </StackPanel>
                         </Border>
 
                         <Border Background="#FCE4EC" Padding="15" Margin="0,0,0,15" CornerRadius="8">
                             <StackPanel>
                                 <TextBlock Text="Total Discount Given" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalDiscount, StringFormat=Rs. {0:N2}}" FontSize="20" FontWeight="Bold" Foreground="#E91E63"/>
+                                <TextBlock Text="{Binding TotalDiscount, Converter={StaticResource MoneyConverter}}" FontSize="20" FontWeight="Bold" Foreground="#E91E63"/>
                             </StackPanel>
                         </Border>
 
@@ -276,9 +277,9 @@
                                                             <TextBlock Grid.Row="0" Text="{Binding ProductName}" FontSize="11" FontWeight="SemiBold"/>
                                                             <StackPanel Grid.Row="1" Orientation="Horizontal">
                                                                 <TextBlock Text="{Binding Quantity}" FontSize="10" Foreground="#666"/>
-                                                                <TextBlock Text=" × Rs." FontSize="10" Foreground="#666"/>
+                                                                <TextBlock Text="{x:Static helpers:Region.TimesSymbol}" FontSize="10" Foreground="#666"/>
                                                                 <TextBlock Text="{Binding UnitPrice, StringFormat=N2}" FontSize="10" Foreground="#666"/>
-                                                                <TextBlock Text=" = Rs." FontSize="10" Foreground="#666" Margin="5,0,0,0"/>
+                                                                <TextBlock Text="{x:Static helpers:Region.EqualsSymbol}" FontSize="10" Foreground="#666" Margin="5,0,0,0"/>
                                                                 <TextBlock Text="{Binding Total, StringFormat=N2}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                             </StackPanel>
                                                         </Grid>

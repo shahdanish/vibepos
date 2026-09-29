@@ -1,6 +1,7 @@
 <Window x:Class="POSApp.UI.Views.DemandOrderDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
         Title="Demand Order — Low Stock Items" Height="560" Width="860"
         WindowStartupLocation="CenterScreen" WindowState="Normal">
 
@@ -78,7 +79,7 @@
         <Grid Grid.Row="2" Margin="16,8,16,14">
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="18" FontWeight="Bold"
                        Foreground="{DynamicResource BrandPrimaryBrush}">
-                <Run Text="Total Bill: Rs. "/>
+                <Run Text="{x:Static helpers:Region.TotalBillPrefix}"/>
                 <Run x:Name="TotalBillRun"/>
             </TextBlock>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

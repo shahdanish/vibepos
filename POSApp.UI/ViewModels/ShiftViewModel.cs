@@ -73,7 +73,7 @@ namespace POSApp.UI.ViewModels
 
                 if (IsShiftOpen)
                 {
-                    ShiftStatus = $"Shift open since {CurrentShift!.OpenedAt:hh:mm tt} | Opening: Rs.{CurrentShift.OpeningBalance:N2}";
+                    ShiftStatus = $"Shift open since {CurrentShift!.OpenedAt:hh:mm tt} | Opening: {Region.Money(CurrentShift.OpeningBalance)}";
                 }
                 else
                 {
@@ -141,12 +141,12 @@ namespace POSApp.UI.ViewModels
                 if (justClosed != null)
                 {
                     var diff = justClosed.Difference;
-                    var diffText = diff >= 0 ? $"+Rs.{diff:N2}" : $"-Rs.{Math.Abs(diff):N2}";
+                    var diffText = diff >= 0 ? $"{Region.Money(diff)}" : $"{"- " + Region.Money(Math.Abs(diff))}";
                     
                     MessageBox.Show(
                         $"Shift Closed!\n\n" +
-                        $"Expected: Rs.{justClosed.ExpectedClosingBalance:N2}\n" +
-                        $"Actual: Rs.{justClosed.ActualClosingBalance:N2}\n" +
+                        $"Expected: {Region.Money(justClosed.ExpectedClosingBalance)}\n" +
+                        $"Actual: {Region.Money(justClosed.ActualClosingBalance)}\n" +
                         $"Difference: {diffText}",
                         "Shift Summary", MessageBoxButton.OK, MessageBoxImage.Information);
                 }

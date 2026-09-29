@@ -1,7 +1,8 @@
 <Window x:Class="POSApp.UI.Views.EmployeeManagementWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Employee Management - Master Pharmaceuticals Distributor"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
+        Title="{helpers:ShopTitle Employee Management}"
         Height="680" Width="1150"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
@@ -41,7 +42,7 @@
                                         <Setter.Value>
                                             <VisualBrush AlignmentX="Left" Stretch="None">
                                                 <VisualBrush.Visual>
-                                                    <TextBlock Text="🔍  Search by name, CNIC, cell, designation…"
+                                                    <TextBlock Text="{x:Static helpers:Region.EmployeeSearchHint}"
                                                                Foreground="#999" Margin="8,6"/>
                                                 </VisualBrush.Visual>
                                             </VisualBrush>
@@ -85,9 +86,9 @@
                         <DataGridTextColumn Header="Name"        Binding="{Binding Name}"         Width="*" MinWidth="140"/>
                         <DataGridTextColumn Header="Designation" Binding="{Binding Designation}"  Width="140"/>
                         <DataGridTextColumn Header="Department"  Binding="{Binding Department}"   Width="120"/>
-                        <DataGridTextColumn Header="CNIC"        Binding="{Binding Cnic}"         Width="130"/>
+                        <DataGridTextColumn Header="{x:Static helpers:Region.NationalIdLabel}"        Binding="{Binding Cnic}"         Width="130"/>
                         <DataGridTextColumn Header="Cell"        Binding="{Binding CellNumber}"   Width="120"/>
-                        <DataGridTextColumn Header="Basic Salary" Binding="{Binding BasicSalary, StringFormat=Rs. \{0:N2\}}" Width="120"/>
+                        <DataGridTextColumn Header="Basic Salary" Binding="{Binding BasicSalary, Converter={StaticResource MoneyConverter}}" Width="120"/>
 
                         <!-- Status badge -->
                         <DataGridTemplateColumn Header="Status" Width="85">

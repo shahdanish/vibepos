@@ -829,14 +829,16 @@ namespace POSApp.UI.ViewModels
             hdrSP.Children.Add(MkTB("Invoice", 10.5, false, TextAlignment.Center, 2));
             hdrSP.Children.Add(new TextBlock
             {
-                Text = "Master Pharmaceuticals Distributor",
+                Text = ReceiptBranding.Current.StoreName,
                 FontFamily = F, FontSize = 20, FontWeight = FontWeights.Bold,
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 3)
             });
             hdrSP.Children.Add(MkTB("Office #410, 4th Floor Kohistan Tower", 10.5, false, TextAlignment.Center));
             hdrSP.Children.Add(MkTB("Saddar, Rawalpindi", 10.5, false, TextAlignment.Center, 2));
-            hdrSP.Children.Add(MkTB("NTN#G985456   DSL # 374-89100937-2025", 10, false, TextAlignment.Center));
+            // Registration numbers are per-shop (Receipt Settings → Extra Header Line).
+            if (!string.IsNullOrWhiteSpace(ReceiptBranding.Current.HeaderNote))
+                hdrSP.Children.Add(MkTB(ReceiptBranding.Current.HeaderNote, 10, false, TextAlignment.Center));
             content.Children.Add(hdrSP);
 
             content.Children.Add(HLine(0.7, 0, 0));
@@ -963,7 +965,7 @@ namespace POSApp.UI.ViewModels
             {
                 BorderBrush = Brushes.Black, BorderThickness = new Thickness(1),
                 Padding = new Thickness(10, 4, 10, 4),
-                Child = new TextBlock { Text = $"Rs. {TotalBill:N2}", FontFamily = F, FontSize = 15, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Right, MinWidth = 100 }
+                Child = new TextBlock { Text = $"{Region.Money(TotalBill)}", FontFamily = F, FontSize = 15, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Right, MinWidth = 100 }
             };
             Grid.SetColumn(netBox, 2); netG.Children.Add(netBox);
             content.Children.Add(netG);
@@ -990,7 +992,7 @@ namespace POSApp.UI.ViewModels
             });
             stampSP.Children.Add(new TextBlock
             {
-                Text = "Master Pharmaceutical Distributor",
+                Text = ReceiptBranding.Current.StoreName,
                 FontFamily = F, FontSize = 10, FontWeight = FontWeights.Bold,
                 TextAlignment = TextAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Stretch
@@ -1013,7 +1015,6 @@ namespace POSApp.UI.ViewModels
                        "contravene in any way the provisions of section 23 of the Drugs Act, 1976."
             });
             footer.Children.Add(MkTB("Terms:", 7.5, true, TextAlignment.Left, 4));
-            footer.Children.Add(MkTB("Software from Husain Software  Cell 03137643443", 7, false, TextAlignment.Center));
 
             return root;
         }
@@ -1040,13 +1041,14 @@ namespace POSApp.UI.ViewModels
             var hdr = new Paragraph { TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 2) };
             hdr.Inlines.Add(new Run("Invoice") { FontSize = 10 });
             hdr.Inlines.Add(new LineBreak());
-            hdr.Inlines.Add(new Bold(new Run("Master Pharmaceuticals Distributor")) { FontSize = 18 });
+            hdr.Inlines.Add(new Bold(new Run(ReceiptBranding.Current.StoreName)) { FontSize = 18 });
             hdr.Inlines.Add(new LineBreak());
             hdr.Inlines.Add(new Run("Office #410, 4th Floor Kohistan Tower") { FontSize = 9 });
             hdr.Inlines.Add(new LineBreak());
             hdr.Inlines.Add(new Run("Saddar, Rawalpindi") { FontSize = 9 });
             hdr.Inlines.Add(new LineBreak());
-            hdr.Inlines.Add(new Run("NTN#G985456  DSL # 374-89100937-2025") { FontSize = 9 });
+            if (!string.IsNullOrWhiteSpace(ReceiptBranding.Current.HeaderNote))
+                hdr.Inlines.Add(new Run(ReceiptBranding.Current.HeaderNote) { FontSize = 9 });
             doc.Blocks.Add(hdr);
 
             // ── PHARMACY DETAILS (dynamic) ────────────────────────────────

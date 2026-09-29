@@ -1,11 +1,12 @@
 <Window x:Class="POSApp.UI.Views.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:POSApp.UI.Views"
         mc:Ignorable="d"
-        Title="Login - Shah Jee Super Store" 
+        Title="{helpers:ShopTitle Login}" 
         Height="500" Width="450"
         WindowStartupLocation="CenterScreen"
         Icon="pack://application:,,,/POSApp.UI;component/app.ico"
@@ -27,7 +28,7 @@
             <!-- Header -->
             <Border Grid.Row="0" Style="{StaticResource HeaderBar}" CornerRadius="15,15,0,0">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="Shah Jee Super Store" FontSize="24" FontWeight="Bold" 
+                    <TextBlock Text="{helpers:ShopTitle}" FontSize="24" FontWeight="Bold" 
                                Foreground="White" HorizontalAlignment="Center"/>
                     <TextBlock Text="POS System Login" FontSize="14" FontWeight="SemiBold" 
                                Foreground="{DynamicResource BrandGoldBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>

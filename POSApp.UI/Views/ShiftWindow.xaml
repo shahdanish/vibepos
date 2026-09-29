@@ -1,7 +1,8 @@
 <Window x:Class="POSApp.UI.Views.ShiftWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Shift Management - Shah Jee Super Store" Height="650" Width="900"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
+        Title="{helpers:ShopTitle Shift Management}" Height="650" Width="900"
         WindowStartupLocation="CenterScreen">
     <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
@@ -36,7 +37,7 @@
                     <Border Background="#EBF8FF" CornerRadius="8" Padding="15" Margin="0,0,0,15">
                         <StackPanel>
                             <TextBlock Text="Open New Shift" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
-                            <TextBlock Text="Opening Cash (Rs.)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <TextBlock Text="{x:Static helpers:Region.OpeningCashLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                             <TextBox Text="{Binding OpeningBalance, UpdateSourceTrigger=PropertyChanged}" 
                                      Padding="8" Margin="0,0,0,10"/>
                             <Button Content="🟢 Open Shift" Command="{Binding OpenShiftCommand}" 
@@ -49,7 +50,7 @@
                         <StackPanel>
                             <TextBlock Text="Close Current Shift" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                             <TextBlock Text="Count your cash and enter below:" FontSize="12" Margin="0,0,0,10" Foreground="Gray"/>
-                            <TextBlock Text="Actual Cash in Drawer (Rs.)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <TextBlock Text="{x:Static helpers:Region.ActualCashLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                             <TextBox Text="{Binding ClosingBalance, UpdateSourceTrigger=PropertyChanged}" 
                                      Padding="8" Margin="0,0,0,10"/>
                             <Button Content="🔴 Close Shift" Command="{Binding CloseShiftCommand}" 

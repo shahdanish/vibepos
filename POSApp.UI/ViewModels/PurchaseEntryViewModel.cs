@@ -125,7 +125,7 @@ namespace POSApp.UI.ViewModels
 
         public string CurrentStockInfo =>
             SelectedProduct == null ? string.Empty
-            : $"In stock: {SelectedProduct.Stock} units  |  Current cost: Rs.{SelectedProduct.CostPrice:N2}";
+            : $"In stock: {SelectedProduct.Stock} units  |  Current cost: {Region.Money(SelectedProduct.CostPrice)}";
 
         public string AvgCostPreview
         {
@@ -137,7 +137,7 @@ namespace POSApp.UI.ViewModels
                 var avgCost = stock > 0
                     ? ((stock * SelectedProduct.CostPrice) + (qty * UnitCost)) / (stock + qty)
                     : UnitCost;
-                return $"New avg cost after purchase → Rs.{avgCost:N2}";
+                return $"New avg cost after purchase → {Region.Money(avgCost)}";
             }
         }
 

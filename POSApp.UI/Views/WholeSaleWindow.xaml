@@ -1,10 +1,11 @@
 <Window x:Class="POSApp.UI.Views.WholeSaleWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Whole Sale - Shah Jee Super Store" Height="750" Width="1200"
+        Title="{helpers:ShopTitle Whole Sale}" Height="750" Width="1200"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
@@ -85,7 +86,7 @@
                         <StackPanel Grid.Column="1" Margin="0,0,8,0">
                             <TextBlock Text="Outstanding Balance" FontWeight="Bold" FontSize="11" Margin="0,0,0,3"
                                        Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBox Text="{Binding PreBalance, StringFormat='Rs. {0:N2}', Mode=OneWay}"
+                            <TextBox Text="{Binding PreBalance, Converter={StaticResource MoneyConverter}, Mode=OneWay}"
                                      FontSize="12" Padding="5" IsReadOnly="True" Background="#FFF9C4"/>
                         </StackPanel>
                         <Border Grid.Column="2" Background="#FFF3E0" Padding="8,5" CornerRadius="4"
@@ -233,13 +234,13 @@
                                                             </Style>
                                                         </ToggleButton.Style>
                                                     </ToggleButton>
-                                                    <ToggleButton IsChecked="{Binding DiscountTypeIsPKR, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    <ToggleButton IsChecked="{Binding DiscountTypeIsAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                   Width="30" Height="24" Padding="0" FontSize="11"
                                                                   ToolTip="Fixed amount discount (PKR)"
                                                                   BorderThickness="0">
                                                         <ToggleButton.Style>
                                                             <Style TargetType="ToggleButton">
-                                                                <Setter Property="Content" Value="Rs"/>
+                                                                <Setter Property="Content" Value="{x:Static helpers:Region.Symbol}"/>
                                                                 <Setter Property="Background" Value="Transparent"/>
                                                                 <Setter Property="Foreground" Value="#616161"/>
                                                                 <Setter Property="FontWeight" Value="SemiBold"/>
@@ -377,7 +378,7 @@
                                 </Style>
                             </Grid.Style>
                             <TextBlock Text="Item Discounts:" FontSize="11" Foreground="#4CAF50" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding TotalItemsDiscount, StringFormat='- Rs. {0:N2}'}"
+                            <TextBlock Text="{Binding TotalItemsDiscount, Converter={StaticResource MoneyConverter}, ConverterParameter=-}"
                                        FontSize="11" Foreground="#4CAF50" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         </Grid>
 
@@ -391,7 +392,7 @@
                         <Grid Margin="0,5,0,5">
                             <TextBlock Text="TOTAL BILL:" FontSize="15" FontWeight="Bold"
                                        Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBox Text="{Binding TotalBill, StringFormat='Rs. {0:N2}', Mode=OneWay}"
+                            <TextBox Text="{Binding TotalBill, Converter={StaticResource MoneyConverter}, Mode=OneWay}"
                                      Style="{StaticResource TotalDisplay}" Width="160" HorizontalAlignment="Right"/>
                         </Grid>
                         <Grid Margin="0,0,0,5">
@@ -405,7 +406,7 @@
                         <Grid>
                             <TextBlock Text="Balance:" FontSize="13" FontWeight="Bold"
                                        Foreground="{DynamicResource InfoBrush}"/>
-                            <TextBox Text="{Binding Balance, StringFormat='Rs. {0:N2}', Mode=OneWay}"
+                            <TextBox Text="{Binding Balance, Converter={StaticResource MoneyConverter}, Mode=OneWay}"
                                      FontSize="14" FontWeight="Bold" Padding="6" Width="160"
                                      HorizontalAlignment="Right" TextAlignment="Right"
                                      IsReadOnly="True" Background="#E3F2FD"

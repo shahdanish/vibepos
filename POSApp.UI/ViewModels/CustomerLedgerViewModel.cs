@@ -485,7 +485,7 @@ namespace POSApp.UI.ViewModels
             if (param is not CustomerPayment payment) return;
 
             if (!NotificationHelper.Confirm(
-                $"Delete this payment of Rs.{payment.AmountPaid:N2}?\nThe amount will be added back to the customer's balance."))
+                $"Delete this payment of {Region.Money(payment.AmountPaid)}?\nThe amount will be added back to the customer's balance."))
                 return;
 
             try
@@ -548,7 +548,7 @@ namespace POSApp.UI.ViewModels
                 await LoadCustomers();
                 SelectedCustomer = Customers.FirstOrDefault(c => c.Id == payment.CustomerId);
 
-                NotificationHelper.ShowSuccess($"Payment of Rs.{payment.AmountPaid:N2} recorded!");
+                NotificationHelper.ShowSuccess($"Payment of {Region.Money(payment.AmountPaid)} recorded!");
 
                 PrintPaymentReceipt(payment, customerSnapshot, balanceBefore);
             }
@@ -605,9 +605,9 @@ namespace POSApp.UI.ViewModels
                 var tg = new TableRowGroup();
                 table.RowGroups.Add(tg);
 
-                AddTableRow(tg, "Previous Balance:", $"Rs. {balanceBefore:N2}", bold: false);
-                AddTableRow(tg, "Amount Paid:", $"Rs. {payment.AmountPaid:N2}", bold: false);
-                AddTableRow(tg, "Remaining Balance:", $"Rs. {remaining:N2}", bold: true);
+                AddTableRow(tg, "Previous Balance:", $"{Region.Money(balanceBefore)}", bold: false);
+                AddTableRow(tg, "Amount Paid:", $"{Region.Money(payment.AmountPaid)}", bold: false);
+                AddTableRow(tg, "Remaining Balance:", $"{Region.Money(remaining)}", bold: true);
                 doc.Blocks.Add(table);
 
                 doc.Blocks.Add(Separator());
