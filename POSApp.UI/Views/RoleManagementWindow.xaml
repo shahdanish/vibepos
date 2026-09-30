@@ -16,12 +16,13 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
-            <TextBlock Text="Role Management" FontSize="24" FontWeight="Bold"
+            <TextBlock Text="Role Management" FontSize="20" FontWeight="SemiBold"
                        Foreground="White" HorizontalAlignment="Center"/>
         </Border>
 
         <!-- Toolbar -->
-        <Border Grid.Row="1" Background="{DynamicResource BrandAccentBrush}" Padding="12,8">
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="16,10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="＋  Add Role"
                         Command="{Binding AddCommand}"
@@ -40,7 +41,7 @@
                           GridLinesVisibility="Horizontal"
                           HeadersVisibility="Column"
                           RowBackground="White"
-                          AlternatingRowBackground="#F9F9F9"
+                          AlternatingRowBackground="{DynamicResource SurfaceAltBrush}"
                           CanUserSortColumns="True"
                           BorderThickness="0">
                     <DataGrid.Columns>
@@ -52,8 +53,8 @@
                         <DataGridTemplateColumn Header="Permissions" Width="110">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Border Background="#E3F2FD" CornerRadius="4" Padding="8,2" HorizontalAlignment="Center">
-                                        <TextBlock Foreground="#1565C0" FontWeight="SemiBold" FontSize="12">
+                                    <Border Background="{DynamicResource InfoSubtleBrush}" CornerRadius="4" Padding="8,2" HorizontalAlignment="Center">
+                                        <TextBlock Foreground="{DynamicResource InfoTextBrush}" FontWeight="SemiBold" FontSize="12">
                                             <Run Text="{Binding RolePermissions.Count, Mode=OneWay}"/>
                                             <Run Text=" perms"/>
                                         </TextBlock>
@@ -69,10 +70,10 @@
                                     <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Center">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#FF9800"/>
+                                                <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSystemRole}" Value="False">
-                                                        <Setter Property="Background" Value="#4CAF50"/>
+                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -133,7 +134,7 @@
         <!-- Footer -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,8">
             <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
-                    Style="{StaticResource InfoButton}" Padding="12,6" Margin="0,0,8,0"/>
+                    Style="{StaticResource SecondaryButton}" Padding="12,6" Margin="0,0,8,0"/>
             <Button Content="✕ Close" Click="Close_Click"
                     Style="{StaticResource NeutralButton}" Padding="12,6"/>
         </StackPanel>

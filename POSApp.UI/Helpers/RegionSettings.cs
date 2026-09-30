@@ -110,9 +110,7 @@ namespace POSApp.UI.Helpers
     public static class Region
     {
         private static readonly string SettingsFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "ShahJeePOS",
-            "region-settings.json");
+            POSApp.Core.Services.AppPaths.SharedSettingsDirectory, "region-settings.json");
 
         private static RegionSettingsData? _cached;
 

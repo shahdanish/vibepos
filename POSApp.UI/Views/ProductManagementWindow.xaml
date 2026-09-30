@@ -17,7 +17,7 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
-            <TextBlock Text="Product Management" FontSize="24" FontWeight="Bold" 
+            <TextBlock Text="Product Management" FontSize="20" FontWeight="SemiBold" 
                        Foreground="White" HorizontalAlignment="Center"/>
         </Border>
 
@@ -48,24 +48,8 @@
                         <TextBox Grid.Column="1" Width="260" Padding="8,6" Margin="0,0,0,8"
                                  VerticalAlignment="Center"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=150}"
-                                 ToolTip="Search across all columns — barcode, name, category, prices, stock, rack, batch, expiry">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Style.Resources>
-                                        <VisualBrush x:Key="SearchHint" AlignmentX="Left" AlignmentY="Center" Stretch="None">
-                                            <VisualBrush.Visual>
-                                                <TextBlock Text="🔍  Search products…" Foreground="Gray" Margin="4,0,0,0"/>
-                                            </VisualBrush.Visual>
-                                        </VisualBrush>
-                                    </Style.Resources>
-                                    <Style.Triggers>
-                                        <Trigger Property="Text" Value="">
-                                            <Setter Property="Background" Value="{StaticResource SearchHint}"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
+                                 ToolTip="Search across all columns — barcode, name, category, prices, stock, rack, batch, expiry"
+                         helpers:Input.Placeholder="🔍  Search products…"/>
                     </Grid>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
@@ -74,7 +58,7 @@
                             <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="90"/>
                             <DataGridTemplateColumn Header="Product Name" Width="*" SortMemberPath="ProductName">
                                 <DataGridTemplateColumn.CellStyle>
-                                    <Style TargetType="DataGridCell">
+                                    <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
                                         <Setter Property="ToolTip" Value="{Binding ProductName}"/>
                                         <Setter Property="ToolTipService.ShowDuration" Value="10000"/>
                                     </Style>
@@ -112,10 +96,10 @@
 
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
                         <CheckBox Content="Show Deleted" IsChecked="{Binding ShowDeletedProducts}" 
-                                  FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}"
+                                  FontSize="13" FontWeight="SemiBold"
                                   ToolTip="Toggle to show/hide deleted products" Margin="0,0,10,0"/>
                         <Button Content="Refresh List" Command="{Binding RefreshCommand}" 
-                                Style="{StaticResource InfoButton}" Padding="10,5"/>
+                                Style="{StaticResource SecondaryButton}" Padding="10,5"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -163,7 +147,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="{x:Static helpers:Region.RetailPriceLabel}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            <Border Grid.Column="1" Background="#e67e22" CornerRadius="4" Padding="6,2" VerticalAlignment="Center"
+                            <Border Grid.Column="1" Background="{DynamicResource WarningBrush}" CornerRadius="4" Padding="6,2" VerticalAlignment="Center"
                                     Visibility="{Binding IsPharmacyUser, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Auto −15%" FontSize="9" FontWeight="Bold" Foreground="White"/>
                             </Border>

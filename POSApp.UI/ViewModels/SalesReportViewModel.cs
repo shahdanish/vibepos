@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
+using POSApp.Core.Services;
 using POSApp.UI.Helpers;
 
 namespace POSApp.UI.ViewModels
@@ -99,7 +100,19 @@ namespace POSApp.UI.ViewModels
 
         // Pharmacy filter properties — only shown for pharmacy users
         public bool IsPharmacyUser { get; } =
-            SessionManager.HasPermission(Permissions.PharmacySale);
+            SessionManager.HasPermission(Permissions.PharmacySale) && EditionGate.IsInBuild(AppFeature.Pharmacy);
+
+        /// <summary>
+        /// True when the listed sales include pharmacy sales (a doctor or a pharmacy sale type).
+        /// Drives the "Customer / Pharmacy" header and the Doctor column, which are noise for a
+        /// normal shop.
+        /// </summary>
+        public bool ShowPharmacyColumns
+        {
+            get => _showPharmacyColumns;
+            private set => SetProperty(ref _showPharmacyColumns, value);
+        }
+        private bool _showPharmacyColumns;
 
         public Visibility PharmacyFilterVisibility =>
             IsPharmacyUser ? Visibility.Visible : Visibility.Collapsed;
@@ -174,7 +187,7 @@ namespace POSApp.UI.ViewModels
             ViewDetailsCommand = new RelayCommand(sale => ViewDetails(sale as Sale));
             PrintCommand = new RelayCommand(_ => PrintInvoice());
             PrintReportCommand = new RelayCommand(_ => PrintReport());
-            ExportCommand = new RelayCommand(_ => ExportToExcel(), _ => _canExport); // Admin only
+            ExportCommand = new RelayCommand(_ => { if (EditionGate.Require(AppFeature.ExcelExport)) ExportToExcel(); }, _ => _canExport); // Admin only
             RefreshCommand = new RelayCommand(async _ => await RefreshData());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
 
@@ -353,6 +366,10 @@ namespace POSApp.UI.ViewModels
             Sales.Clear();
             foreach (var s in filtered)
                 Sales.Add(s);
+
+            ShowPharmacyColumns = EditionGate.IsInBuild(AppFeature.Pharmacy) &&
+                Sales.Any(s => s.DoctorId != null ||
+                               s.SaleType.StartsWith("Pharmacy", StringComparison.OrdinalIgnoreCase));
 
             UpdateSummary();
         }

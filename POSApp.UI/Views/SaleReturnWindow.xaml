@@ -14,17 +14,15 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Background="{DynamicResource DangerBrush}" Padding="15">
-            <Border.Effect>
-                <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.25" Direction="270" Color="Black"/>
-            </Border.Effect>
+        <!-- Header: return screens keep a distinct colour so the mode is obvious -->
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Background="{DynamicResource DangerBrush}" Padding="12,8">
             <Grid>
-                <TextBlock Text="SALE RETURN" FontSize="28" FontWeight="Bold"
-                           Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding ReturnInvoiceNumber, StringFormat='Return Invoice: {0}'}"
-                           FontSize="18" FontWeight="Bold" Foreground="Yellow"
-                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <TextBlock Text="Sale Return" Style="{StaticResource HeaderTitle}" HorizontalAlignment="Left"/>
+                <Border HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Background="#26FFFFFF" CornerRadius="14" Padding="12,4">
+                    <TextBlock Text="{Binding ReturnInvoiceNumber, StringFormat='Return  #{0}'}"
+                               FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                </Border>
             </Grid>
         </Border>
 
@@ -66,7 +64,7 @@
                             </TextBox.InputBindings>
                         </TextBox>
                         <Button Grid.Column="2" Content="Search" Command="{Binding SearchCommand}"
-                                Style="{StaticResource InfoButton}" Padding="15,8" MinWidth="110"/>
+                                Style="{StaticResource InfoButton}" MinWidth="110"/>
 
                         <TextBlock Grid.Column="3" Text="Return Date:" FontSize="13" FontWeight="SemiBold"
                                    VerticalAlignment="Center" Margin="15,0,10,0"/>
@@ -92,8 +90,8 @@
                     <TextBlock Grid.Row="0" Text="Items to Return" Style="{StaticResource SectionTitle}"/>
 
                     <DataGrid Grid.Row="1" ItemsSource="{Binding ReturnItems}" AutoGenerateColumns="False"
-                              CanUserAddRows="False" AlternatingRowBackground="#F9F9F9"
-                              HeadersVisibility="All" GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#DDD"
+                              CanUserAddRows="False" AlternatingRowBackground="{DynamicResource SurfaceAltBrush}"
+                              HeadersVisibility="All" GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                               HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}" Width="110" IsReadOnly="True"/>
@@ -123,13 +121,13 @@
                                      FontSize="13" Padding="8" TextWrapping="Wrap" MaxLength="200"/>
                         </StackPanel>
 
-                        <Border Grid.Column="1" Background="#FFEBEE" Padding="15" Margin="15,0,0,0"
+                        <Border Grid.Column="1" Background="{DynamicResource DangerSubtleBrush}" Padding="15" Margin="15,0,0,0"
                                 CornerRadius="8" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="2">
                             <Border.Effect>
                                 <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.12" Direction="270" Color="Black"/>
                             </Border.Effect>
                             <StackPanel>
-                                <TextBlock Text="TOTAL REFUND" FontSize="11" Foreground="#666" Margin="0,0,0,5"/>
+                                <TextBlock Text="TOTAL REFUND" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,5"/>
                                 <TextBlock Text="{Binding TotalReturnAmount, Converter={StaticResource MoneyConverter}}"
                                            FontSize="22" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                             </StackPanel>
@@ -142,11 +140,11 @@
             <Border Grid.Row="2" Style="{StaticResource CardBorder}">
                 <WrapPanel HorizontalAlignment="Center">
                     <Button Content="PROCESS &amp; PRINT" Command="{Binding ProcessAndPrintCommand}"
-                            Style="{StaticResource SuccessButton}" Padding="20,10" Margin="0,0,10,5" MinWidth="170"/>
-                    <Button Content="CANCEL" Command="{Binding CancelCommand}"
-                            Style="{StaticResource WarningButton}" Padding="20,10" Margin="0,0,10,5" MinWidth="120"/>
-                    <Button Content="CLOSE" Click="Close_Click"
-                            Style="{StaticResource NeutralButton}" Padding="20,10" Margin="0,0,0,5" MinWidth="110"/>
+                            Style="{StaticResource SuccessButton}" Margin="0,0,10,5" MinWidth="170"/>
+                    <Button Content="Cancel" Command="{Binding CancelCommand}"
+                            Style="{StaticResource WarningButton}" Margin="0,0,10,5" MinWidth="120"/>
+                    <Button Content="Close" Click="Close_Click"
+                            Style="{StaticResource NeutralButton}" Margin="0,0,0,5" MinWidth="110"/>
                 </WrapPanel>
             </Border>
         </Grid>

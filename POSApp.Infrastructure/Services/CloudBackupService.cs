@@ -50,15 +50,15 @@ namespace POSApp.Infrastructure.Services
         private FirestoreDb? _firestore;
         private string _clientId = "default";
 
-        private static readonly string DbPath = Path.GetFullPath("posapp.db");
+        private static string DbPath => AppPaths.DatabasePath;
         private static readonly string TempDir = Path.Combine(Path.GetTempPath(), "POSAppCloudBackup");
 
         public CloudBackupService(IServiceProvider serviceProvider, IDatabaseBackupService dbBackup)
         {
             _serviceProvider = serviceProvider;
             _dbBackup = dbBackup;
-            _logPath = Path.Combine(AppContext.BaseDirectory, "sync.log");
-            _statePath = Path.Combine(AppContext.BaseDirectory, "cloudbackup.state");
+            _logPath = Path.Combine(AppPaths.LogsDirectory, "cloud-backup.log");
+            _statePath = AppPaths.DataFile("cloudbackup.state");
         }
 
         // ─────────────────────────────────────────────────────────────────────────

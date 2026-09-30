@@ -10,26 +10,26 @@
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="2"/>
-            <Setter Property="Background" Value="#F0F0F0"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceSunkenBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#CCC"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#DDEEFF"/>
+                    <Setter Property="Background" Value="{DynamicResource InfoSubtleBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         <Style x:Key="OpBtn" TargetType="Button" BasedOn="{StaticResource CalcBtn}">
-            <Setter Property="Background" Value="#FFE0B2"/>
+            <Setter Property="Background" Value="{DynamicResource WarningSubtleBrush}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FFCC80"/>
+                    <Setter Property="Background" Value="{DynamicResource WarningBorderBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         <Style x:Key="EqBtn" TargetType="Button" BasedOn="{StaticResource CalcBtn}">
-            <Setter Property="Background" Value="#4CAF50"/>
+            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -38,7 +38,7 @@
             </Style.Triggers>
         </Style>
         <Style x:Key="ClrBtn" TargetType="Button" BasedOn="{StaticResource CalcBtn}">
-            <Setter Property="Background" Value="#EF5350"/>
+            <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -47,7 +47,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <Grid Background="White" Margin="4">
+    <Grid Background="{DynamicResource SurfaceBrush}" Margin="4">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

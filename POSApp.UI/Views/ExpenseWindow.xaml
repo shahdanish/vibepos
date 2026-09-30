@@ -16,10 +16,10 @@
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="20">
             <Grid>
-                <TextBlock Text="Expense Tracking &amp; Analytics" FontSize="28" FontWeight="Bold"
+                <TextBlock Text="Expense Tracking &amp; Analytics" FontSize="20" FontWeight="SemiBold"
                            Foreground="White" HorizontalAlignment="Center"/>
                 <Button Content="Close" Click="Close_Click" HorizontalAlignment="Right"
-                        Style="{StaticResource PrimaryButton}" Padding="15,8"/>
+                        Style="{StaticResource SecondaryButton}"/>
             </Grid>
         </Border>
 
@@ -34,21 +34,16 @@
                 <TextBlock Grid.Row="0" Text="Quick Filters" Style="{StaticResource SectionTitle}" Margin="0,0,0,15"/>
 
                 <WrapPanel Grid.Row="1">
-                    <Button Content="DAILY" Command="{Binding SetDailyCommand}"
-                            Style="{StaticResource SuccessButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="WEEKLY" Command="{Binding SetWeeklyCommand}"
-                            Style="{StaticResource InfoButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="MONTHLY" Command="{Binding SetMonthlyCommand}"
-                            Style="{StaticResource WarningButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="YEARLY" Command="{Binding SetYearlyCommand}"
-                            Style="{StaticResource PurpleButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="CUSTOM RANGE" Command="{Binding SetCustomCommand}"
-                            Style="{StaticResource NeutralButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="150"
-                            FontSize="14" FontWeight="Bold"/>
+                    <Button Content="Daily" Command="{Binding SetDailyCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="Weekly" Command="{Binding SetWeeklyCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="Monthly" Command="{Binding SetMonthlyCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="Yearly" Command="{Binding SetYearlyCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="Custom range" Command="{Binding SetCustomCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
                 </WrapPanel>
             </Grid>
         </Border>
@@ -70,9 +65,9 @@
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0" Margin="0,0,0,10">
-                        <TextBlock Text="{Binding PeriodDescription}" FontSize="20" FontWeight="Bold"
+                        <TextBlock Text="{Binding PeriodDescription}" FontSize="18" FontWeight="SemiBold"
                                    VerticalAlignment="Center"
-                                   Foreground="{DynamicResource BrandPrimaryBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                             <TextBlock Text="Category:" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox ItemsSource="{Binding FilterCategories}"
@@ -88,12 +83,12 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
                                     Visibility="{Binding ShowDateNavigator, Converter={StaticResource BoolToVis}}">
                             <Button Content="◀" Command="{Binding PreviousPeriodCommand}"
-                                    Width="34" Height="30" FontSize="14" Padding="0"
+                                    Width="34" Height="30" Padding="0"
                                     Style="{StaticResource NeutralButton}" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding PeriodDescription}" FontSize="14" FontWeight="SemiBold"
                                        VerticalAlignment="Center" MinWidth="240" TextAlignment="Center"/>
                             <Button Content="▶" Command="{Binding NextPeriodCommand}"
-                                    Width="34" Height="30" FontSize="14" Padding="0"
+                                    Width="34" Height="30" Padding="0"
                                     Style="{StaticResource NeutralButton}" Margin="10,0,0,0"/>
                         </StackPanel>
 
@@ -122,8 +117,8 @@
                     <!-- DataGrid -->
                     <DataGrid Grid.Row="2" ItemsSource="{Binding Expenses}"
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
-                              AlternatingRowBackground="#F9F9F9" HeadersVisibility="All"
-                              GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#DDD">
+                              AlternatingRowBackground="{DynamicResource SurfaceAltBrush}" HeadersVisibility="All"
+                              GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Date / Time" Binding="{Binding Date, Converter={StaticResource DateConverter}, ConverterParameter=time}" Width="160"/>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" MinWidth="150"/>
@@ -149,22 +144,22 @@
             <!-- Right Panel: Summary + Add Form -->
             <Border Grid.Column="1" Style="{StaticResource CardBorder}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
+                    <StackPanel Margin="0,0,12,0">
                         <!-- Summary -->
                         <TextBlock Text="Summary" Style="{StaticResource SectionTitle}" Margin="0,0,0,15"/>
 
-                        <Border Background="#FCE4EC" Padding="15" Margin="0,0,0,15" CornerRadius="8">
+                        <Border Style="{StaticResource StatTile}" Margin="0,0,0,15">
                             <StackPanel>
-                                <TextBlock Text="Total Expenses" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalExpenses, Converter={StaticResource MoneyConverter}}" FontSize="24" FontWeight="Bold" Foreground="#E91E63"/>
+                                <TextBlock Text="Total Expenses" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding TotalExpenses, Converter={StaticResource MoneyConverter}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource DangerTextBrush}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Add Expense Form -->
-                        <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,5,0,0">
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,5,0,0">
                             <StackPanel>
-                                <TextBlock Text="Add Expense" FontSize="16" FontWeight="Bold"
-                                           Foreground="{DynamicResource BrandPrimaryBrush}" Margin="0,0,0,15"/>
+                                <TextBlock Text="Add Expense" FontSize="15" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,15"/>
 
                                 <TextBlock Text="Description *" FontWeight="SemiBold" Margin="0,0,0,5"/>
                                 <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
@@ -186,16 +181,15 @@
                                          TextWrapping="Wrap" AcceptsReturn="True"/>
 
                                 <Button Content="Add Expense" Command="{Binding AddExpenseCommand}"
-                                        Style="{StaticResource SuccessButton}" Padding="12,10" FontSize="14"
-                                        FontWeight="Bold" Margin="0,0,0,8"/>
+                                        Style="{StaticResource SuccessButton}" Padding="12,10" FontSize="14" Margin="0,0,0,8"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Manage Categories -->
-                        <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,15,0,0">
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,15,0,0">
                             <StackPanel>
-                                <TextBlock Text="Manage Categories" FontSize="16" FontWeight="Bold"
-                                           Foreground="{DynamicResource BrandPrimaryBrush}" Margin="0,0,0,12"/>
+                                <TextBlock Text="Manage Categories" FontSize="15" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
 
                                 <ListBox ItemsSource="{Binding Categories}"
                                          SelectedItem="{Binding SelectedManageCategory}"
@@ -212,15 +206,15 @@
 
                                 <UniformGrid Columns="2" Margin="0,0,0,6">
                                     <Button Content="Add New" Command="{Binding AddCategoryCommand}"
-                                            Style="{StaticResource SuccessButton}" Padding="8,8" Margin="0,0,4,0" FontWeight="Bold"/>
+                                            Style="{StaticResource SuccessButton}" Padding="8,8" Margin="0,0,4,0"/>
                                     <Button Content="Update" Command="{Binding UpdateCategoryCommand}"
-                                            Style="{StaticResource InfoButton}" Padding="8,8" Margin="4,0,0,0" FontWeight="Bold"/>
+                                            Style="{StaticResource InfoButton}" Padding="8,8" Margin="4,0,0,0"/>
                                 </UniformGrid>
                                 <UniformGrid Columns="2">
                                     <Button Content="Delete" Command="{Binding DeleteCategoryCommand}"
-                                            Style="{StaticResource DangerButton}" Padding="8,8" Margin="0,0,4,0" FontWeight="Bold"/>
+                                            Style="{StaticResource DangerButton}" Padding="8,8" Margin="0,0,4,0"/>
                                     <Button Content="Clear" Command="{Binding ClearCategoryFormCommand}"
-                                            Style="{StaticResource NeutralButton}" Padding="8,8" Margin="4,0,0,0" FontWeight="Bold"/>
+                                            Style="{StaticResource NeutralButton}" Padding="8,8" Margin="4,0,0,0"/>
                                 </UniformGrid>
                             </StackPanel>
                         </Border>
@@ -233,11 +227,11 @@
         <Border Grid.Row="3" Style="{StaticResource CardBorder}" Margin="10,0,10,10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Content="Print Report" Command="{Binding PrintReportCommand}"
-                        Style="{StaticResource InfoButton}" Padding="20,10" Margin="0,0,10,0" MinWidth="150"
-                        FontSize="14" FontWeight="Bold"/>
+                        Style="{StaticResource InfoButton}" Margin="0,0,10,0" MinWidth="150"
+                        FontSize="14"/>
                 <Button Content="Refresh" Command="{Binding RefreshCommand}"
-                        Style="{StaticResource WarningButton}" Padding="20,10" MinWidth="120"
-                        FontSize="14" FontWeight="Bold"/>
+                        Style="{StaticResource SecondaryButton}" MinWidth="120"
+                        FontSize="14"/>
             </StackPanel>
         </Border>
     </Grid>

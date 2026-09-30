@@ -1,0 +1,108 @@
+<Window x:Class="POSApp.UI.Views.FirstRunSetupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
+        Title="Welcome to Swifttill" Width="560" Height="720"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+        Icon="pack://application:,,,/POSApp.UI;component/app.ico"
+        Background="{DynamicResource PageBackgroundBrush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="24,16">
+            <StackPanel>
+                <TextBlock Text="Welcome to Swifttill — let's set up your shop" Style="{StaticResource HeaderTitle}"/>
+                <TextBlock Text="This takes a minute. You can change everything later in Admin → Business Settings."
+                           Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ScrollViewer keeps the form usable on small (LED) screens -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24,16,24,8">
+
+                <!-- Shop -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="1. Your shop" Style="{StaticResource SectionTitle}"/>
+
+                        <TextBlock Text="Shop name *" Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="ShopName" helpers:Input.Placeholder="e.g. Corner Mart" Margin="0,0,0,12"/>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Phone (optional)" Style="{StaticResource FormLabel}"/>
+                                <TextBox x:Name="ShopPhone" helpers:Input.Placeholder="e.g. +1 555 0100"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Currency" Style="{StaticResource FormLabel}"/>
+                                <ComboBox x:Name="Currency" DisplayMemberPath="Label"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Address (optional)" Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="ShopAddress" helpers:Input.Placeholder="Street, city"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Owner account -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="2. Owner account" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
+                        <TextBlock Text="You'll use this to sign in. Add cashiers later from Admin → Users."
+                                   Style="{StaticResource HintText}" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Username *" Style="{StaticResource FormLabel}"/>
+                        <TextBox x:Name="AdminUsername" helpers:Input.Placeholder="e.g. owner" Margin="0,0,0,12"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Password *" Style="{StaticResource FormLabel}"/>
+                                <PasswordBox x:Name="AdminPassword" helpers:Input.Placeholder="At least 6 characters"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Confirm password *" Style="{StaticResource FormLabel}"/>
+                                <PasswordBox x:Name="AdminPasswordConfirm" helpers:Input.Placeholder="Type it again"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Samples -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="3. Getting started" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                        <CheckBox x:Name="KeepSamples" Content="Keep two sample products so I can try a sale right away"/>
+                    </StackPanel>
+                </Border>
+
+                <Border x:Name="ErrorPanel" Style="{StaticResource DangerCallout}" Visibility="Collapsed" Margin="0,0,0,12">
+                    <TextBlock x:Name="ErrorText" TextWrapping="Wrap" FontSize="12"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceAltBrush}" Padding="24,12"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Button Content="Exit" Click="Exit_Click" Style="{StaticResource NeutralButton}" HorizontalAlignment="Left"/>
+                <Button x:Name="FinishButton" Content="Finish setup" Click="Finish_Click" IsDefault="True"
+                        Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" MinWidth="150"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

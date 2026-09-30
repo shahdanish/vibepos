@@ -6,37 +6,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:POSApp.UI.Views"
         mc:Ignorable="d"
-        Title="{helpers:ShopTitle Login}" 
-        Height="500" Width="450"
+        Title="{helpers:ShopTitle Login}"
+        Height="520" Width="420"
         WindowStartupLocation="CenterScreen"
         Icon="pack://application:,,,/POSApp.UI;component/app.ico"
         WindowStyle="None"
         AllowsTransparency="True"
-        Background="Transparent">
-    
-    <Border Background="{DynamicResource PageBackgroundBrush}" CornerRadius="15" 
-            BorderBrush="{DynamicResource BrandPrimaryBrush}" BorderThickness="2">
+        Background="Transparent"
+        FocusManager.FocusedElement="{Binding ElementName=txtUsername}">
+
+    <!-- Margin leaves room for the drop shadow inside the transparent window -->
+    <Border Margin="14" Background="{DynamicResource SurfaceBrush}" CornerRadius="14"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
         <Border.Effect>
-            <DropShadowEffect ShadowDepth="4" BlurRadius="20" Opacity="0.25" Direction="270" Color="Black"/>
+            <DropShadowEffect ShadowDepth="4" BlurRadius="18" Opacity="0.18" Direction="270" Color="Black"/>
         </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="6"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <Border Grid.Row="0" Style="{StaticResource HeaderBar}" CornerRadius="15,15,0,0">
-                <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="{helpers:ShopTitle}" FontSize="24" FontWeight="Bold" 
-                               Foreground="White" HorizontalAlignment="Center"/>
-                    <TextBlock Text="POS System Login" FontSize="14" FontWeight="SemiBold" 
-                               Foreground="{DynamicResource BrandGoldBrush}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                </StackPanel>
-            </Border>
+            <!-- Brand accent strip -->
+            <Border Grid.Row="0" Background="{DynamicResource BrandPrimaryBrush}" CornerRadius="14,14,0,0"/>
 
-            <!-- Login Form -->
-            <Grid Grid.Row="1" Margin="30,40,30,30">
+            <Grid Grid.Row="1" Margin="36,28,36,28">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -46,48 +40,50 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Welcome Message -->
-                <TextBlock Grid.Row="0" Text="Welcome Back!" FontSize="28" FontWeight="Bold" 
-                           Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                <!-- Brand -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,28">
+                    <Border Width="52" Height="52" CornerRadius="12" HorizontalAlignment="Center"
+                            Background="{DynamicResource BrandSubtleBrush}">
+                        <TextBlock Text="🛒" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{helpers:ShopTitle}" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"
+                               TextAlignment="Center" TextWrapping="Wrap" Margin="0,14,0,0"/>
+                    <TextBlock Text="Sign in to continue" Style="{StaticResource HintText}" FontSize="13"
+                               HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                </StackPanel>
 
-                <!-- Username Field -->
-                <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                    <TextBlock Text="Username" FontWeight="Bold" FontSize="14" Margin="0,0,0,8" Foreground="#333"/>
-                    <TextBox x:Name="txtUsername"
-                             Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" 
-                             FontSize="15" Padding="12,10" 
+                <!-- Username -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,16">
+                    <TextBlock Text="Username" Style="{StaticResource FormLabel}"/>
+                    <TextBox x:Name="txtUsername" helpers:Input.Placeholder="Enter your username"
+                             Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="14" Padding="10,8"
                              KeyDown="TxtUsername_KeyDown"/>
                 </StackPanel>
 
-                <!-- Password Field -->
-                <StackPanel Grid.Row="2" Margin="0,0,0,20">
-                    <TextBlock Text="Password" FontWeight="Bold" FontSize="14" Margin="0,0,0,8" Foreground="#333"/>
-                    <PasswordBox x:Name="txtPassword" FontSize="15" Padding="12,10" 
+                <!-- Password -->
+                <StackPanel Grid.Row="2" Margin="0,0,0,16">
+                    <TextBlock Text="Password" Style="{StaticResource FormLabel}"/>
+                    <PasswordBox x:Name="txtPassword" helpers:Input.Placeholder="Enter your password" FontSize="14" Padding="10,8"
                                  PasswordChanged="TxtPassword_PasswordChanged"
                                  KeyDown="TxtPassword_KeyDown"/>
                 </StackPanel>
 
                 <!-- Error Message -->
-                <Border Grid.Row="3" Background="#FFE6E6" BorderBrush="{DynamicResource DangerBrush}" 
-                        BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,20"
+                <Border Grid.Row="3" Style="{StaticResource DangerCallout}"
                         Visibility="{Binding ErrorMessage, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⚠ " FontSize="16" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding ErrorMessage}" FontSize="13" 
-                                   Foreground="#CC0000" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock Text="{Binding ErrorMessage}" FontSize="12" TextWrapping="Wrap"/>
                 </Border>
 
-                <!-- Buttons -->
-                <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <Button Content="LOGIN" Command="{Binding LoginCommand}" 
-                            Style="{StaticResource SuccessButton}"
-                            Padding="30,12" Margin="0,0,10,0" MinWidth="120"
-                            FontWeight="Bold" FontSize="15"/>
-                    <Button Content="EXIT" Command="{Binding CancelCommand}" 
-                            Style="{StaticResource DangerButton}"
-                            Padding="30,12" MinWidth="120"
-                            FontWeight="Bold" FontSize="15"/>
+                <!-- Actions -->
+                <StackPanel Grid.Row="5">
+                    <Button Content="Sign in" Command="{Binding LoginCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            MinHeight="44" FontSize="14" HorizontalAlignment="Stretch"/>
+                    <Button Content="Exit" Command="{Binding CancelCommand}"
+                            Style="{StaticResource IconButton}" Foreground="{DynamicResource TextMutedBrush}"
+                            HorizontalAlignment="Center" Margin="0,10,0,0" Padding="16,4"/>
                 </StackPanel>
             </Grid>
         </Grid>

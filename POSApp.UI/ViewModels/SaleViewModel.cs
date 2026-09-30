@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
+using POSApp.Core.Services;
 using POSApp.UI.Helpers;
 
 namespace POSApp.UI.ViewModels
@@ -42,9 +43,6 @@ namespace POSApp.UI.ViewModels
         private bool _showPurchasePrice = true;
         private bool _autoPrint = false;
         private bool _useSmallBillFormat = false;
-        private decimal _lastScannedCost;
-        private bool _isLastScannedCostVisible;
-        private readonly DispatcherTimer _costHideTimer;
 
         public ObservableCollection<SaleItemViewModel> SaleItems { get; } = new();
         public ObservableCollection<Product> Products { get; } = new();
@@ -270,35 +268,13 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        public decimal LastScannedCost
-        {
-            get => _lastScannedCost;
-            set
-            {
-                if (SetProperty(ref _lastScannedCost, value))
-                    OnPropertyChanged(nameof(PrintButtonText));
-            }
-        }
-
-        /// <summary>
-        /// Print button caption — shows the last item's cost in brackets, e.g. "PRINT (60.00)".
-        /// </summary>
-        public string PrintButtonText =>
-            LastScannedCost > 0 ? $"PRINT ({LastScannedCost:N2})" : "PRINT";
-
-        public bool IsLastScannedCostVisible
-        {
-            get => _isLastScannedCostVisible;
-            set => SetProperty(ref _isLastScannedCostVisible, value);
-        }
-
         public decimal TotalPurchasePrice => SaleItems?.Sum(item => item.CostPrice * item.Quantity) ?? 0;
         public decimal TotalItemsDiscount => SaleItems?.Sum(item => item.EffectiveDiscountAmount) ?? 0;
 
         public Action? OpenQuickSaleWindow { get; set; }
         public Action? SwitchMode { get; set; }
 
-        public virtual string ModeSwitchLabel => "⇄ WHOLESALE";
+        public virtual string ModeSwitchLabel => "⇄  Wholesale";
 
         public ICommand AddItemCommand { get; }
         public ICommand ScanCommand { get; }
@@ -322,9 +298,6 @@ namespace POSApp.UI.ViewModels
             _useSmallBillFormat = settings.UseSmallBillFormat;
             _showPurchasePrice = settings.ShowPurchasePrice;
 
-            _costHideTimer = new DispatcherTimer();
-            _costHideTimer.Interval = TimeSpan.FromSeconds(3);
-            _costHideTimer.Tick += (s, e) => { IsLastScannedCostVisible = false; _costHideTimer.Stop(); };
 
             SaleItems.CollectionChanged += SaleItems_CollectionChanged;
 
@@ -336,7 +309,12 @@ namespace POSApp.UI.ViewModels
             CancelCommand = new RelayCommand(_ => Cancel());
             PrintCommand = new RelayCommand(async _ => await PrintInvoice());
             QuickSaleCommand = new RelayCommand(_ => OpenQuickSaleWindow?.Invoke());
-            SwitchModeCommand = new RelayCommand(_ => SwitchMode?.Invoke());
+            SwitchModeCommand = new RelayCommand(_ =>
+            {
+                // Retail → wholesale needs Pro in the Store Lite tier; switching back is always allowed.
+                if (this is not WholeSaleViewModel && !EditionGate.Require(AppFeature.Wholesale)) return;
+                SwitchMode?.Invoke();
+            });
 
             _ = LoadData();
         }
@@ -452,12 +430,6 @@ namespace POSApp.UI.ViewModels
                     };
                     SaleItems.Add(saleItem);
                     CalculateTotals();
-
-                    // Set temporary cost display
-                    LastScannedCost = product.CostPrice;
-                    IsLastScannedCostVisible = true;
-                    _costHideTimer.Stop();
-                    _costHideTimer.Start();
                 }
 
                 // Clear scan field, keep focus here for the next scan
@@ -509,12 +481,6 @@ namespace POSApp.UI.ViewModels
             }
 
             CalculateTotals();
-
-            // Set temporary cost display
-            LastScannedCost = SelectedProduct.CostPrice;
-            IsLastScannedCostVisible = true;
-            _costHideTimer.Stop();
-            _costHideTimer.Start();
 
             // Reset entry fields synchronously
             Quantity = 1;
@@ -655,8 +621,6 @@ namespace POSApp.UI.ViewModels
             ReceiveCash = null;
             Balance = 0;
             BarcodeInput = string.Empty;
-            LastScannedCost = 0;
-            IsLastScannedCostVisible = false;
             OnPropertyChanged(nameof(TotalPurchasePrice));
             _ = LoadData();
         }

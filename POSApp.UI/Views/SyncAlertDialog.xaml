@@ -67,7 +67,7 @@
         </Border>
 
         <!-- Body -->
-        <Border Grid.Row="1" Background="White" Padding="24,20">
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="24,20">
             <StackPanel>
                 <!-- Stats cards (success/error mode) -->
                 <Grid x:Name="StatsPanel" Visibility="Collapsed" Margin="0,0,0,18">
@@ -89,18 +89,18 @@
                                 </TextBlock.Foreground>
                             </TextBlock>
                             <TextBlock x:Name="LeftLabel" Text="Records Synced"
-                                       FontSize="11" Foreground="#777"
+                                       FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
                                        HorizontalAlignment="Center" Margin="0,3,0,0"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="2" Background="#F5F5F5" CornerRadius="8" Padding="16,14">
+                    <Border Grid.Column="2" Background="{DynamicResource SurfaceSunkenBrush}" CornerRadius="8" Padding="16,14">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock x:Name="RightValueText" Text="--:--"
-                                       FontSize="24" FontWeight="Bold" Foreground="#555"
+                                       FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock x:Name="RightLabel" Text="Synced At"
-                                       FontSize="11" Foreground="#777"
+                                       FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
                                        HorizontalAlignment="Center" Margin="0,3,0,0"/>
                         </StackPanel>
                     </Border>
@@ -108,13 +108,13 @@
 
                 <!-- Detail message -->
                 <TextBlock x:Name="DetailText" TextWrapping="Wrap"
-                           FontSize="13" Foreground="#444" LineHeight="22"/>
+                           FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}" LineHeight="22"/>
             </StackPanel>
         </Border>
 
         <!-- Footer -->
-        <Border Grid.Row="2" Background="#F7F7F7"
-                BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="24,16">
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceAltBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="24,16">
             <Button x:Name="OkBtn" Content="OK" Style="{StaticResource ActionButton}"
                     HorizontalAlignment="Right" Click="OkBtn_Click"/>
         </Border>

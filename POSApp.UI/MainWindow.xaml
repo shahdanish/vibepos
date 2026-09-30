@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:POSApp.UI.Views"
         mc:Ignorable="d"
-        Title="{helpers:ShopTitle POS System}" Height="600" Width="1000"
+        Title="{helpers:ShopTitle Screen={x:Static helpers:ProductBranding.Name}}" Height="600" Width="1000"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
         Icon="pack://application:,,,/POSApp.UI;component/app.ico">
 
@@ -14,9 +14,9 @@
 
         <!-- ── Sub-item style (inside every dropdown) ─────────────────────── -->
         <Style x:Key="DropItemStyle" TargetType="MenuItem">
-            <Setter Property="Foreground"       Value="White"/>
+            <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Background"       Value="Transparent"/>
-            <Setter Property="Padding"          Value="16,9"/>
+            <Setter Property="Padding"          Value="12,9"/>
             <Setter Property="FontSize"         Value="13"/>
             <Setter Property="BorderThickness"  Value="0"/>
             <Setter Property="Cursor"           Value="Hand"/>
@@ -25,6 +25,8 @@
                     <ControlTemplate TargetType="MenuItem">
                         <Border x:Name="BD"
                                 Background="{TemplateBinding Background}"
+                                CornerRadius="{StaticResource RadiusMedium}"
+                                Margin="4,1"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter ContentSource="Header"
                                               RecognizesAccessKey="True"
@@ -32,10 +34,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="BD" Property="Background" Value="#6B3410"/>
+                                <Setter TargetName="BD" Property="Background" Value="{DynamicResource BrandSubtleBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrandPrimaryBrush}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#AAAAAA"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -45,14 +48,18 @@
 
         <!-- ── Separator inside dropdowns ─────────────────────────────────── -->
         <Style x:Key="DropSepStyle" TargetType="Separator">
-            <Setter Property="Background" Value="#C87941"/>
-            <Setter Property="Height"     Value="1"/>
-            <Setter Property="Margin"     Value="10,3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border Height="1" Margin="12,4" Background="{DynamicResource BorderBrush}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- ── Top-level dropdown trigger (with popup) ────────────────────── -->
         <Style x:Key="NavDropStyle" TargetType="MenuItem">
-            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="Foreground"      Value="{DynamicResource TextSecondaryBrush}"/>
             <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="Padding"         Value="14,8"/>
             <Setter Property="FontSize"        Value="13"/>
@@ -65,12 +72,16 @@
                         <Grid>
                             <Border x:Name="BD"
                                     Background="{TemplateBinding Background}"
-                                    CornerRadius="4"
+                                    CornerRadius="{StaticResource RadiusMedium}"
                                     Padding="{TemplateBinding Padding}"
                                     Margin="2,0">
-                                <ContentPresenter ContentSource="Header"
-                                                  RecognizesAccessKey="True"
-                                                  VerticalAlignment="Center"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentPresenter ContentSource="Header"
+                                                      RecognizesAccessKey="True"
+                                                      VerticalAlignment="Center"/>
+                                    <Path Data="M0,0 L4,4 8,0" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
+                                          Margin="8,1,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
                             </Border>
 
                             <Popup x:Name="PART_Popup"
@@ -78,16 +89,19 @@
                                    Focusable="False"
                                    IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
                                    Placement="Bottom"
+                                   VerticalOffset="4"
                                    PopupAnimation="Fade">
-                                <Border Background="#8B4513"
-                                        BorderBrush="#6B3410"
-                                        BorderThickness="0,0,1,1"
-                                        CornerRadius="0,0,6,6"
-                                        MinWidth="185"
-                                        Padding="0,4,0,4">
+                                <!-- Margin leaves room for the shadow inside the transparent popup -->
+                                <Border Background="{DynamicResource SurfaceBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="{StaticResource RadiusLarge}"
+                                        MinWidth="210"
+                                        Margin="6,0,6,10"
+                                        Padding="0,4">
                                     <Border.Effect>
-                                        <DropShadowEffect ShadowDepth="4" BlurRadius="8"
-                                                          Opacity="0.4" Color="Black" Direction="270"/>
+                                        <DropShadowEffect ShadowDepth="3" BlurRadius="14"
+                                                          Opacity="0.14" Color="Black" Direction="270"/>
                                     </Border.Effect>
                                     <StackPanel IsItemsHost="True"/>
                                 </Border>
@@ -96,11 +110,12 @@
 
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="BD" Property="Background" Value="#A0522D"/>
+                                <Setter TargetName="BD" Property="Background" Value="{DynamicResource SurfaceSunkenBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSubmenuOpen" Value="True">
-                                <Setter TargetName="BD" Property="Background" Value="#6B3410"/>
-                                <Setter TargetName="BD" Property="CornerRadius" Value="4,4,0,0"/>
+                                <Setter TargetName="BD" Property="Background" Value="{DynamicResource BrandSubtleBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrandPrimaryBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -122,32 +137,45 @@
         </Grid.RowDefinitions>
 
         <!-- ── Header ────────────────────────────────────────────────────── -->
-        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="20,10">
             <Grid>
-                <TextBlock Text="{Binding StoreTitle}" FontSize="32" FontWeight="Bold"
-                           Foreground="White" HorizontalAlignment="Center"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="{Binding StoreTitle}" Style="{StaticResource HeaderTitle}"
+                           FontSize="22" TextTrimming="CharacterEllipsis"/>
 
                 <!-- Right: user info + logout -->
-                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center"
-                            Orientation="Horizontal" Margin="0,0,8,0">
-                    <TextBlock Text="{Binding CurrentUserInfo}"
-                               FontSize="12" FontWeight="SemiBold"
-                               Foreground="{DynamicResource BrandGoldBrush}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,14,0"/>
-                    <Button Content="⇦ Logout"
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal">
+                    <!-- Store edition: tier badge + upgrade entry point -->
+                    <Border Background="{DynamicResource BrandGoldBrush}" CornerRadius="10" Padding="8,2" Margin="0,0,10,0"
+                            VerticalAlignment="Center" Visibility="{Binding EditionBadgeVisibility}"
+                            ToolTip="{Binding EditionBadgeTooltip}">
+                        <TextBlock Text="{Binding EditionBadge}" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Border>
+                    <Button Content="⭐  Upgrade to Pro" Command="{Binding UpgradeCommand}"
+                            Visibility="{Binding UpgradeVisibility}"
+                            Style="{StaticResource WarningButton}" MinHeight="32" Padding="14,4" FontSize="12"
+                            Margin="0,0,12,0" ToolTip="Subscribe to unlock wholesale, purchases, expenses, more users and more"/>
+                    <Border Background="#26FFFFFF" CornerRadius="14" Padding="12,5" Margin="0,0,12,0"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="{Binding CurrentUserInfo}" FontSize="12" FontWeight="SemiBold"
+                                   Foreground="White"/>
+                    </Border>
+                    <Button Content="Log out"
                             Command="{Binding LogoutCommand}"
-                            Style="{StaticResource WarningButton}"
-                            Padding="10,5" FontSize="12"/>
+                            Style="{StaticResource SecondaryButton}"
+                            MinHeight="32" Padding="14,4" FontSize="12"/>
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- ── Navigation Toolbar ────────────────────────────────────────── -->
-        <Border Grid.Row="1" Background="{DynamicResource BrandAccentBrush}" Padding="8,4">
-            <Border.Effect>
-                <DropShadowEffect ShadowDepth="1" BlurRadius="4" Opacity="0.15" Direction="270" Color="Black"/>
-            </Border.Effect>
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="14,6"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
 
             <Menu Background="Transparent" BorderThickness="0" VerticalAlignment="Center">
 

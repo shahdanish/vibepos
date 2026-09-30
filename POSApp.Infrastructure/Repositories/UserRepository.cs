@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
+using POSApp.Core.Services;
 using POSApp.Data;
 
 namespace POSApp.Infrastructure.Repositories
@@ -16,13 +17,23 @@ namespace POSApp.Infrastructure.Repositories
 
         public async Task<User?> ValidateUserAsync(string username, string password, CancellationToken ct = default)
         {
-            return await _context.Users
+            var user = await _context.Users
                 .Include(u => u.UserRole)
                     .ThenInclude(r => r!.RolePermissions)
                         .ThenInclude(rp => rp.Permission)
-                .FirstOrDefaultAsync(u => u.Username == username &&
-                                         u.PasswordHash == password &&
-                                         u.IsActive, ct);
+                .FirstOrDefaultAsync(u => u.Username == username && u.IsActive, ct);
+
+            if (user == null || !PasswordHasher.Verify(password, user.PasswordHash, out var needsRehash))
+                return null;
+
+            // Databases created by older builds store plain-text passwords — upgrade on first login.
+            if (needsRehash)
+            {
+                user.PasswordHash = PasswordHasher.Hash(password);
+                await _context.SaveChangesAsync(ct);
+            }
+
+            return user;
         }
 
         public async Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default)

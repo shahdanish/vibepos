@@ -31,7 +31,7 @@ namespace POSApp.UI.Helpers
             var shop = ReceiptBranding.Current.StoreName;
 
             if (string.IsNullOrWhiteSpace(shop))
-                return string.IsNullOrWhiteSpace(screen) ? "POS System" : screen!;
+                return string.IsNullOrWhiteSpace(screen) ? ProductBranding.Name : screen!;
 
             return string.IsNullOrWhiteSpace(screen) ? shop : $"{screen} - {shop}";
         }

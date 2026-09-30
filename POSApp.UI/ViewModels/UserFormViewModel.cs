@@ -1,3 +1,4 @@
+using POSApp.Core.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using POSApp.Core.Entities;
@@ -128,6 +129,15 @@ namespace POSApp.UI.ViewModels
 
             try
             {
+                // Store Lite allows EditionPolicy.LiteMaxUsers active users; more needs Pro.
+                if (IsActive && EditionPolicy.MaxActiveUsers(EditionGate.Edition) is int maxUsers)
+                {
+                    var activeOthers = (await _userRepository.GetAllWithRolesAsync(includeInactive: false))
+                        .Count(u => u.IsActive && u.Id != _editingUser?.Id);
+                    if (activeOthers >= maxUsers && !EditionGate.Require(AppFeature.MultiUser))
+                        return;
+                }
+
                 if (_isEditMode && _editingUser != null)
                 {
                     // Check username uniqueness (exclude self)
@@ -142,7 +152,7 @@ namespace POSApp.UI.ViewModels
                     _editingUser.IsActive = IsActive;
 
                     if (!string.IsNullOrEmpty(NewPassword))
-                        _editingUser.PasswordHash = NewPassword;
+                        _editingUser.PasswordHash = PasswordHasher.Hash(NewPassword);
 
                     await _userRepository.UpdateAsync(_editingUser);
                     NotificationHelper.ShowSuccess($"User '{Username}' updated successfully.");
@@ -158,7 +168,7 @@ namespace POSApp.UI.ViewModels
                     var newUser = new User
                     {
                         Username = Username.Trim(),
-                        PasswordHash = NewPassword!,
+                        PasswordHash = PasswordHasher.Hash(NewPassword!),
                         RoleId = SelectedRole.Id,
                         IsActive = IsActive,
                         CreatedDate = DateTime.Now

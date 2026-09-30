@@ -14,16 +14,14 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="{DynamicResource SuccessBrush}" Padding="15">
-            <Border.Effect>
-                <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.25" Direction="270" Color="Black"/>
-            </Border.Effect>
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="12,8">
             <Grid>
-                <TextBlock Text="PURCHASE MANAGEMENT" FontSize="28" FontWeight="Bold"
-                           Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding PurchaseNumber, StringFormat='Purchase #: {0}'}"
-                           FontSize="18" FontWeight="Bold" Foreground="Yellow"
-                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <TextBlock Text="Purchase" Style="{StaticResource HeaderTitle}" HorizontalAlignment="Left"/>
+                <Border HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Background="#26FFFFFF" CornerRadius="14" Padding="12,4">
+                    <TextBlock Text="{Binding PurchaseNumber, StringFormat='Purchase  #{0}'}"
+                               FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                </Border>
             </Grid>
         </Border>
 
@@ -76,10 +74,10 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
                             <!-- Mode Toggle -->
-                            <Border Background="#F0F4F8" CornerRadius="6" Padding="8" Margin="0,0,0,12">
+                            <Border Background="{DynamicResource SurfaceSunkenBrush}" CornerRadius="6" Padding="8" Margin="0,0,0,12">
                                 <StackPanel>
                                     <TextBlock Text="Add Product Mode" FontWeight="Bold" FontSize="11"
-                                               Foreground="#555" Margin="0,0,0,6"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton Content="Existing Product"
                                                      IsChecked="{Binding IsExistingProductMode, Mode=TwoWay}"
@@ -100,7 +98,7 @@
                                           FontSize="13" Padding="6" Margin="0,0,0,8"/>
 
                                 <!-- Stock info -->
-                                <Border Background="#E8F5E9" CornerRadius="4" Padding="8" Margin="0,0,0,10"
+                                <Border Background="{DynamicResource SuccessSubtleBrush}" CornerRadius="4" Padding="8" Margin="0,0,0,10"
                                         Visibility="{Binding SelectedProduct, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">
                                     <StackPanel>
                                         <TextBlock Text="{Binding CurrentStockInfo}" FontSize="12"
@@ -127,7 +125,7 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <Button Content="ADD ITEM" Command="{Binding AddExistingItemCommand}"
+                                <Button Content="Add item" Command="{Binding AddExistingItemCommand}"
                                         Style="{StaticResource SuccessButton}" Padding="12,10" HorizontalAlignment="Stretch"/>
                             </StackPanel>
 
@@ -147,7 +145,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0" Text="{Binding NewBarcode, UpdateSourceTrigger=PropertyChanged}"
                                              FontSize="13" Padding="6" Margin="0,0,5,0"/>
-                                    <Button Grid.Column="1" Content="AUTO" Command="{Binding GenerateBarcodeCommand}"
+                                    <Button Grid.Column="1" Content="Auto" Command="{Binding GenerateBarcodeCommand}"
                                             Style="{StaticResource InfoButton}" Padding="10,6" FontSize="11"/>
                                 </Grid>
 
@@ -225,7 +223,7 @@
                         <TextBlock Grid.Row="0" Text="Purchase Items" Style="{StaticResource SectionTitle}"/>
 
                         <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False"
-                                  CanUserAddRows="False" AlternatingRowBackground="#F9F9F9"
+                                  CanUserAddRows="False" AlternatingRowBackground="{DynamicResource SurfaceAltBrush}"
                                   HeadersVisibility="All" GridLinesVisibility="Horizontal" BorderThickness="0"
                                   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                             <DataGrid.Columns>
@@ -253,12 +251,12 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <Border Grid.Row="2" Background="#E8F5E9" Padding="12,10" Margin="0,8,0,0" CornerRadius="6">
+                        <Border Grid.Row="2" Background="{DynamicResource BrandSubtleBrush}" BorderBrush="{DynamicResource BrandBorderBrush}" BorderThickness="1" Padding="14,10" Margin="0,8,0,0" CornerRadius="8">
                             <Grid>
-                                <TextBlock Text="TOTAL PURCHASE:" FontSize="14" FontWeight="Bold"
-                                           Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Total purchase" FontSize="15" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                                 <TextBlock Text="{Binding TotalAmount, Converter={StaticResource MoneyConverter}}"
-                                           FontSize="20" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
+                                           FontSize="22" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
@@ -269,12 +267,12 @@
             <!-- Action Buttons -->
             <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="0,10,0,0">
                 <WrapPanel HorizontalAlignment="Left">
-                    <Button Content="SAVE PURCHASE" Command="{Binding SaveCommand}"
-                            Style="{StaticResource SuccessButton}" Padding="18,10" Margin="0,0,8,0" MinWidth="150"/>
-                    <Button Content="NEW" Command="{Binding NewCommand}"
-                            Style="{StaticResource InfoButton}" Padding="18,10" Margin="0,0,8,0" MinWidth="100"/>
-                    <Button Content="CLOSE" Click="CloseButton_Click"
-                            Style="{StaticResource NeutralButton}" Padding="18,10" MinWidth="100"/>
+                    <Button Content="Save purchase" Command="{Binding SaveCommand}"
+                            Style="{StaticResource SuccessButton}" Margin="0,0,8,0" MinWidth="150"/>
+                    <Button Content="New" Command="{Binding NewCommand}"
+                            Style="{StaticResource InfoButton}" Margin="0,0,8,0" MinWidth="100"/>
+                    <Button Content="Close" Click="CloseButton_Click"
+                            Style="{StaticResource NeutralButton}" MinWidth="100"/>
                 </WrapPanel>
             </Border>
         </Grid>

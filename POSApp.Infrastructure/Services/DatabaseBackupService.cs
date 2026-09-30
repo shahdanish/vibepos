@@ -5,7 +5,7 @@ namespace POSApp.Infrastructure.Services
 {
     public sealed class DatabaseBackupService : IDatabaseBackupService
     {
-        private readonly string _dbPath = "posapp.db";
+        private readonly string _dbPath = AppPaths.DatabasePath;
 
         public async Task<string> CreateBackupAsync(string backupDirectory, CancellationToken ct = default)
         {

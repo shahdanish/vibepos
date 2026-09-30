@@ -16,7 +16,7 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
-            <TextBlock Text="Salary Slip Generator" FontSize="24" FontWeight="Bold"
+            <TextBlock Text="Salary Slip Generator" FontSize="20" FontWeight="SemiBold"
                        Foreground="White" HorizontalAlignment="Center"/>
         </Border>
 
@@ -71,7 +71,7 @@
                         </Grid>
 
                         <!-- Earnings section -->
-                        <Border Background="#E8F4FD" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
+                        <Border Background="{DynamicResource InfoSubtleBrush}" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
                             <TextBlock Text="Earnings" FontWeight="Bold"/>
                         </Border>
 
@@ -112,7 +112,7 @@
                         </Grid>
 
                         <!-- Deductions section -->
-                        <Border Background="#FFF3E0" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
+                        <Border Background="{DynamicResource WarningSubtleBrush}" CornerRadius="4" Padding="10,6" Margin="0,0,0,8">
                             <TextBlock Text="Deductions" FontWeight="Bold"/>
                         </Border>
 
@@ -141,7 +141,7 @@
                         </StackPanel>
 
                         <!-- Summary band -->
-                        <Border Background="#1A6B9A" CornerRadius="4" Padding="12,8" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource BrandPrimaryBrush}" CornerRadius="4" Padding="12,8" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -154,14 +154,14 @@
                                                Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                                    <TextBlock Text="Deductions" Foreground="#FFD0D0" FontSize="10" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Deductions" Foreground="{DynamicResource DangerSubtleBrush}" FontSize="10" HorizontalAlignment="Center"/>
                                     <TextBlock Text="{Binding TotalDeductions, Converter={StaticResource MoneyConverter}, ConverterParameter=N0}"
-                                               Foreground="#FFD0D0" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                               Foreground="{DynamicResource DangerSubtleBrush}" FontWeight="Bold" HorizontalAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                                    <TextBlock Text="NET SALARY" Foreground="#90EE90" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="NET SALARY" Foreground="{DynamicResource SuccessSubtleBrush}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
                                     <TextBlock Text="{Binding NetSalary, Converter={StaticResource MoneyConverter}, ConverterParameter=N0}"
-                                               Foreground="#90EE90" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
+                                               Foreground="{DynamicResource SuccessSubtleBrush}" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -196,7 +196,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <Border Grid.Row="0" Background="#E8F4FD" Padding="12,8">
+                        <Border Grid.Row="0" Background="{DynamicResource InfoSubtleBrush}" Padding="12,8">
                             <TextBlock Text="Previous Salary Slips" FontWeight="Bold" FontSize="13"/>
                         </Border>
 
@@ -208,7 +208,7 @@
                                       GridLinesVisibility="Horizontal"
                                       HeadersVisibility="Column"
                                       RowBackground="White"
-                                      AlternatingRowBackground="#F9F9F9"
+                                      AlternatingRowBackground="{DynamicResource SurfaceAltBrush}"
                                       BorderThickness="0">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Slip No"   Binding="{Binding SlipNumber}" Width="140"/>

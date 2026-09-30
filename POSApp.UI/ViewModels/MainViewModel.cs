@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
+using POSApp.Core.Services;
 using POSApp.UI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using POSApp.UI.Views;
@@ -19,19 +20,19 @@ namespace POSApp.UI.ViewModels
                 ? Visibility.Visible : Visibility.Collapsed;
 
         public Visibility PharmacyButtonVisibility =>
-            PermissionManager.CanManagePharmacies(SessionManager.CurrentUser)
+            PermissionManager.CanManagePharmacies(SessionManager.CurrentUser) && EditionGate.IsInBuild(AppFeature.Pharmacy)
                 ? Visibility.Visible : Visibility.Collapsed;
 
         public Visibility PharmacySaleButtonVisibility =>
-            SessionManager.HasPermission(Permissions.PharmacySale)
+            SessionManager.HasPermission(Permissions.PharmacySale) && EditionGate.IsInBuild(AppFeature.Pharmacy)
                 ? Visibility.Visible : Visibility.Collapsed;
 
         public Visibility DoctorButtonVisibility =>
-            PermissionManager.CanManageDoctors(SessionManager.CurrentUser)
+            PermissionManager.CanManageDoctors(SessionManager.CurrentUser) && EditionGate.IsInBuild(AppFeature.Pharmacy)
                 ? Visibility.Visible : Visibility.Collapsed;
 
         public Visibility CallScheduleButtonVisibility =>
-            SessionManager.HasPermission(Permissions.CallScheduleManage)
+            SessionManager.HasPermission(Permissions.CallScheduleManage) && EditionGate.IsInBuild(AppFeature.Pharmacy)
                 ? Visibility.Visible : Visibility.Collapsed;
 
         public Visibility UserManagementVisibility =>
@@ -46,6 +47,30 @@ namespace POSApp.UI.ViewModels
         public Visibility BusinessSettingsVisibility =>
             SessionManager.HasPermission(Permissions.SystemSettings)
                 ? Visibility.Visible : Visibility.Collapsed;
+
+        // ── Edition (Store Lite / Pro) ────────────────────────────────────────
+
+        /// <summary>"Upgrade to Pro" button in the header — only in the free Store tier.</summary>
+        public Visibility UpgradeVisibility =>
+            EditionGate.Edition == AppEdition.StoreLite ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>Small edition badge next to the user name ("Lite" / "Pro"); hidden for the direct edition.</summary>
+        public string EditionBadge => EditionGate.Edition switch
+        {
+            AppEdition.StoreLite => "Lite",
+            AppEdition.StorePro  => "Pro",
+            _ => string.Empty
+        };
+
+        public string? EditionBadgeTooltip =>
+            EditionGate.Edition == AppEdition.StorePro && EditionGate.Service?.ProExpiresOn is { } until
+                ? $"Swifttill Pro subscription — current period ends {until.LocalDateTime:dd MMM yyyy}"
+                : EditionGate.Edition == AppEdition.StoreLite ? "Swifttill Lite (free)" : null;
+
+        public Visibility EditionBadgeVisibility =>
+            EditionPolicy.IsStore(EditionGate.Edition) ? Visibility.Visible : Visibility.Collapsed;
+
+        public ICommand UpgradeCommand { get; }
 
         // ── Commands ──────────────────────────────────────────────────────────
 
@@ -123,8 +148,18 @@ namespace POSApp.UI.ViewModels
             OpenSalarySlipCommand       = new RelayCommand(_ => OpenSalarySlip());
             OpenUserManagementCommand   = new RelayCommand(_ => OpenUserManagement());
             OpenRoleManagementCommand   = new RelayCommand(_ => OpenRoleManagement());
+            UpgradeCommand              = new RelayCommand(_ => EditionGate.ShowUpgrade());
             LogoutCommand               = new RelayCommand(_ => Logout());
             ExitCommand                 = new RelayCommand(_ => Exit());
+
+            if (EditionGate.Service is { } edition)
+                edition.EditionChanged += (_, _) => Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    OnPropertyChanged(nameof(UpgradeVisibility));
+                    OnPropertyChanged(nameof(EditionBadge));
+                    OnPropertyChanged(nameof(EditionBadgeVisibility));
+                    OnPropertyChanged(nameof(EditionBadgeTooltip));
+                });
         }
 
         // ── Navigation handlers ───────────────────────────────────────────────
@@ -138,6 +173,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenWholeSale()
         {
+            if (!EditionGate.Require(AppFeature.Wholesale)) return;
             if (!PermissionManager.CanAccessSale(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to access the wholesale screen."); return; }
             App.Services?.GetRequiredService<WholeSaleWindow>().ShowDialog();
@@ -163,7 +199,10 @@ namespace POSApp.UI.ViewModels
             => DashboardViewModel.RefreshCommand.Execute(null);
 
         private void OpenExpense()
-            => App.Services?.GetRequiredService<ExpenseWindow>().ShowDialog();
+        {
+            if (!EditionGate.Require(AppFeature.Expenses)) return;
+            App.Services?.GetRequiredService<ExpenseWindow>().ShowDialog();
+        }
 
         private void OpenShift()
             => App.Services?.GetRequiredService<ShiftWindow>().ShowDialog();
@@ -180,6 +219,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenPurchaseEntry()
         {
+            if (!EditionGate.Require(AppFeature.Purchases)) return;
             if (!PermissionManager.CanManagePurchases(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage purchases."); return; }
             App.Services?.GetRequiredService<PurchaseEntryWindow>().ShowDialog();
@@ -187,6 +227,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenPurchaseReturn()
         {
+            if (!EditionGate.Require(AppFeature.Purchases)) return;
             if (!PermissionManager.CanManagePurchases(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage purchases."); return; }
             App.Services?.GetRequiredService<PurchaseReturnWindow>().ShowDialog();
@@ -194,6 +235,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenSupplierManagement()
         {
+            if (!EditionGate.Require(AppFeature.Purchases)) return;
             if (!PermissionManager.CanManageSuppliers(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage suppliers."); return; }
             App.Services?.GetRequiredService<SupplierManagementWindow>().ShowDialog();
@@ -201,6 +243,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenDoctorManagement()
         {
+            if (!EditionGate.Require(AppFeature.Pharmacy)) return;
             if (!PermissionManager.CanManageDoctors(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage doctors."); return; }
             App.Services?.GetRequiredService<DoctorManagementWindow>().ShowDialog();
@@ -208,6 +251,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenCallSchedule()
         {
+            if (!EditionGate.Require(AppFeature.Pharmacy)) return;
             if (!SessionManager.HasPermission(Permissions.CallScheduleManage))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to access call scheduling."); return; }
             App.Services?.GetRequiredService<CallScheduleWindow>().ShowDialog();
@@ -215,6 +259,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenPharmacySale()
         {
+            if (!EditionGate.Require(AppFeature.Pharmacy)) return;
             if (!SessionManager.HasPermission(Permissions.PharmacySale))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to access pharmacy sale."); return; }
             App.Services?.GetRequiredService<PharmacySaleWindow>().ShowDialog();
@@ -222,6 +267,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenPharmacyManagement()
         {
+            if (!EditionGate.Require(AppFeature.Pharmacy)) return;
             if (!PermissionManager.CanManagePharmacies(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage pharmacies."); return; }
             App.Services?.GetRequiredService<PharmacyManagementWindow>().ShowDialog();
@@ -229,6 +275,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenEmployeeManagement()
         {
+            if (!EditionGate.Require(AppFeature.HumanResources)) return;
             if (!PermissionManager.CanManageEmployees(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage employees."); return; }
             App.Services?.GetRequiredService<EmployeeManagementWindow>().ShowDialog();
@@ -236,6 +283,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenSalarySlip()
         {
+            if (!EditionGate.Require(AppFeature.HumanResources)) return;
             if (!PermissionManager.CanManageSalary(SessionManager.CurrentUser))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage salary slips."); return; }
             App.Services?.GetRequiredService<SalarySlipWindow>().ShowDialog();
@@ -264,6 +312,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenRoleManagement()
         {
+            if (!EditionGate.Require(AppFeature.RoleManagement)) return;
             if (!SessionManager.HasPermission(Permissions.UsersManage))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to manage roles."); return; }
             App.Services?.GetRequiredService<RoleManagementWindow>().ShowDialog();

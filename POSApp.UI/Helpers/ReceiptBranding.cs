@@ -45,9 +45,7 @@ namespace POSApp.UI.Helpers
     public static class ReceiptBranding
     {
         private static readonly string SettingsFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "ShahJeePOS",
-            "receipt-branding.json");
+            POSApp.Core.Services.AppPaths.SharedSettingsDirectory, "receipt-branding.json");
 
         private static ReceiptBrandingSettings? _cached;
 

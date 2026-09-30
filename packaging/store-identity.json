@@ -1,0 +1,9 @@
+{
+  "_readme": "IdentityName, Publisher and PublisherDisplayName come from Partner Center > Product management > Product identity and must match exactly. Pro is sold as Subscription add-ons whose Product ID starts with ProProductIdPrefix (e.g. pro_monthly, pro_yearly). DisplayName must match the reserved app name exactly, including case (Partner Center shows 'swifttill').",
+  "IdentityName": "DFLabs.swifttill",
+  "Publisher": "CN=F6F3250D-99E3-41B7-AB8D-F6B70D32C0F5",
+  "PublisherDisplayName": "DF Labs",
+  "DisplayName": "swifttill",
+  "Description": "Swifttill — fast, simple point-of-sale for small shops: barcode sales, receipts, stock, customer credit (khata) and daily reports.",
+  "ProProductIdPrefix": "pro_"
+}

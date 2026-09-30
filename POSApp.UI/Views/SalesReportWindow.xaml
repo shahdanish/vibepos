@@ -19,10 +19,10 @@
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="20">
             <Grid>
-                <TextBlock Text="Sales Reports &amp; Analytics" FontSize="28" FontWeight="Bold" 
+                <TextBlock Text="Sales Reports &amp; Analytics" FontSize="20" FontWeight="SemiBold" 
                            Foreground="White" HorizontalAlignment="Center"/>
                 <Button Content="Close" Click="Exit_Click" HorizontalAlignment="Right" 
-                        Style="{StaticResource PrimaryButton}" Padding="15,8"/>
+                        Style="{StaticResource SecondaryButton}"/>
             </Grid>
         </Border>
 
@@ -38,29 +38,23 @@
                 <TextBlock Grid.Row="0" Text="Quick Reports" Style="{StaticResource SectionTitle}" Margin="0,0,0,15"/>
 
                 <WrapPanel Grid.Row="1">
-                    <Button Content="TODAY" Command="{Binding ShowTodayCommand}"
-                            Style="{StaticResource SuccessButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="THIS WEEK" Command="{Binding ShowThisWeekCommand}"
-                            Style="{StaticResource InfoButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="THIS MONTH" Command="{Binding ShowThisMonthCommand}"
-                            Style="{StaticResource WarningButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="THIS YEAR" Command="{Binding ShowThisYearCommand}"
-                            Style="{StaticResource PurpleButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="130"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="CUSTOM RANGE" Command="{Binding ShowCustomRangeCommand}"
-                            Style="{StaticResource NeutralButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="150"
-                            FontSize="14" FontWeight="Bold"/>
-                    <Button Content="INVOICE SEARCH" Command="{Binding ShowInvoiceSearchCommand}"
-                            Style="{StaticResource PrimaryButton}" Padding="20,12" Margin="0,0,10,10" MinWidth="170"
-                            FontSize="14" FontWeight="Bold"/>
+                    <Button Content="Today" Command="{Binding ShowTodayCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="This week" Command="{Binding ShowThisWeekCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="This month" Command="{Binding ShowThisMonthCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="This year" Command="{Binding ShowThisYearCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="Custom range" Command="{Binding ShowCustomRangeCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
+                    <Button Content="Invoice search" Command="{Binding ShowInvoiceSearchCommand}"
+                            Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" MinWidth="110"/>
                 </WrapPanel>
 
                 <!-- Pharmacy Filters — visible only for pharmacy users -->
                 <Border Grid.Row="2" Visibility="{Binding PharmacyFilterVisibility}"
-                        Background="#EFF8F1" BorderBrush="#27ae60" BorderThickness="0,1,0,0"
+                        Background="{DynamicResource SuccessSubtleBrush}" BorderBrush="{DynamicResource SuccessBrush}" BorderThickness="0,1,0,0"
                         Padding="0,10,0,0" Margin="0,4,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -74,7 +68,7 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="Pharmacy:" FontWeight="Bold" FontSize="12"
-                                   Foreground="#27ae60" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                   Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding PharmacyOptions}"
                                   SelectedItem="{Binding PharmacyFilter}"
@@ -82,7 +76,7 @@
                                   ToolTip="Filter by pharmacy"/>
 
                         <TextBlock Grid.Column="2" Text="Doctor:" FontWeight="Bold" FontSize="12"
-                                   Foreground="#27ae60" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                                   Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="16,0,8,0"/>
                         <ComboBox Grid.Column="3"
                                   ItemsSource="{Binding DoctorOptions}"
                                   SelectedItem="{Binding DoctorFilter}"
@@ -90,7 +84,7 @@
                                   ToolTip="Filter by doctor"/>
 
                         <TextBlock Grid.Column="4" Text="Product:" FontWeight="Bold" FontSize="12"
-                                   Foreground="#27ae60" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                                   Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="16,0,8,0"/>
                         <ComboBox Grid.Column="5"
                                   ItemsSource="{Binding ProductOptions}"
                                   SelectedItem="{Binding ProductFilter}"
@@ -122,8 +116,8 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="{Binding ReportTitle}" FontSize="20" FontWeight="Bold" 
-                               Foreground="{DynamicResource BrandPrimaryBrush}" Margin="0,0,0,10"/>
+                    <TextBlock Grid.Row="0" Text="{Binding ReportTitle}" FontSize="18" FontWeight="SemiBold" 
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
 
                     <!-- Search Panel (Collapsed by default) -->
                     <StackPanel Grid.Row="1" x:Name="SearchPanel" Visibility="{Binding SearchPanelVisibility}" Margin="0,0,0,15">
@@ -141,7 +135,7 @@
                                 <TextBox Grid.Column="1" Text="{Binding InvoiceNumber, UpdateSourceTrigger=PropertyChanged}" 
                                          FontSize="14" Padding="8" Margin="0,0,10,0"/>
                                 <Button Grid.Column="2" Content="Search" Command="{Binding SearchInvoiceCommand}" 
-                                        Style="{StaticResource SuccessButton}" Padding="15,8" MinWidth="100"/>
+                                        Style="{StaticResource SuccessButton}" MinWidth="100"/>
                             </Grid>
                         </Border>
 
@@ -165,7 +159,7 @@
                                 <DatePicker Grid.Column="3" SelectedDate="{Binding EndDate}" 
                                             FontSize="14" Padding="8" Margin="0,0,15,0"/>
                                 <Button Grid.Column="4" Content="Show Report" Command="{Binding SearchDateRangeCommand}" 
-                                        Style="{StaticResource InfoButton}" Padding="15,8" MinWidth="130"/>
+                                        Style="{StaticResource InfoButton}" MinWidth="130"/>
                             </Grid>
                         </Border>
                     </StackPanel>
@@ -173,14 +167,15 @@
                     <!-- Data Grid -->
                     <DataGrid Grid.Row="2" ItemsSource="{Binding Sales}" SelectedItem="{Binding SelectedSale}"
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
-                              AlternatingRowBackground="#F9F9F9" HeadersVisibility="All"
-                              GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="#DDD">
+                              AlternatingRowBackground="{DynamicResource SurfaceAltBrush}" HeadersVisibility="All"
+                              GridLinesVisibility="Horizontal" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Invoice #" Binding="{Binding InvoiceNumber}" Width="120"/>
                             <DataGridTextColumn Header="Date" Binding="{Binding SaleDate, Converter={StaticResource DateConverter}}" Width="100"/>
                             <DataGridTextColumn Header="Type" Binding="{Binding SaleType}" Width="90"/>
-                            <DataGridTextColumn Header="Customer / Pharmacy" Binding="{Binding CustomerName}" Width="*" MinWidth="120"/>
-                            <DataGridTextColumn Header="Doctor" Binding="{Binding Doctor.Name}" Width="110" MinWidth="80"/>
+                            <DataGridTextColumn x:Name="CustomerColumn" Header="Customer" Binding="{Binding CustomerName}" Width="*" MinWidth="120"/>
+                            <DataGridTextColumn x:Name="DoctorColumn" Header="Doctor" Binding="{Binding Doctor.Name}" Width="110" MinWidth="80"
+                                                Visibility="Collapsed"/>
                             <DataGridTextColumn Header="Items" Binding="{Binding SaleItems.Count}" Width="55" ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Discount" Binding="{Binding DiscountOnBill, StringFormat=N2}" Width="85" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTextColumn Header="{x:Static helpers:Region.TotalLabel}" Binding="{Binding TotalBill, StringFormat=N2}" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
@@ -201,64 +196,64 @@
             <!-- Right Panel: Summary & Details -->
             <Border Grid.Column="1" Style="{StaticResource CardBorder}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
+                    <StackPanel Margin="0,0,12,0">
                         <!-- Summary Statistics -->
                         <TextBlock Text="Summary" Style="{StaticResource SectionTitle}" Margin="0,0,0,15"/>
 
-                        <Border Background="#E8F5E9" Padding="15" Margin="0,0,0,10" CornerRadius="8">
+                        <Border Style="{StaticResource StatTile}" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="Total Sales" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalSales}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Text="Total Sales" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding TotalSales}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource SuccessTextBrush}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="#E3F2FD" Padding="15" Margin="0,0,0,10" CornerRadius="8">
+                        <Border Style="{StaticResource StatTile}" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="Total Revenue" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalRevenue, Converter={StaticResource MoneyConverter}}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource InfoBrush}"/>
+                                <TextBlock Text="Total Revenue" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding TotalRevenue, Converter={StaticResource MoneyConverter}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource InfoTextBrush}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="#FFF3E0" Padding="15" Margin="0,0,0,10" CornerRadius="8">
+                        <Border Style="{StaticResource StatTile}" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="Total Cost" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalCost, Converter={StaticResource MoneyConverter}}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                <TextBlock Text="Total Cost" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding TotalCost, Converter={StaticResource MoneyConverter}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource WarningTextBrush}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="#F3E5F5" Padding="15" Margin="0,0,0,10" CornerRadius="8">
+                        <Border Style="{StaticResource StatTile}" Margin="0,0,0,10">
                             <StackPanel>
-                                <TextBlock Text="Total Profit" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalProfit, Converter={StaticResource MoneyConverter}}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource PurpleBrush}"/>
+                                <TextBlock Text="Total Profit" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding TotalProfit, Converter={StaticResource MoneyConverter}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource PurpleTextBrush}"/>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="#FCE4EC" Padding="15" Margin="0,0,0,15" CornerRadius="8">
+                        <Border Style="{StaticResource StatTile}" Margin="0,0,0,15">
                             <StackPanel>
-                                <TextBlock Text="Total Discount Given" FontSize="12" Foreground="#666" Margin="0,0,0,5"/>
-                                <TextBlock Text="{Binding TotalDiscount, Converter={StaticResource MoneyConverter}}" FontSize="20" FontWeight="Bold" Foreground="#E91E63"/>
+                                <TextBlock Text="Total Discount Given" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding TotalDiscount, Converter={StaticResource MoneyConverter}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource DangerTextBrush}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Selected Sale Details -->
-                        <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,10,0,0" 
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,10,0,0" 
                                 Visibility="{Binding SelectedSaleVisibility}">
                             <StackPanel>
-                                <TextBlock Text="Selected Sale Details" FontSize="16" FontWeight="Bold" 
-                                           Foreground="{DynamicResource BrandPrimaryBrush}" Margin="0,0,0,15"/>
+                                <TextBlock Text="Selected Sale Details" FontSize="15" FontWeight="SemiBold" 
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,15"/>
 
                                 <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="Invoice:" FontSize="12" Foreground="#666"/>
+                                    <TextBlock Text="Invoice:" FontSize="12" Foreground="{DynamicResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding SelectedSale.InvoiceNumber}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Right"/>
                                 </Grid>
 
                                 <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="Customer:" FontSize="12" Foreground="#666"/>
+                                    <TextBlock Text="Customer:" FontSize="12" Foreground="{DynamicResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding SelectedSale.CustomerName}" FontSize="14" HorizontalAlignment="Right"/>
                                 </Grid>
 
                                 <Grid Margin="0,0,0,8">
-                                    <TextBlock Text="Payment:" FontSize="12" Foreground="#666"/>
+                                    <TextBlock Text="Payment:" FontSize="12" Foreground="{DynamicResource TextMutedBrush}"/>
                                     <TextBlock Text="{Binding SelectedSale.PaymentType}" FontSize="14" HorizontalAlignment="Right"/>
                                 </Grid>
 
@@ -268,7 +263,7 @@
                                         <ItemsControl ItemsSource="{Binding SelectedSale.SaleItems}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border BorderBrush="#DDD" BorderThickness="0,0,0,1" Padding="5" Margin="0,0,0,5">
+                                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="5" Margin="0,0,0,5">
                                                         <Grid>
                                                             <Grid.RowDefinitions>
                                                                 <RowDefinition/>
@@ -276,10 +271,10 @@
                                                             </Grid.RowDefinitions>
                                                             <TextBlock Grid.Row="0" Text="{Binding ProductName}" FontSize="11" FontWeight="SemiBold"/>
                                                             <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                                                <TextBlock Text="{Binding Quantity}" FontSize="10" Foreground="#666"/>
-                                                                <TextBlock Text="{x:Static helpers:Region.TimesSymbol}" FontSize="10" Foreground="#666"/>
-                                                                <TextBlock Text="{Binding UnitPrice, StringFormat=N2}" FontSize="10" Foreground="#666"/>
-                                                                <TextBlock Text="{x:Static helpers:Region.EqualsSymbol}" FontSize="10" Foreground="#666" Margin="5,0,0,0"/>
+                                                                <TextBlock Text="{Binding Quantity}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
+                                                                <TextBlock Text="{x:Static helpers:Region.TimesSymbol}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
+                                                                <TextBlock Text="{Binding UnitPrice, StringFormat=N2}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
+                                                                <TextBlock Text="{x:Static helpers:Region.EqualsSymbol}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" Margin="5,0,0,0"/>
                                                                 <TextBlock Text="{Binding Total, StringFormat=N2}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                             </StackPanel>
                                                         </Grid>
@@ -303,14 +298,14 @@
         <Border Grid.Row="3" Style="{StaticResource CardBorder}" Margin="10,0,10,10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Content="Print Report" Command="{Binding PrintReportCommand}" 
-                        Style="{StaticResource InfoButton}" Padding="20,10" Margin="0,0,10,0" MinWidth="150"
-                        FontSize="14" FontWeight="Bold"/>
+                        Style="{StaticResource InfoButton}" Margin="0,0,10,0" MinWidth="150"
+                        FontSize="14"/>
                 <Button Content="Export to Excel" Command="{Binding ExportCommand}" 
-                        Style="{StaticResource SuccessButton}" Padding="20,10" Margin="0,0,10,0" MinWidth="150"
-                        FontSize="14" FontWeight="Bold"/>
+                        Style="{StaticResource SuccessButton}" Margin="0,0,10,0" MinWidth="150"
+                        FontSize="14"/>
                 <Button Content="Refresh" Command="{Binding RefreshCommand}" 
-                        Style="{StaticResource WarningButton}" Padding="20,10" MinWidth="120"
-                        FontSize="14" FontWeight="Bold"/>
+                        Style="{StaticResource SecondaryButton}" MinWidth="120"
+                        FontSize="14"/>
             </StackPanel>
         </Border>
     </Grid>

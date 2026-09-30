@@ -1,53 +1,83 @@
 <Window x:Class="POSApp.UI.Views.BackupRestoreWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Backup &amp; Restore" Height="500" Width="700"
-        WindowStartupLocation="CenterOwner" Icon="/app-icon.png">
-    <Grid Margin="20">
+        Title="Backup &amp; Restore" Height="620" Width="700"
+        WindowStartupLocation="CenterOwner" Icon="/app-icon.png"
+        Background="{DynamicResource PageBackgroundBrush}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Database Backup &amp; Restore" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
+            <TextBlock Text="Backup &amp; Restore" Style="{StaticResource HeaderTitle}"/>
+        </Border>
 
-        <StackPanel Grid.Row="1">
-            <GroupBox Header="Backup Directory" Padding="15" Margin="0,0,0,15">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding BackupDirectory}" IsReadOnly="True" VerticalAlignment="Center"/>
-                    <Button Grid.Column="1" Content="Browse" Command="{Binding SelectBackupDirectoryCommand}" Margin="10,0,0,0" Padding="15,5"/>
-                </Grid>
-            </GroupBox>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20,16,20,0">
+                <!-- Where backups go -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Backup folder" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding BackupDirectory}" IsReadOnly="True" VerticalAlignment="Center"
+                                     Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <Button Grid.Column="1" Content="Browse…" Command="{Binding SelectBackupDirectoryCommand}"
+                                    Style="{StaticResource SecondaryButton}" Margin="8,0,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-            <GroupBox Header="Actions" Padding="15" Margin="0,0,0,15">
-                <StackPanel>
-                    <Button Content="Create Backup" Command="{Binding CreateBackupCommand}" Padding="20,10" FontSize="14" Background="#4CAF50" Foreground="White" Margin="0,0,0,10"/>
-                    <Button Content="Restore Latest Backup" Command="{Binding RestoreBackupCommand}" Padding="20,10" FontSize="14" Background="#FF9800" Foreground="White"/>
-                </StackPanel>
-            </GroupBox>
+                <!-- Actions -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Actions" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                        <WrapPanel>
+                            <Button Content="Create Backup" Command="{Binding CreateBackupCommand}"
+                                    Style="{StaticResource SuccessButton}" Margin="0,0,8,0"/>
+                            <Button Content="Restore Latest Backup" Command="{Binding RestoreBackupCommand}"
+                                    Style="{StaticResource DangerTonalButton}"/>
+                        </WrapPanel>
+                        <TextBlock Text="Restoring replaces all current data with the latest backup."
+                                   Style="{StaticResource HintText}" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
 
-            <GroupBox Header="Available Backups" Padding="15">
-                <StackPanel>
-                    <ListView ItemsSource="{Binding AvailableBackups}" Height="150">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" Padding="5"/>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                    <Button Content="Refresh" Command="{Binding RefreshBackupsCommand}" Margin="0,10,0,0" Padding="10,5"/>
-                </StackPanel>
-            </GroupBox>
-        </StackPanel>
+                <!-- Existing backups -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <TextBlock Text="Available backups" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center"/>
+                            <Button Content="🔄  Refresh" Command="{Binding RefreshBackupsCommand}"
+                                    Style="{StaticResource SecondaryButton}" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <ListView ItemsSource="{Binding AvailableBackups}" Height="150"
+                                  BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Padding="4,2"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
 
-        <StackPanel Grid.Row="2">
-            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="Gray" Margin="0,10,0,0"/>
-            <Button Content="Close" Click="CloseButton_Click" HorizontalAlignment="Right" Padding="20,8" Margin="0,10,0,0"/>
-        </StackPanel>
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceAltBrush}" Padding="20,12"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource HintText}" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Button Content="Close" Click="CloseButton_Click" Style="{StaticResource NeutralButton}"
+                        HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

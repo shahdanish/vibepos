@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
+using POSApp.Core.Services;
 using POSApp.Data;
 using System.Text.Json;
 
@@ -67,7 +68,7 @@ namespace POSApp.Infrastructure.Services
         public FirebaseSyncService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _logPath = Path.Combine(AppContext.BaseDirectory, "sync.log");
+            _logPath = Path.Combine(AppPaths.LogsDirectory, "sync.log");
             _fallbackLogPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "POSApp",

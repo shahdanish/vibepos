@@ -13,10 +13,10 @@
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="20,12">
             <Grid>
-                <TextBlock Text="📒 Customer Ledger (Khata)" FontSize="24" FontWeight="Bold"
+                <TextBlock Text="📒 Customer Ledger (Khata)" FontSize="20" FontWeight="SemiBold"
                            Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <Button Content="Close" Click="Close_Click" HorizontalAlignment="Right"
-                        Style="{StaticResource NeutralButton}" Padding="16,8"/>
+                        Style="{StaticResource SecondaryButton}"/>
             </Grid>
         </Border>
 
@@ -43,7 +43,7 @@
                     <TextBlock Grid.Row="0" Text="Customers" Style="{StaticResource SectionTitle}"/>
 
                     <!-- Search box -->
-                    <Border Grid.Row="1" Background="#F0F4F8" CornerRadius="6" Padding="8,4" Margin="0,0,0,8">
+                    <Border Grid.Row="1" Background="{DynamicResource SurfaceSunkenBrush}" CornerRadius="6" Padding="8,4" Margin="0,0,0,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -66,11 +66,11 @@
                             <DataGridTextColumn Header="{x:Static helpers:Region.BalanceLabel}" Binding="{Binding CurrentBalance, StringFormat=N2}" Width="100"/>
                         </DataGrid.Columns>
                         <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow">
+                            <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding CurrentBalance, Converter={StaticResource GreaterThanZeroConverter}}" Value="True">
-                                        <Setter Property="Background" Value="#FFF5F5"/>
-                                        <Setter Property="Foreground" Value="#C53030"/>
+                                        <Setter Property="Background" Value="{DynamicResource DangerSubtleBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerTextBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -78,7 +78,7 @@
                     </DataGrid>
 
                     <Button Grid.Row="3" Content="🔄 Refresh" Command="{Binding RefreshCommand}"
-                            Style="{StaticResource InfoButton}" Padding="8,6" Margin="0,8,0,0"/>
+                            Style="{StaticResource SecondaryButton}" Padding="8,6" Margin="0,8,0,0"/>
                 </Grid>
             </Border>
 
@@ -94,19 +94,19 @@
                     <!-- Customer info -->
                     <StackPanel Grid.Row="0" Margin="0,0,0,8">
                         <TextBlock Text="Payment History" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock FontSize="13" Foreground="Gray">
+                        <TextBlock FontSize="13" Foreground="{DynamicResource TextMutedBrush}">
                             <Run Text="Customer: "/>
                             <Run Text="{Binding SelectedCustomer.Name, FallbackValue='— select a customer —'}" FontWeight="SemiBold"/>
                         </TextBlock>
                         <TextBlock FontSize="14" Margin="0,4,0,0">
                             <Run Text="{x:Static helpers:Region.OutstandingBalancePrefix}" FontWeight="Bold"/>
                             <Run Text="{Binding SelectedCustomer.CurrentBalance, StringFormat=N2, FallbackValue='0.00'}"
-                                 FontWeight="Bold" Foreground="#C53030"/>
+                                 FontWeight="Bold" Foreground="{DynamicResource DangerTextBrush}"/>
                         </TextBlock>
                     </StackPanel>
 
                     <!-- Date range filter bar -->
-                    <Border Grid.Row="1" Background="#F0F4F8" CornerRadius="8" Padding="8,6" Margin="0,0,0,8">
+                    <Border Grid.Row="1" Background="{DynamicResource SurfaceSunkenBrush}" CornerRadius="8" Padding="8,6" Margin="0,0,0,8">
                         <StackPanel>
                             <WrapPanel Orientation="Horizontal" Margin="0,0,0,6">
                                 <Button Content="All" Command="{Binding FilterAllCommand}"
@@ -203,7 +203,7 @@
                                     Style="{StaticResource DangerButton}" Padding="8,7" Margin="4,0,0,0"/>
                         </UniformGrid>
 
-                        <Border BorderBrush="#DDD" BorderThickness="0,1,0,0" Margin="0,0,0,16"/>
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,0,0,16"/>
 
                         <!-- Record / Edit Payment -->
                         <TextBlock Text="Record Payment" Style="{StaticResource SectionTitle}"/>

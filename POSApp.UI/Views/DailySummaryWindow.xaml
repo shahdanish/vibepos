@@ -13,7 +13,7 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="Daily Sales Summary &amp; Cash Reconciliation" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="Daily Sales Summary &amp; Cash Reconciliation" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
             <StackPanel Orientation="Horizontal" Margin="0,5">
                 <TextBlock Text="Select Date:" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <DatePicker SelectedDate="{Binding SelectedDate}" Width="200"/>
@@ -47,7 +47,7 @@
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Total Sales:" VerticalAlignment="Center" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="{Binding TotalSales, StringFormat={}{0:N2}}" TextAlignment="Right" FontWeight="Bold" Foreground="Green"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalSales, StringFormat={}{0:N2}}" TextAlignment="Right" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                         </Grid>
 
                         <Grid Margin="0,10">
@@ -56,7 +56,7 @@
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Total Expenses:" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{Binding TotalExpenses, StringFormat={}{0:N2}}" TextAlignment="Right" Foreground="Red"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalExpenses, StringFormat={}{0:N2}}" TextAlignment="Right" Foreground="{DynamicResource DangerBrush}"/>
                         </Grid>
 
                         <Separator Margin="0,15"/>
@@ -90,10 +90,10 @@
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Variance}" Value="0">
-                                                <Setter Property="Foreground" Value="Green"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
-                                        <Setter Property="Foreground" Value="Red"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
@@ -124,7 +124,7 @@
 
         <!-- Buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-            <Button Content="Save Summary" Command="{Binding SaveCommand}" Padding="20,8" FontSize="14" Background="#4CAF50" Foreground="White"/>
+            <Button Content="Save Summary" Command="{Binding SaveCommand}" Padding="20,8" FontSize="14" Background="{DynamicResource SuccessBrush}" Foreground="White"/>
             <Button Content="Close" Click="CloseButton_Click" Padding="20,8" Margin="10,0,0,0" FontSize="14"/>
         </StackPanel>
     </Grid>

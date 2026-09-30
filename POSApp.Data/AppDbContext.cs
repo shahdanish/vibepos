@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using POSApp.Core.Entities;
+using POSApp.Core.Services;
 
 namespace POSApp.Data
 {
@@ -45,7 +46,7 @@ namespace POSApp.Data
         {
             if (!options.IsConfigured)
             {
-                options.UseSqlite("Data Source=posapp.db")
+                options.UseSqlite(AppPaths.ConnectionString)
                        .AddInterceptors(new SyncLogInterceptor())
                        .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
             }

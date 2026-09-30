@@ -1,6 +1,7 @@
 <Window x:Class="POSApp.UI.Views.UserManagementWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
         Title="User Management"
         Height="650" Width="1000"
         WindowStartupLocation="CenterScreen"
@@ -16,12 +17,13 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
-            <TextBlock Text="User Management" FontSize="24" FontWeight="Bold"
+            <TextBlock Text="User Management" FontSize="20" FontWeight="SemiBold"
                        Foreground="White" HorizontalAlignment="Center"/>
         </Border>
 
         <!-- Toolbar -->
-        <Border Grid.Row="1" Background="{DynamicResource BrandAccentBrush}" Padding="12,8">
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" Padding="16,10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -31,31 +33,12 @@
 
                 <TextBox Grid.Column="0"
                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         Padding="8,6" FontSize="13" MaxWidth="400" HorizontalAlignment="Left">
-                    <TextBox.Style>
-                        <Style TargetType="TextBox">
-                            <Style.Triggers>
-                                <Trigger Property="Text" Value="">
-                                    <Setter Property="Background">
-                                        <Setter.Value>
-                                            <VisualBrush AlignmentX="Left" Stretch="None">
-                                                <VisualBrush.Visual>
-                                                    <TextBlock Text="🔍  Search by username or role…"
-                                                               Foreground="#999" Margin="8,6"/>
-                                                </VisualBrush.Visual>
-                                            </VisualBrush>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBox.Style>
-                </TextBox>
+                         Padding="8,6" FontSize="13" Width="380" HorizontalAlignment="Left"
+                         helpers:Input.Placeholder="🔍  Search by username or role…"/>
 
                 <CheckBox Grid.Column="1"
                           Content="Show Inactive Users"
-                          IsChecked="{Binding ShowInactive}"
-                          Foreground="White" FontSize="13"
+                          IsChecked="{Binding ShowInactive}" FontSize="13"
                           VerticalAlignment="Center" Margin="16,0"/>
 
                 <Button Grid.Column="2"
@@ -76,7 +59,7 @@
                           GridLinesVisibility="Horizontal"
                           HeadersVisibility="Column"
                           RowBackground="White"
-                          AlternatingRowBackground="#F9F9F9"
+                          AlternatingRowBackground="{DynamicResource SurfaceAltBrush}"
                           CanUserSortColumns="True"
                           BorderThickness="0">
                     <DataGrid.Columns>
@@ -92,10 +75,10 @@
                                     <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Center">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#4CAF50"/>
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                        <Setter Property="Background" Value="#9E9E9E"/>
+                                                        <Setter Property="Background" Value="{DynamicResource TextMutedBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -146,7 +129,7 @@
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsActive}" Value="False">
                                                             <Setter Property="Content" Value="▶ Enable"/>
-                                                            <Setter Property="Background" Value="#4CAF50"/>
+                                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -171,7 +154,7 @@
         <!-- Footer -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,8">
             <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
-                    Style="{StaticResource InfoButton}" Padding="12,6" Margin="0,0,8,0"/>
+                    Style="{StaticResource SecondaryButton}" Padding="12,6" Margin="0,0,8,0"/>
             <Button Content="✕ Close" Click="Close_Click"
                     Style="{StaticResource NeutralButton}" Padding="12,6"/>
         </StackPanel>

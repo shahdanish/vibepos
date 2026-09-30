@@ -18,7 +18,7 @@ namespace POSApp.UI.ViewModels
         // overrides are intentionally removed so the base SaleViewModel template is used
         // verbatim. Only the on-screen selling price differs (wholesale pricing above).
 
-        public override string ModeSwitchLabel => "⇄ RETAIL SALE";
+        public override string ModeSwitchLabel => "⇄  Retail Sale";
 
         // Wholesale mirrors the NORMAL Sale screen: manual type-to-search must NOT
         // auto-commit the first TextSearch match. The item is only added on an EXPLICIT

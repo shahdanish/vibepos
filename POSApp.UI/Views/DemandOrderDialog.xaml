@@ -15,9 +15,9 @@
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="20,12">
             <Grid>
-                <TextBlock Text="📋 Demand Order" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="📋 Demand Order" FontSize="20" FontWeight="SemiBold"
                            Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBlock FontSize="13" Foreground="#FFD700"
+                <TextBlock FontSize="13" Foreground="{DynamicResource BrandGoldBrush}"
                            HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Run Text="Date: "/>
                     <Run x:Name="TodayDateRun"/>
@@ -33,12 +33,12 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="Edit order quantities, then print the list to purchase these items."
-                           FontSize="12" Foreground="Gray" Margin="0,0,0,8"/>
+                           FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,8"/>
                 <DataGrid Grid.Row="1" x:Name="ItemsGrid"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False" CanUserDeleteRows="False"
                           HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                          AlternatingRowBackground="#FFFDF5"
+                          AlternatingRowBackground="{DynamicResource SurfaceAltBrush}"
                           RowHeight="38" ColumnHeaderHeight="36" FontSize="14"
                           CellEditEnding="ItemsGrid_CellEditEnding">
                     <DataGrid.Columns>
@@ -61,11 +61,11 @@
                         </DataGridTextColumn>
                     </DataGrid.Columns>
                     <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CurrentStock}" Value="0">
-                                    <Setter Property="Background" Value="#FED7D7"/>
-                                    <Setter Property="Foreground" Value="#C53030"/>
+                                    <Setter Property="Background" Value="{DynamicResource DangerSubtleBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource DangerTextBrush}"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -77,8 +77,8 @@
 
         <!-- Buttons -->
         <Grid Grid.Row="2" Margin="16,8,16,14">
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="18" FontWeight="Bold"
-                       Foreground="{DynamicResource BrandPrimaryBrush}">
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="15" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextPrimaryBrush}">
                 <Run Text="{x:Static helpers:Region.TotalBillPrefix}"/>
                 <Run x:Name="TotalBillRun"/>
             </TextBlock>

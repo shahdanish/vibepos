@@ -13,9 +13,9 @@
         <!-- Header -->
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}">
             <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="🏪 Cash Register / Shift" FontSize="24" FontWeight="Bold" 
+                <TextBlock Text="🏪 Cash Register / Shift" FontSize="20" FontWeight="SemiBold" 
                            Foreground="White" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding ShiftStatus}" FontSize="12" Foreground="#CBD5E0" 
+                <TextBlock Text="{Binding ShiftStatus}" FontSize="12" Foreground="{DynamicResource OnBrandMutedBrush}" 
                            HorizontalAlignment="Center" Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
@@ -34,7 +34,7 @@
                     <TextBlock Text="Shift Controls" Style="{StaticResource SectionTitle}"/>
 
                     <!-- Open Shift Section -->
-                    <Border Background="#EBF8FF" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                    <Border Style="{StaticResource StatTile}" Margin="0,0,0,15">
                         <StackPanel>
                             <TextBlock Text="Open New Shift" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                             <TextBlock Text="{x:Static helpers:Region.OpeningCashLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
@@ -46,10 +46,10 @@
                     </Border>
 
                     <!-- Close Shift Section -->
-                    <Border Background="#FFF5F5" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+                    <Border Style="{StaticResource StatTile}" Margin="0,0,0,15">
                         <StackPanel>
                             <TextBlock Text="Close Current Shift" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
-                            <TextBlock Text="Count your cash and enter below:" FontSize="12" Margin="0,0,0,10" Foreground="Gray"/>
+                            <TextBlock Text="Count your cash and enter below:" FontSize="12" Margin="0,0,0,10" Foreground="{DynamicResource TextMutedBrush}"/>
                             <TextBlock Text="{x:Static helpers:Region.ActualCashLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                             <TextBox Text="{Binding ClosingBalance, UpdateSourceTrigger=PropertyChanged}" 
                                      Padding="8" Margin="0,0,0,10"/>
@@ -59,7 +59,7 @@
                     </Border>
 
                     <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}" 
-                            Style="{StaticResource InfoButton}" Padding="10,8" Margin="0,0,0,10"/>
+                            Style="{StaticResource SecondaryButton}" Padding="10,8" Margin="0,0,0,10"/>
                     <Button Content="Close Window" Click="Close_Click" 
                             Style="{StaticResource NeutralButton}" Padding="10,8"/>
                 </StackPanel>

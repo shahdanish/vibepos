@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using POSApp.Core.Interfaces;
+using POSApp.Core.Services;
 using POSApp.UI.Helpers;
 using POSApp.UI.Views;
 
@@ -42,6 +43,9 @@ namespace POSApp.UI.ViewModels
 
         public ICommand RefreshCommand { get; }
         public ICommand OpenDemandOrderCommand { get; }
+        /// <summary>Cloud backup is not part of the Store build.</summary>
+        public Visibility CloudBackupVisibility => EditionGate.VisibleIfInBuild(AppFeature.CloudBackup);
+
         public ICommand BackupToCloudCommand { get; }
         public ICommand RestoreFromCloudCommand { get; }
 
@@ -121,6 +125,7 @@ namespace POSApp.UI.ViewModels
 
         private void OpenDemandOrder()
         {
+            if (!EditionGate.Require(AppFeature.Purchases)) return;
             if (!LowStockProducts.Any())
             {
                 NotificationHelper.ValidationErrorCustom("No low-stock items to create a demand order for.");

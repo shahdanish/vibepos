@@ -5,15 +5,40 @@
 
     <Grid Background="{DynamicResource PageBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Main Content: Top Sellers + Low Stock -->
-        <Grid Grid.Row="0" Margin="20,15,20,0">
+        <!-- Page heading + actions -->
+        <Grid Grid.Row="0" Margin="24,20,24,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Overview" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock Text="Best sellers and items that need restocking" Style="{StaticResource HintText}"
+                           FontSize="12" Margin="0,2,0,0"/>
+            </StackPanel>
+            <WrapPanel Grid.Column="1" VerticalAlignment="Center">
+                <Button Content="🔄  Refresh" Command="{Binding RefreshCommand}"
+                        Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"/>
+                <Button Content="☁  Backup to Cloud" Command="{Binding BackupToCloudCommand}"
+                        Visibility="{Binding CloudBackupVisibility}"
+                        Style="{StaticResource PurpleButton}" Margin="0,0,8,0"/>
+                <Button Content="Restore from Cloud" Command="{Binding RestoreFromCloudCommand}"
+                        Visibility="{Binding CloudBackupVisibility}"
+                        Style="{StaticResource DangerTonalButton}"
+                        ToolTip="Replaces all local data with the latest cloud backup"/>
+            </WrapPanel>
+        </Grid>
+
+        <!-- Main Content: Top Sellers + Low Stock -->
+        <Grid Grid.Row="1" Margin="24,0,24,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -24,15 +49,23 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="🏆 Top Sellers (Last 30 Days)" Style="{StaticResource SectionTitle}"/>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding TopSellingProducts}"
-                              AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column">
+                    <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="🏆  Top sellers" Style="{StaticResource SectionTitle}" Margin="0"/>
+                        <TextBlock Text="Last 30 days" Style="{StaticResource HintText}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <DataGrid x:Name="TopGrid" Grid.Row="1" ItemsSource="{Binding TopSellingProducts}"
+                              AutoGenerateColumns="False" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
-                            <DataGridTextColumn Header="Qty Sold" Binding="{Binding TotalQuantity}" Width="80"/>
-                            <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat=N0}" Width="90"/>
+                            <DataGridTextColumn Header="Qty sold" Binding="{Binding TotalQuantity}" Width="90"
+                                                ElementStyle="{StaticResource RightAlignStyle}"/>
+                            <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat=N0}" Width="110"
+                                                ElementStyle="{StaticResource RightAlignStyle}"/>
                         </DataGrid.Columns>
                     </DataGrid>
+                    <TextBlock Grid.Row="1" Text="No sales in the last 30 days yet"
+                               Style="{StaticResource EmptyStateText}"
+                               Visibility="{Binding HasItems, ElementName=TopGrid, Converter={StaticResource InverseBoolToVis}}"/>
                 </Grid>
             </Border>
 
@@ -42,57 +75,48 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Header row with title + demand order button -->
-                    <Grid Grid.Row="0" Margin="0,0,0,10">
-                        <TextBlock Text="⚠️ Low Stock Alert" Style="{StaticResource SectionTitle}" Margin="0"/>
-                        <Button Content="📋 Demand Order"
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="⚠  Low stock" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            <TextBlock Text="Out-of-stock items are shown in bold" Style="{StaticResource HintText}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <Button Content="📋  Demand Order"
                                 Command="{Binding OpenDemandOrderCommand}"
                                 Style="{StaticResource WarningButton}"
-                                Padding="10,6" FontSize="12"
                                 HorizontalAlignment="Right" VerticalAlignment="Center"
                                 ToolTip="Open demand order form to restock low-stock items"/>
                     </Grid>
 
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding LowStockProducts}"
-                              AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
-                              AlternatingRowBackground="#FFF5F5">
+                    <DataGrid x:Name="LowGrid" Grid.Row="1" ItemsSource="{Binding LowStockProducts}"
+                              AutoGenerateColumns="False" IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
-                            <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="110"/>
-                            <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="65"
+                            <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
+                            <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="120"/>
+                            <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="70"
                                                 ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Alert At" Binding="{Binding Threshold}" Width="65"
+                            <DataGridTextColumn Header="Alert at" Binding="{Binding Threshold}" Width="75"
                                                 ElementStyle="{StaticResource CenterAlignStyle}"/>
                         </DataGrid.Columns>
                         <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow">
-                                <Setter Property="Background" Value="#FFF5F5"/>
-                                <Setter Property="Foreground" Value="#C53030"/>
+                            <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                                <Setter Property="Foreground" Value="{DynamicResource DangerTextBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsOutOfStock}" Value="True">
-                                        <Setter Property="Background" Value="#FED7D7"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Background" Value="{DynamicResource DangerSubtleBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </DataGrid.RowStyle>
                     </DataGrid>
+                    <TextBlock Grid.Row="1" Text="All products are well stocked 👍"
+                               Style="{StaticResource EmptyStateText}"
+                               Visibility="{Binding HasItems, ElementName=LowGrid, Converter={StaticResource InverseBoolToVis}}"/>
                 </Grid>
             </Border>
         </Grid>
-
-        <!-- Action buttons -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
-                    Margin="20,10,20,12">
-            <Button Content="☁⬆ Backup to Cloud" Command="{Binding BackupToCloudCommand}"
-                    Style="{StaticResource PurpleButton}" Padding="14,8" Margin="0,0,10,0"/>
-            <Button Content="⬇ Restore from Cloud" Command="{Binding RestoreFromCloudCommand}"
-                    Style="{StaticResource DangerButton}" Padding="14,8" Margin="0,0,10,0"/>
-            <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}"
-                    Style="{StaticResource InfoButton}" Padding="14,8"/>
-        </StackPanel>
     </Grid>
 </UserControl>

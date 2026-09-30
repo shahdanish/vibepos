@@ -21,8 +21,22 @@ public partial class App : System.Windows.Application
 {
     public static IServiceProvider Services { get; private set; } = null!;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
+        base.OnStartup(e);
+
+        // Pre-login dialogs (setup wizard, licence gate) must not end the app when they close.
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        // Older builds kept posapp.db next to the .exe / in the working folder. Under MSIX that
+        // folder is read-only, so all data now lives in AppPaths.DataDirectory. Copy once.
+        AppPaths.MigrateLegacyDatabase();
+        if (AppEnvironment.IsPackaged)
+        {
+            AppPaths.MigrateLegacySettingsFile("receipt-branding.json");
+            AppPaths.MigrateLegacySettingsFile("region-settings.json");
+        }
+
         var services = new ServiceCollection();
 
         // Add DbContext
@@ -140,8 +154,13 @@ public partial class App : System.Windows.Application
         // Full-database cloud backup/restore (disaster recovery)
         services.AddSingleton<ICloudBackupService, CloudBackupService>();
 
-        // Yearly time-limited license enforcement
+        // Yearly time-limited license enforcement (direct edition only)
         services.AddSingleton<ILicenseService, LicenseService>();
+
+        // Edition (direct / Store Lite / Store Pro) and Store first-run setup
+        services.AddSingleton<IEditionService, EditionService>();
+        services.AddScoped<IFirstRunSetupService, FirstRunSetupService>();
+        services.AddTransient<FirstRunSetupWindow>();
 
         // Build service provider
         Services = services.BuildServiceProvider();
@@ -153,51 +172,78 @@ public partial class App : System.Windows.Application
             dbContext.Database.Migrate();
         }
 
-        // Load per-client configuration from appsettings.json
-        var config = new ConfigurationBuilder()
-            .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-            .Build();
+        var edition = Services.GetRequiredService<IEditionService>();
+        await edition.RefreshAsync();
 
-        var credentialsPath = config["Firebase:CredentialsPath"];
-
-        // Resolve absolute path if relative (relative = next to the .exe)
-        if (!string.IsNullOrWhiteSpace(credentialsPath) && !Path.IsPathRooted(credentialsPath))
-            credentialsPath = Path.Combine(AppContext.BaseDirectory, credentialsPath);
-
-        // Initialize full-database cloud backup (starts the daily auto-backup loop)
-        Services.GetRequiredService<ICloudBackupService>().Initialize(credentialsPath);
-
-        // --- License gate: enforce the yearly period before the app is usable ---------
-        var licenseService = Services.GetRequiredService<ILicenseService>();
-        var license = licenseService.CheckLicense();
-
-        if (license.IsBlocked)
+        if (edition.IsInBuild(AppFeature.CloudBackup))
         {
-            var gate = new LicenseExpiredWindow(licenseService, license);
-            gate.ShowDialog();
+            // Load per-client configuration from appsettings.json
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                .Build();
 
-            if (!gate.Renewed)
+            var credentialsPath = config["Firebase:CredentialsPath"];
+
+            // Resolve absolute path if relative (relative = next to the .exe)
+            if (!string.IsNullOrWhiteSpace(credentialsPath) && !Path.IsPathRooted(credentialsPath))
+                credentialsPath = Path.Combine(AppContext.BaseDirectory, credentialsPath);
+
+            // Initialize full-database cloud backup (starts the daily auto-backup loop)
+            Services.GetRequiredService<ICloudBackupService>().Initialize(credentialsPath);
+        }
+
+        // --- Store build: first launch asks for the shop details and the owner's login ----
+        if (EditionPolicy.IsStore(edition.Edition))
+        {
+            bool setupDone;
+            using (var scope = Services.CreateScope())
+                setupDone = await scope.ServiceProvider.GetRequiredService<IFirstRunSetupService>().IsCompleteAsync();
+
+            if (!setupDone)
             {
-                // No valid renewal entered — do not start the app.
-                Shutdown();
-                return;
+                using var scope = Services.CreateScope();
+                var wizard = scope.ServiceProvider.GetRequiredService<FirstRunSetupWindow>();
+                if (wizard.ShowDialog() != true)
+                {
+                    Shutdown();
+                    return;
+                }
             }
         }
-        else if (license.State == LicenseState.Expiring)
+
+        // --- License gate: enforce the yearly period before the app is usable ---------
+        if (edition.IsInBuild(AppFeature.YearlyLicence))
         {
-            MessageBox.Show(
-                $"Your license will expire in {license.DaysRemaining} day(s), on " +
-                $"{license.ExpiryUtc.ToLocalTime():dd MMM yyyy}.\n\n" +
-                $"{licenseService.RenewalContactMessage}\n{licenseService.RenewalInstructions}",
-                "License Expiring Soon", MessageBoxButton.OK, MessageBoxImage.Warning);
+            var licenseService = Services.GetRequiredService<ILicenseService>();
+            var license = licenseService.CheckLicense();
+
+            if (license.IsBlocked)
+            {
+                var gate = new LicenseExpiredWindow(licenseService, license);
+                gate.ShowDialog();
+
+                if (!gate.Renewed)
+                {
+                    // No valid renewal entered — do not start the app.
+                    Shutdown();
+                    return;
+                }
+            }
+            else if (license.State == LicenseState.Expiring)
+            {
+                MessageBox.Show(
+                    $"Your license will expire in {license.DaysRemaining} day(s), on " +
+                    $"{license.ExpiryUtc.ToLocalTime():dd MMM yyyy}.\n\n" +
+                    $"{licenseService.RenewalContactMessage}\n{licenseService.RenewalInstructions}",
+                    "License Expiring Soon", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         // Show login window first
         var loginWindow = Services.GetRequiredService<LoginWindow>();
         loginWindow.Show();
-
-        base.OnStartup(e);
+        ShutdownMode = ShutdownMode.OnLastWindowClose;
     }
 }
 
