@@ -1,0 +1,4 @@
+# Disposable runtime copy of the demo DB used while capturing screenshots
+capture/runtime/
+src/html/
+tools/
