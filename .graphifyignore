@@ -1,0 +1,91 @@
+# Paths the knowledge graph (graphify) should not extract.
+# graphify reads THIS file instead of .gitignore when it exists, so the first block repeats
+# .gitignore — keep it in step when .gitignore changes. Graph-only rules follow it.
+
+# ---- copied from .gitignore ----
+# bin and obj folders
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / Visual Studio Code
+.vs/
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Oo]ut/
+TestResults/
+
+# SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+
+# Exception: keep standard DB structure if needed, but usually we ignore local databases to avoid committing test data
+# Keep posapp.db out of source control
+posapp.db
+# SQLite side files (write-ahead log / shared memory) and pre-restore safety copies
+*.db-wal
+*.db-shm
+*.prerestore
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Publish and Installers
+clients/
+publish/
+dist/
+installer/
+POSApp_Installer/
+*.zip
+
+# NuGet
+*.nupkg
+
+# Firebase credentials (contains private key — NEVER commit)
+firebase-credential.json
+firebase-credentials.json
+clients/*/firebase-credential.json
+clients/*/firebase-credentials.json
+
+# App settings with secrets
+appsettings.json
+clients/*/appsettings.json
+
+# Vendor-only licence signing secret — must never be committed
+LicenseSystem/.secret
+*.secret
+
+# Firebase / Google service account keys
+**/firebase-credential*.json
+**/*service-account*.json
+
+# ---- graph-only rules ----
+# Third-party Python/ffmpeg tooling bundled with the store-asset scripts — not project code.
+store-assets/tools/
+
+# Raw screen capture the trailer was cut from; the finished trailer is kept.
+store-assets/capture/runtime/
+
+# Duplicate renders of the same artwork: keep one size of each logo/hero image and the
+# unframed screenshots, so each asset becomes one node instead of several.
+store-assets/screenshots/framed/
+store-assets/hero/superhero-16x9-3840x2160.png
+store-assets/logos/boxart-1x1-2160x2160.png
+store-assets/logos/poster-9x16-1440x2160.png
+store-assets/logos/tile-71.png
+store-assets/logos/tile-150.png
+
+# Build/debug output.
+POSApp.UI/run_err.txt
