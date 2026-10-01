@@ -65,7 +65,9 @@ namespace POSApp.Tests
     {
         public static SaleViewModel NewSaleScreen(
             Func<string>? nextInvoiceNumber = null,
-            List<Sale>? saved = null)
+            List<Sale>? saved = null,
+            IFavoriteRepository? favorites = null,
+            bool wholesale = false)
         {
             var sales = new Mock<ISaleRepository>();
             sales.Setup(r => r.GetNextInvoiceNumberAsync(It.IsAny<CancellationToken>()))
@@ -78,7 +80,9 @@ namespace POSApp.Tests
             var customers = new Mock<ICustomerRepository>();
             customers.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Customer>());
 
-            return new SaleViewModel(sales.Object, products.Object, customers.Object);
+            return wholesale
+                ? new WholeSaleViewModel(sales.Object, products.Object, customers.Object, favorites)
+                : new SaleViewModel(sales.Object, products.Object, customers.Object, favorites);
         }
 
         /// <summary>A cart that exercises %, flat-amount and no discount, a fractional price and bill discounts.</summary>

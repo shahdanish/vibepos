@@ -176,6 +176,23 @@ namespace POSApp.UI.Helpers
         /// <summary>e.g. "EOBI (Rs.)".</summary>
         public static string StatutoryDeductionAmountLabel => $"{StatutoryDeductionLabel} ({Symbol})";
 
+        // ── Customer credit accounts ──────────────────────────────────────────
+
+        private static bool IsPakistan =>
+            string.Equals(Current.RegionCode, RegionCodes.Pakistan, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Name of the customer credit ledger: "Khata", the word Pakistani shops use, and the
+        /// usual US term "Charge Accounts" (house charge) everywhere else.
+        /// </summary>
+        public static string CustomerAccountsLabel => IsPakistan ? "Khata" : "Charge Accounts";
+
+        /// <summary>Menu entry, e.g. "📒 Khata" / "📒 Charge Accounts".</summary>
+        public static string CustomerAccountsMenuHeader => "📒 " + CustomerAccountsLabel;
+
+        /// <summary>Window heading, e.g. "Customer Ledger (Khata)" / "Customer Charge Accounts".</summary>
+        public static string CustomerAccountsTitle => IsPakistan ? "Customer Ledger (Khata)" : "Customer Charge Accounts";
+
         /// <summary>The ISO currency code, e.g. "PKR" or "USD".</summary>
         public static string CurrencyCode => Format.CurrencyCode;
 

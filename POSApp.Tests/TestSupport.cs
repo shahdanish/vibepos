@@ -23,6 +23,8 @@ namespace POSApp.Tests
             DataRoot = Path.Combine(Path.GetTempPath(), "posapp-tests-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(DataRoot);
             Environment.SetEnvironmentVariable("POSAPP_DATA_DIR", DataRoot);
+            // Per-user preferences (quick keys shown, accent, density) too, not %AppData%.
+            Environment.SetEnvironmentVariable("POSAPP_USER_SETTINGS_DIR", DataRoot);
 
             AppDomain.CurrentDomain.ProcessExit += (_, _) =>
             {

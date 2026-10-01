@@ -27,6 +27,7 @@
             <converters:MoneyConverter x:Key="MoneyConverter"/>
             <converters:DateConverter x:Key="DateConverter"/>
             <converters:NumberConverter x:Key="NumberConverter"/>
+            <converters:ContainsIdConverter x:Key="ContainsIdConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -1,5 +1,8 @@
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using POSApp.UI.Helpers;
 using POSApp.Core.Services;
 
@@ -24,10 +27,86 @@ namespace POSApp.UI.Views
         /// <summary>Culture of the loaded settings or the last preset applied; not edited on screen.</summary>
         private string _culture = "en-PK";
 
+        /// <summary>Accent picked on the Appearance tab (applied live, saved with Save).</summary>
+        private string _accent = ThemeManager.DefaultAccent;
+
         public BusinessSettingsWindow()
         {
             InitializeComponent();
             LoadAll(ReceiptBranding.Current, Region.Current);
+            LoadAppearance(SettingsManager.LoadSettings());
+
+            // Appearance is previewed on the whole app; closing puts back whatever is saved,
+            // so an unsaved choice never sticks around.
+            Closed += (_, _) =>
+            {
+                var saved = SettingsManager.LoadSettings();
+                ThemeManager.ApplyAccent(saved.Accent);
+                ThemeManager.ApplyDensity(saved.Density);
+            };
+        }
+
+        // ── Appearance ────────────────────────────────────────────────────────
+
+        private void LoadAppearance(SettingsManager.UserSettings settings)
+        {
+            _accent = ThemeManager.FindAccent(settings.Accent).Name;
+            AccentChoices.Children.Clear();
+            foreach (var palette in ThemeManager.Accents)
+            {
+                var name = palette.Name;
+                var choice = new RadioButton
+                {
+                    Style = (Style)FindResource("AccentChoice"),
+                    Content = BuildAccentCard(palette),
+                    IsChecked = name == _accent
+                };
+                AutomationProperties.SetName(choice, name);
+                choice.Checked += (_, _) =>
+                {
+                    _accent = name;
+                    ThemeManager.ApplyAccent(name);
+                };
+                AccentChoices.Children.Add(choice);
+            }
+
+            _loading = true;
+            cboDensity.SelectedIndex =
+                string.Equals(settings.Density, ThemeManager.CompactDensity, StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+            _loading = false;
+
+            txtSampleTilePrice.Text = Region.Money(3.49m);
+        }
+
+        private static UIElement BuildAccentCard(AccentPalette palette)
+        {
+            Ellipse Dot(Color c, double size) => new()
+            {
+                Width = size, Height = size, Fill = new SolidColorBrush(c), Margin = new Thickness(0, 0, 4, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var card = new StackPanel { Orientation = Orientation.Horizontal };
+            card.Children.Add(Dot(palette.Primary, 22));
+            card.Children.Add(Dot(palette.Accent, 14));
+            var label = new StackPanel { Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            label.Children.Add(new TextBlock { Text = palette.Name, FontWeight = FontWeights.SemiBold });
+            if (palette.Name == ThemeManager.DefaultAccent)
+            {
+                var note = new TextBlock { Text = "original", FontSize = 11 };
+                note.SetResourceReference(TextBlock.ForegroundProperty, "TextMutedBrush");
+                label.Children.Add(note);
+            }
+            card.Children.Add(label);
+            return card;
+        }
+
+        private string SelectedDensity => cboDensity.SelectedIndex == 1 ? ThemeManager.CompactDensity : ThemeManager.DefaultDensity;
+
+        private void Density_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            if (_loading) return;
+            ThemeManager.ApplyDensity(SelectedDensity);
         }
 
         // ── Load / read ───────────────────────────────────────────────────────
@@ -218,6 +297,14 @@ namespace POSApp.UI.Views
                     "Could not save the settings. Try running the software as Administrator.");
                 return;
             }
+
+            var accent = _accent;
+            var density = SelectedDensity;
+            SettingsManager.SaveSetting(s =>
+            {
+                s.Accent = accent;
+                s.Density = density;
+            });
 
             UpdatePreview();
             txtStatus.Text = $"Saved at {Region.Time(DateTime.Now)}. Printouts use these immediately — " +

@@ -18,6 +18,14 @@ namespace POSApp.UI.ViewModels
         private readonly ISaleRepository _saleRepository;
         private readonly IProductRepository _productRepository;
         private readonly ICustomerRepository _customerRepository;
+        private readonly IFavoriteRepository? _favoriteRepository;
+
+        /// <summary>F1–F12 trigger the first twelve quick keys.</summary>
+        public const int HotKeyCount = 12;
+
+        private readonly List<QuickKeyTile> _allQuickKeys = new();
+        private string _quickKeySearch = string.Empty;
+        private bool _showQuickKeys = true;
 
         private string _invoiceNumber = string.Empty;
         private DateTime _saleDate = AppClock.Now;
@@ -48,6 +56,43 @@ namespace POSApp.UI.ViewModels
         public ObservableCollection<SaleItemViewModel> SaleItems { get; } = new();
         public ObservableCollection<Product> Products { get; } = new();
         public ObservableCollection<Customer> Customers { get; } = new();
+
+        /// <summary>The quick-key tiles currently shown (all of them, or those matching the filter).</summary>
+        public ObservableCollection<QuickKeyTile> QuickKeys { get; } = new();
+
+        /// <summary>Filters the quick-key tiles by name or product code.</summary>
+        public string QuickKeySearch
+        {
+            get => _quickKeySearch;
+            set
+            {
+                if (SetProperty(ref _quickKeySearch, value))
+                    RefreshQuickKeyView();
+            }
+        }
+
+        /// <summary>Whether the quick-key panel is shown beside the cart (remembered per Windows user).</summary>
+        public bool ShowQuickKeys
+        {
+            get => _showQuickKeys;
+            set
+            {
+                if (SetProperty(ref _showQuickKeys, value))
+                {
+                    SettingsManager.SaveSetting(s => s.ShowQuickKeys = value);
+                    OnPropertyChanged(nameof(IsQuickKeysPanelVisible));
+                }
+            }
+        }
+
+        /// <summary>True when at least one product is a quick key (before filtering).</summary>
+        public bool HasQuickKeys => _allQuickKeys.Count > 0;
+
+        /// <summary>
+        /// The panel appears only once the shop has quick keys, so a shop that never stars a
+        /// product keeps the sale screen exactly as it was.
+        /// </summary>
+        public bool IsQuickKeysPanelVisible => ShowQuickKeys && HasQuickKeys;
 
         public string InvoiceNumber
         {
@@ -294,18 +339,25 @@ namespace POSApp.UI.ViewModels
         public ICommand PrintCommand { get; }
         public ICommand QuickSaleCommand { get; }
         public ICommand SwitchModeCommand { get; }
+        public ICommand AddQuickKeyCommand { get; }
+        public ICommand ToggleShowQuickKeysCommand { get; }
+        public ICommand AddItemToQuickKeysCommand { get; }
+        public ICommand RemoveItemFromQuickKeysCommand { get; }
 
-        public SaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository)
+        public SaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository,
+                             IFavoriteRepository? favoriteRepository = null)
         {
             _saleRepository = saleRepository;
             _productRepository = productRepository;
             _customerRepository = customerRepository;
+            _favoriteRepository = favoriteRepository;
 
             // Load saved settings
             var settings = SettingsManager.LoadSettings();
             _autoPrint = settings.AutoPrint;
             _useSmallBillFormat = settings.UseSmallBillFormat;
             _showPurchasePrice = settings.ShowPurchasePrice;
+            _showQuickKeys = settings.ShowQuickKeys;
 
 
             SaleItems.CollectionChanged += SaleItems_CollectionChanged;
@@ -318,6 +370,10 @@ namespace POSApp.UI.ViewModels
             CancelCommand = new RelayCommand(_ => Cancel());
             PrintCommand = new RelayCommand(async _ => await PrintInvoice());
             QuickSaleCommand = new RelayCommand(_ => OpenQuickSaleWindow?.Invoke());
+            AddQuickKeyCommand = new RelayCommand(p => { if (p is QuickKeyTile tile) AddProductToCart(tile.Product); });
+            ToggleShowQuickKeysCommand = new RelayCommand(_ => ShowQuickKeys = !ShowQuickKeys);
+            AddItemToQuickKeysCommand = new RelayCommand(async p => await SetQuickKeyForCartItemAsync(p as SaleItemViewModel, true));
+            RemoveItemFromQuickKeysCommand = new RelayCommand(async p => await SetQuickKeyForCartItemAsync(p as SaleItemViewModel, false));
             SwitchModeCommand = new RelayCommand(_ =>
             {
                 // Retail → wholesale needs Pro in the Store Lite tier; switching back is always allowed.
@@ -372,6 +428,130 @@ namespace POSApp.UI.ViewModels
             {
                 Customers.Add(customer);
             }
+
+            await LoadQuickKeysAsync();
+        }
+
+        // ── Quick keys ─────────────────────────────────────────────────────────
+
+        /// <summary>Re-reads the shop's quick keys (after a sale, or when they were edited elsewhere).</summary>
+        public async Task LoadQuickKeysAsync()
+        {
+            if (_favoriteRepository == null) return;
+
+            IReadOnlyList<Product> products;
+            try
+            {
+                products = await _favoriteRepository.GetQuickKeyProductsAsync();
+            }
+            catch
+            {
+                return; // quick keys are a convenience; never block the sale screen over them
+            }
+
+            _allQuickKeys.Clear();
+            for (var i = 0; i < products.Count; i++)
+            {
+                var hotKey = i < HotKeyCount ? $"F{i + 1}" : null;
+                _allQuickKeys.Add(new QuickKeyTile(products[i], Region.Money(GetUnitPriceForProduct(products[i])), hotKey));
+            }
+
+            RefreshQuickKeyView();
+            OnPropertyChanged(nameof(HasQuickKeys));
+            OnPropertyChanged(nameof(IsQuickKeysPanelVisible));
+        }
+
+        private void RefreshQuickKeyView()
+        {
+            var filter = _quickKeySearch.Trim();
+            QuickKeys.Clear();
+            foreach (var tile in _allQuickKeys)
+            {
+                if (filter.Length == 0
+                    || tile.Name.Contains(filter, StringComparison.OrdinalIgnoreCase)
+                    || tile.Code.Contains(filter, StringComparison.OrdinalIgnoreCase))
+                    QuickKeys.Add(tile);
+            }
+        }
+
+        /// <summary>
+        /// F1–F12: adds the quick key at that position (counted over all quick keys, so a key
+        /// always means the same product whatever is typed in the filter). False if none.
+        /// </summary>
+        public bool TryAddQuickKey(int index)
+        {
+            if (index < 0 || index >= Math.Min(HotKeyCount, _allQuickKeys.Count)) return false;
+            AddProductToCart(_allQuickKeys[index].Product);
+            return true;
+        }
+
+        private async Task SetQuickKeyForCartItemAsync(SaleItemViewModel? item, bool isQuickKey)
+        {
+            if (item == null || _favoriteRepository == null) return;
+
+            var product = Products.FirstOrDefault(p => p.ProductId == item.ProductId);
+            var userId = SessionManager.CurrentUser?.Id;
+            if (product == null || userId == null) return;
+
+            try
+            {
+                await _favoriteRepository.SetQuickKeyAsync(product.Id, userId.Value, isQuickKey);
+                await LoadQuickKeysAsync();
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("update quick keys", ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Puts one unit of a product in the cart, or one more if it is already there — the
+        /// rule shared by barcode scans, quick-key tiles and F-keys. False when the product
+        /// cannot be sold (deleted or out of stock); the cashier is told why.
+        /// </summary>
+        /// <summary>Raised with the cart line that <see cref="AddProductToCart"/> added or added one more to.</summary>
+        public event Action<SaleItemViewModel>? CartLineChanged;
+
+        public bool AddProductToCart(Product product)
+        {
+            if (product.IsDeleted)
+            {
+                NotificationHelper.ShowError($"Product '{product.ProductName}' has been deleted and cannot be sold.");
+                return false;
+            }
+
+            if (product.Stock <= 0)
+            {
+                NotificationHelper.ShowError($"Product '{product.ProductName}' is out of stock!");
+                return false;
+            }
+
+            // Already in the cart: one more, instead of a duplicate row.
+            var existingItem = SaleItems.FirstOrDefault(item => item.ProductId == product.ProductId);
+            if (existingItem != null)
+            {
+                existingItem.Quantity += 1;
+            }
+            else
+            {
+                // Price respects Sale vs Whole Sale
+                var price = GetUnitPriceForProduct(product);
+                existingItem = new SaleItemViewModel
+                {
+                    ProductId = product.ProductId,
+                    ProductName = product.ProductName,
+                    Quantity = 1,
+                    CostPrice = product.CostPrice,
+                    UnitPrice = price,
+                    DiscountPercent = 0,
+                    Total = price
+                };
+                SaleItems.Add(existingItem);
+            }
+
+            CalculateTotals();
+            CartLineChanged?.Invoke(existingItem);
+            return true;
         }
 
         /// <summary>
@@ -400,46 +580,7 @@ namespace POSApp.UI.ViewModels
                     return;
                 }
 
-                // Check if product is deleted
-                if (product.IsDeleted)
-                {
-                    NotificationHelper.ShowError($"Product '{product.ProductName}' has been deleted and cannot be sold.");
-                    BarcodeInput = string.Empty; // Clear field
-                    return;
-                }
-
-                // Check stock availability
-                if (product.Stock <= 0)
-                {
-                    NotificationHelper.ShowError($"Product '{product.ProductName}' is out of stock!");
-                    BarcodeInput = string.Empty;
-                    return;
-                }
-
-                // Check if item already in cart - increase quantity instead of duplicate
-                var existingItem = SaleItems.FirstOrDefault(item => item.ProductId == product.ProductId);
-                if (existingItem != null)
-                {
-                    existingItem.Quantity += 1;
-                    CalculateTotals();
-                }
-                else
-                {
-                    // Build the line item directly (price respects Sale vs Whole Sale)
-                    var price = GetUnitPriceForProduct(product);
-                    var saleItem = new SaleItemViewModel
-                    {
-                        ProductId = product.ProductId,
-                        ProductName = product.ProductName,
-                        Quantity = 1,
-                        CostPrice = product.CostPrice,
-                        UnitPrice = price,
-                        DiscountPercent = 0,
-                        Total = price
-                    };
-                    SaleItems.Add(saleItem);
-                    CalculateTotals();
-                }
+                AddProductToCart(product);
 
                 // Clear scan field, keep focus here for the next scan
                 BarcodeInput = string.Empty;
@@ -987,6 +1128,38 @@ namespace POSApp.UI.ViewModels
 
             return doc;
         }
+    }
+
+    /// <summary>One quick-key tile on the sale screen.</summary>
+    public sealed class QuickKeyTile
+    {
+        public QuickKeyTile(Product product, string priceText, string? hotKey)
+        {
+            Product = product;
+            PriceText = priceText;
+            HotKey = hotKey;
+        }
+
+        public Product Product { get; }
+        public string Name => Product.ProductName;
+        public string Code => Product.ProductId;
+
+        /// <summary>The price this screen sells at (retail or wholesale), formatted for the shop.</summary>
+        public string PriceText { get; }
+
+        /// <summary>"F1".."F12" for the first twelve tiles, otherwise null.</summary>
+        public string? HotKey { get; }
+        public bool HasHotKey => HotKey != null;
+
+        public bool IsOutOfStock => Product.Stock <= 0;
+        public bool IsLowStock => !IsOutOfStock && Product.MinStockThreshold > 0 && Product.Stock <= Product.MinStockThreshold;
+
+        /// <summary>Badge text: "Out", "Low · 3", or empty when stock is fine.</summary>
+        public string StockBadge => IsOutOfStock ? "Out" : IsLowStock ? $"Low · {Product.Stock}" : string.Empty;
+        public bool HasStockBadge => StockBadge.Length > 0;
+
+        public string ToolTipText =>
+            $"{Name} ({Code}) · {PriceText} · {Product.Stock} in stock" + (HotKey != null ? $" · {HotKey}" : string.Empty);
     }
 
     public sealed class SaleItemViewModel : ViewModelBase

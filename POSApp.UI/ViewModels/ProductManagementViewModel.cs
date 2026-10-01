@@ -12,6 +12,8 @@ namespace POSApp.UI.ViewModels
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IFavoriteRepository? _favoriteRepository;
+        private IReadOnlySet<int> _quickKeyIds = new HashSet<int>();
 
         private Product? _selectedProduct;
         private string _productId = string.Empty;
@@ -167,11 +169,24 @@ namespace POSApp.UI.ViewModels
         public ICommand GenerateIdCommand { get; }
         public ICommand GenerateBarcodeCommand { get; }
         public ICommand AutoRetailPriceCommand { get; }
+        public ICommand ToggleQuickKeyCommand { get; }
 
-        public ProductManagementViewModel(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        /// <summary>
+        /// Ids of the products on the sale screens' quick keys (☆ column).
+        /// Replaced, never mutated, so the grid re-reads every star.
+        /// </summary>
+        public IReadOnlySet<int> QuickKeyIds
+        {
+            get => _quickKeyIds;
+            private set => SetProperty(ref _quickKeyIds, value);
+        }
+
+        public ProductManagementViewModel(IProductRepository productRepository, ICategoryRepository categoryRepository,
+                                          IFavoriteRepository? favoriteRepository = null)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
+            _favoriteRepository = favoriteRepository;
 
             AddCommand = new RelayCommand(async _ => await AddProduct());
             UpdateCommand = new RelayCommand(async _ => await UpdateProduct(), _ => SelectedProduct != null);
@@ -181,6 +196,7 @@ namespace POSApp.UI.ViewModels
             RefreshCommand = new RelayCommand(async _ => await LoadData());
             GenerateIdCommand = new RelayCommand(async _ => await GenerateProductId());
             GenerateBarcodeCommand = new RelayCommand(_ => GenerateBarcode());
+            ToggleQuickKeyCommand = new RelayCommand(async p => await ToggleQuickKeyAsync(p as Product));
             AutoRetailPriceCommand = new RelayCommand(_ =>
             {
                 if (CostPrice.HasValue && CostPrice.Value > 0)
@@ -216,6 +232,32 @@ namespace POSApp.UI.ViewModels
             foreach (var category in categories)
             {
                 Categories.Add(category);
+            }
+
+            if (_favoriteRepository != null)
+                QuickKeyIds = await _favoriteRepository.GetQuickKeyProductIdsAsync();
+        }
+
+        /// <summary>Stars or un-stars a product as a quick key on the sale screens.</summary>
+        public async Task ToggleQuickKeyAsync(Product? product)
+        {
+            if (product == null || _favoriteRepository == null) return;
+
+            var add = !QuickKeyIds.Contains(product.Id);
+            if (add && product.IsDeleted)
+            {
+                NotificationHelper.ValidationErrorCustom("Restore this product before adding it to quick keys.");
+                return;
+            }
+
+            try
+            {
+                await _favoriteRepository.SetQuickKeyAsync(product.Id, SessionManager.CurrentUser?.Id ?? 0, add);
+                QuickKeyIds = await _favoriteRepository.GetQuickKeyProductIdsAsync();
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("update quick keys", ex.Message);
             }
         }
 

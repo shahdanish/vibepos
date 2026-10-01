@@ -1,4 +1,5 @@
 using System.Windows;
+using POSApp.UI.Helpers;
 using POSApp.UI.ViewModels;
 
 namespace POSApp.UI.Views
@@ -9,6 +10,10 @@ namespace POSApp.UI.Views
         {
             InitializeComponent();
             DataContext = viewModel;
+
+            // "Khata" in Pakistan, "Charge Accounts" elsewhere (see Region).
+            Title = ShopTitleExtension.Build(Region.CustomerAccountsTitle);
+            HeadingText.Text = "📒 " + Region.CustomerAccountsTitle;
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)

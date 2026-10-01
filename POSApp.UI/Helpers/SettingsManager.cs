@@ -9,9 +9,15 @@ namespace POSApp.UI.Helpers
     /// </summary>
     public static class SettingsManager
     {
+        /// <summary>
+        /// Per-Windows-user preferences live in %AppData%\POSApp. POSAPP_USER_SETTINGS_DIR moves
+        /// them elsewhere: test runs and trials on scratch data set it so they never write the
+        /// real user's preferences. Installs never set it.
+        /// </summary>
         private static readonly string SettingsFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "POSApp",
+            Environment.GetEnvironmentVariable("POSAPP_USER_SETTINGS_DIR") is { Length: > 0 } relocated
+                ? relocated
+                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "POSApp"),
             "settings.json"
         );
 
@@ -23,6 +29,15 @@ namespace POSApp.UI.Helpers
             public bool UseSmallBillFormat { get; set; } = false;
             public bool AutoAddItem { get; set; } = true;
             public bool ShowPurchasePrice { get; set; } = true;
+
+            /// <summary>Show the quick-key tiles beside the cart on the sale screens.</summary>
+            public bool ShowQuickKeys { get; set; } = true;
+
+            /// <summary>Accent colour name, see <see cref="ThemeManager.Accents"/>. Brown is the original look.</summary>
+            public string Accent { get; set; } = ThemeManager.DefaultAccent;
+
+            /// <summary>"Comfortable" (original) or "Compact" (more fits on small screens).</summary>
+            public string Density { get; set; } = ThemeManager.DefaultDensity;
         }
 
         static SettingsManager()

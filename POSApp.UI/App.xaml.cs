@@ -37,6 +37,9 @@ public partial class App : System.Windows.Application
         // Pre-login dialogs (setup wizard, licence gate) must not end the app when they close.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+        // This Windows user's accent colour and density, before the first window appears.
+        POSApp.UI.Helpers.ThemeManager.Initialize();
+
         // Older builds kept posapp.db next to the .exe / in the working folder. Under MSIX that
         // folder is read-only, so all data now lives in AppPaths.DataDirectory. Copy once.
         AppPaths.MigrateLegacyDatabase();

@@ -76,6 +76,36 @@ namespace POSApp.Tests
         }
 
         [Fact]
+        public void AppearanceTab_ShowsEveryAccent_WithTheSavedChoicesSelected()
+        {
+            var settings = SettingsManager.LoadSettings();
+            var (accent, density) = (settings.Accent, settings.Density);
+            try
+            {
+                SettingsManager.SaveSetting(s => { s.Accent = "Pharmacy Teal"; s.Density = ThemeManager.CompactDensity; });
+
+                OnStaThread(() =>
+                {
+                    var w = new BusinessSettingsWindow();
+
+                    var choices = ((System.Windows.Controls.Panel)w.FindName("AccentChoices")).Children
+                        .OfType<System.Windows.Controls.RadioButton>().ToList();
+                    Assert.Equal(ThemeManager.Accents.Select(a => a.Name),
+                                 choices.Select(System.Windows.Automation.AutomationProperties.GetName));
+                    var picked = Assert.Single(choices, c => c.IsChecked == true);
+                    Assert.Equal("Pharmacy Teal", System.Windows.Automation.AutomationProperties.GetName(picked));
+
+                    Assert.Equal(1, ((System.Windows.Controls.ComboBox)w.FindName("cboDensity")).SelectedIndex);
+                    w.Close();
+                });
+            }
+            finally
+            {
+                SettingsManager.SaveSetting(s => { s.Accent = accent; s.Density = density; });
+            }
+        }
+
+        [Fact]
         public void Preview_DoesNotLeakUnsavedSettingsIntoTheApp()
         {
             var saved = new RegionSettingsData { CurrencySymbol = "Rs." };

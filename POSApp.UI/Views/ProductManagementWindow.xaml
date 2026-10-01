@@ -55,6 +55,44 @@
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
                         <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="☆" Width="34" CanUserSort="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.ToggleQuickKeyCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}" Cursor="Hand" Focusable="False"
+                                                AutomationProperties.Name="Quick key">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="Transparent" Padding="2,0">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Content" Value="☆"/>
+                                                    <Setter Property="FontSize" Value="16"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                    <Setter Property="ToolTip" Value="Add to quick keys on the sale screens"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Value="True">
+                                                            <DataTrigger.Binding>
+                                                                <MultiBinding Converter="{StaticResource ContainsIdConverter}">
+                                                                    <Binding Path="Id"/>
+                                                                    <Binding Path="DataContext.QuickKeyIds" RelativeSource="{RelativeSource AncestorType=DataGrid}"/>
+                                                                </MultiBinding>
+                                                            </DataTrigger.Binding>
+                                                            <Setter Property="Content" Value="★"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource BrandAccentBrush}"/>
+                                                            <Setter Property="ToolTip" Value="Remove from quick keys"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="125"/>
                             <DataGridTemplateColumn Header="Product Name" Width="*" SortMemberPath="ProductName">
                                 <DataGridTemplateColumn.CellStyle>
@@ -73,9 +111,9 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Category" Binding="{Binding Category.Name}" Width="80"/>
-                            <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="62"/>
-                            <DataGridTextColumn Header="Retail" Binding="{Binding UnitPrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="62"/>
-                            <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="58"/>
+                            <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="76"/>
+                            <DataGridTextColumn Header="Retail" Binding="{Binding UnitPrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="76"/>
+                            <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="74"/>
                             <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="50"/>
                             <DataGridTextColumn Header="Rack" Binding="{Binding Rack}" Width="40"/>
                             <DataGridTextColumn x:Name="BatchColumn" Header="Batch No" Binding="{Binding BatchNo}" Width="68"/>

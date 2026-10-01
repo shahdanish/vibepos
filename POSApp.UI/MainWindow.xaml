@@ -220,7 +220,7 @@
                 <MenuItem Header="💰 Finance" Style="{StaticResource NavDropStyle}">
                     <MenuItem Header="🏪 Cash Register" Command="{Binding OpenShiftCommand}"         Style="{StaticResource DropItemStyle}"/>
                     <MenuItem Header="💸 Expenses"       Command="{Binding OpenExpenseCommand}"       Style="{StaticResource DropItemStyle}"/>
-                    <MenuItem Header="📒 Khata"          Command="{Binding OpenCustomerLedgerCommand}" Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="{x:Static helpers:Region.CustomerAccountsMenuHeader}" Command="{Binding OpenCustomerLedgerCommand}" Style="{StaticResource DropItemStyle}"/>
                 </MenuItem>
 
                 <!-- ── REPORTS — both roles -->

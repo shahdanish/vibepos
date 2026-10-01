@@ -1,0 +1,91 @@
+<Window x:Class="POSApp.UI.Views.ManageQuickKeysDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
+        Title="{helpers:ShopTitle Quick Keys}" Height="560" Width="520" MinHeight="380" MinWidth="420"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Icon="pack://application:,,,/POSApp.UI;component/app-icon.png">
+    <Grid Background="{DynamicResource PageBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="16,10">
+            <StackPanel>
+                <TextBlock Text="Quick keys" Style="{StaticResource HeaderTitle}"/>
+                <TextBlock Text="The first twelve also work with F1–F12 on the sale screens."
+                           Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" Margin="0,2,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Margin="12,12,12,0" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <ListBox x:Name="KeysList" BorderThickness="0" Background="Transparent"
+                                 SelectionMode="Single">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Margin" Value="0,0,0,2"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Row" Background="Transparent" BorderBrush="Transparent"
+                                                        BorderThickness="1" CornerRadius="6" Padding="6,2">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Row" Property="Background" Value="{DynamicResource SurfaceAltBrush}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Row" Property="Background" Value="{DynamicResource BrandSubtleBrush}"/>
+                                                        <Setter TargetName="Row" Property="BorderBrush" Value="{DynamicResource BrandBorderBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="2,3">
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource KeyCap}" MinWidth="34">
+                                            <TextBlock Text="{Binding HotKeyLabel}" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding PriceText}" Margin="12,0,4,0"
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock Style="{StaticResource EmptyStateText}"
+                                   Visibility="{Binding HasItems, ElementName=KeysList, Converter={StaticResource InverseBoolToVis}}"
+                                   Text="No quick keys yet. Star products with ☆ in Inventory → Products."/>
+                    </Grid>
+                </ScrollViewer>
+
+                <StackPanel Grid.Column="1" Margin="10,0,0,0" Width="130">
+                    <Button Content="▲  Move up" Style="{StaticResource SecondaryButton}" Margin="0,0,0,6" Click="MoveUp_Click"/>
+                    <Button Content="▼  Move down" Style="{StaticResource SecondaryButton}" Margin="0,0,0,6" Click="MoveDown_Click"/>
+                    <Button Content="Remove" Style="{StaticResource DangerButton}" Click="Remove_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="12">
+            <Button Content="Cancel" Style="{StaticResource NeutralButton}" IsCancel="True" Margin="0,0,8,0" Padding="18,8"/>
+            <Button x:Name="SaveButton" Content="Save" Style="{StaticResource PrimaryButton}" IsDefault="True"
+                    Padding="24,8" Click="Save_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

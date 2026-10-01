@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using POSApp.UI.ViewModels;
 using POSApp.UI.Helpers;
@@ -52,6 +54,14 @@ namespace POSApp.UI.Views
             };
 
             PreviewKeyDown += WholeSaleWindow_KeyDown;
+
+            // Pick up quick keys starred in Products (or in the other sale window) meanwhile.
+            Activated += async (_, _) => await _viewModel.LoadQuickKeysAsync();
+
+            // On short screens only a line or two of the cart is visible: bring the line a
+            // scan, tile or F-key just added (or added one more to) into view.
+            _viewModel.CartLineChanged += line =>
+                Dispatcher.BeginInvoke(() => ItemsGrid.ScrollIntoView(line), DispatcherPriority.Background);
         }
 
         private void WholeSaleWindow_KeyDown(object sender, KeyEventArgs e)
@@ -64,7 +74,28 @@ namespace POSApp.UI.Views
             else if (ctrl && e.Key == Key.W) { e.Handled = true; _viewModel.SwitchModeCommand.Execute(null); }
             else if (ctrl && e.Key == Key.Q) { e.Handled = true; _viewModel.QuickSaleCommand.Execute(null); }
             else if (ctrl && e.Key == Key.M) { e.Handled = true; CalculatorWindow.ShowCalculator(); }
+            else if (TryHandleQuickKeyHotKey(e)) { e.Handled = true; }
             else if (e.Key == Key.Escape) { e.Handled = true; Close(); }
+        }
+
+        // F1–F12 add the first twelve quick keys — except inside the cart grid, where F2
+        // edits a cell. Returns true when a quick key was added.
+        private bool TryHandleQuickKeyHotKey(KeyEventArgs e)
+        {
+            var key = e.Key == Key.System ? e.SystemKey : e.Key;
+            if (Keyboard.Modifiers != ModifierKeys.None || key < Key.F1 || key > Key.F12) return false;
+            if (Keyboard.FocusedElement is DependencyObject focused && IsWithin(focused, ItemsGrid)) return false;
+            return _viewModel.TryAddQuickKey(key - Key.F1);
+        }
+
+        private static bool IsWithin(DependencyObject element, DependencyObject container)
+        {
+            for (var d = element; d != null;
+                 d = d is Visual ? VisualTreeHelper.GetParent(d) ?? LogicalTreeHelper.GetParent(d) : LogicalTreeHelper.GetParent(d))
+            {
+                if (d == container) return true;
+            }
+            return false;
         }
 
         // Guard so an Enter keypress that closes the dropdown does not commit twice

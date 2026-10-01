@@ -4,7 +4,8 @@
         xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
         Title="{helpers:ShopTitle Business Settings}" Height="700" Width="860"
         MinHeight="480" MinWidth="640"
-        WindowStartupLocation="CenterOwner" Icon="pack://application:,,,/POSApp.UI;component/app-icon.png">
+        WindowStartupLocation="CenterOwner" Icon="pack://application:,,,/POSApp.UI;component/app-icon.png"
+        Background="{DynamicResource PageBackgroundBrush}">
 
     <Window.Resources>
         <Style x:Key="FieldLabel" TargetType="TextBlock">
@@ -25,6 +26,35 @@
         <Style x:Key="Picker" TargetType="ComboBox">
             <Setter Property="Padding" Value="6,5"/>
             <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <!-- One accent colour card on the Appearance tab -->
+        <Style x:Key="AccentChoice" TargetType="RadioButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,10,10"/>
+            <Setter Property="GroupName" Value="Accent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Card" Background="{DynamicResource SurfaceBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2"
+                                CornerRadius="8" Padding="12,10" MinWidth="160">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource BrandPrimaryBrush}"/>
+                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource BrandSubtleBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -105,7 +135,7 @@
             <TabItem Header="  Currency  ">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
                     <StackPanel>
-                        <TextBlock Text="Applies to every amount in the software — sales, purchases, khata, expenses, reports, salary slips and receipts."
+                        <TextBlock Text="Applies to every amount in the software — sales, purchases, customer accounts, expenses, reports, salary slips and receipts."
                                    Style="{StaticResource Hint}" Margin="0,0,0,15"/>
 
                         <Grid>
@@ -274,6 +304,87 @@
                                 <TextBlock Text="The compulsory salary deduction in your country — EOBI (Pakistan), PF (India), Pension (UAE), NI (UK), Social Security (US)."
                                            Style="{StaticResource Hint}"/>
                             </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ════════════════ APPEARANCE ════════════════ -->
+            <TabItem Header="  Appearance  ">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="How the screens look for you on this computer. Receipts are not affected. Changes show straight away — press Save to keep them, or Close to go back."
+                                   Style="{StaticResource Hint}" Margin="0,0,0,15"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Accent Colour" Style="{StaticResource FieldLabel}"
+                                       VerticalAlignment="Top" Margin="0,10,10,10"/>
+                            <WrapPanel Grid.Row="0" Grid.Column="1" x:Name="AccentChoices" Margin="0,0,0,4"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Density" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,16">
+                                <ComboBox x:Name="cboDensity" Style="{StaticResource Picker}"
+                                          SelectionChanged="Density_Changed">
+                                    <ComboBoxItem Content="Comfortable  →  standard size"/>
+                                    <ComboBoxItem Content="Compact  →  90% size, fits more on small screens"/>
+                                </ComboBox>
+                                <TextBlock Text="Compact suits 1366×768 and smaller LED screens."
+                                           Style="{StaticResource Hint}"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Sample" Style="{StaticResource FieldLabel}"
+                                       VerticalAlignment="Top" Margin="0,10,10,10"/>
+                            <Border Grid.Row="2" Grid.Column="1" Style="{DynamicResource CardBorder}" Padding="0"
+                                    Margin="0" HorizontalAlignment="Left" MinWidth="420">
+                                <StackPanel>
+                                    <Border Style="{DynamicResource HeaderBar}" Padding="14,8">
+                                        <TextBlock Text="Point of Sale" Style="{DynamicResource HeaderTitle}"/>
+                                    </Border>
+                                    <StackPanel Orientation="Horizontal" Margin="14,14,14,8">
+                                        <Button Style="{DynamicResource QuickTile}" Focusable="False">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <DockPanel Grid.Row="0" LastChildFill="False">
+                                                    <Border DockPanel.Dock="Left" Style="{DynamicResource KeyCap}" Margin="0" Padding="4,0">
+                                                        <TextBlock Text="F1" FontSize="10"/>
+                                                    </Border>
+                                                    <Border DockPanel.Dock="Right" Style="{DynamicResource QuickTileBadge}"
+                                                            Background="{DynamicResource WarningSubtleBrush}">
+                                                        <TextBlock Text="Low · 3" Foreground="{DynamicResource WarningTextBrush}"/>
+                                                    </Border>
+                                                </DockPanel>
+                                                <TextBlock Grid.Row="1" Text="Sample item" FontSize="12" FontWeight="SemiBold"
+                                                           VerticalAlignment="Center" Margin="0,2"/>
+                                                <TextBlock Grid.Row="2" x:Name="txtSampleTilePrice" FontSize="12" FontWeight="Bold"
+                                                           Foreground="{DynamicResource BrandPrimaryBrush}"/>
+                                            </Grid>
+                                        </Button>
+                                        <StackPanel Margin="8,0,0,0" VerticalAlignment="Top">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                <Button Content="Pay" Style="{DynamicResource PrimaryButton}" Padding="22,8"
+                                                        Margin="0,0,8,0" Focusable="False"/>
+                                                <Button Content="Hold" Style="{DynamicResource SecondaryButton}" Padding="16,8"
+                                                        Focusable="False"/>
+                                            </StackPanel>
+                                            <CheckBox Content="Auto print" IsChecked="True" Focusable="False"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
