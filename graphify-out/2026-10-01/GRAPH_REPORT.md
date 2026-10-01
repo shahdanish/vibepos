@@ -1,16 +1,16 @@
-# Graph Report - .  (2026-10-01)
+# Graph Report - POSApp  (2026-10-01)
 
 ## Corpus Check
-- 248 files · ~315,544 words
+- 355 files · ~323,922 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4457 nodes · 6222 edges · 406 communities (372 shown, 34 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 170 edges (avg confidence: 0.83)
-- Token cost: 873,413 input · 0 output
+- 4645 nodes · 6593 edges · 399 communities (360 shown, 39 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 171 edges (avg confidence: 0.83)
+- Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ad93964b`
+- Built from commit: `6d67cd75`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -286,7 +286,6 @@
 - [[_COMMUNITY_SKILL|SKILL]]
 - [[_COMMUNITY_SKILL|SKILL]]
 - [[_COMMUNITY_SKILL|SKILL]]
-- [[_COMMUNITY_SKILL|SKILL]]
 - [[_COMMUNITY_Module Group 273|Module Group 273]]
 - [[_COMMUNITY_Module Group 274|Module Group 274]]
 - [[_COMMUNITY_Module Group 275|Module Group 275]]
@@ -343,19 +342,14 @@
 - [[_COMMUNITY_SKILL|SKILL]]
 - [[_COMMUNITY_SaleTime|SaleTime]]
 - [[_COMMUNITY_SharedSettingsFiles|SharedSettingsFiles]]
-- [[_COMMUNITY_BackupRestoreWindow.xaml|BackupRestoreWindow.xaml]]
 - [[_COMMUNITY_CategoryManagementWindow.xaml|CategoryManagementWindow.xaml]]
 - [[_COMMUNITY_CustomerLedgerWindow.xaml|CustomerLedgerWindow.xaml]]
 - [[_COMMUNITY_DailySummaryWindow.xaml|DailySummaryWindow.xaml]]
 - [[_COMMUNITY_ExpenseWindow.xaml|ExpenseWindow.xaml]]
-- [[_COMMUNITY_PurchaseEntryWindow.xaml|PurchaseEntryWindow.xaml]]
-- [[_COMMUNITY_PurchaseReturnWindow.xaml|PurchaseReturnWindow.xaml]]
-- [[_COMMUNITY_SaleReturnWindow.xaml|SaleReturnWindow.xaml]]
 - [[_COMMUNITY_ShiftWindow.xaml|ShiftWindow.xaml]]
 - [[_COMMUNITY_Permissions|Permissions]]
 - [[_COMMUNITY_ProductBranding|ProductBranding]]
 - [[_COMMUNITY_ICurrentUserContext|ICurrentUserContext]]
-- [[_COMMUNITY_MainWindow.xaml|MainWindow.xaml]]
 - [[_COMMUNITY_DashboardView.xaml|DashboardView.xaml]]
 - [[_COMMUNITY_settings|settings]]
 - [[_COMMUNITY_settings.local|settings.local]]
@@ -391,16 +385,16 @@
 - [[_COMMUNITY_Module Group 389|Module Group 389]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `FirebaseSyncService` - 45 edges
-2. `PharmacySaleViewModel` - 42 edges
-3. `ViewModelBase` - 42 edges
-4. `SaleViewModel` - 41 edges
-5. `SalesReportViewModel` - 38 edges
-6. `CustomerLedgerViewModel` - 34 edges
-7. `CloudBackupService` - 32 edges
-8. `MainViewModel` - 32 edges
-9. `LicenseService` - 31 edges
-10. `SalarySlipViewModel` - 31 edges
+1. `SaleViewModel` - 48 edges
+2. `Window` - 46 edges
+3. `FirebaseSyncService` - 45 edges
+4. `PharmacySaleViewModel` - 42 edges
+5. `ViewModelBase` - 42 edges
+6. `SalesReportViewModel` - 38 edges
+7. `CustomerLedgerViewModel` - 34 edges
+8. `CloudBackupService` - 32 edges
+9. `MainViewModel` - 32 edges
+10. `LicenseService` - 31 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Demo Mart Demo Dataset` --semantically_similar_to--> `B7 Barcode Exact Match and Invalid Generated UPC-A`  [INFERRED] [semantically similar]
@@ -409,9 +403,9 @@
   docs/us-expansion/00-discovery.md → POSApp.Data/SyncLogInterceptor.cs
 - `B2 Duplicate Invoice Numbers` --references--> `SaleRepository`  [EXTRACTED]
   docs/us-expansion/00-discovery.md → POSApp.Infrastructure/Repositories/SaleRepository.cs
+- `B3 Wrong Shift Expected Cash` --references--> `ShiftRepository`  [EXTRACTED]
+  docs/us-expansion/00-discovery.md → POSApp.Infrastructure/Repositories/ShiftRepository.cs
 - `Product Issues Found During Asset Work` --references--> `DatabaseBackupService`  [INFERRED]
-  store-assets/REPORT.md → POSApp.Infrastructure/Services/DatabaseBackupService.cs
-- `Seven Real-App Desktop Screenshots` --references--> `DatabaseBackupService`  [INFERRED]
   store-assets/REPORT.md → POSApp.Infrastructure/Services/DatabaseBackupService.cs
 
 ## Import Cycles
@@ -435,7 +429,7 @@
 - **Components forming the SwiftTill cash register mark** — src_logo_customer_display, src_logo_register_body, src_logo_receipt_window, src_logo_keypad, src_logo_cash_drawer [EXTRACTED 1.00]
 - **SwiftTill thumbnail brand lockup (illustration + wordmark + tagline)** — trailer_trailer_thumbnail_1920x1080_cash_register_illustration, trailer_trailer_thumbnail_1920x1080_swifttill_wordmark, trailer_trailer_thumbnail_1920x1080_tagline [EXTRACTED 1.00]
 
-## Communities (406 total, 34 thin omitted)
+## Communities (399 total, 39 thin omitted)
 
 ### Community 0 - "Licensing & Renewal Codes"
 Cohesion: 0.06
@@ -455,7 +449,7 @@ Nodes (45): Azure DevOps Pipelines, Chiseled (noble-chiseled) Images, CI/CD Skil
 
 ### Community 4 - "Pharmacy Distributor Sale"
 Cohesion: 0.07
-Nodes (21): bool, DateTime, decimal, DispatcherTimer, Doctor, FlowDocument, Grid, IDoctorRepository (+13 more)
+Nodes (22): DispatcherTimer, bool, DateTime, decimal, DispatcherTimer, Doctor, FlowDocument, Grid (+14 more)
 
 ### Community 5 - "Users, Sessions & Permissions"
 Cohesion: 0.08
@@ -466,12 +460,12 @@ Cohesion: 0.06
 Nodes (14): IFormatService, POSApp.Core.Interfaces, NumberFormatInfo, DateFormat, DateTime, CultureInfo, DateFormat, DateStyle (+6 more)
 
 ### Community 7 - "Retail Sale Screen"
-Cohesion: 0.08
-Nodes (20): DispatcherTimer, bool, Customer, DateTime, decimal, DispatcherTimer, FlowDocument, ICustomerRepository (+12 more)
+Cohesion: 0.09
+Nodes (20): bool, Customer, DateTime, decimal, DispatcherTimer, ICustomerRepository, IFavoriteRepository, int (+12 more)
 
 ### Community 8 - "Shifts, Barcodes & Receipt Branding"
-Cohesion: 0.06
-Nodes (26): Shift Entity, IShiftRepository Interface, IBarcodeService Interface, POSApp.UI.Helpers, ReceiptBranding, ReceiptBrandingSettings, IShiftRepository, AppDbContext (+18 more)
+Cohesion: 0.12
+Nodes (11): IBarcodeService Interface, BarcodeService, POSApp.Infrastructure.Services, IBarcodeService, POSApp.Core.Services, Claim: Custom Invoice Templates (missing), B3 Wrong Shift Expected Cash, B7 Barcode Exact Match and Invalid Generated UPC-A (+3 more)
 
 ### Community 9 - "Project & Package Config"
 Cohesion: 0.06
@@ -479,7 +473,7 @@ Nodes (39): ClosedXML (0.104.1), coverlet.collector (6.0.4), Google.Cloud.Firest
 
 ### Community 10 - "Salary Slips"
 Cohesion: 0.12
-Nodes (18): amount, Border, FrameworkElement, name, bool, decimal, Employee, Grid (+10 more)
+Nodes (19): amount, Border, FrameworkElement, name, bool, decimal, Employee, Grid (+11 more)
 
 ### Community 11 - "Cloud Backup (Firestore)"
 Cohesion: 0.10
@@ -510,8 +504,8 @@ Cohesion: 0.07
 Nodes (28): fonts, reason, wordmark, mark, small, source, vector, note (+20 more)
 
 ### Community 18 - "Rep Call Scheduling"
-Cohesion: 0.15
-Nodes (15): CallScheduleRow, IReadOnlyDictionary, DateOnly, Doctor, end, ICallScheduleRepository, ICurrentUserContext, IDoctorRepository (+7 more)
+Cohesion: 0.11
+Nodes (21): CallScheduleRow, IReadOnlyDictionary, bool, DateOnly, DateTime, DayCallStatus, Doctor, end (+13 more)
 
 ### Community 19 - "Settings Repository"
 Cohesion: 0.11
@@ -546,8 +540,8 @@ Cohesion: 0.11
 Nodes (15): bool, DateTime, decimal, FlowDocument, int, IProductRepository, ISaleRepository, NotifyCollectionChangedEventArgs (+7 more)
 
 ### Community 27 - "Store Edition & Packaging Docs"
-Cohesion: 0.10
-Nodes (24): Clock Rollback Detection, DPAPI Dual-Store License Record, Yearly Time-Limited License, Windows App Certification Kit (appcert) Run, build-msix.ps1 / Build-MSIX.cmd, Direct vs Store Distribution Matrix, Swifttill Lite (free tier), Local test install (+16 more)
+Cohesion: 0.09
+Nodes (26): Clock Rollback Detection, DPAPI Dual-Store License Record, Yearly Time-Limited License, Windows App Certification Kit (appcert) Run, build-msix.ps1 / Build-MSIX.cmd, Direct vs Store Distribution Matrix, Swifttill Lite (free tier), Local test install (+18 more)
 
 ### Community 28 - "Region Settings Tests"
 Cohesion: 0.14
@@ -566,32 +560,32 @@ Cohesion: 0.16
 Nodes (15): Open-Screen(), Open-Screen(), Click-El(), Find-El(), Get-AppWindows(), Get-Hwnd(), Get-TopWindow(), Invoke-El() (+7 more)
 
 ### Community 32 - "FirebaseSyncService"
-Cohesion: 0.09
-Nodes (22): ConnectivityDetector, Category Entity, Product Entity, Sale Entity, SyncLog Entity, ISyncService, SyncLogInterceptor, FirestoreDb (+14 more)
+Cohesion: 0.05
+Nodes (45): ConnectivityDetector, Category Entity, Product Entity, Sale Entity, SyncLog Entity, ISyncService, AppDbContext, SyncLogInterceptor (+37 more)
 
 ### Community 33 - "ProductManagementViewModel"
-Cohesion: 0.15
-Nodes (12): bool, Category, DateTime, decimal, ICategoryRepository, int, IProductRepository, List (+4 more)
+Cohesion: 0.08
+Nodes (25): ICategoryRepository Interface, ICategoryRepository, AppDbContext, CancellationToken, Category, IEnumerable, Task, bool (+17 more)
 
 ### Community 34 - "Module Group 34"
-Cohesion: 0.15
-Nodes (15): Swifttill Pro Subscription Add-ons, AppEdition, AppFeature, int, IReadOnlyList, EditionPolicy, POSApp.Core.Services, Claim: For Pharmacies (not in Store build) (+7 more)
+Cohesion: 0.17
+Nodes (13): Swifttill Pro Subscription Add-ons, AppEdition, AppFeature, int, IReadOnlyList, EditionPolicy, POSApp.Core.Services, Claim: For Pharmacies (not in Store build) (+5 more)
 
 ### Community 35 - "FormatServiceTests"
 Cohesion: 0.14
 Nodes (9): FormatService, MemberData, CultureInfo, DateTime, Fact, InlineData, Theory, FormatServiceTests (+1 more)
 
 ### Community 36 - "00-discovery"
-Cohesion: 0.12
-Nodes (20): subst B: Drive to Hide Windows Account Name, PharmacyUser Role Visible in Store Build, Product Issues Found During Asset Work, Additive Migrations Rule, B1 Stale Sale Timestamp, B2 Duplicate Invoice Numbers, B5 SaleItem.Product Shadow FK Always Null, B8 Missing Indexes and In-Memory Reports (+12 more)
+Cohesion: 0.24
+Nodes (10): subst B: Drive to Hide Windows Account Name, PharmacyUser Role Visible in Store Build, Product Issues Found During Asset Work, B5 SaleItem.Product Shadow FK Always Null, Proposed AppFeature.FrontStorePharmacy, Distributor Pharmacy vs US Front-Store Pharmacy Collision, Phase 2: Pharmacy Front Store, Open Question Q1: Edition Placement of US Pharmacy Features (+2 more)
 
 ### Community 37 - "SyncLogInterceptor"
-Cohesion: 0.13
-Nodes (13): DbContextErrorEventData, DbContextEventData, HashSet, InterceptionResult, ISaveChangesInterceptor, bool, CancellationToken, HashSet (+5 more)
+Cohesion: 0.09
+Nodes (18): DbContextErrorEventData, DbContextEventData, DbContextOptionsBuilder, HashSet, InterceptionResult, ISaveChangesInterceptor, AppDbContext, ModelBuilder (+10 more)
 
 ### Community 38 - "CalculatorWindow.xaml"
-Cohesion: 0.16
-Nodes (7): double, bool, KeyEventArgs, RoutedEventArgs, string, CalculatorWindow, POSApp.UI.Views
+Cohesion: 0.15
+Nodes (8): double, bool, double, KeyEventArgs, RoutedEventArgs, string, CalculatorWindow, POSApp.UI.Views
 
 ### Community 39 - "SKILL"
 Cohesion: 0.10
@@ -602,8 +596,8 @@ Cohesion: 0.13
 Nodes (13): DateTime, decimal, int, IProductRepository, IPurchaseRepository, NotifyCollectionChangedEventArgs, PropertyChangedEventArgs, PurchaseOrder (+5 more)
 
 ### Community 41 - "BusinessSettingsWindow.xaml"
-Cohesion: 0.20
-Nodes (8): bool, RegionSettingsData, RoutedEventArgs, string, ReceiptBrandingSettings, SelectionChangedEventArgs, BusinessSettingsWindow, POSApp.UI.Views
+Cohesion: 0.14
+Nodes (11): AccentPalette, bool, RegionSettingsData, RoutedEventArgs, string, UIElement, UserSettings, ReceiptBrandingSettings (+3 more)
 
 ### Community 42 - "PurchaseRepository"
 Cohesion: 0.21
@@ -614,16 +608,16 @@ Cohesion: 0.23
 Nodes (10): Supplier Entity, ISupplierRepository Interface, ISupplierRepository, AppDbContext, CancellationToken, IEnumerable, Supplier, Task (+2 more)
 
 ### Community 44 - "CategoryManagementViewModel"
-Cohesion: 0.17
-Nodes (11): ICategoryRepository Interface, AppDbContext, Category, ICategoryRepository, string, Task, ProductManagementViewModelTests, App (+3 more)
+Cohesion: 0.18
+Nodes (3): FlowDocument, Task, SaleItemViewModel
 
 ### Community 45 - "SaleRecordingTests"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (9): FixedClock, DateTime, Fact, RegionSettingsData, SaleViewModel, POSApp.Tests, SaleScreenSaveTests, SaleTimeTests (+1 more)
 
 ### Community 46 - "NotificationHelper"
-Cohesion: 0.16
-Nodes (3): NotificationHelper, POSApp.UI.Helpers, MessageBoxResult
+Cohesion: 0.05
+Nodes (21): AsyncRelayCommand, POSApp.UI.Helpers, NotificationHelper, POSApp.UI.Helpers, POSApp.UI.Helpers, RelayCommand, ICommand, MessageBoxResult (+13 more)
 
 ### Community 47 - "MedicalRepRepository"
 Cohesion: 0.24
@@ -634,12 +628,12 @@ Cohesion: 0.11
 Nodes (17): Anti-patterns, Autonomous Loops, Build-Fix Loop, Core Principles, Decision Guide, Emergency Exit Conditions, Fixing by Deletion, Loop Nesting and Reporting (+9 more)
 
 ### Community 49 - "Module Group 49"
-Cohesion: 0.14
-Nodes (13): Demo DB Isolation via Process-Scoped Env Vars, Start-DemoApp.ps1, Data Location via AppPaths (MSIX redirect), POSAPP_DATA_DIR Data Directory Override, string, AppPaths, POSApp.Core.Services, Demo Mart Demo Dataset (+5 more)
+Cohesion: 0.16
+Nodes (10): Demo DB Isolation via Process-Scoped Env Vars, Data Location via AppPaths (MSIX redirect), POSAPP_DATA_DIR Data Directory Override, string, AppPaths, POSApp.Core.Services, Decimals Stored as TEXT in SQLite, EF Core Migrations on SQLite (WAL) (+2 more)
 
 ### Community 50 - "REPORT"
-Cohesion: 0.12
-Nodes (17): 125% Display Scaling Caveat, Per-Screen Manual Capture Fallback, Screenshot Re-run Procedure, UiaHelpers.ps1 (Set-WindowFrame, Save-WindowShot), 1. Asset checklist → Partner Center fields, 2. Verification (`verify.ps1`), 3. How it was made, 4. Feature audit summary (details in `listing.md`) (+9 more)
+Cohesion: 0.08
+Nodes (27): Display scaling, 125% Display Scaling Caveat, How the demo DB is isolated, Per-Screen Manual Capture Fallback, Manual steps per screen (fallback), Re-run (about 2 minutes), Screenshot Re-run Procedure, Screenshot capture: how to re-run, and manual fallbacks (+19 more)
 
 ### Community 51 - "DailySalesSummaryRepository"
 Cohesion: 0.22
@@ -658,8 +652,8 @@ Cohesion: 0.14
 Nodes (13): bool, decimal, ICloudBackupService, IExpenseRepository, int, IProductRepository, ISaleRepository, Task (+5 more)
 
 ### Community 55 - "FirebaseSyncService"
-Cohesion: 0.42
-Nodes (6): Dictionary, AppDbContext, CancellationToken, Dictionary, SyncResult, Task
+Cohesion: 0.18
+Nodes (8): Color, POSApp.UI.Helpers, ThemeManager, AccentPalette, bool, double, string, ResourceDictionary
 
 ### Community 56 - "IUserRepository"
 Cohesion: 0.29
@@ -674,8 +668,8 @@ Cohesion: 0.21
 Nodes (7): bool, ISupplierRepository, string, Supplier, Task, POSApp.UI.ViewModels, SupplierManagementViewModel
 
 ### Community 59 - "SyncAlertDialog.xaml"
-Cohesion: 0.19
-Nodes (7): DateTime, RoutedEventArgs, POSApp.UI.Views, SupplierManagementWindow, POSApp.UI.Views, SyncAlertDialog, Window
+Cohesion: 0.05
+Nodes (31): Window, CloudBackupResult, MainWindow, RoutedEventArgs, RoutedEventArgs, RoutedEventArgs, RoutedEventArgs, RoutedEventArgs (+23 more)
 
 ### Community 60 - "README"
 Cohesion: 0.12
@@ -710,12 +704,12 @@ Cohesion: 0.19
 Nodes (7): Fact, InlineData, string, Task, Theory, DataDirectoryTests, POSApp.Tests
 
 ### Community 68 - "SaleWindow.xaml"
-Cohesion: 0.16
-Nodes (9): bool, ComboBox, EventArgs, KeyEventArgs, RoutedEventArgs, SaleViewModel, POSApp.UI.Views, SaleWindow (+1 more)
+Cohesion: 0.15
+Nodes (10): bool, ComboBox, DependencyObject, EventArgs, KeyEventArgs, RoutedEventArgs, SaleViewModel, POSApp.UI.Views (+2 more)
 
 ### Community 69 - "WholeSaleWindow.xaml"
-Cohesion: 0.16
-Nodes (9): bool, ComboBox, EventArgs, KeyEventArgs, RoutedEventArgs, SaleWindow, POSApp.UI.Views, WholeSaleWindow (+1 more)
+Cohesion: 0.15
+Nodes (10): bool, ComboBox, DependencyObject, EventArgs, KeyEventArgs, RoutedEventArgs, SaleWindow, POSApp.UI.Views (+2 more)
 
 ### Community 70 - "06-users"
 Cohesion: 0.18
@@ -738,20 +732,20 @@ Cohesion: 0.21
 Nodes (10): CustomerPayment Entity, ICustomerPaymentRepository Interface, ICustomerPaymentRepository, AppDbContext, CancellationToken, CustomerPayment, IEnumerable, Task (+2 more)
 
 ### Community 75 - "Module Group 75"
-Cohesion: 0.13
-Nodes (15): AppDbContext, Category, CustomerPayment, DailySalesSummary, Expense, HoldSaleItem, PurchaseOrder, PurchaseOrderItem (+7 more)
+Cohesion: 0.11
+Nodes (18): AppDbContext, Category, Customer, CustomerPayment, DailySalesSummary, Expense, HoldSaleItem, Product (+10 more)
 
 ### Community 76 - "Module Group 76"
 Cohesion: 0.15
 Nodes (10): Category, POSApp.Core.Entities, POSApp.Core.Entities, Product, POSApp.Core.Entities, Sale, POSApp.Core.Entities, SaleItem (+2 more)
 
 ### Community 77 - "ICustomerRepository"
-Cohesion: 0.30
-Nodes (7): Customer, ICustomerRepository, POSApp.Core.Interfaces, CancellationToken, Customer, IEnumerable, Task
+Cohesion: 0.34
+Nodes (6): ICustomerRepository, POSApp.Core.Interfaces, CancellationToken, Customer, IEnumerable, Task
 
 ### Community 78 - "CategoryRepository"
-Cohesion: 0.28
-Nodes (8): ICategoryRepository, AppDbContext, CancellationToken, Category, IEnumerable, Task, CategoryRepository, POSApp.Infrastructure.Repositories
+Cohesion: 0.19
+Nodes (10): payload, CloudBackupRoundTripTests, Encoded, Fact, List, string, Task, TempDataDirectory (+2 more)
 
 ### Community 79 - "IEmployeeRepository"
 Cohesion: 0.31
@@ -802,12 +796,12 @@ Cohesion: 0.14
 Nodes (14): Anti-patterns, Context Budget Planning, Context Discipline, Context Pruning & Large Codebase Strategy, Core Principles, Decision Guide, File Reading Prioritization, Loading All Skills Upfront (+6 more)
 
 ### Community 91 - "DayStatusConverters"
-Cohesion: 0.24
-Nodes (8): DayStatusLookup, DoneTickVisibilityConverter, PendingDotVisibilityConverter, POSApp.UI.Converters, IMultiValueConverter, CultureInfo, DayCallStatus, Type
+Cohesion: 0.15
+Nodes (12): ContainsIdConverter, POSApp.UI.Converters, DayStatusLookup, DoneTickVisibilityConverter, PendingDotVisibilityConverter, POSApp.UI.Converters, IMultiValueConverter, CultureInfo (+4 more)
 
 ### Community 92 - "FavoriteRepository"
-Cohesion: 0.22
-Nodes (9): UserFavorite Entity, IFavoriteRepository Interface, AppDbContext, CancellationToken, IEnumerable, Task, UserFavorite, FavoriteRepository (+1 more)
+Cohesion: 0.16
+Nodes (13): UserFavorite Entity, IFavoriteRepository Interface, IFavoriteRepository, AppDbContext, CancellationToken, IEnumerable, IReadOnlyList, IReadOnlySet (+5 more)
 
 ### Community 93 - "SKILL"
 Cohesion: 0.14
@@ -902,16 +896,16 @@ Cohesion: 0.15
 Nodes (13): Anti-patterns, Azure Key Vault (Production), Configuration, Configuration for Multiple Environments, Core Principles, Custom Validation (Complex Rules), Decision Guide, Don't Put Secrets in appsettings.json (+5 more)
 
 ### Community 116 - "TestFixtures"
-Cohesion: 0.17
-Nodes (9): DateTimeOffset, TimeProvider, Func, List, Sale, SaleViewModel, FixedClock, POSApp.Tests (+1 more)
+Cohesion: 0.15
+Nodes (10): DateTimeOffset, TimeProvider, Func, IFavoriteRepository, List, Sale, SaleViewModel, FixedClock (+2 more)
 
 ### Community 117 - "Input"
-Cohesion: 0.23
-Nodes (6): DependencyObject, DependencyProperty, DependencyPropertyChangedEventArgs, Input, POSApp.UI.Helpers, RoutedEventArgs
+Cohesion: 0.25
+Nodes (7): DependencyObject, DependencyProperty, DependencyPropertyChangedEventArgs, Input, POSApp.UI.Helpers, DependencyObject, RoutedEventArgs
 
 ### Community 118 - "IFavoriteRepository"
-Cohesion: 0.24
-Nodes (8): Product, UserFavorite, IFavoriteRepository, POSApp.Core.Interfaces, CancellationToken, IEnumerable, Task, UserFavorite
+Cohesion: 0.22
+Nodes (9): IFavoriteRepository, POSApp.Core.Interfaces, CancellationToken, IEnumerable, IReadOnlyList, IReadOnlySet, Product, Task (+1 more)
 
 ### Community 119 - "SKILL"
 Cohesion: 0.15
@@ -922,8 +916,8 @@ Cohesion: 0.19
 Nodes (8): HttpClient, bool, CancellationTokenSource, Task, TimeSpan, ConnectivityDetector, POSApp.Infrastructure.Services, TimeSpan
 
 ### Community 121 - "Module Group 121"
-Cohesion: 0.18
-Nodes (10): INotifyPropertyChanged, bool, DateTime, DayCallStatus, T, CallScheduleRow, DayCellViewModel, POSApp.UI.ViewModels (+2 more)
+Cohesion: 0.33
+Nodes (4): INotifyPropertyChanged, T, POSApp.UI.ViewModels, ViewModelBase
 
 ### Community 122 - "ICategoryRepository"
 Cohesion: 0.35
@@ -958,12 +952,12 @@ Cohesion: 0.15
 Nodes (12): Split by Concern Pattern, Split by Module Pattern, Split by Team Pattern, CLAUDE.md Precedence Rules, Anti-patterns, Conflicting Cross-File Instructions, Core Principles, Decision Guide (+4 more)
 
 ### Community 130 - "SKILL"
-Cohesion: 0.15
-Nodes (12): Auto-Format Hook (.NET), Git Worktrees Parallel Sessions, Pre-allowed dotnet Permissions, Plan Mode Strategy, Anti-patterns, Core Principles, Decision Guide, Don't Accept the First Solution (+4 more)
+Cohesion: 0.29
+Nodes (7): Anti-patterns, Core Principles, Decision Guide, Don't Accept the First Solution, Don't Skip Plan Mode for Complex Tasks, Don't Work in a Single Session When You Could Parallelize, Workflow Mastery for .NET
 
 ### Community 131 - "SKILL"
-Cohesion: 0.20
-Nodes (10): [AsParameters] Complex Query Binding, Endpoint Filters, FluentValidation with Endpoint Filters, Global Exception Handler, MapGroup (Endpoint Grouping), Built-in OpenAPI (.NET 10), ProblemDetails (RFC 9457), Rate Limiting (Minimal API) (+2 more)
+Cohesion: 0.11
+Nodes (19): [AsParameters] Complex Query Binding, Dependency Inversion Principle, Domain Entity with Behavior, Endpoint Filters, FluentValidation (Clean Architecture), FluentValidation with Endpoint Filters, Global Exception Handler, IAppDbContext Abstraction (+11 more)
 
 ### Community 132 - "SKILL"
 Cohesion: 0.17
@@ -1030,16 +1024,16 @@ Cohesion: 0.17
 Nodes (12): Abrupt Endings, Accumulating Handoff Files, Anti-patterns, Core Principles, Decision Guide, Learning Extraction at Session End, Patterns, Session Summary Template (+4 more)
 
 ### Community 148 - "SKILL"
-Cohesion: 0.18
-Nodes (11): Compiled Queries, DbContext Configuration, ExecuteUpdateAsync / ExecuteDeleteAsync, Global Query Filters, Interceptors, Migrations Workflow, Pagination, Patterns (+3 more)
+Cohesion: 0.11
+Nodes (19): Anti-patterns, Compiled Queries, Core Principles, DbContext Configuration, Decision Guide, Don't Forget to Await Async Methods, Don't Use Lazy Loading, Don't Use .ToListAsync() Then Filter in Memory (+11 more)
 
 ### Community 149 - "SettingsManager"
-Cohesion: 0.27
-Nodes (6): POSApp.UI.Helpers, SettingsManager, UserSettings, Action, string, UserSettings
+Cohesion: 0.24
+Nodes (7): POSApp.UI.Helpers, SettingsManager, UserSettings, Action, string, UserSettings, UserSettings
 
 ### Community 150 - "Module Group 150"
-Cohesion: 0.45
-Nodes (11): Box Art 1:1 Source (boxart.html), Super Hero Art 16:9 Source (hero.html), Hero Receipt and Scan-Beam Motif, Poster Art Source (poster.html), SwiftTill Wordmark (white "Swift" + green "Till"), App Tile Source (tile.html), Simplified Tile Source for 71px (tile-small.html), Simplified Mark for <=71px (+3 more)
+Cohesion: 0.17
+Nodes (21): Box Art 1:1 Source (boxart.html), Super Hero Art 16:9 Source (hero.html), Hero Receipt and Scan-Beam Motif, Poster Art Source (poster.html), SwiftTill Wordmark (white "Swift" + green "Till"), App Tile Source (tile.html), Simplified Tile Source for 71px (tile-small.html), Simplified Mark for <=71px (+13 more)
 
 ### Community 151 - "ICustomerPaymentRepository"
 Cohesion: 0.33
@@ -1078,8 +1072,8 @@ Cohesion: 0.29
 Nodes (6): Fact, Mock, ProductIdGenerator, Task, POSApp.Tests, ProductIdGeneratorTests
 
 ### Community 160 - "BackupRestoreViewModel"
-Cohesion: 0.25
-Nodes (6): bool, IDatabaseBackupService, string, Task, BackupRestoreViewModel, POSApp.UI.ViewModels
+Cohesion: 0.32
+Nodes (5): Fact, IFavoriteRepository, List, Product, SaleScreenQuickKeyTests
 
 ### Community 161 - "DoctorFormViewModel"
 Cohesion: 0.22
@@ -1130,8 +1124,8 @@ Cohesion: 0.20
 Nodes (9): Architecture, Build & Test Commands, Data Access, Development Conventions, Naming & Structure, POSApp — Development Instructions, Skills Loaded, Tech Stack (+1 more)
 
 ### Community 173 - "SKILL"
-Cohesion: 0.20
-Nodes (9): Dependency Inversion Principle, Domain Entity with Behavior, FluentValidation (Clean Architecture), IAppDbContext Abstraction, IEndpointGroup Auto-Discovery, Mediator Pattern (ISender), Result Pattern, Result Pattern (Error Handling) (+1 more)
+Cohesion: 0.21
+Nodes (10): Shift Entity, IShiftRepository Interface, IShiftRepository, AppDbContext, CancellationToken, IEnumerable, Shift, Task (+2 more)
 
 ### Community 174 - "ProductStatusConverters"
 Cohesion: 0.33
@@ -1146,8 +1140,8 @@ Cohesion: 0.33
 Nodes (4): EditionGate, POSApp.UI.Helpers, AppFeature, Visibility
 
 ### Community 177 - "ISyncService"
-Cohesion: 0.31
-Nodes (6): ISyncService, POSApp.Core.Interfaces, SyncResult, CancellationToken, SyncResult, Task
+Cohesion: 0.26
+Nodes (6): FavoriteRepository, Task, TempDataDirectory, POSApp.Tests, ProductQuickKeyToggleTests, QuickKeyRepositoryTests
 
 ### Community 178 - "PermissionRepository"
 Cohesion: 0.20
@@ -1163,7 +1157,7 @@ Nodes (4): string, POSApp.Core.Services, RegionCodes, RegionSettingsData
 
 ### Community 181 - "logo"
 Cohesion: 0.22
-Nodes (10): app-icon.png (original app icon), SwiftTill logo mark (logo.svg), Cash drawer, Flat cash register illustration, Customer display with green checkmark, Flat vector style with navy, slate and green palette, Keypad with green enter key, Receipt window (+2 more)
+Nodes (7): ObservableCollection, HashSet, IFavoriteRepository, RoutedEventArgs, ManageQuickKeysDialog, POSApp.UI.Views, Row
 
 ### Community 182 - "UserFormDialog.xaml"
 Cohesion: 0.22
@@ -1262,8 +1256,8 @@ Cohesion: 0.22
 Nodes (9): Anti-patterns, Core Principles, Decision Guide, Don't Expose Scalar in Production Without Auth, Don't Forget the Security Scheme Transformer, Don't Leave the Proxy Enabled for Sensitive APIs, Don't Pre-fill Real Credentials, Don't Use Swagger UI for New .NET 10 Projects (+1 more)
 
 ### Community 206 - "SKILL"
-Cohesion: 0.25
-Nodes (8): Layer 1: Package Vulnerability Scan, Layer 2: Secrets Detection, Layer 3: OWASP Code Patterns, Layer 4: Auth Configuration Review, Layer 5: CORS Configuration Review, Layer 6: Data Protection Review, OWASP Top 10, Phase 5: Security Scan
+Cohesion: 0.29
+Nodes (7): Layer 1: Package Vulnerability Scan, Layer 2: Secrets Detection, Layer 3: OWASP Code Patterns, Layer 4: Auth Configuration Review, Layer 5: CORS Configuration Review, Layer 6: Data Protection Review, OWASP Top 10
 
 ### Community 207 - "SKILL"
 Cohesion: 0.22
@@ -1290,24 +1284,24 @@ Cohesion: 0.25
 Nodes (4): CallScheduleViewModel, RoutedEventArgs, CallScheduleWindow, POSApp.UI.Views
 
 ### Community 213 - "MANUAL"
-Cohesion: 0.25
-Nodes (7): Display scaling, How the demo DB is isolated, Manual steps per screen (fallback), Re-run (about 2 minutes), Screenshot capture: how to re-run, and manual fallbacks, Trailer (about 3 minutes), Trailer Re-record Procedure
+Cohesion: 0.21
+Nodes (5): Encoded, IEnumerable, int, CloudBackupPayload, POSApp.Infrastructure.Services
 
 ### Community 214 - "SKILL"
-Cohesion: 0.25
-Nodes (8): Anemic Domain Model, Anti-patterns, Clean Architecture, Core Principles, DbContext in Domain Layer, Decision Guide, Fat Endpoints, Repository for Every Entity
+Cohesion: 0.12
+Nodes (16): Anemic Domain Model, Anti-patterns, Clean Architecture, Core Principles, DbContext Abstraction (Preferred Over Repository), DbContext in Domain Layer, Decision Guide, Domain Entity with Behavior (+8 more)
 
 ### Community 215 - "SKILL"
-Cohesion: 0.25
-Nodes (8): DbContext Abstraction (Preferred Over Repository), Domain Entity with Behavior, Infrastructure DI Registration, Patterns, Project Layout, Thin Endpoint Wiring (IEndpointGroup Auto-Discovery), Use Case Handler (Command), Use Case Handler (Query)
+Cohesion: 0.33
+Nodes (4): Fact, POSApp.Tests, SaleReturnRefundTests, ReturnItemViewModel
 
 ### Community 216 - "CostPriceEncryptorConverter"
 Cohesion: 0.32
 Nodes (5): CostPriceEncryptorConverter, POSApp.UI.Converters, IValueConverter, CultureInfo, Type
 
 ### Community 217 - "AppDbContext"
-Cohesion: 0.25
-Nodes (5): DbContextOptionsBuilder, AppDbContext, ModelBuilder, POSApp.Data, DbContext
+Cohesion: 0.27
+Nodes (5): POSApp.UI.Helpers, ReceiptBranding, ReceiptBrandingSettings, Paragraph, string
 
 ### Community 218 - "AppEnvironment"
 Cohesion: 0.29
@@ -1322,12 +1316,12 @@ Cohesion: 0.25
 Nodes (5): DoctorManagementViewModel, Doctor, RoutedEventArgs, DoctorManagementWindow, POSApp.UI.Views
 
 ### Community 221 - "SKILL"
-Cohesion: 0.25
-Nodes (8): Anti-patterns, Core Principles, Decision Guide, Don't Forget to Await Async Methods, Don't Use Lazy Loading, Don't Use .ToListAsync() Then Filter in Memory, Don't Wrap DbContext in a Repository, EF Core (.NET 10)
+Cohesion: 0.20
+Nodes (9): Decisions taken (change them if you disagree), Parity checklist vs. common US pharmacy POS systems, Phases (one commit each; stop after each phase and wait for "continue"), US Pharmacy & Sales-Screen UX — Expanded Plan, UX-1: Sale screen quick keys, alignment, Charge Accounts, themes (Lite), UX-2: Pharmacist workspace & roles (Pro), UX-3: US front-store checkout rules (Pro, US region), UX-4: Reports, demo data, dark theme, hardening (+1 more)
 
 ### Community 222 - "StockAlertHelper"
-Cohesion: 0.43
-Nodes (3): POSApp.UI.Helpers, StockAlertHelper, Product
+Cohesion: 0.32
+Nodes (8): B1 Stale Sale Timestamp, B2 Duplicate Invoice Numbers, B8 Missing Indexes and In-Memory Reports, Proposed IFormatService in Core, Hard-Coded Money and Date Formats Bypassing Region, Phase 1a: Safety and Foundation, Two Pre-existing Failing Tests, Region Static Formatting Facade
 
 ### Community 223 - "SKILL"
 Cohesion: 0.25
@@ -1346,8 +1340,8 @@ Cohesion: 0.25
 Nodes (5): MedicalRepFormViewModel, MedicalRep, RoutedEventArgs, MedicalRepFormDialog, POSApp.UI.Views
 
 ### Community 227 - "SKILL"
-Cohesion: 0.25
-Nodes (8): Endpoint Filters, Endpoint Group Auto-Discovery (Required Pattern), OpenAPI / Swagger Configuration, Output Caching, Parameter Binding, Patterns, Rate Limiting, TypedResults for Type-Safe Responses
+Cohesion: 0.13
+Nodes (15): Anti-patterns, Core Principles, Decision Guide, Don't Put Endpoints in Program.cs, Don't Return Domain Entities Directly, Don't Use Untyped Results, Endpoint Filters, Endpoint Group Auto-Discovery (Required Pattern) (+7 more)
 
 ### Community 228 - "store-identity"
 Cohesion: 0.25
@@ -1454,12 +1448,12 @@ Cohesion: 0.29
 Nodes (6): FooterMessage, FooterNote, HeaderNote, StoreAddress, StoreName, StorePhone
 
 ### Community 254 - "AsyncRelayCommand"
-Cohesion: 0.33
-Nodes (4): AsyncRelayCommand, POSApp.UI.Helpers, bool, Func
+Cohesion: 0.40
+Nodes (3): AddQuickKeySortOrder, POSApp.Data.Migrations, MigrationBuilder
 
 ### Community 255 - "RelayCommand"
-Cohesion: 0.29
-Nodes (4): POSApp.UI.Helpers, RelayCommand, Action, Func
+Cohesion: 0.33
+Nodes (5): Auto-Format Hook (.NET), Git Worktrees Parallel Sessions, Pre-allowed dotnet Permissions, Plan Mode Strategy, Subagent Patterns (.NET)
 
 ### Community 256 - "ShopTitleExtension"
 Cohesion: 0.33
@@ -1470,20 +1464,16 @@ Cohesion: 0.38
 Nodes (7): Store Hero Banner 16:9 (1920x1080), Barcode and green scan-line motif, Flat-style cash register illustration with green checkmark screen, Green checkmark success motif (completed sale), Dark navy gradient background with green accent palette, Floating receipt with line items and barcode, Microsoft Store listing marketing art (POS product hero)
 
 ### Community 258 - "PharmacySaleWindow.xaml"
-Cohesion: 0.29
-Nodes (4): ICommand, Action, POSApp.UI.Views, RelayCommandAdapter
+Cohesion: 0.40
+Nodes (3): AddQuickKeySortOrder, POSApp.Data.Migrations, ModelBuilder
 
 ### Community 259 - "boxart-1x1-1080x1080"
 Cohesion: 0.38
 Nodes (7): SwiftTill 1:1 Box Art (1080x1080), Navy and green brand palette with radial vignette background, Flat cash register illustration with keypad, drawer and receipt slot, Green checkmark customer display (transaction approved cue), Microsoft Store listing box art (1:1 square tile), Point-of-sale product identity (Swifttill Store edition), SwiftTill wordmark (white 'Swift' + green 'Till')
 
 ### Community 260 - "20260429122127_AddNewFeatures"
-Cohesion: 0.33
-Nodes (4): Migration, AddNewFeatures, POSApp.Data.Migrations, MigrationBuilder
-
-### Community 261 - "SKILL"
-Cohesion: 0.29
-Nodes (7): Anti-patterns, Core Principles, Decision Guide, Don't Put Endpoints in Program.cs, Don't Return Domain Entities Directly, Don't Use Untyped Results, Minimal APIs (.NET 10)
+Cohesion: 0.40
+Nodes (3): AddNewFeatures, POSApp.Data.Migrations, MigrationBuilder
 
 ### Community 262 - "SKILL"
 Cohesion: 0.38
@@ -1506,24 +1496,20 @@ Cohesion: 0.29
 Nodes (7): Pattern 1: Single File (Default), Pattern 2: Split by Concern, Pattern 3: Split by Module, Pattern 4: Split by Team, Pattern 5: Conditional Loading, Patterns, Precedence Rules
 
 ### Community 268 - "listing"
-Cohesion: 0.29
-Nodes (7): Copyright, Feature audit: existing listing claims vs. code, Product features (12 bullets, each ≤ 60 chars), Search keywords (exactly 7), Short title, SwiftTill — Microsoft Store listing text, What's new in this version
+Cohesion: 0.20
+Nodes (9): Copyright, Feature audit: existing listing claims vs. code, Store Product Features (12 bullets), Product features (12 bullets, each ≤ 60 chars), Store Search Keywords (7), Search keywords (exactly 7), Short title, SwiftTill — Microsoft Store listing text (+1 more)
 
 ### Community 269 - "SKILL"
-Cohesion: 0.29
-Nodes (7): 7-Phase Verification Pipeline, Phase 1: Build, Phase 2: Diagnostics, Phase 3: Anti-pattern Scan, Phase 4: Tests, Phase 6: Format Compliance, Phase 7: Diff Review
+Cohesion: 0.25
+Nodes (8): 7-Phase Verification Pipeline, Phase 1: Build, Phase 2: Diagnostics, Phase 3: Anti-pattern Scan, Phase 4: Tests, Phase 5: Security Scan, Phase 6: Format Compliance, Phase 7: Diff Review
 
 ### Community 270 - "SKILL"
 Cohesion: 0.29
 Nodes (7): 7-Phase Verification Pipeline, Fix-and-Retry Loop, Patterns, Post-Refactor Verification, Pre-PR Verification, Quick Verification, Structured Report Format
 
 ### Community 271 - "SKILL"
-Cohesion: 0.29
-Nodes (7): Adding Module Boundaries (Optional), Feature Folder Structure, Pattern A: Mediator Handlers (Recommended Default), Pattern B: Wolverine Handlers, Pattern C: Raw Handler Classes (No Library), Patterns, Shared Concerns
-
-### Community 272 - "SKILL"
-Cohesion: 0.29
-Nodes (7): Anti-patterns, Core Principles, Decision Guide, Don't Create Layered Abstractions Within a Slice, Don't Cross-reference Features Directly, Don't Put Everything in One God Feature File, Vertical Slice Architecture (VSA)
+Cohesion: 0.14
+Nodes (14): Adding Module Boundaries (Optional), Anti-patterns, Core Principles, Decision Guide, Don't Create Layered Abstractions Within a Slice, Don't Cross-reference Features Directly, Don't Put Everything in One God Feature File, Feature Folder Structure (+6 more)
 
 ### Community 273 - "Module Group 273"
 Cohesion: 0.33
@@ -1538,8 +1524,8 @@ Cohesion: 0.33
 Nodes (4): POSApp.Core.Entities, User, POSApp.Core.Entities, UserFavorite
 
 ### Community 276 - "TestFixtures"
-Cohesion: 0.33
-Nodes (4): IDisposable, AppDbContext, string, TempDataDirectory
+Cohesion: 0.17
+Nodes (6): IDisposable, RegionSettingsData, CustomerAccountsLabelTests, AppDbContext, string, TempDataDirectory
 
 ### Community 277 - "20260429074020_InitialCreate"
 Cohesion: 0.40
@@ -1562,8 +1548,8 @@ Cohesion: 0.40
 Nodes (3): AddDoctor, POSApp.Data.Migrations, MigrationBuilder
 
 ### Community 282 - "20260607042158_AddProductBatchExpiry"
-Cohesion: 0.40
-Nodes (3): AddProductBatchExpiry, POSApp.Data.Migrations, MigrationBuilder
+Cohesion: 0.33
+Nodes (4): Migration, AddProductBatchExpiry, POSApp.Data.Migrations, MigrationBuilder
 
 ### Community 283 - "20260607050920_AddPharmacySaleFields"
 Cohesion: 0.40
@@ -1749,42 +1735,6 @@ Nodes (3): DateTime, POSApp.Core.Services, SaleTime
 Cohesion: 0.40
 Nodes (3): string, POSApp.Core.Services, SharedSettingsFiles
 
-### Community 329 - "BackupRestoreWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, BackupRestoreWindow, POSApp.UI.Views
-
-### Community 330 - "CategoryManagementWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, CategoryManagementWindow, POSApp.UI.Views
-
-### Community 331 - "CustomerLedgerWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, CustomerLedgerWindow, POSApp.UI.Views
-
-### Community 332 - "DailySummaryWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, DailySummaryWindow, POSApp.UI.Views
-
-### Community 333 - "ExpenseWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, ExpenseWindow, POSApp.UI.Views
-
-### Community 334 - "PurchaseEntryWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, POSApp.UI.Views, PurchaseEntryWindow
-
-### Community 335 - "PurchaseReturnWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, POSApp.UI.Views, PurchaseReturnWindow
-
-### Community 336 - "SaleReturnWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, POSApp.UI.Views, SaleReturnWindow
-
-### Community 337 - "ShiftWindow.xaml"
-Cohesion: 0.40
-Nodes (3): RoutedEventArgs, POSApp.UI.Views, ShiftWindow
-
 ### Community 338 - "Permissions"
 Cohesion: 0.50
 Nodes (3): Permissions, POSApp.Core.Entities, string
@@ -1794,31 +1744,31 @@ Cohesion: 0.50
 Nodes (3): POSApp.UI.Helpers, ProductBranding, string
 
 ### Community 342 - "DashboardView.xaml"
-Cohesion: 0.50
-Nodes (3): UserControl, DashboardView, POSApp.UI.Views
+Cohesion: 0.22
+Nodes (6): RoutedEventArgs, UserControl, DashboardView, POSApp.UI.Views, POSApp.UI.Views, QuickKeysPanel
 
 ## Ambiguous Edges - Review These
 - `SKILL.md` → `App Icon - Cash Register POS`  [AMBIGUOUS]
   POSApp.UI/app-icon.png · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **1731 isolated node(s):** `allow`, `allow`, `POSApp.Core.Entities`, `ApplicationSetting`, `POSApp.Core.Entities` (+1726 more)
+- **1789 isolated node(s):** `allow`, `allow`, `POSApp.Core.Entities`, `ApplicationSetting`, `POSApp.Core.Entities` (+1784 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **34 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **39 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `SKILL.md` and `App Icon - Cash Register POS`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `ViewModelBase` connect `Module Group 121` to `UserFormViewModel`, `Sales Report & Demand Order`, `Pharmacy Distributor Sale`, `Retail Sale Screen`, `Salary Slips`, `LoginViewModel`, `Customer Ledger (Khata)`, `Main Window & Navigation`, `Expenses`, `ShiftViewModel`, `Rep Call Scheduling`, `Sale Returns`, `Purchase Entry`, `BackupRestoreViewModel`, `DoctorFormViewModel`, `DoctorManagementViewModel`, `EmployeeManagementViewModel`, `MedicalRepFormViewModel`, `PharmacyFormViewModel`, `PharmacyManagementViewModel`, `ProductManagementViewModel`, `PurchaseReturnViewModel`, `UserManagementViewModel`, `CategoryManagementViewModel`, `DashboardViewModel`, `SupplierManagementViewModel`, `RoleManagementViewModel`, `DailySummaryViewModel`, `RoleFormViewModel`, `EmployeeFormViewModel`?**
+- **Why does `ViewModelBase` connect `Module Group 121` to `UserFormViewModel`, `Sales Report & Demand Order`, `Pharmacy Distributor Sale`, `Retail Sale Screen`, `Salary Slips`, `LoginViewModel`, `Customer Ledger (Khata)`, `Main Window & Navigation`, `Expenses`, `ShiftViewModel`, `Rep Call Scheduling`, `Sale Returns`, `Purchase Entry`, `FirebaseSyncService`, `DoctorFormViewModel`, `DoctorManagementViewModel`, `EmployeeManagementViewModel`, `MedicalRepFormViewModel`, `PharmacyFormViewModel`, `PharmacyManagementViewModel`, `ProductManagementViewModel`, `PurchaseReturnViewModel`, `UserManagementViewModel`, `CategoryManagementViewModel`, `NotificationHelper`, `DashboardViewModel`, `SupplierManagementViewModel`, `RoleManagementViewModel`, `DailySummaryViewModel`, `RoleFormViewModel`, `EmployeeFormViewModel`?**
+  _High betweenness centrality (0.130) - this node is a cross-community bridge._
+- **Why does `FirebaseSyncService` connect `FirebaseSyncService` to `TestFixtures`, `Users, Sessions & Permissions`?**
   _High betweenness centrality (0.107) - this node is a cross-community bridge._
-- **Why does `FirebaseSyncService` connect `FirebaseSyncService` to `Users, Sessions & Permissions`, `FirebaseSyncService`, `CategoryManagementViewModel`, `ISyncService`, `TestFixtures`, `FirebaseSyncService`?**
-  _High betweenness centrality (0.064) - this node is a cross-community bridge._
-- **Why does `App` connect `CategoryManagementViewModel` to `FirebaseSyncService`, `Main Window & Navigation`, `BackupRestoreViewModel`, `DatabaseBackupService`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+- **Why does `App` connect `FirebaseSyncService` to `ProductManagementViewModel`, `Main Window & Navigation`, `NotificationHelper`, `DatabaseBackupService`?**
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
 - **What connects `allow`, `allow`, `POSApp.Core.Entities` to the rest of the system?**
-  _1745 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1803 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Licensing & Renewal Codes` be split into smaller, more focused modules?**
   _Cohesion score 0.05928614640048397 - nodes in this community are weakly interconnected._
 - **Should `Sales Report & Demand Order` be split into smaller, more focused modules?**

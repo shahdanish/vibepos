@@ -355,8 +355,8 @@
     "semantic_hash": "aa1fff4dcaf126c067be1e38241fe8df"
   },
   "POSApp.UI/App.xaml.cs": {
-    "mtime": 1790868004.1797285,
-    "ast_hash": "a815f2ad8dbbf526a621d8b651d2aa82",
+    "mtime": 1790871193.35049,
+    "ast_hash": "df4bbdac4d414b3990f05b94d953a883",
     "semantic_hash": ""
   },
   "POSApp.UI/AssemblyInfo.cs": {
@@ -1205,9 +1205,9 @@
     "semantic_hash": "fc2d8e67400ef88eff16971d43df0894"
   },
   "POSApp.Tests/RegionSettingsTests.cs": {
-    "mtime": 1790846267.6307304,
-    "ast_hash": "142e8706e95f3149599c71ba418529a6",
-    "semantic_hash": "142e8706e95f3149599c71ba418529a6"
+    "mtime": 1790871394.4732294,
+    "ast_hash": "5002503e58ad7ccfad052fb43e303ebd",
+    "semantic_hash": ""
   },
   "POSApp.UI/Converters/DayStatusConverters.cs": {
     "mtime": 1783426814.4764163,
@@ -1435,9 +1435,9 @@
     "semantic_hash": "857bac03397c5f9631d23cbda7444d85"
   },
   "POSApp.Core/Interfaces/IFirstRunSetupService.cs": {
-    "mtime": 1790758473.542135,
-    "ast_hash": "032c3321e2c7c83cf88095f428c3962b",
-    "semantic_hash": "032c3321e2c7c83cf88095f428c3962b"
+    "mtime": 1790870768.3215046,
+    "ast_hash": "c28d3a504baea891126ba497829e951e",
+    "semantic_hash": ""
   },
   "POSApp.Core/Interfaces/IFormatService.cs": {
     "mtime": 1790848349.793393,
@@ -1475,14 +1475,14 @@
     "semantic_hash": "71a771e5ca8e64a714346add99961ff1"
   },
   "POSApp.Core/Services/RegionSettings.cs": {
-    "mtime": 1790848349.793393,
-    "ast_hash": "75d9969809cc12173d8c20f52b56f225",
-    "semantic_hash": "75d9969809cc12173d8c20f52b56f225"
+    "mtime": 1790870610.572804,
+    "ast_hash": "5270879abba3cc8c5a47b76deec639c6",
+    "semantic_hash": ""
   },
   "POSApp.Core/Services/RegionSettingsStore.cs": {
-    "mtime": 1790846660.195573,
-    "ast_hash": "5c98eb863601d744345f688c07465b30",
-    "semantic_hash": "5c98eb863601d744345f688c07465b30"
+    "mtime": 1790870610.572804,
+    "ast_hash": "d2062ac3aa7b701bee6f40ff3f19ec77",
+    "semantic_hash": ""
   },
   "POSApp.Core/Services/SaleTime.cs": {
     "mtime": 1790846234.7861826,
@@ -1515,9 +1515,9 @@
     "semantic_hash": "ee49ccdc5f8a16f18b2a7db55a91081a"
   },
   "POSApp.Infrastructure/Services/FirstRunSetupService.cs": {
-    "mtime": 1790758473.5796306,
-    "ast_hash": "e57d669ea0a9cc3d888b09c1544d6f93",
-    "semantic_hash": "e57d669ea0a9cc3d888b09c1544d6f93"
+    "mtime": 1790871172.8731916,
+    "ast_hash": "bf4e60e6d0745b7cd1131a3f29a40d71",
+    "semantic_hash": ""
   },
   "POSApp.Infrastructure/Services/SharedSettingsMirror.cs": {
     "mtime": 1790846659.7452104,
@@ -1525,14 +1525,14 @@
     "semantic_hash": "2fb7f69691595ebb8627acbe70905fd2"
   },
   "POSApp.Tests/BusinessSettingsWindowTests.cs": {
-    "mtime": 1790868684.7735856,
-    "ast_hash": "de949d9f415788f65d70f3a68a51e360",
+    "mtime": 1790871394.4742315,
+    "ast_hash": "30bac51fc2778e7c7527684afee38231",
     "semantic_hash": ""
   },
   "POSApp.Tests/DataDirectoryTests.cs": {
-    "mtime": 1790845969.791169,
-    "ast_hash": "14326844e28b3ec526e3919a36fb8845",
-    "semantic_hash": "14326844e28b3ec526e3919a36fb8845"
+    "mtime": 1790871298.9442153,
+    "ast_hash": "53a6ee6cf4ba99c3b7accdc71e44f514",
+    "semantic_hash": ""
   },
   "POSApp.Tests/DatabaseMigratorTests.cs": {
     "mtime": 1790847016.9659662,
@@ -1545,14 +1545,14 @@
     "semantic_hash": "5702609e04f88f8525dbe7363017dbf8"
   },
   "POSApp.Tests/FormatServiceTests.cs": {
-    "mtime": 1790848488.8165274,
-    "ast_hash": "f7034926a9cb102dce067e173ca6fe25",
-    "semantic_hash": "f7034926a9cb102dce067e173ca6fe25"
+    "mtime": 1790871394.4732294,
+    "ast_hash": "823e50be5ce5a8953fe4ed42af77f5c8",
+    "semantic_hash": ""
   },
   "POSApp.Tests/PakistanReceiptCharacterizationTests.cs": {
-    "mtime": 1790846932.4177873,
-    "ast_hash": "c82cfc50a72879fd7c6999edd5de34e2",
-    "semantic_hash": "c82cfc50a72879fd7c6999edd5de34e2"
+    "mtime": 1790871394.4742315,
+    "ast_hash": "f9314699fe306a4e0e2ec8bd3c64edc3",
+    "semantic_hash": ""
   },
   "POSApp.Tests/PasswordHasherTests.cs": {
     "mtime": 1790758652.1273324,
@@ -1615,14 +1615,14 @@
     "semantic_hash": "59a581ef704dc12364cf206566342819"
   },
   "POSApp.UI/Views/BusinessSettingsWindow.xaml.cs": {
-    "mtime": 1790868671.7235851,
-    "ast_hash": "c590318f49e7f337e3ca39bbaaceab9e",
+    "mtime": 1790871255.6501758,
+    "ast_hash": "616917bef36ae91679b337321105002b",
     "semantic_hash": ""
   },
   "POSApp.UI/Views/FirstRunSetupWindow.xaml.cs": {
-    "mtime": 1790848349.7953837,
-    "ast_hash": "fca263f16047ab86fff20a2ba8a29acc",
-    "semantic_hash": "fca263f16047ab86fff20a2ba8a29acc"
+    "mtime": 1790871227.1055646,
+    "ast_hash": "2f5b11f96b9269826df8be77324c2c99",
+    "semantic_hash": ""
   },
   "POSApp.UI/Views/UpgradeWindow.xaml.cs": {
     "mtime": 1790762659.3688903,
@@ -1977,6 +1977,21 @@
   "docs/us-expansion/01-pharmacy-ux-plan.md": {
     "mtime": 1790869553.7004578,
     "ast_hash": "2afb51079c4f7696c3cc4eedc58b686b",
+    "semantic_hash": ""
+  },
+  "POSApp.Infrastructure/SampleData/UsPharmacySampleData.cs": {
+    "mtime": 1790870757.5563297,
+    "ast_hash": "72b7b7d7c0e5dd2dc587248f6b2569e7",
+    "semantic_hash": ""
+  },
+  "POSApp.Tests/UsDefaultsAndSampleDataTests.cs": {
+    "mtime": 1790871394.4751656,
+    "ast_hash": "a80954d5104a490cae5f1cc5b197a871",
+    "semantic_hash": ""
+  },
+  "docs/us-expansion/02-us-defaults-and-sample-data.md": {
+    "mtime": 1790871686.9542122,
+    "ast_hash": "598c05208213a695e54fd688aa4e37e9",
     "semantic_hash": ""
   }
 }
