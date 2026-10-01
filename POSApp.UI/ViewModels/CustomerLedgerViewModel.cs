@@ -587,7 +587,7 @@ namespace POSApp.UI.ViewModels
                     Margin = new Thickness(0, 2, 0, 4)
                 });
 
-                doc.Blocks.Add(Ln($"Date:      {payment.PaymentDate:dd-MMM-yyyy  hh:mm tt}"));
+                doc.Blocks.Add(Ln($"Date:      {Region.Date(payment.PaymentDate, DateFormat.Document)}  {Region.Time(payment.PaymentDate)}"));
                 doc.Blocks.Add(Ln($"Customer:  {customer.Name}"));
                 if (!string.IsNullOrWhiteSpace(payment.InvoiceNumber))
                     doc.Blocks.Add(Ln($"Invoice #: {payment.InvoiceNumber}"));

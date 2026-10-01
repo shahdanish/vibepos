@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows.Data;
+using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
 
 namespace POSApp.UI.Converters
@@ -9,12 +10,14 @@ namespace POSApp.UI.Converters
     /// replacing the hardcoded <c>StringFormat=dd/MM/yyyy</c> that used to be scattered
     /// through the views. A US client flips one setting and every date follows.
     ///
-    /// ConverterParameter options:
-    ///   (none)    → 31/12/2026
-    ///   "long"    → 31 Dec 2026
-    ///   "short"   → 31/12
-    ///   "time"    → 31/12/2026 09:30 PM
+    /// ConverterParameter options (day-first examples):
+    ///   (none)      → 31/12/2026
+    ///   "long"      → 31 Dec 2026
+    ///   "short"     → 31/12
+    ///   "document"  → 31-Dec-2026
+    ///   "time"      → 31/12/2026 09:30 PM
     ///   "shorttime" → 31/12 09:30 PM
+    ///   "long24"    → 31 Dec 2026  21:30
     ///   "monthyear" → 12/2026
     /// </summary>
     public sealed class DateConverter : IValueConverter
@@ -27,15 +30,17 @@ namespace POSApp.UI.Converters
                 else return value?.ToString() ?? string.Empty;
             }
 
-            var inv = CultureInfo.InvariantCulture;
+            var f = Region.Format;
             return (parameter as string) switch
             {
-                "long"      => Region.LongDate(d),
-                "short"     => d.ToString(Region.ShortDatePattern, inv),
-                "time"      => Region.DateTimeText(d),
-                "shorttime" => d.ToString(Region.ShortDatePattern + " hh:mm tt", inv),
-                "monthyear" => d.ToString(Region.Current.Dates == DateStyle.Iso ? "yyyy-MM" : "MM/yyyy", inv),
-                _           => Region.Date(d)
+                "long"      => f.Date(d, DateFormat.Long),
+                "short"     => f.Date(d, DateFormat.DayMonth),
+                "document"  => f.Date(d, DateFormat.Document),
+                "time"      => f.DateAndTime(d),
+                "shorttime" => f.DateAndTime(d, DateFormat.DayMonth),
+                "long24"    => f.Date(d, DateFormat.Long) + "  " + d.ToString("HH:mm", CultureInfo.InvariantCulture),
+                "monthyear" => f.Date(d, DateFormat.MonthYear),
+                _           => f.Date(d)
             };
         }
 

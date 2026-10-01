@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
+using POSApp.Core.Interfaces;
+using POSApp.UI.Helpers;
 
 namespace POSApp.UI.Views
 {
@@ -25,7 +27,7 @@ namespace POSApp.UI.Views
             dlg.LeftCountBrush.Color    = Color.FromRgb(0x38, 0x8E, 0x3C);
             dlg.LeftCardBg.Color        = Color.FromRgb(0xE8, 0xF5, 0xE9);
             dlg.LeftLabel.Text          = "Records Pushed";
-            dlg.RightValueText.Text     = syncTime.ToString("hh:mm tt");
+            dlg.RightValueText.Text     = Region.Time(syncTime);
             dlg.RightLabel.Text         = "Synced At";
 
             dlg.DetailText.Text = "All records have been successfully pushed to your Firebase database. " +
@@ -99,7 +101,7 @@ namespace POSApp.UI.Views
             dlg.LeftCountBrush.Color    = Color.FromRgb(0x38, 0x8E, 0x3C);
             dlg.LeftCardBg.Color        = Color.FromRgb(0xE8, 0xF5, 0xE9);
             dlg.LeftLabel.Text          = "Database Size";
-            dlg.RightValueText.Text     = backupTime.ToString("hh:mm tt");
+            dlg.RightValueText.Text     = Region.Time(backupTime);
             dlg.RightLabel.Text         = "Backed Up At";
 
             dlg.DetailText.Text = "The entire local database has been uploaded to Firebase. " +
@@ -126,7 +128,7 @@ namespace POSApp.UI.Views
             dlg.LeftCountBrush.Color    = Color.FromRgb(0x38, 0x8E, 0x3C);
             dlg.LeftCardBg.Color        = Color.FromRgb(0xE8, 0xF5, 0xE9);
             dlg.LeftLabel.Text          = "Restored Size";
-            dlg.RightValueText.Text     = snapshotTime.ToString("dd-MMM hh:mm tt");
+            dlg.RightValueText.Text     = $"{Region.Date(snapshotTime, DateFormat.DayMonthName)} {Region.Time(snapshotTime)}";
             dlg.RightLabel.Text         = "Backup Date";
 
             dlg.DetailText.Text = "Your local database has been restored from the cloud backup. " +

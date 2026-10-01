@@ -1,13 +1,15 @@
 using POSApp.UI.Helpers;
 using Xunit;
+using POSApp.Core.Services;
 
 namespace POSApp.Tests
 {
     /// <summary>
     /// Guards the currency/region layer that lets one build ship to any country.
-    /// These run against whatever is saved on the machine, so each test sets the
-    /// settings it needs and restores the original afterwards.
+    /// Each test sets the settings it needs and restores the original afterwards; the run
+    /// itself points at a temporary data folder (see <see cref="TestEnvironment"/>).
     /// </summary>
+    [Collection(GlobalStateCollection.Name)]
     public class RegionSettingsTests : IDisposable
     {
         private readonly RegionSettingsData _original = Region.Current;

@@ -44,10 +44,16 @@ namespace POSApp.UI.Helpers
     /// </summary>
     public static class ReceiptBranding
     {
-        private static readonly string SettingsFilePath = Path.Combine(
-            POSApp.Core.Services.AppPaths.SharedSettingsDirectory, "receipt-branding.json");
+        private static readonly string SettingsFilePath =
+            POSApp.Core.Services.SharedSettingsFiles.PathOf(POSApp.Core.Services.SharedSettingsFiles.ReceiptBranding);
 
         private static ReceiptBrandingSettings? _cached;
+
+        /// <summary>Raised after the branding was written to disk.</summary>
+        public static event Action? Saved;
+
+        /// <summary>Forgets the cached branding so the next read comes from disk.</summary>
+        public static void Reload() => _cached = null;
 
         /// <summary>Current branding, loaded from disk on first use and cached thereafter.</summary>
         public static ReceiptBrandingSettings Current
@@ -87,12 +93,15 @@ namespace POSApp.UI.Helpers
                 File.WriteAllText(SettingsFilePath, json);
 
                 _cached = settings;
-                return true;
             }
             catch
             {
                 return false;
             }
+
+            try { Saved?.Invoke(); }
+            catch { /* a listener failing must not undo a successful save */ }
+            return true;
         }
 
         /// <summary>

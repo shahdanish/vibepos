@@ -73,7 +73,7 @@ namespace POSApp.UI.ViewModels
 
                 if (IsShiftOpen)
                 {
-                    ShiftStatus = $"Shift open since {CurrentShift!.OpenedAt:hh:mm tt} | Opening: {Region.Money(CurrentShift.OpeningBalance)}";
+                    ShiftStatus = $"Shift open since {Region.Time(CurrentShift!.OpenedAt)} | Opening: {Region.Money(CurrentShift.OpeningBalance)}";
                 }
                 else
                 {

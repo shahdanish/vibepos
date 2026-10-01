@@ -8,6 +8,7 @@ using System.Windows.Media;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
+using POSApp.Core.Services;
 
 namespace POSApp.UI.ViewModels
 {
@@ -19,7 +20,8 @@ namespace POSApp.UI.ViewModels
         private string _searchInvoiceNumber = string.Empty;
         private Sale? _originalSale;
         private string _returnInvoiceNumber = string.Empty;
-        private DateTime _returnDate = DateTime.Now;
+        private DateTime _returnDate = AppClock.Now;
+        private bool _returnDateChosenByUser;
         private string _returnReason = string.Empty;
         private decimal _totalReturnAmount;
         private string _searchStatus = string.Empty;
@@ -48,10 +50,15 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _returnInvoiceNumber, value);
         }
 
+        /// <summary>The date shown on screen; setting it marks it as the user's own choice (see <see cref="SaleTime"/>).</summary>
         public DateTime ReturnDate
         {
             get => _returnDate;
-            set => SetProperty(ref _returnDate, value);
+            set
+            {
+                if (SetProperty(ref _returnDate, value))
+                    _returnDateChosenByUser = true;
+            }
         }
 
         public string ReturnReason
@@ -148,7 +155,7 @@ namespace POSApp.UI.ViewModels
                     return;
                 }
 
-                SearchStatus = $"✓ {sale.CustomerName}  |  Original: {Region.Money(sale.TotalBill)}  |  Date: {sale.SaleDate:dd-MMM-yyyy}";
+                SearchStatus = $"✓ {sale.CustomerName}  |  Original: {Region.Money(sale.TotalBill)}  |  Date: {Region.Date(sale.SaleDate, DateFormat.Document)}";
                 OriginalSale = sale;
             }
             catch (Exception ex)
@@ -204,6 +211,11 @@ namespace POSApp.UI.ViewModels
 
             try
             {
+                // Fresh return number and the real return time (the screen may have been open for hours).
+                await GenerateReturnInvoiceNumber();
+                _returnDate = SaleTime.Resolve(_returnDate, _returnDateChosenByUser, AppClock.Now);
+                OnPropertyChanged(nameof(ReturnDate));
+
                 var noteparts = new List<string> { $"Return for Invoice: {OriginalSale.InvoiceNumber}" };
                 if (!string.IsNullOrWhiteSpace(ReturnReason))
                     noteparts.Add($"Reason: {ReturnReason}");
@@ -251,6 +263,9 @@ namespace POSApp.UI.ViewModels
                 PrintReturnReceipt();
 
                 await GenerateReturnInvoiceNumber();
+                _returnDate = AppClock.Now;
+                _returnDateChosenByUser = false;
+                OnPropertyChanged(nameof(ReturnDate));
                 OriginalSale = null;
                 ReturnItems.Clear();
                 SearchInvoiceNumber = string.Empty;
@@ -287,7 +302,7 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        private FlowDocument CreateReturnReceipt()
+        internal FlowDocument CreateReturnReceipt()
         {
             var doc = new FlowDocument();
             doc.FontFamily = new FontFamily("Segoe UI");
@@ -328,7 +343,7 @@ namespace POSApp.UI.ViewModels
 
             var row1 = new TableRow();
             row1.Cells.Add(MetaCell($"Return No: {ReturnInvoiceNumber}"));
-            row1.Cells.Add(MetaCell($"Date: {ReturnDate:dd-MMM-yyyy hh:mm tt}"));
+            row1.Cells.Add(MetaCell($"Date: {Region.DocumentDateTime(ReturnDate)}"));
             metaGroup.Rows.Add(row1);
 
             var row2 = new TableRow();
@@ -385,9 +400,9 @@ namespace POSApp.UI.ViewModels
                 row.Cells.Add(ItemCell(serial++.ToString(), System.Windows.TextAlignment.Center));
                 row.Cells.Add(ItemCell(item.ProductName, System.Windows.TextAlignment.Left));
                 row.Cells.Add(ItemCell(item.ReturnQuantity.ToString(), System.Windows.TextAlignment.Center));
-                row.Cells.Add(ItemCell(item.UnitPrice.ToString("N0"), System.Windows.TextAlignment.Right));
+                row.Cells.Add(ItemCell(Region.Compact(item.UnitPrice), System.Windows.TextAlignment.Right));
                 row.Cells.Add(ItemCell(item.DiscountPercent.ToString("N0"), System.Windows.TextAlignment.Right));
-                row.Cells.Add(ItemCell(item.Total.ToString("N2"), System.Windows.TextAlignment.Right));
+                row.Cells.Add(ItemCell(Region.Number(item.Total), System.Windows.TextAlignment.Right));
                 itemsGroup.Rows.Add(row);
             }
 
@@ -416,7 +431,7 @@ namespace POSApp.UI.ViewModels
             }
 
             AddTotalRow("Total Items Qty", ReturnItems.Where(i => i.ReturnQuantity > 0).Sum(i => i.ReturnQuantity).ToString(), bold: true);
-            AddTotalRow("Total Refund", TotalReturnAmount.ToString("N2"), bold: true, fontSize: 12);
+            AddTotalRow("Total Refund", Region.Number(TotalReturnAmount), bold: true, fontSize: 12);
 
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);

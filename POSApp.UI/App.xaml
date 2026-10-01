@@ -26,6 +26,7 @@
             <converters:RowIndexConverter x:Key="RowIndexConverter"/>
             <converters:MoneyConverter x:Key="MoneyConverter"/>
             <converters:DateConverter x:Key="DateConverter"/>
+            <converters:NumberConverter x:Key="NumberConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

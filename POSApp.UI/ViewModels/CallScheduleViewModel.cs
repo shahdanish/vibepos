@@ -59,7 +59,7 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        public string SelectedDateLabel => SelectedDate.ToString("dddd, dd MMM yyyy");
+        public string SelectedDateLabel => Region.Date(SelectedDate, DateFormat.Weekday);
 
         public bool IsWeekView
         {
@@ -83,7 +83,7 @@ namespace POSApp.UI.ViewModels
             get
             {
                 var (start, end) = WeekBounds(DateOnly.FromDateTime(SelectedDate));
-                return $"{start:dd MMM} – {end:dd MMM yyyy}";
+                return $"{Region.Date(start.ToDateTime(TimeOnly.MinValue), DateFormat.DayMonthName)} – {Region.LongDate(end.ToDateTime(TimeOnly.MinValue))}";
             }
         }
 

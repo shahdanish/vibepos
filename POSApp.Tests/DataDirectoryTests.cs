@@ -11,12 +11,9 @@ namespace POSApp.Tests
 {
     /// <summary>
     /// Tests that point <see cref="AppPaths"/> at a temporary folder via POSAPP_DATA_DIR.
-    /// They share process-wide state, so they run in one non-parallel collection.
+    /// They share process-wide state, so they run in the non-parallel global-state collection.
     /// </summary>
-    [CollectionDefinition("DataDirectory", DisableParallelization = true)]
-    public sealed class DataDirectoryCollection { }
-
-    [Collection("DataDirectory")]
+    [Collection(GlobalStateCollection.Name)]
     public sealed class DataDirectoryTests : IDisposable
     {
         private readonly string _root;

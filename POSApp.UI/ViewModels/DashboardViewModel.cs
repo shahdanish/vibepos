@@ -98,7 +98,7 @@ namespace POSApp.UI.ViewModels
 
             var confirm = MessageBox.Show(
                 $"This will OVERWRITE ALL current local data with the last cloud backup taken on " +
-                $"{info.SnapshotTime:dd-MMM-yyyy hh:mm tt}.\n\n" +
+                $"{Region.DocumentDateTime(info.SnapshotTime)}.\n\n" +
                 "A safety copy of the current database is saved as posapp.db.prerestore first.\n\n" +
                 "Do you want to continue?",
                 "Confirm Restore from Cloud",

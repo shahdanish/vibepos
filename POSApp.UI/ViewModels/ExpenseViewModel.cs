@@ -189,11 +189,11 @@ namespace POSApp.UI.ViewModels
 
         public string PeriodDescription => _selectedPeriod switch
         {
-            "Daily"   => _filterDate.ToString("dddd, dd MMMM yyyy"),
-            "Weekly"  => $"{WeekStart(_filterDate):dd MMM} – {WeekEnd(_filterDate):dd MMM yyyy}",
+            "Daily"   => Region.Date(_filterDate, DateFormat.WeekdayLong),
+            "Weekly"  => $"{Region.Date(WeekStart(_filterDate), DateFormat.DayMonthName)} – {Region.LongDate(WeekEnd(_filterDate))}",
             "Monthly" => _filterDate.ToString("MMMM yyyy"),
             "Yearly"  => _filterDate.Year.ToString(),
-            "Custom"  => $"{_customStartDate:dd MMM yyyy}  –  {_customEndDate:dd MMM yyyy}",
+            "Custom"  => $"{Region.LongDate(_customStartDate)}  –  {Region.LongDate(_customEndDate)}",
             _         => string.Empty
         };
 
@@ -531,7 +531,7 @@ namespace POSApp.UI.ViewModels
                     row.Cells.Add(DCell(i.ToString(), TextAlignment.Center));
                     row.Cells.Add(DCell(e.Description, TextAlignment.Left));
                     row.Cells.Add(DCell(e.Category?.Name ?? "—", TextAlignment.Left));
-                    row.Cells.Add(DCell($"{e.Amount:N2}", TextAlignment.Right));
+                    row.Cells.Add(DCell(Region.Number(e.Amount), TextAlignment.Right));
                     row.Cells.Add(DCell(e.Note ?? string.Empty, TextAlignment.Left));
                     tg.Rows.Add(row);
                     i++;
@@ -551,7 +551,7 @@ namespace POSApp.UI.ViewModels
                 });
 
                 // Printed-on footer
-                doc.Blocks.Add(new Paragraph(new Run($"Printed: {DateTime.Now:dd-MMM-yyyy hh:mm tt}"))
+                doc.Blocks.Add(new Paragraph(new Run($"Printed: {Region.DocumentDateTime(DateTime.Now)}"))
                 {
                     Foreground = Brushes.Gray,
                     FontSize = 10,

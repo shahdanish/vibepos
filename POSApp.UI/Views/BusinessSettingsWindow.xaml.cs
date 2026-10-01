@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using POSApp.UI.Helpers;
+using POSApp.Core.Services;
 
 namespace POSApp.UI.Views
 {
@@ -16,6 +17,12 @@ namespace POSApp.UI.Views
     {
         /// <summary>Set while loading so the ComboBox handlers do not redraw a half-filled form.</summary>
         private bool _loading;
+
+        /// <summary>Country codes in the order of the Country drop-down.</summary>
+        private static readonly string[] RegionCodeByIndex = { RegionCodes.Pakistan, RegionCodes.UnitedStates, RegionCodes.Other };
+
+        /// <summary>Culture of the loaded settings or the last preset applied; not edited on screen.</summary>
+        private string _culture = "en-PK";
 
         public BusinessSettingsWindow()
         {
@@ -36,19 +43,36 @@ namespace POSApp.UI.Views
             txtFooterMessage.Text = b.FooterMessage;
             txtFooterNote.Text = b.FooterNote;
 
+            var regionIndex = Array.FindIndex(RegionCodeByIndex, c => string.Equals(c, r.RegionCode, StringComparison.OrdinalIgnoreCase));
+            cboRegion.SelectedIndex = regionIndex >= 0 ? regionIndex : RegionCodeByIndex.Length - 1;
+            LoadRegionFields(r);
+
+            _loading = false;
+            UpdatePreview();
+        }
+
+        /// <summary>Fills the currency and regional fields (not the country picker) from settings.</summary>
+        private void LoadRegionFields(RegionSettingsData r)
+        {
+            var wasLoading = _loading;
+            _loading = true;
+
+            _culture = r.Culture;
             txtCurrencySymbol.Text = r.CurrencySymbol;
             txtCurrencyName.Text = r.CurrencyName;
             txtNationalIdLabel.Text = r.NationalIdLabel;
             txtStatutoryDeductionLabel.Text = r.StatutoryDeductionLabel;
 
             cboSymbolSide.SelectedIndex = r.SymbolSide == SymbolPosition.After ? 1 : 0;
+            cboSymbolSpacing.SelectedIndex = r.SymbolSpacing ? 0 : 1;
             cboDecimals.SelectedIndex = Math.Clamp(r.DecimalPlaces, 0, 3);
+            cboCompactDecimals.SelectedIndex = r.CompactDecimalPlaces == 0 ? 0 : 1;
             cboNumberFormat.SelectedIndex = (int)r.NumberFormat;
             cboNumberWords.SelectedIndex = r.NumberWords == NumberWordStyle.SouthAsian ? 1 : 0;
             cboDateStyle.SelectedIndex = (int)r.Dates;
+            cboTimeStyle.SelectedIndex = (int)r.Times;
 
-            _loading = false;
-            UpdatePreview();
+            _loading = wasLoading;
         }
 
         private ReceiptBrandingSettings ReadBranding() => new()
@@ -61,18 +85,28 @@ namespace POSApp.UI.Views
             FooterNote = txtFooterNote.Text.Trim()
         };
 
-        private RegionSettingsData ReadRegion() => new()
+        private RegionSettingsData ReadRegion()
         {
-            CurrencySymbol = txtCurrencySymbol.Text.Trim(),
-            CurrencyName = txtCurrencyName.Text.Trim(),
-            NationalIdLabel = txtNationalIdLabel.Text.Trim(),
-            StatutoryDeductionLabel = txtStatutoryDeductionLabel.Text.Trim(),
-            SymbolSide = cboSymbolSide.SelectedIndex == 1 ? SymbolPosition.After : SymbolPosition.Before,
-            DecimalPlaces = Math.Clamp(cboDecimals.SelectedIndex, 0, 3),
-            NumberFormat = (NumberFormatStyle)Math.Clamp(cboNumberFormat.SelectedIndex, 0, 3),
-            NumberWords = cboNumberWords.SelectedIndex == 1 ? NumberWordStyle.SouthAsian : NumberWordStyle.International,
-            Dates = (DateStyle)Math.Clamp(cboDateStyle.SelectedIndex, 0, 2)
-        };
+            var decimals = Math.Clamp(cboDecimals.SelectedIndex, 0, 3);
+            return new RegionSettingsData
+            {
+                RegionCode = RegionCodeByIndex[Math.Clamp(cboRegion.SelectedIndex, 0, RegionCodeByIndex.Length - 1)],
+                Culture = _culture,
+                CurrencySymbol = txtCurrencySymbol.Text.Trim(),
+                CurrencyName = txtCurrencyName.Text.Trim(),
+                NationalIdLabel = txtNationalIdLabel.Text.Trim(),
+                StatutoryDeductionLabel = txtStatutoryDeductionLabel.Text.Trim(),
+                SymbolSide = cboSymbolSide.SelectedIndex == 1 ? SymbolPosition.After : SymbolPosition.Before,
+                SymbolSpacing = cboSymbolSpacing.SelectedIndex != 1,
+                DecimalPlaces = decimals,
+                // "With decimals" follows the currency's own decimal places.
+                CompactDecimalPlaces = cboCompactDecimals.SelectedIndex == 1 ? decimals : 0,
+                NumberFormat = (NumberFormatStyle)Math.Clamp(cboNumberFormat.SelectedIndex, 0, 3),
+                NumberWords = cboNumberWords.SelectedIndex == 1 ? NumberWordStyle.SouthAsian : NumberWordStyle.International,
+                Dates = (DateStyle)Math.Clamp(cboDateStyle.SelectedIndex, 0, 2),
+                Times = (TimeStyle)Math.Clamp(cboTimeStyle.SelectedIndex, 0, 2)
+            };
+        }
 
         // ── Preview ───────────────────────────────────────────────────────────
 
@@ -112,11 +146,13 @@ namespace POSApp.UI.Views
                     .Where(l => !string.IsNullOrWhiteSpace(l));
                 txtPreviewFooter.Text = string.Join(Environment.NewLine, footerLines);
 
+                var samplePhone = string.IsNullOrWhiteSpace(b.StorePhone) ? "5555550123" : b.StorePhone;
                 txtPreviewLabels.Text =
                     $"{Region.AmountLabelRequired}   ·   {Region.CostPriceLabel}   ·   {Region.BalanceLabel}\n" +
                     $"{Region.NationalIdLabel}   ·   {Region.StatutoryDeductionAmountLabel}   ·   " +
                     $"cash over/short {Region.MoneySigned(-75m)}\n" +
-                    $"report date {Region.Date(sample)}   ·   {Region.LongDate(sample)}";
+                    $"report date {Region.Date(sample)}   ·   {Region.LongDate(sample)}\n" +
+                    $"price on a bill {Region.Compact(3.49m)}   ·   phone {Region.Phone(samplePhone)}";
             }
             finally
             {
@@ -127,6 +163,24 @@ namespace POSApp.UI.Views
         private void RefreshPreview_Click(object sender, RoutedEventArgs e) => UpdatePreview();
 
         private void Setting_Changed(object sender, SelectionChangedEventArgs e) => UpdatePreview();
+
+        /// <summary>
+        /// Picking Pakistan or United States fills in that country's formats; "Other country"
+        /// leaves every field as it is so a custom setup is never wiped.
+        /// </summary>
+        private void Region_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            if (_loading) return;
+
+            var preset = RegionSettingsData.PresetFor(RegionCodeByIndex[Math.Clamp(cboRegion.SelectedIndex, 0, RegionCodeByIndex.Length - 1)]);
+            if (preset != null)
+            {
+                LoadRegionFields(preset);
+                txtStatus.Text = $"Filled in the usual settings for {((ComboBoxItem)cboRegion.SelectedItem).Content}. Press Save to apply them.";
+            }
+
+            UpdatePreview();
+        }
 
         // ── Save / defaults ───────────────────────────────────────────────────
 
@@ -157,20 +211,23 @@ namespace POSApp.UI.Views
             }
 
             UpdatePreview();
-            txtStatus.Text = $"Saved at {DateTime.Now:hh:mm tt}. Printouts use these immediately — " +
+            txtStatus.Text = $"Saved at {Region.Time(DateTime.Now)}. Printouts use these immediately — " +
                              "close and reopen the other windows to refresh their on-screen labels.";
         }
 
         private void RestoreDefaults_Click(object sender, RoutedEventArgs e)
         {
             var confirm = MessageBox.Show(
-                "Reset the shop details, currency and regional settings back to the built-in defaults?",
+                "Reset the shop details, currency and regional settings back to the built-in defaults " +
+                "for the country selected on the Regional tab?",
                 "Restore Defaults", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (confirm != MessageBoxResult.Yes) return;
 
-            // Only fills the fields — nothing is written until Save is pressed.
-            LoadAll(new ReceiptBrandingSettings(), new RegionSettingsData());
+            // Only fills the fields — nothing is written until Save is pressed. "Other country"
+            // has no preset of its own and falls back to the original defaults.
+            var code = RegionCodeByIndex[Math.Clamp(cboRegion.SelectedIndex, 0, RegionCodeByIndex.Length - 1)];
+            LoadAll(new ReceiptBrandingSettings(), RegionSettingsData.PresetFor(code) ?? new RegionSettingsData());
             txtStatus.Text = "Defaults loaded. Press Save to apply them.";
         }
 

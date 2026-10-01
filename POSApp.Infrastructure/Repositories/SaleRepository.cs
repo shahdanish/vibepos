@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.Data;
+using System.Globalization;
 
 namespace POSApp.Infrastructure.Repositories
 {
@@ -96,23 +97,21 @@ namespace POSApp.Infrastructure.Repositories
             }
         }
 
+        /// <summary>The number handed out when no numeric invoice exists yet.</summary>
+        private const long FirstInvoiceNumber = 11016;
+
         public async Task<string> GetNextInvoiceNumberAsync(CancellationToken ct = default)
         {
-            var lastSale = await _context.Sales
-                .OrderByDescending(s => s.Id)
-                .FirstOrDefaultAsync(ct);
+            // The highest purely numeric invoice number, by value. Taking the last row by Id and
+            // parsing it broke whenever that row was a return ("R-…"): the sequence restarted at
+            // 11016 and handed out numbers that were already on customers' receipts.
+            var highest = await _context.Database
+                .SqlQueryRaw<long?>(
+                    "SELECT MAX(CAST(InvoiceNumber AS INTEGER)) AS \"Value\" FROM Sales " +
+                    "WHERE InvoiceNumber <> '' AND InvoiceNumber NOT GLOB '*[^0-9]*'")
+                .SingleAsync(ct);
 
-            if (lastSale == null)
-            {
-                return "11016";
-            }
-
-            if (int.TryParse(lastSale.InvoiceNumber, out int lastNumber))
-            {
-                return (lastNumber + 1).ToString();
-            }
-
-            return "11016";
+            return (highest is long n ? n + 1 : FirstInvoiceNumber).ToString(CultureInfo.InvariantCulture);
         }
 
         public async Task<IEnumerable<SaleItem>> GetRecentSalesItemsAsync(int days = 30, CancellationToken ct = default)
@@ -131,20 +130,32 @@ namespace POSApp.Infrastructure.Repositories
             var start = startDate.Date;
             var end = endDate.Date.AddDays(1);
             
-            return await _context.SaleItems
-                .Include(si => si.Product)
-                .ThenInclude(p => p!.Category)
+            var lines = await _context.SaleItems
                 .Where(si => si.Sale!.SaleDate >= start && si.Sale!.SaleDate < end)
-                .GroupBy(si => si.Product!.Category != null ? si.Product.Category.Name : "Uncategorized")
+                .Select(si => new { si.ProductId, si.Quantity, si.Total, si.UnitPrice, si.CostPrice })
+                .ToListAsync(ct);
+
+            // SaleItem.ProductId holds the product CODE (Products.ProductId), not the key, so the
+            // SaleItem.Product navigation is never populated (EF maps it to an unused shadow
+            // column). Resolve the category by code instead; deleted products still count.
+            var categoryByCode = (await _context.Products
+                    .IgnoreQueryFilters()
+                    .Select(p => new { p.ProductId, Category = p.Category != null ? p.Category.Name : null })
+                    .ToListAsync(ct))
+                .GroupBy(p => p.ProductId)
+                .ToDictionary(g => g.Key, g => g.First().Category);
+
+            return lines
+                .GroupBy(l => categoryByCode.TryGetValue(l.ProductId, out var name) && name != null ? name : "Uncategorized")
                 .Select(g => new SalesByCategoryDto
                 {
                     CategoryName = g.Key,
-                    TotalQuantity = g.Sum(si => si.Quantity),
-                    TotalSales = g.Sum(si => si.Total),
-                    TotalProfit = g.Sum(si => (si.UnitPrice - si.CostPrice) * si.Quantity)
+                    TotalQuantity = g.Sum(l => l.Quantity),
+                    TotalSales = g.Sum(l => l.Total),
+                    TotalProfit = g.Sum(l => (l.UnitPrice - l.CostPrice) * l.Quantity)
                 })
                 .OrderByDescending(x => x.TotalSales)
-                .ToListAsync(ct);
+                .ToList();
         }
         
         public async Task<IEnumerable<TopProductDto>> GetTopSellingProductsAsync(int count, DateTime startDate, DateTime endDate, CancellationToken ct = default)

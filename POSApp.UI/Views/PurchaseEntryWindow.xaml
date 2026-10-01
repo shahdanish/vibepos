@@ -232,11 +232,11 @@
                                 <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="60"
                                                     ElementStyle="{StaticResource CenterAlignStyle}"/>
-                                <DataGridTextColumn Header="Unit Cost" Binding="{Binding UnitCost, StringFormat=N2}" Width="90"
+                                <DataGridTextColumn Header="Unit Cost" Binding="{Binding UnitCost, Converter={StaticResource NumberConverter}}" Width="90"
                                                     ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Avg Cost After" Binding="{Binding AvgCostAfter, StringFormat=N2}" Width="110"
+                                <DataGridTextColumn Header="Avg Cost After" Binding="{Binding AvgCostAfter, Converter={StaticResource NumberConverter}}" Width="110"
                                                     ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}" Width="100"
+                                <DataGridTextColumn Header="Total" Binding="{Binding Total, Converter={StaticResource NumberConverter}}" Width="100"
                                                     ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>
                                 <DataGridTemplateColumn Header="Action" Width="70">
                                     <DataGridTemplateColumn.CellTemplate>

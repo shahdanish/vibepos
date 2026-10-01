@@ -73,9 +73,9 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Category" Binding="{Binding Category.Name}" Width="80"/>
-                            <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, StringFormat=0.##}" Width="62"/>
-                            <DataGridTextColumn Header="Retail" Binding="{Binding UnitPrice, StringFormat=0.##}" Width="62"/>
-                            <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, StringFormat=0.##}" Width="58"/>
+                            <DataGridTextColumn Header="Cost" Binding="{Binding CostPrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="62"/>
+                            <DataGridTextColumn Header="Retail" Binding="{Binding UnitPrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="62"/>
+                            <DataGridTextColumn Header="W/Sale" Binding="{Binding WholesalePrice, Converter={StaticResource NumberConverter}, ConverterParameter=list}" Width="58"/>
                             <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="50"/>
                             <DataGridTextColumn Header="Rack" Binding="{Binding Rack}" Width="40"/>
                             <DataGridTextColumn x:Name="BatchColumn" Header="Batch No" Binding="{Binding BatchNo}" Width="68"/>

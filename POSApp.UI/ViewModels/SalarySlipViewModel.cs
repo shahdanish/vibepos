@@ -396,7 +396,7 @@ namespace POSApp.UI.ViewModels
             var items = new[]
             {
                 (Label: "Slip No: ",       Value: slip.SlipNumber,                      Align: HorizontalAlignment.Left),
-                (Label: "Generated: ",     Value: slip.GeneratedDate.ToString("dd-MMM-yyyy"), Align: HorizontalAlignment.Center),
+                (Label: "Generated: ",     Value: Region.Date(slip.GeneratedDate, DateFormat.Document), Align: HorizontalAlignment.Center),
                 (Label: "Payment Mode: ",  Value: "Bank Transfer",                      Align: HorizontalAlignment.Right),
             };
             for (int i = 0; i < items.Length; i++)
@@ -637,7 +637,7 @@ namespace POSApp.UI.ViewModels
             doc.Blocks.Add(infoTable);
 
             var generatedRow = new Paragraph { Margin = new Thickness(0, 0, 0, 8) };
-            generatedRow.Inlines.Add(new Run($"Generated: {slip.GeneratedDate:dd-MMM-yyyy}  |  By: {slip.GeneratedByUsername ?? "—"}")
+            generatedRow.Inlines.Add(new Run($"Generated: {Region.Date(slip.GeneratedDate, DateFormat.Document)}  |  By: {slip.GeneratedByUsername ?? "—"}")
             { FontSize = 9, Foreground = Brushes.Gray });
             doc.Blocks.Add(generatedRow);
 
@@ -666,7 +666,7 @@ namespace POSApp.UI.ViewModels
             AddEmpRow("Employee Name:", emp.Name, "Employee Code:", emp.EmployeeCode);
             AddEmpRow("Father Name:", emp.FatherName ?? "—", Region.NationalIdLabelColon, emp.Cnic ?? "—");
             AddEmpRow("Designation:", emp.Designation, "Department:", emp.Department ?? "—");
-            AddEmpRow("Cell Number:", emp.CellNumber ?? "—", "Joining Date:", emp.JoiningDate.ToString("dd-MMM-yyyy"));
+            AddEmpRow("Cell Number:", emp.CellNumber ?? "—", "Joining Date:", Region.Date(emp.JoiningDate, DateFormat.Document));
             doc.Blocks.Add(empTable);
 
             // ── Salary Details ────────────────────────────────────────────────

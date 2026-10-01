@@ -69,7 +69,8 @@ namespace POSApp.Tests
             // Assert
             Assert.Null(_viewModel.SelectedProduct);
             Assert.Equal(string.Empty, _viewModel.ProductName);
-            Assert.Equal(0, _viewModel.CostPrice);
+            // Cleared price fields are blank (null), not 0 — the form shows empty boxes.
+            Assert.Null(_viewModel.CostPrice);
         }
     }
 }

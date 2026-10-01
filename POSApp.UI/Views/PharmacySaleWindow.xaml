@@ -336,7 +336,7 @@
                             <DataGridTextColumn Header="Expiry" Width="65" IsReadOnly="True"
                                                 Binding="{Binding ExpiryDate, Converter={StaticResource DateConverter}, ConverterParameter=monthyear}"
                                                 ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}"
+                            <DataGridTextColumn Header="Total" Binding="{Binding Total, Converter={StaticResource NumberConverter}}"
                                                 IsReadOnly="True" Width="100" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTemplateColumn Header="Del" Width="60">
                                 <DataGridTemplateColumn.CellTemplate>

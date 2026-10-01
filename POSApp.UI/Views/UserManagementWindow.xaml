@@ -101,11 +101,11 @@
                         </DataGridTemplateColumn>
 
                         <DataGridTextColumn Header="Last Login"
-                                            Binding="{Binding LastLoginDate, StringFormat={}{0:dd MMM yyyy  HH:mm}}"
+                                            Binding="{Binding LastLoginDate, Converter={StaticResource DateConverter}, ConverterParameter=long24}"
                                             Width="160"/>
 
                         <DataGridTextColumn Header="Created"
-                                            Binding="{Binding CreatedDate, StringFormat={}{0:dd MMM yyyy}}"
+                                            Binding="{Binding CreatedDate, Converter={StaticResource DateConverter}, ConverterParameter=long}"
                                             Width="110"/>
 
                         <!-- Action buttons -->

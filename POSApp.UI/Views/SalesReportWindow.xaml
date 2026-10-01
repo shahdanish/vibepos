@@ -177,8 +177,8 @@
                             <DataGridTextColumn x:Name="DoctorColumn" Header="Doctor" Binding="{Binding Doctor.Name}" Width="110" MinWidth="80"
                                                 Visibility="Collapsed"/>
                             <DataGridTextColumn Header="Items" Binding="{Binding SaleItems.Count}" Width="55" ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Discount" Binding="{Binding DiscountOnBill, StringFormat=N2}" Width="85" ElementStyle="{StaticResource RightAlignStyle}"/>
-                            <DataGridTextColumn Header="{x:Static helpers:Region.TotalLabel}" Binding="{Binding TotalBill, StringFormat=N2}" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
+                            <DataGridTextColumn Header="Discount" Binding="{Binding DiscountOnBill, Converter={StaticResource NumberConverter}}" Width="85" ElementStyle="{StaticResource RightAlignStyle}"/>
+                            <DataGridTextColumn Header="{x:Static helpers:Region.TotalLabel}" Binding="{Binding TotalBill, Converter={StaticResource NumberConverter}}" Width="110" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTemplateColumn Header="Action" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -273,9 +273,9 @@
                                                             <StackPanel Grid.Row="1" Orientation="Horizontal">
                                                                 <TextBlock Text="{Binding Quantity}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
                                                                 <TextBlock Text="{x:Static helpers:Region.TimesSymbol}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
-                                                                <TextBlock Text="{Binding UnitPrice, StringFormat=N2}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
+                                                                <TextBlock Text="{Binding UnitPrice, Converter={StaticResource NumberConverter}}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}"/>
                                                                 <TextBlock Text="{x:Static helpers:Region.EqualsSymbol}" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" Margin="5,0,0,0"/>
-                                                                <TextBlock Text="{Binding Total, StringFormat=N2}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                                <TextBlock Text="{Binding Total, Converter={StaticResource NumberConverter}}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                             </StackPanel>
                                                         </Grid>
                                                     </Border>

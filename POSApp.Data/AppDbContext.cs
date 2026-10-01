@@ -140,6 +140,18 @@ namespace POSApp.Data
             modelBuilder.Entity<Product>()
                 .HasIndex(p => p.Barcode);
 
+            // Lookup indexes for date-range reports, return-by-invoice and the joins on product
+            // code. InvoiceNumber is deliberately NOT unique: tills that ran an older build already
+            // hold duplicate numbers, and a unique index would stop them from starting.
+            modelBuilder.Entity<Sale>()
+                .HasIndex(s => s.SaleDate);
+            modelBuilder.Entity<Sale>()
+                .HasIndex(s => s.InvoiceNumber);
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => p.ProductId);
+            modelBuilder.Entity<SaleItem>()
+                .HasIndex(si => si.ProductId);
+
             // Configure MedicalRep entity
             modelBuilder.Entity<MedicalRep>()
                 .HasKey(r => r.Id);

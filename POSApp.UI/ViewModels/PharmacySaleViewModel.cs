@@ -10,6 +10,8 @@ using System.Windows.Threading;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.UI.Helpers;
+using System.Globalization;
+using POSApp.Core.Services;
 
 namespace POSApp.UI.ViewModels
 {
@@ -22,7 +24,8 @@ namespace POSApp.UI.ViewModels
 
         // --- Header state ---
         private string _invoiceNumber = string.Empty;
-        private DateTime _saleDate = DateTime.Now;
+        private DateTime _saleDate = AppClock.Now;
+        private bool _saleDateChosenByUser;
         private string _paymentType = "Cash";
         private string? _billNote;
 
@@ -80,10 +83,15 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _invoiceNumber, value);
         }
 
+        /// <summary>The date shown on screen; setting it marks it as the user's own choice (see <see cref="SaleTime"/>).</summary>
         public DateTime SaleDate
         {
             get => _saleDate;
-            set => SetProperty(ref _saleDate, value);
+            set
+            {
+                if (SetProperty(ref _saleDate, value))
+                    _saleDateChosenByUser = true;
+            }
         }
 
         public string PaymentType
@@ -596,6 +604,11 @@ namespace POSApp.UI.ViewModels
 
             try
             {
+                // Fresh invoice number and the real sale time, before anything is printed.
+                InvoiceNumber = await _saleRepository.GetNextInvoiceNumberAsync();
+                _saleDate = SaleTime.Resolve(_saleDate, _saleDateChosenByUser, AppClock.Now);
+                OnPropertyChanged(nameof(SaleDate));
+
                 if (printFirst) DoPrint();
 
                 var sale = new Sale
@@ -688,6 +701,9 @@ namespace POSApp.UI.ViewModels
             LastScannedCost = 0;
             IsLastScannedCostVisible = false;
             IsSampleSale = false;
+            _saleDate = AppClock.Now;
+            _saleDateChosenByUser = false;
+            OnPropertyChanged(nameof(SaleDate));
             _ = LoadDataAsync();
         }
 
@@ -872,7 +888,7 @@ namespace POSApp.UI.ViewModels
             metaG.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
             var leftMeta = new StackPanel { Margin = new Thickness(0, 0, 4, 0) };
-            leftMeta.Children.Add(MetaRow("Date:", $"{SaleDate:dd/MM/yyyy  HH:mm:ss}"));
+            leftMeta.Children.Add(MetaRow("Date:", $"{Region.Date(SaleDate)}  {SaleDate.ToString("HH:mm:ss", CultureInfo.InvariantCulture)}"));
             leftMeta.Children.Add(MetaRow("Invoice No.:", InvoiceNumber));
             leftMeta.Children.Add(MetaRow("User:", userName));
             leftMeta.Children.Add(MetaRow("Ref.:", BillNote ?? ""));
@@ -910,8 +926,8 @@ namespace POSApp.UI.ViewModels
                     item.DiscountPercent > 0 ? item.DiscountPercent.ToString("N1") + "%" : "",
                     item.BatchNo ?? "",
                     item.ExpiryDate?.ToString("MM/yy") ?? "",
-                    item.UnitPrice.ToString("N2"),
-                    item.Total.ToString("N2")));
+                    Region.Number(item.UnitPrice),
+                    Region.Number(item.Total)));
             }
 
             // Gross total summary row — mirrors the 9-column layout
@@ -1083,7 +1099,7 @@ namespace POSApp.UI.ViewModels
                 new TableCell(b) { Padding = new Thickness(0, 1, 4, 1) };
 
             var leftMeta = new Paragraph { FontSize = 9, Margin = new Thickness(0) };
-            leftMeta.Inlines.Add(new Run($"Date:\t{SaleDate:dd/MM/yyyy HH:mm:ss}"));
+            leftMeta.Inlines.Add(new Run($"Date:\t{Region.Date(SaleDate)} {SaleDate.ToString("HH:mm:ss", CultureInfo.InvariantCulture)}"));
             leftMeta.Inlines.Add(new LineBreak());
             leftMeta.Inlines.Add(new Run($"Invoice No.:\t{InvoiceNumber}"));
             leftMeta.Inlines.Add(new LineBreak());
@@ -1156,8 +1172,8 @@ namespace POSApp.UI.ViewModels
                 row.Cells.Add(TC(item.Bonus > 0 ? item.Bonus.ToString() : "", TextAlignment.Center));
                 row.Cells.Add(TC(item.BatchNo ?? "", TextAlignment.Center));
                 row.Cells.Add(TC(item.ExpiryDate.HasValue ? item.ExpiryDate.Value.ToString("MM/yy") : "", TextAlignment.Center));
-                row.Cells.Add(TC(item.UnitPrice.ToString("N2"), TextAlignment.Right));
-                row.Cells.Add(TC(item.Total.ToString("N2"), TextAlignment.Right));
+                row.Cells.Add(TC(Region.Number(item.UnitPrice), TextAlignment.Right));
+                row.Cells.Add(TC(Region.Number(item.Total), TextAlignment.Right));
                 tblGrp.Rows.Add(row);
             }
 
@@ -1180,7 +1196,7 @@ namespace POSApp.UI.ViewModels
             var netPara = new Paragraph { TextAlignment = TextAlignment.Right, Margin = new Thickness(0, 4, 0, 0), BorderBrush = Brushes.Black, BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(0, 3, 0, 0) };
             netPara.Inlines.Add(new Bold(new Run($"Net Total.")) { FontSize = 12 });
             netPara.Inlines.Add(new Run("      "));
-            netPara.Inlines.Add(new Bold(new Run($"{TotalBill:N2}")) { FontSize = 12 });
+            netPara.Inlines.Add(new Bold(new Run(Region.Number(TotalBill))) { FontSize = 12 });
             doc.Blocks.Add(netPara);
 
             // ── ITEM COUNT + AMOUNT IN WORDS ──────────────────────────────

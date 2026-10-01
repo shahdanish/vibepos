@@ -20,7 +20,8 @@ namespace POSApp.UI.ViewModels
         private readonly ICustomerRepository _customerRepository;
 
         private string _invoiceNumber = string.Empty;
-        private DateTime _saleDate = DateTime.Now;
+        private DateTime _saleDate = AppClock.Now;
+        private bool _saleDateChosenByUser;
         private string _paymentType = "Cash";
         private string _customerName = "Cash";
         private Customer? _selectedCustomer;
@@ -54,10 +55,18 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _invoiceNumber, value);
         }
 
+        /// <summary>
+        /// The date shown on the sale screen. Setting it marks the date as the cashier's own
+        /// choice; the time actually recorded comes from <see cref="SaleTime.Resolve"/>.
+        /// </summary>
         public DateTime SaleDate
         {
             get => _saleDate;
-            set => SetProperty(ref _saleDate, value);
+            set
+            {
+                if (SetProperty(ref _saleDate, value))
+                    _saleDateChosenByUser = true;
+            }
         }
 
         public IReadOnlyList<string> PaymentTypes { get; } = new[] { "Cash", "Credit", "Credit Card", "Bank Transfer" };
@@ -521,7 +530,27 @@ namespace POSApp.UI.ViewModels
             Balance = (ReceiveCash ?? 0) - TotalBill;
         }
 
-        private async Task SaveSale(bool printAfterSave = false)
+        /// <summary>
+        /// Takes a fresh invoice number and stamps the real sale time just before a sale is
+        /// printed or saved. The number shown while the cart was built may already have been
+        /// used by the other (hidden) sale window, and the shown time can be hours old.
+        /// </summary>
+        private async Task PrepareForSaveAsync()
+        {
+            InvoiceNumber = await _saleRepository.GetNextInvoiceNumberAsync();
+            _saleDate = SaleTime.Resolve(_saleDate, _saleDateChosenByUser, AppClock.Now);
+            OnPropertyChanged(nameof(SaleDate));
+        }
+
+        /// <summary>Back to "now" for the next sale; the date shown is no longer the cashier's choice.</summary>
+        private void ResetSaleDate()
+        {
+            _saleDate = AppClock.Now;
+            _saleDateChosenByUser = false;
+            OnPropertyChanged(nameof(SaleDate));
+        }
+
+        private async Task SaveSale(bool printAfterSave = false, bool alreadyPrepared = false)
         {
             if (!SaleItems.Any())
             {
@@ -531,6 +560,9 @@ namespace POSApp.UI.ViewModels
 
             try
             {
+                if (!alreadyPrepared)
+                    await PrepareForSaveAsync();
+
                 var sale = new Sale
                 {
                     InvoiceNumber = InvoiceNumber,
@@ -621,6 +653,7 @@ namespace POSApp.UI.ViewModels
             ReceiveCash = null;
             Balance = 0;
             BarcodeInput = string.Empty;
+            ResetSaleDate();
             OnPropertyChanged(nameof(TotalPurchasePrice));
             _ = LoadData();
         }
@@ -669,11 +702,22 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
+            try
+            {
+                // The printed bill must carry the number and time the sale is saved with.
+                await PrepareForSaveAsync();
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("prepare invoice", ex.Message);
+                return;
+            }
+
             // Print first, then save once. Pass printAfterSave: false so SaveSale
             // does not print again (which previously caused an endless popup loop).
             if (DoPrint())
             {
-                await SaveSale(printAfterSave: false);
+                await SaveSale(printAfterSave: false, alreadyPrepared: true);
             }
         }
 
@@ -733,7 +777,7 @@ namespace POSApp.UI.ViewModels
         /// <summary>Whether the Date is printed in the invoice metadata block.</summary>
         protected virtual bool ShowDateOnReceipt => true;
 
-        private FlowDocument CreateProfessionalInvoice()
+        internal FlowDocument CreateProfessionalInvoice()
         {
             FlowDocument doc = new FlowDocument();
             doc.FontFamily = new FontFamily("Segoe UI");
@@ -778,7 +822,7 @@ namespace POSApp.UI.ViewModels
             if (ShowDateOnReceipt)
             {
                 row1.Cells.Add(MetaCell($"Bill No: {InvoiceNumber}"));
-                row1.Cells.Add(MetaCell($"Date: {SaleDate:dd-MMM-yyyy hh:mm tt}"));
+                row1.Cells.Add(MetaCell($"Date: {Region.DocumentDateTime(SaleDate)}"));
             }
             else
             {
@@ -880,11 +924,11 @@ namespace POSApp.UI.ViewModels
                 row.Cells.Add(ItemCell(item.ProductName, TextAlignment.Left));
                 row.Cells.Add(ItemCell(item.Quantity.ToString(), TextAlignment.Center));
                 if (ShowCostPriceOnReceipt)
-                    row.Cells.Add(ItemCell(item.CostPrice.ToString("N0"), TextAlignment.Right));
-                row.Cells.Add(ItemCell(item.UnitPrice.ToString("N0"), TextAlignment.Right));
+                    row.Cells.Add(ItemCell(Region.Compact(item.CostPrice), TextAlignment.Right));
+                row.Cells.Add(ItemCell(Region.Compact(item.UnitPrice), TextAlignment.Right));
                 if (ShowDiscountOnReceipt)
-                    row.Cells.Add(ItemCell(item.EffectiveDiscountAmount > 0 ? item.EffectiveDiscountAmount.ToString("N0") : "", TextAlignment.Right));
-                row.Cells.Add(ItemCell(item.Total.ToString("N2"), TextAlignment.Right));
+                    row.Cells.Add(ItemCell(item.EffectiveDiscountAmount > 0 ? Region.Compact(item.EffectiveDiscountAmount) : "", TextAlignment.Right));
+                row.Cells.Add(ItemCell(Region.Number(item.Total), TextAlignment.Right));
                 itemsGroup.Rows.Add(row);
             }
 
@@ -924,16 +968,16 @@ namespace POSApp.UI.ViewModels
             }
 
             if (TotalItemsDiscount > 0)
-                AddTotalRow("Item Discounts", TotalItemsDiscount.ToString("N2"));
+                AddTotalRow("Item Discounts", Region.Number(TotalItemsDiscount));
             var totalDisc = (DiscountOnBill ?? 0) + (DiscountOnProducts ?? 0) + TotalItemsDiscount;
             if (totalDisc > 0)
-                AddTotalRow("Total Discount", totalDisc.ToString("N2"));
-            AddTotalRow("Total Bill", TotalBill.ToString("N2"), bold: true);
+                AddTotalRow("Total Discount", Region.Number(totalDisc));
+            AddTotalRow("Total Bill", Region.Number(TotalBill), bold: true);
             if (PreBalance > 0)
-                AddTotalRow("Previous Balance", PreBalance.ToString("N2"));
-            AddTotalRow("Cash Received", (ReceiveCash ?? 0).ToString("N2"), bold: true);
+                AddTotalRow("Previous Balance", Region.Number(PreBalance));
+            AddTotalRow("Cash Received", Region.Number(ReceiveCash ?? 0), bold: true);
             AddTotalRow("Total Items Quantity", SaleItems.Sum(i => i.Quantity).ToString(), bold: true);
-            AddTotalRow("Balance Amount", Balance.ToString("N2"), bold: true, fontSize: 14);
+            AddTotalRow("Balance Amount", Region.Number(Balance), bold: true, fontSize: 14);
 
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);

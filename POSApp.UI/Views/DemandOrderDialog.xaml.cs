@@ -5,6 +5,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using POSApp.UI.Helpers;
 using POSApp.UI.ViewModels;
+using POSApp.Core.Interfaces;
 
 namespace POSApp.UI.Views
 {
@@ -22,13 +23,13 @@ namespace POSApp.UI.Views
                 _items[n].SerialNo = n + 1;
 
             ItemsGrid.ItemsSource = _items;
-            TodayDateRun.Text = DateTime.Now.ToString("dd-MMM-yyyy");
+            TodayDateRun.Text = Region.Date(DateTime.Now, DateFormat.Document);
             UpdateTotalBill();
         }
 
         private void UpdateTotalBill()
         {
-            TotalBillRun.Text = _items.Sum(x => x.LineTotal).ToString("N2");
+            TotalBillRun.Text = Region.Number(_items.Sum(x => x.LineTotal));
         }
 
         private void ItemsGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
@@ -95,7 +96,7 @@ namespace POSApp.UI.Views
             });
 
             // Date
-            doc.Blocks.Add(new Paragraph(new Run($"Date: {DateTime.Now:dd-MMM-yyyy  hh:mm tt}"))
+            doc.Blocks.Add(new Paragraph(new Run($"Date: {Region.Date(DateTime.Now, DateFormat.Document)}  {Region.Time(DateTime.Now)}"))
             {
                 Margin = new Thickness(0, 0, 0, 6)
             });

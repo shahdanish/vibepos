@@ -33,8 +33,8 @@ public partial class App : System.Windows.Application
         AppPaths.MigrateLegacyDatabase();
         if (AppEnvironment.IsPackaged)
         {
-            AppPaths.MigrateLegacySettingsFile("receipt-branding.json");
-            AppPaths.MigrateLegacySettingsFile("region-settings.json");
+            AppPaths.MigrateLegacySettingsFile(SharedSettingsFiles.ReceiptBranding);
+            AppPaths.MigrateLegacySettingsFile(SharedSettingsFiles.Region);
         }
 
         var services = new ServiceCollection();
@@ -157,6 +157,13 @@ public partial class App : System.Windows.Application
         // Yearly time-limited license enforcement (direct edition only)
         services.AddSingleton<ILicenseService, LicenseService>();
 
+        // Regional formatting (currency, numbers, dates, phone) — the same instance the static
+        // Region facade and the XAML converters use.
+        services.AddSingleton<IFormatService>(_ => POSApp.UI.Helpers.Region.Format);
+
+        // Copies the shop settings files into the database so backups carry them.
+        services.AddSingleton<SharedSettingsMirror>();
+
         // Edition (direct / Store Lite / Store Pro) and Store first-run setup
         services.AddSingleton<IEditionService, EditionService>();
         services.AddScoped<IFirstRunSetupService, FirstRunSetupService>();
@@ -165,12 +172,45 @@ public partial class App : System.Windows.Application
         // Build service provider
         Services = services.BuildServiceProvider();
 
-        // Ensure database is created and migrated (applies new tables/columns)
+        // Ensure database is created and migrated (applies new tables/columns). An existing
+        // database is copied aside first, so a failed or unwanted upgrade can be undone.
         using (var scope = Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            dbContext.Database.Migrate();
+            try
+            {
+                DatabaseMigrator.MigrateWithBackup(dbContext);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "The database could not be upgraded to this version, so the program will close.\n\n" +
+                    $"{ex.Message}\n\n" +
+                    "If a copy was taken before the upgrade started, it is in:\n" +
+                    $"{DatabaseMigrator.BackupDirectory}",
+                    "Database Upgrade Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+                return;
+            }
         }
+
+        // Shop settings files <-> their copies in the database. After a backup is restored onto
+        // a new PC the files are missing; this writes them back before anything reads them.
+        var settingsMirror = Services.GetRequiredService<SharedSettingsMirror>();
+        try
+        {
+            if ((await settingsMirror.SyncAsync()).Count > 0)
+            {
+                RegionSettingsStore.Reload();
+                POSApp.UI.Helpers.ReceiptBranding.Reload();
+            }
+        }
+        catch
+        {
+            // Never block start-up over the settings copy; the next start retries.
+        }
+        RegionSettingsStore.Saved += saved => _ = settingsMirror.StoreQuietlyAsync(SharedSettingsFiles.Region);
+        POSApp.UI.Helpers.ReceiptBranding.Saved += () => _ = settingsMirror.StoreQuietlyAsync(SharedSettingsFiles.ReceiptBranding);
 
         var edition = Services.GetRequiredService<IEditionService>();
         await edition.RefreshAsync();

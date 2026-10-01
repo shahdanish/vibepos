@@ -100,11 +100,11 @@
                                                 ElementStyle="{StaticResource CenterAlignStyle}" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Ret Qty" Binding="{Binding ReturnQuantity, UpdateSourceTrigger=PropertyChanged}"
                                                 Width="80" ElementStyle="{StaticResource CenterAlignStyle}"/>
-                            <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, StringFormat=N2}" Width="95"
+                            <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, Converter={StaticResource NumberConverter}}" Width="95"
                                                 ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Disc %" Binding="{Binding DiscountPercent, StringFormat=N0}" Width="70"
                                                 ElementStyle="{StaticResource CenterAlignStyle}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Amount" Binding="{Binding Total, StringFormat=N2}" Width="110"
+                            <DataGridTextColumn Header="Amount" Binding="{Binding Total, Converter={StaticResource NumberConverter}}" Width="110"
                                                 ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>

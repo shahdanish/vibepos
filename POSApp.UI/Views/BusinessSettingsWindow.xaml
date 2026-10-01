@@ -120,6 +120,8 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Currency Symbol *" Style="{StaticResource FieldLabel}"/>
@@ -144,8 +146,16 @@
                                 <ComboBoxItem Content="After the amount     →  1,250.00 kr"/>
                             </ComboBox>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Decimal Places" Style="{StaticResource FieldLabel}"/>
-                            <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,0,0,10">
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Symbol Spacing" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cboSymbolSpacing"
+                                      Style="{StaticResource Picker}" Margin="0,0,0,10"
+                                      SelectionChanged="Setting_Changed">
+                                <ComboBoxItem Content="With a space    →  Rs. 1,250.00"/>
+                                <ComboBoxItem Content="No space        →  $1,250.00   (United States)"/>
+                            </ComboBox>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Decimal Places" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="4" Grid.Column="1" Margin="0,0,0,10">
                                 <ComboBox x:Name="cboDecimals" Style="{StaticResource Picker}"
                                           SelectionChanged="Setting_Changed">
                                     <ComboBoxItem Content="0   →  1,250          (JPY, KRW, UGX)"/>
@@ -155,8 +165,19 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Number Format" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox Grid.Row="4" Grid.Column="1" x:Name="cboNumberFormat"
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Prices On Bills" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="5" Grid.Column="1" Margin="0,0,0,10">
+                                <ComboBox x:Name="cboCompactDecimals" Style="{StaticResource Picker}"
+                                          SelectionChanged="Setting_Changed">
+                                    <ComboBoxItem Content="Whole numbers    →  23     1,251"/>
+                                    <ComboBoxItem Content="With decimals    →  3.49   1,250.50   (United States)"/>
+                                </ComboBox>
+                                <TextBlock Text="The narrow price, cost and discount columns of a printed bill, and the shift and dashboard tallies."
+                                           Style="{StaticResource Hint}"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Number Format" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox Grid.Row="6" Grid.Column="1" x:Name="cboNumberFormat"
                                       Style="{StaticResource Picker}" Margin="0,0,0,10"
                                       SelectionChanged="Setting_Changed">
                                 <ComboBoxItem Content="1,234.56    (Pakistan, India, UK, US)"/>
@@ -165,8 +186,8 @@
                                 <ComboBoxItem Content="1 234,56    (France, Scandinavia)"/>
                             </ComboBox>
 
-                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Amount In Words" Style="{StaticResource FieldLabel}"/>
-                            <StackPanel Grid.Row="5" Grid.Column="1">
+                            <TextBlock Grid.Row="7" Grid.Column="0" Text="Amount In Words" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="7" Grid.Column="1">
                                 <ComboBox x:Name="cboNumberWords" Style="{StaticResource Picker}"
                                           SelectionChanged="Setting_Changed">
                                     <ComboBoxItem Content="Million / Billion    (most countries)"/>
@@ -184,7 +205,7 @@
             <TabItem Header="  Regional  ">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
                     <StackPanel>
-                        <TextBlock Text="Date order and the local names for identity documents and payroll deductions."
+                        <TextBlock Text="The country you trade in, the date order, and the local names for identity documents and payroll deductions."
                                    Style="{StaticResource Hint}" Margin="0,0,0,15"/>
 
                         <Grid>
@@ -196,10 +217,24 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Date Format" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Country" Style="{StaticResource FieldLabel}"/>
                             <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
+                                <ComboBox x:Name="cboRegion" Style="{StaticResource Picker}"
+                                          SelectionChanged="Region_Changed">
+                                    <ComboBoxItem Content="Pakistan"/>
+                                    <ComboBoxItem Content="United States"/>
+                                    <ComboBoxItem Content="Other country"/>
+                                </ComboBox>
+                                <TextBlock Text="Choosing Pakistan or United States fills in that country's usual currency, number and date settings on these tabs. You can still change each one afterwards."
+                                           Style="{StaticResource Hint}"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Date Format" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
                                 <ComboBox x:Name="cboDateStyle" Style="{StaticResource Picker}"
                                           SelectionChanged="Setting_Changed">
                                     <ComboBoxItem Content="Day first    →  31/12/2026   (most of the world)"/>
@@ -210,15 +245,24 @@
                                            Style="{StaticResource Hint}"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="ID Document Name" Style="{StaticResource FieldLabel}"/>
-                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Time Format" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cboTimeStyle"
+                                      Style="{StaticResource Picker}" Margin="0,0,0,10"
+                                      SelectionChanged="Setting_Changed">
+                                <ComboBoxItem Content="12-hour  →  02:35 PM"/>
+                                <ComboBoxItem Content="12-hour  →  2:35 PM    (United States)"/>
+                                <ComboBoxItem Content="24-hour  →  14:35"/>
+                            </ComboBox>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="ID Document Name" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,0,0,10">
                                 <TextBox x:Name="txtNationalIdLabel" Style="{StaticResource Field}"/>
-                                <TextBlock Text="The employee identity field label — CNIC (Pakistan), Aadhaar (India), Emirates ID (UAE), National Insurance No. (UK), SSN (US)."
+                                <TextBlock Text="The employee identity field label — CNIC (Pakistan), Aadhaar (India), Emirates ID (UAE), National Insurance No. (UK), ID Number (US)."
                                            Style="{StaticResource Hint}"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Payroll Deduction" Style="{StaticResource FieldLabel}"/>
-                            <StackPanel Grid.Row="2" Grid.Column="1">
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Payroll Deduction" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="4" Grid.Column="1">
                                 <TextBox x:Name="txtStatutoryDeductionLabel" Style="{StaticResource Field}"/>
                                 <TextBlock Text="The compulsory salary deduction in your country — EOBI (Pakistan), PF (India), Pension (UAE), NI (UK), Social Security (US)."
                                            Style="{StaticResource Hint}"/>

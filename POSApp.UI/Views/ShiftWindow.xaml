@@ -80,10 +80,10 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Opened" Binding="{Binding OpenedAt, Converter={StaticResource DateConverter}, ConverterParameter=shorttime}" Width="120"/>
                             <DataGridTextColumn Header="Closed" Binding="{Binding ClosedAt, Converter={StaticResource DateConverter}, ConverterParameter=shorttime}" Width="120"/>
-                            <DataGridTextColumn Header="Opening" Binding="{Binding OpeningBalance, StringFormat=N0}" Width="80"/>
-                            <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedClosingBalance, StringFormat=N0}" Width="80"/>
-                            <DataGridTextColumn Header="Actual" Binding="{Binding ActualClosingBalance, StringFormat=N0}" Width="80"/>
-                            <DataGridTextColumn Header="Diff" Binding="{Binding Difference, StringFormat=N0}" Width="70"/>
+                            <DataGridTextColumn Header="Opening" Binding="{Binding OpeningBalance, Converter={StaticResource NumberConverter}, ConverterParameter=compact}" Width="80"/>
+                            <DataGridTextColumn Header="Expected" Binding="{Binding ExpectedClosingBalance, Converter={StaticResource NumberConverter}, ConverterParameter=compact}" Width="80"/>
+                            <DataGridTextColumn Header="Actual" Binding="{Binding ActualClosingBalance, Converter={StaticResource NumberConverter}, ConverterParameter=compact}" Width="80"/>
+                            <DataGridTextColumn Header="Diff" Binding="{Binding Difference, Converter={StaticResource NumberConverter}, ConverterParameter=compact}" Width="70"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

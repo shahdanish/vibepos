@@ -1,268 +1,94 @@
-using System.Globalization;
-using System.IO;
-using System.Text.Json;
+using POSApp.Core.Interfaces;
+using POSApp.Core.Services;
 
 namespace POSApp.UI.Helpers
 {
     /// <summary>
-    /// How numbers are grouped when an amount is spelled out in words on a salary slip.
-    /// </summary>
-    public enum NumberWordStyle
-    {
-        /// <summary>Thousand / Million / Billion — most of the world.</summary>
-        International = 0,
-
-        /// <summary>Thousand / Lakh / Crore — South Asia (Pakistan, India, Bangladesh, Nepal).</summary>
-        SouthAsian = 1
-    }
-
-    /// <summary>Which side of the amount the currency symbol sits on.</summary>
-    public enum SymbolPosition
-    {
-        /// <summary>"Rs. 1,250.00" / "$ 1,250.00" — most currencies.</summary>
-        Before = 0,
-
-        /// <summary>"1 250,00 kr" / "1.250,00 EUR" — many European currencies.</summary>
-        After = 1
-    }
-
-    /// <summary>Which separators group the digits.</summary>
-    public enum NumberFormatStyle
-    {
-        /// <summary>1,234.56 — Pakistan, India, UK, US, most of Asia.</summary>
-        DotDecimal = 0,
-
-        /// <summary>1.234,56 — Germany, Italy, Spain, Turkey, Brazil.</summary>
-        CommaDecimal = 1,
-
-        /// <summary>1 234.56 — space grouping with a dot decimal.</summary>
-        SpaceGroupDotDecimal = 2,
-
-        /// <summary>1 234,56 — space grouping with a comma decimal (France, Scandinavia).</summary>
-        SpaceGroupCommaDecimal = 3
-    }
-
-    /// <summary>How dates are written on screen and on printouts.</summary>
-    public enum DateStyle
-    {
-        /// <summary>31/12/2026 — most of the world.</summary>
-        DayFirst = 0,
-
-        /// <summary>12/31/2026 — United States.</summary>
-        MonthFirst = 1,
-
-        /// <summary>2026-12-31 — ISO, unambiguous.</summary>
-        Iso = 2
-    }
-
-    /// <summary>
-    /// Everything about a printout that changes when the software is sold into a different
-    /// country: the currency it prints, what the national identity document is called, and
-    /// which statutory payroll deduction the shop withholds.
+    /// Static entry point to the shop's regional formatting for view-models, code-behind and
+    /// XAML (<c>x:Static</c>), in the same spirit as <see cref="SessionManager"/>.
     ///
-    /// Defaults reproduce the original Pakistani behaviour exactly, so an existing till that
-    /// upgrades sees no change until someone edits Admin → Receipt Settings.
-    /// </summary>
-    public sealed class RegionSettingsData
-    {
-        /// <summary>Symbol printed before every amount, e.g. "Rs.", "$", "AED", "£".</summary>
-        public string CurrencySymbol { get; set; } = "Rs.";
-
-        /// <summary>Currency spelled out for the "amount in words" line, e.g. "Rupees", "Dollars".</summary>
-        public string CurrencyName { get; set; } = "Rupees";
-
-        /// <summary>What the identity document is called, e.g. "CNIC", "National ID", "SSN".</summary>
-        public string NationalIdLabel { get; set; } = "CNIC";
-
-        /// <summary>
-        /// The statutory payroll deduction withheld in this country, e.g. "EOBI" (Pakistan),
-        /// "Social Security", "NI". Printed as a salary-slip deduction row.
-        /// </summary>
-        public string StatutoryDeductionLabel { get; set; } = "EOBI";
-
-        /// <summary>Lakh/Crore vs Million/Billion when spelling an amount out in words.</summary>
-        public NumberWordStyle NumberWords { get; set; } = NumberWordStyle.SouthAsian;
-
-        /// <summary>Whether the symbol goes before or after the number.</summary>
-        public SymbolPosition SymbolSide { get; set; } = SymbolPosition.Before;
-
-        /// <summary>
-        /// Decimals shown on every amount. 2 for most currencies, 0 for ones with no
-        /// sub-unit in daily use (JPY, KRW, UGX), 3 for KWD / BHD / OMR.
-        /// </summary>
-        public int DecimalPlaces { get; set; } = 2;
-
-        /// <summary>Thousand- and decimal-separator style.</summary>
-        public NumberFormatStyle NumberFormat { get; set; } = NumberFormatStyle.DotDecimal;
-
-        /// <summary>Day-first, month-first (US) or ISO dates.</summary>
-        public DateStyle Dates { get; set; } = DateStyle.DayFirst;
-    }
-
-    /// <summary>
-    /// Loads/saves <see cref="RegionSettingsData"/> and formats money for the whole app.
-    ///
-    /// Every amount the user sees goes through <see cref="Money"/> (code) or
-    /// <c>MoneyConverter</c> / the <c>x:Static</c> label properties below (XAML) — nothing
-    /// hardcodes a currency symbol any more. The settings file sits next to the receipt
-    /// branding under %ProgramData% so every cashier on the till shares it.
+    /// The rules live in <see cref="FormatService"/> (POSApp.Core) and the settings in
+    /// <see cref="RegionSettingsStore"/>; this class only forwards to them. Every amount and date
+    /// the user sees goes through here, <c>MoneyConverter</c>, <c>NumberConverter</c> or
+    /// <c>DateConverter</c> — nothing hardcodes a currency symbol or a date order.
     /// </summary>
     public static class Region
     {
-        private static readonly string SettingsFilePath = Path.Combine(
-            POSApp.Core.Services.AppPaths.SharedSettingsDirectory, "region-settings.json");
-
-        private static RegionSettingsData? _cached;
+        /// <summary>The formatter over the live settings; also registered in DI as <see cref="IFormatService"/>.</summary>
+        public static IFormatService Format { get; } = new FormatService(() => RegionSettingsStore.Current);
 
         /// <summary>Current region settings, loaded from disk on first use and cached thereafter.</summary>
-        public static RegionSettingsData Current
-        {
-            get
-            {
-                if (_cached != null)
-                    return _cached;
-
-                try
-                {
-                    _cached = File.Exists(SettingsFilePath)
-                        ? JsonSerializer.Deserialize<RegionSettingsData>(File.ReadAllText(SettingsFilePath))
-                          ?? new RegionSettingsData()
-                        : new RegionSettingsData();
-                }
-                catch
-                {
-                    // Missing or hand-edited file: fall back to defaults rather than
-                    // blocking a sale.
-                    _cached = new RegionSettingsData();
-                }
-
-                return _cached;
-            }
-        }
+        public static RegionSettingsData Current => RegionSettingsStore.Current;
 
         /// <summary>Persists the settings and refreshes the cache. Returns false if the file could not be written.</summary>
-        public static bool Save(RegionSettingsData settings)
-        {
-            try
-            {
-                var dir = Path.GetDirectoryName(SettingsFilePath)!;
-                Directory.CreateDirectory(dir);
-
-                var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(SettingsFilePath, json);
-
-                _cached = settings;
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+        public static bool Save(RegionSettingsData settings) => RegionSettingsStore.Save(settings);
 
         /// <summary>
         /// Swaps the in-memory settings without touching disk. Used by the settings screen to
         /// render a preview of unsaved values; always restore the previous settings afterwards.
         /// </summary>
-        public static void Apply(RegionSettingsData settings) => _cached = settings;
+        public static void Apply(RegionSettingsData settings) => RegionSettingsStore.Apply(settings);
+
+        /// <summary>True when US country rules apply.</summary>
+        public static bool IsUnitedStates => Format.IsUnitedStates;
 
         // ── Formatting ────────────────────────────────────────────────────────
 
         /// <summary>The configured currency symbol on its own, e.g. "Rs." or "$".</summary>
-        public static string Symbol => Current.CurrencySymbol;
-
-        /// <summary>Digit grouping / decimal separators for the configured number format.</summary>
-        private static NumberFormatInfo Nfi
-        {
-            get
-            {
-                var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
-                switch (Current.NumberFormat)
-                {
-                    case NumberFormatStyle.CommaDecimal:
-                        nfi.NumberGroupSeparator = ".";
-                        nfi.NumberDecimalSeparator = ",";
-                        break;
-                    case NumberFormatStyle.SpaceGroupDotDecimal:
-                        nfi.NumberGroupSeparator = "\u00a0";
-                        nfi.NumberDecimalSeparator = ".";
-                        break;
-                    case NumberFormatStyle.SpaceGroupCommaDecimal:
-                        nfi.NumberGroupSeparator = "\u00a0";
-                        nfi.NumberDecimalSeparator = ",";
-                        break;
-                    default:
-                        nfi.NumberGroupSeparator = ",";
-                        nfi.NumberDecimalSeparator = ".";
-                        break;
-                }
-                return nfi;
-            }
-        }
+        public static string Symbol => Format.CurrencySymbol;
 
         /// <summary>Just the digits, with the configured separators and decimal places.</summary>
-        public static string Number(decimal amount, int? decimals = null)
-        {
-            var d = Math.Clamp(decimals ?? Current.DecimalPlaces, 0, 6);
-            return amount.ToString("N" + d, Nfi);
-        }
+        public static string Number(decimal amount, int? decimals = null) => Format.Number(amount, decimals);
 
-        /// <summary>Puts the symbol on the configured side of an already-formatted number.</summary>
-        private static string WithSymbol(string number) =>
-            Current.SymbolSide == SymbolPosition.After
-                ? $"{number} {Current.CurrencySymbol}"
-                : $"{Current.CurrencySymbol} {number}";
+        /// <summary>Digits for a narrow receipt price column or a compact tally.</summary>
+        public static string Compact(decimal amount) => Format.Compact(amount);
 
-        /// <summary>"Rs. 1,250.00" — the standard form used almost everywhere.</summary>
-        public static string Money(decimal amount) => WithSymbol(Number(amount));
+        /// <summary>A price in a product list ("23" / "23.5" for whole-number shops, "4.50" otherwise).</summary>
+        public static string ListPrice(decimal amount) => Format.ListPrice(amount);
+
+        /// <summary>"Rs. 1,250.00" / "$1,250.00" — the standard form used almost everywhere.</summary>
+        public static string Money(decimal amount) => Format.Money(amount);
 
         /// <summary>"Rs. 1,250" — no decimals, for the big highlight figure on a salary slip.</summary>
-        public static string MoneyWhole(decimal amount) => WithSymbol(Number(amount, 0));
+        public static string MoneyWhole(decimal amount) => Format.MoneyWhole(amount);
 
-        /// <summary>"+Rs. 50.00" / "-Rs. 50.00" — for a cash-drawer over/short difference.</summary>
-        public static string MoneySigned(decimal amount) =>
-            (amount >= 0 ? "+" : "-") + Money(Math.Abs(amount));
+        /// <summary>"+Rs. 50.00" / "-$50.00" — for a cash-drawer over/short difference.</summary>
+        public static string MoneySigned(decimal amount) => Format.MoneySigned(amount);
+
+        /// <summary>A phone number for display ("(555) 555-0123" in the US, as typed elsewhere).</summary>
+        public static string Phone(string? raw) => Format.Phone(raw);
 
         // ── Dates ─────────────────────────────────────────────────────────────
 
         /// <summary>Numeric date pattern for the configured style, e.g. "dd/MM/yyyy".</summary>
-        public static string DatePattern => Current.Dates switch
-        {
-            DateStyle.MonthFirst => "MM/dd/yyyy",
-            DateStyle.Iso        => "yyyy-MM-dd",
-            _                    => "dd/MM/yyyy"
-        };
+        public static string DatePattern => Format.DatePattern(DateFormat.Numeric);
 
         /// <summary>Date pattern with a spelled-out month, e.g. "dd MMM yyyy".</summary>
-        public static string LongDatePattern => Current.Dates switch
-        {
-            DateStyle.MonthFirst => "MMM dd, yyyy",
-            DateStyle.Iso        => "yyyy-MMM-dd",
-            _                    => "dd MMM yyyy"
-        };
+        public static string LongDatePattern => Format.DatePattern(DateFormat.Long);
 
         /// <summary>Day and month only, e.g. "31/12".</summary>
-        public static string ShortDatePattern => Current.Dates switch
-        {
-            DateStyle.MonthFirst => "MM/dd",
-            DateStyle.Iso        => "MM-dd",
-            _                    => "dd/MM"
-        };
+        public static string ShortDatePattern => Format.DatePattern(DateFormat.DayMonth);
 
-        /// <summary>Date-and-time pattern with a 12-hour clock.</summary>
-        public static string DateTimePattern => DatePattern + " hh:mm tt";
+        /// <summary>Date-and-time pattern in the configured date and time styles.</summary>
+        public static string DateTimePattern => DatePattern + " " + Format.TimePattern;
 
         /// <summary>Numeric date in the configured order.</summary>
-        public static string Date(DateTime value) =>
-            value.ToString(DatePattern, CultureInfo.InvariantCulture);
+        public static string Date(DateTime value) => Format.Date(value);
+
+        /// <summary>A date in one of the app's <see cref="DateFormat"/> kinds.</summary>
+        public static string Date(DateTime value, DateFormat format) => Format.Date(value, format);
 
         /// <summary>Date with a spelled-out month.</summary>
-        public static string LongDate(DateTime value) =>
-            value.ToString(LongDatePattern, CultureInfo.InvariantCulture);
+        public static string LongDate(DateTime value) => Format.Date(value, DateFormat.Long);
 
-        /// <summary>Date plus a 12-hour time.</summary>
-        public static string DateTimeText(DateTime value) =>
-            value.ToString(DateTimePattern, CultureInfo.InvariantCulture);
+        /// <summary>Date plus the time of day.</summary>
+        public static string DateTimeText(DateTime value) => Format.DateAndTime(value);
+
+        /// <summary>The date and time printed on bills, e.g. "14-Oct-2026 02:35 PM" / "10/14/2026 02:35 PM".</summary>
+        public static string DocumentDateTime(DateTime value) => Format.DateAndTime(value, DateFormat.Document);
+
+        /// <summary>Time of day, e.g. "02:35 PM" (default) or "2:35 PM" (US).</summary>
+        public static string Time(DateTime value) => Format.Time(value);
 
         // ── Labels usable from XAML via x:Static ──────────────────────────────
 
@@ -350,49 +176,15 @@ namespace POSApp.UI.Helpers
         /// <summary>e.g. "EOBI (Rs.)".</summary>
         public static string StatutoryDeductionAmountLabel => $"{StatutoryDeductionLabel} ({Symbol})";
 
+        /// <summary>Tooltip for the flat-amount discount toggle, e.g. "Fixed amount discount (Rs.)".</summary>
+        public static string FixedDiscountTooltip => $"Fixed amount discount ({Symbol})";
+
         // ── Number to words ───────────────────────────────────────────────────
 
         /// <summary>
         /// Spells an amount out in words for the salary slip, e.g. "One Lakh Twenty Thousand
-        /// Rupees Only" or "One Hundred Twenty Thousand Dollars Only" depending on
-        /// <see cref="RegionSettingsData.NumberWords"/> and the configured currency name.
+        /// Rupees Only" or "One Hundred Twenty Thousand Dollars Only".
         /// </summary>
-        public static string AmountInWords(decimal amount)
-        {
-            var n = (long)Math.Floor(Math.Abs(amount));
-            var name = string.IsNullOrWhiteSpace(Current.CurrencyName) ? "" : " " + Current.CurrencyName.Trim();
-            return $"{ToWords(n)}{name} Only";
-        }
-
-        private static readonly string[] _ones = { "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen" };
-        private static readonly string[] _tens = { "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety" };
-
-        private static string ToWords(long n) =>
-            Current.NumberWords == NumberWordStyle.SouthAsian ? SouthAsianWords(n) : InternationalWords(n);
-
-        /// <summary>Thousand / Lakh / Crore grouping.</summary>
-        private static string SouthAsianWords(long n)
-        {
-            if (n == 0)         return "Zero";
-            if (n < 20)         return _ones[n];
-            if (n < 100)        return _tens[n / 10] + (n % 10 > 0 ? " " + SouthAsianWords(n % 10) : "");
-            if (n < 1_000)      return _ones[n / 100] + " Hundred" + (n % 100 > 0 ? " " + SouthAsianWords(n % 100) : "");
-            if (n < 100_000)    return SouthAsianWords(n / 1_000) + " Thousand" + (n % 1_000 > 0 ? " " + SouthAsianWords(n % 1_000) : "");
-            if (n < 10_000_000) return SouthAsianWords(n / 100_000) + " Lakh" + (n % 100_000 > 0 ? " " + SouthAsianWords(n % 100_000) : "");
-            return SouthAsianWords(n / 10_000_000) + " Crore" + (n % 10_000_000 > 0 ? " " + SouthAsianWords(n % 10_000_000) : "");
-        }
-
-        /// <summary>Thousand / Million / Billion grouping.</summary>
-        private static string InternationalWords(long n)
-        {
-            if (n == 0)                return "Zero";
-            if (n < 20)                return _ones[n];
-            if (n < 100)               return _tens[n / 10] + (n % 10 > 0 ? " " + InternationalWords(n % 10) : "");
-            if (n < 1_000)             return _ones[n / 100] + " Hundred" + (n % 100 > 0 ? " " + InternationalWords(n % 100) : "");
-            if (n < 1_000_000)         return InternationalWords(n / 1_000) + " Thousand" + (n % 1_000 > 0 ? " " + InternationalWords(n % 1_000) : "");
-            if (n < 1_000_000_000)     return InternationalWords(n / 1_000_000) + " Million" + (n % 1_000_000 > 0 ? " " + InternationalWords(n % 1_000_000) : "");
-            if (n < 1_000_000_000_000) return InternationalWords(n / 1_000_000_000) + " Billion" + (n % 1_000_000_000 > 0 ? " " + InternationalWords(n % 1_000_000_000) : "");
-            return InternationalWords(n / 1_000_000_000_000) + " Trillion" + (n % 1_000_000_000_000 > 0 ? " " + InternationalWords(n % 1_000_000_000_000) : "");
-        }
+        public static string AmountInWords(decimal amount) => Format.AmountInWords(amount);
     }
 }

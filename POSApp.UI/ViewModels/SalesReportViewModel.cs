@@ -219,7 +219,7 @@ namespace POSApp.UI.ViewModels
 
         private async Task ShowToday()
         {
-            ReportTitle = $"📅 Today's Sales - {DateTime.Now:dd/MM/yyyy}";
+            ReportTitle = $"📅 Today's Sales - {Region.Date(DateTime.Now)}";
             HideSearchPanels();
             await LoadSalesByDateRange(DateTime.Now.Date, DateTime.Now.Date);
         }
@@ -228,7 +228,7 @@ namespace POSApp.UI.ViewModels
         {
             var startOfWeek = DateTime.Now.Date.AddDays(-(int)DateTime.Now.DayOfWeek);
             var endOfWeek = startOfWeek.AddDays(6);
-            ReportTitle = $"📆 This Week's Sales ({startOfWeek:dd/MM} - {endOfWeek:dd/MM})";
+            ReportTitle = $"📆 This Week's Sales ({Region.Date(startOfWeek, DateFormat.DayMonth)} - {Region.Date(endOfWeek, DateFormat.DayMonth)})";
             HideSearchPanels();
             await LoadSalesByDateRange(startOfWeek, endOfWeek);
         }
@@ -302,7 +302,7 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
-            ReportTitle = $"📊 Sales Report ({StartDate:dd/MM/yyyy} - {EndDate:dd/MM/yyyy})";
+            ReportTitle = $"📊 Sales Report ({Region.Date(StartDate)} - {Region.Date(EndDate)})";
             await LoadSalesByDateRange(StartDate, EndDate);
         }
 
@@ -534,7 +534,7 @@ namespace POSApp.UI.ViewModels
 
             // Metadata
             doc.Blocks.Add(new Paragraph(new Run($"Bill No: {sale.InvoiceNumber}")) { Margin = new Thickness(0, 1, 0, 0) });
-            doc.Blocks.Add(new Paragraph(new Run($"Date: {sale.SaleDate:dd-MMM-yyyy hh:mm tt}")) { Margin = new Thickness(0) });
+            doc.Blocks.Add(new Paragraph(new Run($"Date: {Region.DocumentDateTime(sale.SaleDate)}")) { Margin = new Thickness(0) });
             doc.Blocks.Add(new Paragraph(new Run($"Customer: {sale.CustomerName}")) { Margin = new Thickness(0) });
             if (!string.IsNullOrWhiteSpace(sale.MobileNumber))
                 doc.Blocks.Add(new Paragraph(new Run($"Mobile: {sale.MobileNumber}")) { Margin = new Thickness(0) });
@@ -564,8 +564,8 @@ namespace POSApp.UI.ViewModels
                 row.Cells.Add(Cell(serial++.ToString(), TextAlignment.Center));
                 row.Cells.Add(Cell(item.ProductName, TextAlignment.Left));
                 row.Cells.Add(Cell(item.Quantity.ToString(), TextAlignment.Center));
-                row.Cells.Add(Cell(item.UnitPrice.ToString("N0"), TextAlignment.Right));
-                row.Cells.Add(Cell(item.Total.ToString("N2"), TextAlignment.Right));
+                row.Cells.Add(Cell(Region.Compact(item.UnitPrice), TextAlignment.Right));
+                row.Cells.Add(Cell(Region.Number(item.Total), TextAlignment.Right));
                 itemsGroup.Rows.Add(row);
             }
             itemsTable.RowGroups.Add(itemsGroup);
@@ -587,10 +587,10 @@ namespace POSApp.UI.ViewModels
                 totalsGroup.Rows.Add(r);
             }
             decimal totalDiscount = sale.DiscountOnBill + sale.DiscountOnProducts;
-            TotalRow("Total Bill", sale.TotalBill.ToString("N2"), bold: true);
-            if (totalDiscount > 0) TotalRow("Total Discount", totalDiscount.ToString("N2"));
-            TotalRow("Cash Received", sale.ReceiveCash.ToString("N2"), bold: true);
-            TotalRow("Balance Amount", sale.Balance.ToString("N2"), bold: true);
+            TotalRow("Total Bill", Region.Number(sale.TotalBill), bold: true);
+            if (totalDiscount > 0) TotalRow("Total Discount", Region.Number(totalDiscount));
+            TotalRow("Cash Received", Region.Number(sale.ReceiveCash), bold: true);
+            TotalRow("Balance Amount", Region.Number(sale.Balance), bold: true);
             totals.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totals);
 
@@ -617,7 +617,7 @@ namespace POSApp.UI.ViewModels
             AddStoreHeader(doc, "Sales Report");
 
             doc.Blocks.Add(new Paragraph(new Run(cleanTitle)) { TextAlignment = TextAlignment.Center, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 1, 0, 0) });
-            doc.Blocks.Add(new Paragraph(new Run($"Generated: {DateTime.Now:dd-MMM-yyyy hh:mm tt}")) { TextAlignment = TextAlignment.Center, FontSize = 10, Margin = new Thickness(0, 0, 0, 2) });
+            doc.Blocks.Add(new Paragraph(new Run($"Generated: {Region.DocumentDateTime(DateTime.Now)}")) { TextAlignment = TextAlignment.Center, FontSize = 10, Margin = new Thickness(0, 0, 0, 2) });
             doc.Blocks.Add(new Paragraph(new Run("---------------------------------------------")) { Margin = new Thickness(0, 1, 0, 1) });
 
             // Sales list
@@ -641,10 +641,10 @@ namespace POSApp.UI.ViewModels
             {
                 var row = new TableRow();
                 row.Cells.Add(Cell(sale.InvoiceNumber, TextAlignment.Left));
-                row.Cells.Add(Cell(sale.SaleDate.ToString("dd/MM/yyyy"), TextAlignment.Left));
+                row.Cells.Add(Cell(Region.Date(sale.SaleDate), TextAlignment.Left));
                 row.Cells.Add(Cell(sale.CustomerName, TextAlignment.Left));
                 row.Cells.Add(Cell(sale.SaleItems.Count.ToString(), TextAlignment.Center));
-                row.Cells.Add(Cell(sale.TotalBill.ToString("N2"), TextAlignment.Right));
+                row.Cells.Add(Cell(Region.Number(sale.TotalBill), TextAlignment.Right));
                 group.Rows.Add(row);
             }
             table.RowGroups.Add(group);
@@ -666,10 +666,10 @@ namespace POSApp.UI.ViewModels
                 sGroup.Rows.Add(r);
             }
             SummaryRow("Total Sales", TotalSales.ToString(), bold: true);
-            SummaryRow("Total Revenue", TotalRevenue.ToString("N2"), bold: true);
-            SummaryRow("Total Discount", TotalDiscount.ToString("N2"));
-            SummaryRow("Total Cost", TotalCost.ToString("N2"));
-            SummaryRow("Total Profit", TotalProfit.ToString("N2"), bold: true);
+            SummaryRow("Total Revenue", Region.Number(TotalRevenue), bold: true);
+            SummaryRow("Total Discount", Region.Number(TotalDiscount));
+            SummaryRow("Total Cost", Region.Number(TotalCost));
+            SummaryRow("Total Profit", Region.Number(TotalProfit), bold: true);
             summary.RowGroups.Add(sGroup);
             doc.Blocks.Add(summary);
 

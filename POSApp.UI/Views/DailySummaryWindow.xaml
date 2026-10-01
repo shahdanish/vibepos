@@ -47,7 +47,7 @@
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Total Sales:" VerticalAlignment="Center" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="{Binding TotalSales, StringFormat={}{0:N2}}" TextAlignment="Right" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalSales, Converter={StaticResource NumberConverter}}" TextAlignment="Right" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                         </Grid>
 
                         <Grid Margin="0,10">
@@ -56,7 +56,7 @@
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Total Expenses:" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{Binding TotalExpenses, StringFormat={}{0:N2}}" TextAlignment="Right" Foreground="{DynamicResource DangerBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalExpenses, Converter={StaticResource NumberConverter}}" TextAlignment="Right" Foreground="{DynamicResource DangerBrush}"/>
                         </Grid>
 
                         <Separator Margin="0,15"/>
@@ -67,7 +67,7 @@
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Expected Closing:" VerticalAlignment="Center" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="{Binding ExpectedClosing, StringFormat={}{0:N2}}" TextAlignment="Right" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ExpectedClosing, Converter={StaticResource NumberConverter}}" TextAlignment="Right" FontWeight="Bold" FontSize="16"/>
                         </Grid>
 
                         <Grid Margin="0,10">
@@ -85,7 +85,7 @@
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Variance:" VerticalAlignment="Center" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Variance, StringFormat={}{0:N2}}" TextAlignment="Right" FontWeight="Bold" FontSize="16">
+                            <TextBlock Grid.Column="1" Text="{Binding Variance, Converter={StaticResource NumberConverter}}" TextAlignment="Right" FontWeight="Bold" FontSize="16">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
@@ -111,10 +111,10 @@
                     <ListView ItemsSource="{Binding Summaries}" MaxHeight="400">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Date, StringFormat={}{0:dd-MMM-yyyy}}" Width="100"/>
-                                <GridViewColumn Header="Sales" DisplayMemberBinding="{Binding TotalSales, StringFormat={}{0:N2}}" Width="100"/>
-                                <GridViewColumn Header="Expenses" DisplayMemberBinding="{Binding TotalExpenses, StringFormat={}{0:N2}}" Width="100"/>
-                                <GridViewColumn Header="Variance" DisplayMemberBinding="{Binding Variance, StringFormat={}{0:N2}}" Width="100"/>
+                                <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Date, Converter={StaticResource DateConverter}, ConverterParameter=document}" Width="100"/>
+                                <GridViewColumn Header="Sales" DisplayMemberBinding="{Binding TotalSales, Converter={StaticResource NumberConverter}}" Width="100"/>
+                                <GridViewColumn Header="Expenses" DisplayMemberBinding="{Binding TotalExpenses, Converter={StaticResource NumberConverter}}" Width="100"/>
+                                <GridViewColumn Header="Variance" DisplayMemberBinding="{Binding Variance, Converter={StaticResource NumberConverter}}" Width="100"/>
                             </GridView>
                         </ListView.View>
                     </ListView>

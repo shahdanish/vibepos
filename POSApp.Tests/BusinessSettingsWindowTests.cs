@@ -2,6 +2,7 @@ using System.Threading;
 using POSApp.UI.Helpers;
 using POSApp.UI.Views;
 using Xunit;
+using POSApp.Core.Services;
 
 namespace POSApp.Tests
 {
@@ -10,6 +11,7 @@ namespace POSApp.Tests
     /// compiles; this catches what it cannot — an x:Name that does not match the code-behind,
     /// a markup extension that throws, or a missing resource — without anyone logging in.
     /// </summary>
+    [Collection(GlobalStateCollection.Name)]
     public class BusinessSettingsWindowTests
     {
         /// <summary>WPF windows can only be created on an STA thread, which xUnit does not provide.</summary>

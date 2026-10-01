@@ -59,7 +59,7 @@
                             <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
                             <DataGridTextColumn Header="Qty sold" Binding="{Binding TotalQuantity}" Width="90"
                                                 ElementStyle="{StaticResource RightAlignStyle}"/>
-                            <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat=N0}" Width="110"
+                            <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, Converter={StaticResource NumberConverter}, ConverterParameter=compact}" Width="110"
                                                 ElementStyle="{StaticResource RightAlignStyle}"/>
                         </DataGrid.Columns>
                     </DataGrid>

@@ -230,7 +230,7 @@
                                                     </ToggleButton>
                                                     <ToggleButton IsChecked="{Binding DiscountTypeIsAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                   Width="30" Height="24" Padding="0" FontSize="11"
-                                                                  ToolTip="Fixed amount discount (PKR)"
+                                                                  ToolTip="{x:Static helpers:Region.FixedDiscountTooltip}"
                                                                   BorderThickness="0">
                                                         <ToggleButton.Style>
                                                             <Style TargetType="ToggleButton">
@@ -274,7 +274,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat=N2}"
+                            <DataGridTextColumn Header="Total" Binding="{Binding Total, Converter={StaticResource NumberConverter}}"
                                                 IsReadOnly="True" Width="100" ElementStyle="{StaticResource RightAlignStyle}"/>
                             <DataGridTemplateColumn Header="Del" Width="60">
                                 <DataGridTemplateColumn.CellTemplate>
