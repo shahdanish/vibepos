@@ -190,8 +190,8 @@
     "semantic_hash": "349f28c6b9b0ee9fc0b241afe093f2e5"
   },
   "POSApp.Data/AppDbContext.cs": {
-    "mtime": 1790846585.039248,
-    "ast_hash": "a17ca3ffdc7703dd49827a12caaeb229",
+    "mtime": 1783618068.872815,
+    "ast_hash": "585d57ca94ee9483ea8a28bbfab92a3a",
     "semantic_hash": ""
   },
   "POSApp.Data/Migrations/20260429074020_InitialCreate.Designer.cs": {
@@ -225,14 +225,14 @@
     "semantic_hash": "24883b4b54ea616d61c0535ba80bd9b7"
   },
   "POSApp.Data/Migrations/AppDbContextModelSnapshot.cs": {
-    "mtime": 1790846590.3424678,
-    "ast_hash": "d4e59dbe1a171783d695e1ec488d4585",
+    "mtime": 1783618170.3209276,
+    "ast_hash": "ce17421f102ce1083bd9a51c0cfa3aaf",
     "semantic_hash": ""
   },
   "POSApp.Data/POSApp.Data.csproj": {
-    "mtime": 1790763747.9686885,
-    "ast_hash": "6668d5a36000b514276182f5f4c09658",
-    "semantic_hash": ""
+    "mtime": 1777481582.0730932,
+    "ast_hash": "15f7ab7bf651f68ca9328c147f754eee",
+    "semantic_hash": "15f7ab7bf651f68ca9328c147f754eee"
   },
   "POSApp.Data/SyncLogInterceptor.cs": {
     "mtime": 1777481582.0730932,
@@ -245,8 +245,8 @@
     "semantic_hash": "0e6159621c4119e3d58ef742720a6853"
   },
   "POSApp.Infrastructure/POSApp.Infrastructure.csproj": {
-    "mtime": 1790758396.1626356,
-    "ast_hash": "0d930781490ade02868f31fed2afdfdd",
+    "mtime": 1785158807.1652055,
+    "ast_hash": "639770f9c14224b9f0af9232a42120ef",
     "semantic_hash": ""
   },
   "POSApp.Infrastructure/Repositories/CategoryRepository.cs": {
@@ -295,8 +295,8 @@
     "semantic_hash": "e4c4f8f01d01d0c1dd2cb0c6092c1a32"
   },
   "POSApp.Infrastructure/Repositories/SaleRepository.cs": {
-    "mtime": 1790846572.390354,
-    "ast_hash": "45aca46a62d07a291250b4828b1202f3",
+    "mtime": 1780853888.4947927,
+    "ast_hash": "6c18e476661de35669f3eddee0417cef",
     "semantic_hash": ""
   },
   "POSApp.Infrastructure/Repositories/SettingsRepository.cs": {
@@ -315,8 +315,8 @@
     "semantic_hash": "ad56c2b0de46b783505b2bc4a3085e88"
   },
   "POSApp.Infrastructure/Repositories/UserRepository.cs": {
-    "mtime": 1790758339.053977,
-    "ast_hash": "a608a89a2219303be7ae446e4664d916",
+    "mtime": 1780830531.6302097,
+    "ast_hash": "0506555b8968d4da7a0bd270fa82b541",
     "semantic_hash": ""
   },
   "POSApp.Infrastructure/Services/BarcodeService.cs": {
@@ -330,19 +330,19 @@
     "semantic_hash": "d01a5135fe946d23b8d96d2f3b197e51"
   },
   "POSApp.Infrastructure/Services/DatabaseBackupService.cs": {
-    "mtime": 1790758317.397515,
-    "ast_hash": "ed6baa0a9f891f3974f6eeff5f63e3ed",
-    "semantic_hash": ""
+    "mtime": 1777463968.1121044,
+    "ast_hash": "e9c69af0f23fa5715ebccab38f3408f8",
+    "semantic_hash": "e9c69af0f23fa5715ebccab38f3408f8"
   },
   "POSApp.Infrastructure/Services/FirebaseSyncService.cs": {
-    "mtime": 1790758325.4691193,
-    "ast_hash": "21422a191258c1bef2736e7ea9a16f87",
+    "mtime": 1780830894.9801085,
+    "ast_hash": "f579785ee9e0bf695ac313eaaf05afdb",
     "semantic_hash": ""
   },
   "POSApp.Tests/POSApp.Tests.csproj": {
-    "mtime": 1790758396.2112525,
-    "ast_hash": "80e4eaa6736cfc134003316bb11b071d",
-    "semantic_hash": ""
+    "mtime": 1777270929.328035,
+    "ast_hash": "c4d2c4f3baf66680871985778c0ab893",
+    "semantic_hash": "c4d2c4f3baf66680871985778c0ab893"
   },
   "POSApp.Tests/ProductIdGeneratorTests.cs": {
     "mtime": 1777270724.9018877,
@@ -350,19 +350,19 @@
     "semantic_hash": "0566d73c996f4b8c185e190f0e4bfc2d"
   },
   "POSApp.Tests/ProductManagementViewModelTests.cs": {
-    "mtime": 1790845969.7921698,
-    "ast_hash": "aa1fff4dcaf126c067be1e38241fe8df",
-    "semantic_hash": ""
+    "mtime": 1777438811.9795818,
+    "ast_hash": "97129a90065e70b386609d526dab4ecf",
+    "semantic_hash": "97129a90065e70b386609d526dab4ecf"
   },
   "POSApp.UI/App.xaml.cs": {
-    "mtime": 1790846690.0071807,
-    "ast_hash": "47fb7b8d3ab8db35a562467cbeef5e5d",
+    "mtime": 1785672546.8023021,
+    "ast_hash": "137726c7ca188766ff41d2be12397f71",
     "semantic_hash": ""
   },
   "POSApp.UI/AssemblyInfo.cs": {
-    "mtime": 1790845950.5480943,
-    "ast_hash": "fe30da9bae092c2b91e6353427331343",
-    "semantic_hash": ""
+    "mtime": 1777438811.963493,
+    "ast_hash": "ab620c0dcb1ef4bc35ed75d4e2bfef89",
+    "semantic_hash": "ab620c0dcb1ef4bc35ed75d4e2bfef89"
   },
   "POSApp.UI/Converters/CostPriceEncryptorConverter.cs": {
     "mtime": 1777439284.9451962,
@@ -425,8 +425,8 @@
     "semantic_hash": ""
   },
   "POSApp.UI/POSApp.UI.csproj": {
-    "mtime": 1790758396.2028816,
-    "ast_hash": "aad7edfc8a5d335972c7a6d316c65d2d",
+    "mtime": 1780733700.9065108,
+    "ast_hash": "9db879ed397983526635220969a1405c",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/BackupRestoreViewModel.cs": {
@@ -440,8 +440,8 @@
     "semantic_hash": "06a6e9fab4aa5c79c4ae3030abdb23c5"
   },
   "POSApp.UI/ViewModels/CustomerLedgerViewModel.cs": {
-    "mtime": 1790846414.8474784,
-    "ast_hash": "6f158fa52e698a11f6f35fe5f27e0489",
+    "mtime": 1790696282.2326787,
+    "ast_hash": "67da009a5f8cb80de7b1dbee9a97a7d6",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/DailySummaryViewModel.cs": {
@@ -450,13 +450,13 @@
     "semantic_hash": "70fa4aac5eb161a028cb3e1d613d15bd"
   },
   "POSApp.UI/ViewModels/DashboardViewModel.cs": {
-    "mtime": 1790846414.8474784,
-    "ast_hash": "f6cc6db6f5493381e3bae4a8bf14d103",
+    "mtime": 1783794659.1605566,
+    "ast_hash": "4ba25689abba4d49982dec1184833637",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/ExpenseViewModel.cs": {
-    "mtime": 1790846414.8474784,
-    "ast_hash": "2b9fe105004a3fd7d3a1d3786b73b856",
+    "mtime": 1790696282.235905,
+    "ast_hash": "abb3589312ad273ecd787dff843d5710",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/LoginViewModel.cs": {
@@ -465,8 +465,8 @@
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/MainViewModel.cs": {
-    "mtime": 1790846444.8097744,
-    "ast_hash": "bc6af33f6c354f40a72167ef4e43b8f0",
+    "mtime": 1790696463.7779074,
+    "ast_hash": "facd5444a2f5d03321ce1105e01b99aa",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/ProductManagementViewModel.cs": {
@@ -485,23 +485,23 @@
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/SaleReturnViewModel.cs": {
-    "mtime": 1790846572.3921363,
-    "ast_hash": "53c6d7678a6ae07afcaadf42fd9c755d",
+    "mtime": 1790696282.2379105,
+    "ast_hash": "0433d48318393786b3ac66ee0294b44c",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/SaleViewModel.cs": {
-    "mtime": 1790846572.3921363,
-    "ast_hash": "79fefe7487f0de814b557e2d2dadf4dd",
+    "mtime": 1790696282.239915,
+    "ast_hash": "f6db05d55e9b7aafbeb44308dafe5e94",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/SalesReportViewModel.cs": {
-    "mtime": 1790846414.8474784,
-    "ast_hash": "62809c5e2f6348ad1cbaad514b8aba03",
+    "mtime": 1785672429.6686518,
+    "ast_hash": "7e9ff46811beb17761325a9cfc3f4239",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/ShiftViewModel.cs": {
-    "mtime": 1790846414.8571663,
-    "ast_hash": "62adfe1a3f8ed8bd76e58e348d87467d",
+    "mtime": 1790696282.239915,
+    "ast_hash": "fb9c58c3419f1f629f343d464441205c",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/SupplierManagementViewModel.cs": {
@@ -515,8 +515,8 @@
     "semantic_hash": "d8e5c62a4a4d88ea36ddf3a95dcef2d7"
   },
   "POSApp.UI/ViewModels/WholeSaleViewModel.cs": {
-    "mtime": 1790747694.2064285,
-    "ast_hash": "c8607860fc454197fd9c63550e24a68e",
+    "mtime": 1783788076.904555,
+    "ast_hash": "ff53df506b1491731fdbe620c477183c",
     "semantic_hash": ""
   },
   "POSApp.UI/Views/BackupRestoreWindow.xaml.cs": {
@@ -580,8 +580,8 @@
     "semantic_hash": ""
   },
   "POSApp.UI/Views/SalesReportWindow.xaml.cs": {
-    "mtime": 1790762364.1444635,
-    "ast_hash": "75dc55e6b24fa1de95e5992b28051ba0",
+    "mtime": 1780855152.944266,
+    "ast_hash": "16058318d072dc6edc803a3f438e83ac",
     "semantic_hash": ""
   },
   "POSApp.UI/Views/ShiftWindow.xaml.cs": {
@@ -870,8 +870,8 @@
     "semantic_hash": "8c88710fed41adf9cb2e235013f6adef"
   },
   "LicenseSystem/generate-renewal-code.ps1": {
-    "mtime": 1790699613.4884853,
-    "ast_hash": "2b641b7852c0d70ee3c058907cdaf1da",
+    "mtime": 1785160079.407504,
+    "ast_hash": "1771caa0f0b7c40a17799a48a1c6e646",
     "semantic_hash": ""
   },
   "POSApp.Core/Entities/CallSchedule.cs": {
@@ -1195,18 +1195,18 @@
     "semantic_hash": ""
   },
   "POSApp.Infrastructure/Services/CloudBackupService.cs": {
-    "mtime": 1790758317.4372716,
-    "ast_hash": "a18262395e4c7746341f76cc91ade083",
+    "mtime": 1783791462.5255234,
+    "ast_hash": "5b0d646f34df6b45eb1d602897830ee0",
     "semantic_hash": ""
   },
   "POSApp.Infrastructure/Services/LicenseService.cs": {
-    "mtime": 1790699613.4864712,
-    "ast_hash": "fc2d8e67400ef88eff16971d43df0894",
+    "mtime": 1785672314.1380353,
+    "ast_hash": "be13b92000bc767160ebf9c7ae52fc09",
     "semantic_hash": ""
   },
   "POSApp.Tests/RegionSettingsTests.cs": {
-    "mtime": 1790846267.6307304,
-    "ast_hash": "142e8706e95f3149599c71ba418529a6",
+    "mtime": 1790696392.281271,
+    "ast_hash": "a418a044ec6f8b9d80deda0e0bb489cb",
     "semantic_hash": ""
   },
   "POSApp.UI/Converters/DayStatusConverters.cs": {
@@ -1240,23 +1240,23 @@
     "semantic_hash": ""
   },
   "POSApp.UI/Helpers/ReceiptBranding.cs": {
-    "mtime": 1790846660.195573,
-    "ast_hash": "49220c2a7ffa682e6f2f846c43ff4847",
+    "mtime": 1790696282.2326787,
+    "ast_hash": "06454d180b58ae7b0735b38cd0f4052e",
     "semantic_hash": ""
   },
   "POSApp.UI/Helpers/RegionSettings.cs": {
-    "mtime": 1790846868.9756124,
-    "ast_hash": "f8b096acd4da16ed60738e3a33934cdc",
+    "mtime": 1790696196.706735,
+    "ast_hash": "5093680a112a973b96f393c12e5bdccf",
     "semantic_hash": ""
   },
   "POSApp.UI/Helpers/ShopTitleExtension.cs": {
-    "mtime": 1790759357.8533943,
-    "ast_hash": "143c2f7cf1a3072431a2d2fb0ae08952",
+    "mtime": 1790696448.48666,
+    "ast_hash": "affd7874b3a9ad28e9ece04d0a129e3e",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/CallScheduleViewModel.cs": {
-    "mtime": 1790846431.487099,
-    "ast_hash": "408e4e49a71cdf9795d4c602537cb3ed",
+    "mtime": 1783432275.902948,
+    "ast_hash": "f2a90bac1334ff557d84e635946f1286",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/DayCallStatus.cs": {
@@ -1300,8 +1300,8 @@
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/PharmacySaleViewModel.cs": {
-    "mtime": 1790846572.390354,
-    "ast_hash": "0ebd564bd11e899a5253bb9abca4ea83",
+    "mtime": 1790696497.6738434,
+    "ast_hash": "682fc5a8c90693d0af60be0ccd20237d",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/RoleFormViewModel.cs": {
@@ -1315,13 +1315,13 @@
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/SalarySlipViewModel.cs": {
-    "mtime": 1790846414.8474784,
-    "ast_hash": "1123974810b2d143ce1df77e801134d1",
+    "mtime": 1790696477.1581426,
+    "ast_hash": "af376223eb5abda187feb60f746ccc4f",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/UserFormViewModel.cs": {
-    "mtime": 1790758580.7604637,
-    "ast_hash": "7c3b192fc24121d934a69c46872b97ee",
+    "mtime": 1780830713.9765816,
+    "ast_hash": "d563a0c7dce6e8437c01bb0e301cf11a",
     "semantic_hash": ""
   },
   "POSApp.UI/ViewModels/UserManagementViewModel.cs": {
@@ -1345,8 +1345,8 @@
     "semantic_hash": ""
   },
   "POSApp.UI/Views/DemandOrderDialog.xaml.cs": {
-    "mtime": 1790846426.4013333,
-    "ast_hash": "a0344a092712052fbde79b8b17ad0692",
+    "mtime": 1785672460.6103146,
+    "ast_hash": "cdd5d12b0af0971d6d7d3c7277473ff8",
     "semantic_hash": ""
   },
   "POSApp.UI/Views/DoctorFormDialog.xaml.cs": {
@@ -1370,8 +1370,8 @@
     "semantic_hash": ""
   },
   "POSApp.UI/Views/LicenseExpiredWindow.xaml.cs": {
-    "mtime": 1790846444.6846254,
-    "ast_hash": "e9c08e933a3c84133d62b534ae11787f",
+    "mtime": 1785672342.0031905,
+    "ast_hash": "304d18b3ad77459e7c363c5f0defef79",
     "semantic_hash": ""
   },
   "POSApp.UI/Views/MedicalRepFormDialog.xaml.cs": {
@@ -1394,6 +1394,11 @@
     "ast_hash": "a82c188eb561c0816122e34ef5f3412a",
     "semantic_hash": ""
   },
+  "POSApp.UI/Views/ReceiptSettingsWindow.xaml.cs": {
+    "mtime": 1790696282.2487178,
+    "ast_hash": "3d2cd4e6757c0d48f222f546cc2b47c1",
+    "semantic_hash": ""
+  },
   "POSApp.UI/Views/RoleFormDialog.xaml.cs": {
     "mtime": 1780830836.7313673,
     "ast_hash": "840eb19a3203c7d430a4623569ae3a23",
@@ -1410,8 +1415,8 @@
     "semantic_hash": ""
   },
   "POSApp.UI/Views/SyncAlertDialog.xaml.cs": {
-    "mtime": 1790846426.4013333,
-    "ast_hash": "c0d58b24a27ee991682b15b4a1caef64",
+    "mtime": 1783791473.9438443,
+    "ast_hash": "ec90e5fb17fc783cb92a064e45c8e5e4",
     "semantic_hash": ""
   },
   "POSApp.UI/Views/UserFormDialog.xaml.cs": {
@@ -1432,516 +1437,6 @@
   "POSApp.UI/run_err.txt": {
     "mtime": 1780832028.8065238,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Interfaces/IEditionService.cs": {
-    "mtime": 1790762659.3359592,
-    "ast_hash": "857bac03397c5f9631d23cbda7444d85",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Interfaces/IFirstRunSetupService.cs": {
-    "mtime": 1790758473.542135,
-    "ast_hash": "032c3321e2c7c83cf88095f428c3962b",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Interfaces/IFormatService.cs": {
-    "mtime": 1790846868.9756124,
-    "ast_hash": "13864fc8b2a90941de2a6de5f96b717f",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/AppClock.cs": {
-    "mtime": 1790846229.6109679,
-    "ast_hash": "8803a4dd24ca43205b5ac53b5fb4efb7",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/AppEnvironment.cs": {
-    "mtime": 1790758303.871217,
-    "ast_hash": "d26329b57a9c5538a2befb6d7177d9f9",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/AppPaths.cs": {
-    "mtime": 1790758688.7212114,
-    "ast_hash": "65edb4c1a89d77d39b59245f081a4b51",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/Edition.cs": {
-    "mtime": 1790758303.960801,
-    "ast_hash": "7ef7fd3d63401444fd9615e1bc724dc9",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/FormatService.cs": {
-    "mtime": 1790846868.9756124,
-    "ast_hash": "8e3c4eef496bc6ba7376e03a7e7005e2",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/PasswordHasher.cs": {
-    "mtime": 1790758304.042501,
-    "ast_hash": "71a771e5ca8e64a714346add99961ff1",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/RegionSettings.cs": {
-    "mtime": 1790846868.9756124,
-    "ast_hash": "0f16eb185a1a12af078181bf178fe1ff",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/RegionSettingsStore.cs": {
-    "mtime": 1790846660.195573,
-    "ast_hash": "5c98eb863601d744345f688c07465b30",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/SaleTime.cs": {
-    "mtime": 1790846234.7861826,
-    "ast_hash": "f7497324a90a8b43d1ead8af7b2cc4fb",
-    "semantic_hash": ""
-  },
-  "POSApp.Core/Services/SharedSettingsFiles.cs": {
-    "mtime": 1790846659.6435716,
-    "ast_hash": "b84c747c4763323d088892376c1b939c",
-    "semantic_hash": ""
-  },
-  "POSApp.Data/Migrations/20261001092310_AddLookupIndexes.Designer.cs": {
-    "mtime": 1790846590.3403592,
-    "ast_hash": "ec176e27bd828115ecfd0046439f15d4",
-    "semantic_hash": ""
-  },
-  "POSApp.Data/Migrations/20261001092310_AddLookupIndexes.cs": {
-    "mtime": 1790846598.912212,
-    "ast_hash": "85492a08263f440fabeb2115e16b7cd8",
-    "semantic_hash": ""
-  },
-  "POSApp.Infrastructure/Services/DatabaseMigrator.cs": {
-    "mtime": 1790846637.4683533,
-    "ast_hash": "0aa61b285f8e5f862efbf5ddcfcee891",
-    "semantic_hash": ""
-  },
-  "POSApp.Infrastructure/Services/EditionService.cs": {
-    "mtime": 1790762659.34674,
-    "ast_hash": "ee49ccdc5f8a16f18b2a7db55a91081a",
-    "semantic_hash": ""
-  },
-  "POSApp.Infrastructure/Services/FirstRunSetupService.cs": {
-    "mtime": 1790758473.5796306,
-    "ast_hash": "e57d669ea0a9cc3d888b09c1544d6f93",
-    "semantic_hash": ""
-  },
-  "POSApp.Infrastructure/Services/SharedSettingsMirror.cs": {
-    "mtime": 1790846659.7452104,
-    "ast_hash": "2fb7f69691595ebb8627acbe70905fd2",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/BusinessSettingsWindowTests.cs": {
-    "mtime": 1790846267.6297326,
-    "ast_hash": "46b9947013ba3b299ddd5c5798fee9be",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/DataDirectoryTests.cs": {
-    "mtime": 1790845969.791169,
-    "ast_hash": "14326844e28b3ec526e3919a36fb8845",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/DatabaseMigratorTests.cs": {
-    "mtime": 1790847016.9659662,
-    "ast_hash": "4c5a79935bdea49a0ee2a593805b6a38",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/EditionPolicyTests.cs": {
-    "mtime": 1790760180.1204998,
-    "ast_hash": "5702609e04f88f8525dbe7363017dbf8",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/FormatServiceTests.cs": {
-    "mtime": 1790846960.7578726,
-    "ast_hash": "92ef06523fe37d239f9423960b4a0d85",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/PakistanReceiptCharacterizationTests.cs": {
-    "mtime": 1790846932.4177873,
-    "ast_hash": "c82cfc50a72879fd7c6999edd5de34e2",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/PasswordHasherTests.cs": {
-    "mtime": 1790758652.1273324,
-    "ast_hash": "1baf9d547662390943a9d4b453ec0104",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/SaleRecordingTests.cs": {
-    "mtime": 1790846977.6161866,
-    "ast_hash": "adfd55e08aa124d607c819bdabbc09ac",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/SaleRepositoryTests.cs": {
-    "mtime": 1790847016.924512,
-    "ast_hash": "8fdf6f0a2be3baa1017db33ce57e33f4",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/SharedSettingsMirrorTests.cs": {
-    "mtime": 1790847016.9946463,
-    "ast_hash": "4dad270911791f33fa1021061e9a2f6c",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/TestFixtures.cs": {
-    "mtime": 1790846932.4167037,
-    "ast_hash": "5b7502e288325dbe63b22e0490762385",
-    "semantic_hash": ""
-  },
-  "POSApp.Tests/TestSupport.cs": {
-    "mtime": 1790845960.7527342,
-    "ast_hash": "66b0c333b5f8bcce45c315e02d9da66b",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Converters/DateConverter.cs": {
-    "mtime": 1790846281.0719872,
-    "ast_hash": "bc211d980e335595976948a57efb3a1f",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Converters/InverseBoolToVisibilityConverter.cs": {
-    "mtime": 1790747719.7484004,
-    "ast_hash": "077d7eef3567a47fcbc770ff7f91785e",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Converters/NumberConverter.cs": {
-    "mtime": 1790846281.1157267,
-    "ast_hash": "4ed25cf95e19a1b95d70f0a6dcb3de92",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Helpers/EditionGate.cs": {
-    "mtime": 1790758447.0414677,
-    "ast_hash": "f3bc5ed78e5677fbf56548afeab7a176",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Helpers/Input.cs": {
-    "mtime": 1790761608.0049427,
-    "ast_hash": "a1491220dd5e0c84223e5a534ddfb5d4",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Helpers/ProductBranding.cs": {
-    "mtime": 1790762659.34674,
-    "ast_hash": "59a581ef704dc12364cf206566342819",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Views/BusinessSettingsWindow.xaml.cs": {
-    "mtime": 1790846868.9766126,
-    "ast_hash": "7ca4adf5166a205215af4a4d79c6c5c0",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Views/FirstRunSetupWindow.xaml.cs": {
-    "mtime": 1790846807.1105,
-    "ast_hash": "1ccb393d2f8861e970fe0b05c368c8ff",
-    "semantic_hash": ""
-  },
-  "POSApp.UI/Views/UpgradeWindow.xaml.cs": {
-    "mtime": 1790762659.3688903,
-    "ast_hash": "caf226f4f3023e05049a40e368560f47",
-    "semantic_hash": ""
-  },
-  "build-msix.ps1": {
-    "mtime": 1790762659.3225586,
-    "ast_hash": "9f08048ed176f40525c62852bb6a0f72",
-    "semantic_hash": ""
-  },
-  "packaging/store-identity.json": {
-    "mtime": 1790763772.160574,
-    "ast_hash": "818dd81d4209a24960a3c273eeeaf9a6",
-    "semantic_hash": ""
-  },
-  "store-assets/capture/Capture-Screenshots.ps1": {
-    "mtime": 1790768033.9695957,
-    "ast_hash": "a711d345245253b094657975af283499",
-    "semantic_hash": ""
-  },
-  "store-assets/capture/Record-Trailer.ps1": {
-    "mtime": 1790768973.8392968,
-    "ast_hash": "6132c7165b764f48247b7b4517ad0400",
-    "semantic_hash": ""
-  },
-  "store-assets/capture/Start-DemoApp.ps1": {
-    "mtime": 1790767244.226068,
-    "ast_hash": "18e7658c422b1e2f6396dea977b12675",
-    "semantic_hash": ""
-  },
-  "store-assets/capture/UiaHelpers.ps1": {
-    "mtime": 1790768033.9685972,
-    "ast_hash": "d8c22a1daeeaabb04a696389c59f6c0a",
-    "semantic_hash": ""
-  },
-  "store-assets/capture/runtime/receipt-branding.json": {
-    "mtime": 1790767244.1526666,
-    "ast_hash": "5c172368a3006c32535982c30fbe47a5",
-    "semantic_hash": ""
-  },
-  "store-assets/capture/runtime/trailer/scenes.json": {
-    "mtime": 1790769052.5992014,
-    "ast_hash": "1d6253376b0fd0fd1d3fe0d7154c2aec",
-    "semantic_hash": ""
-  },
-  "store-assets/seed/DemoSeed/DemoSeed.csproj": {
-    "mtime": 1790767103.7003038,
-    "ast_hash": "5d1e18c864f8bfb3279cd56b9790de38",
-    "semantic_hash": ""
-  },
-  "store-assets/seed/DemoSeed/Program.cs": {
-    "mtime": 1790767621.4121747,
-    "ast_hash": "99d6fa4a40dd2fc6ebb0a0e760bd50ac",
-    "semantic_hash": ""
-  },
-  "store-assets/seed/demo-settings/receipt-branding.json": {
-    "mtime": 1790767244.1526666,
-    "ast_hash": "5c172368a3006c32535982c30fbe47a5",
-    "semantic_hash": ""
-  },
-  "store-assets/src/brand.json": {
-    "mtime": 1790766966.905167,
-    "ast_hash": "f013e198c85109af8293169c0b96e2ac",
-    "semantic_hash": ""
-  },
-  "store-assets/src/frame.py": {
-    "mtime": 1790768147.4089375,
-    "ast_hash": "5ca1892c877daf840c9a3bfd6c7cd945",
-    "semantic_hash": ""
-  },
-  "store-assets/src/render.py": {
-    "mtime": 1790767036.1812563,
-    "ast_hash": "ee3abf20b29f2f55ae0cab4b3693f183",
-    "semantic_hash": ""
-  },
-  "store-assets/src/trailer.py": {
-    "mtime": 1790769152.3846407,
-    "ast_hash": "1118415b369ded30624507ca1989ce91",
-    "semantic_hash": ""
-  },
-  "store-assets/tools/imageio_ffmpeg/__init__.py": {
-    "mtime": 1790768911.5242937,
-    "ast_hash": "397377741bc1ed047071541f0f3eef6c",
-    "semantic_hash": ""
-  },
-  "store-assets/tools/imageio_ffmpeg/_definitions.py": {
-    "mtime": 1790768911.5242937,
-    "ast_hash": "159ec0de89c5230ec1be59e8214988d6",
-    "semantic_hash": ""
-  },
-  "store-assets/tools/imageio_ffmpeg/_io.py": {
-    "mtime": 1790768911.5242937,
-    "ast_hash": "130e50a171142b461c2c444e00d71422",
-    "semantic_hash": ""
-  },
-  "store-assets/tools/imageio_ffmpeg/_parsing.py": {
-    "mtime": 1790768911.5252936,
-    "ast_hash": "148c597c212d8637b14632b1a5d4df54",
-    "semantic_hash": ""
-  },
-  "store-assets/tools/imageio_ffmpeg/_utils.py": {
-    "mtime": 1790768911.5252936,
-    "ast_hash": "d614b2636eba3e65bd8e77d5661aabf4",
-    "semantic_hash": ""
-  },
-  "store-assets/tools/imageio_ffmpeg/binaries/__init__.py": {
-    "mtime": 1790768911.5262935,
-    "ast_hash": "84d8792d141a97fcd48a2239f5cc232c",
-    "semantic_hash": ""
-  },
-  "store-assets/verify.ps1": {
-    "mtime": 1790769241.942843,
-    "ast_hash": "73224bf2fd576047d193a40f2793933b",
-    "semantic_hash": ""
-  },
-  "docs/us-expansion/00-discovery.md": {
-    "mtime": 1790845325.107866,
-    "ast_hash": "0c73973c098d20a40891dcdffb51325d",
-    "semantic_hash": ""
-  },
-  "packaging/README.md": {
-    "mtime": 1790762659.334418,
-    "ast_hash": "3f7318e78788bf3023eb8745a2e47368",
-    "semantic_hash": ""
-  },
-  "store-assets/REPORT.md": {
-    "mtime": 1790769232.3530467,
-    "ast_hash": "3c1f897573cf99dce7258b0de6d16612",
-    "semantic_hash": ""
-  },
-  "store-assets/capture/MANUAL.md": {
-    "mtime": 1790769232.3530467,
-    "ast_hash": "06181a52dc4200690e8e16f12b3648d7",
-    "semantic_hash": ""
-  },
-  "store-assets/listing.md": {
-    "mtime": 1790768214.1157959,
-    "ast_hash": "88ad8afb3f8bff330da82a26c7d609c8",
-    "semantic_hash": ""
-  },
-  "store-assets/src/html/boxart.html": {
-    "mtime": 1790767036.2862177,
-    "ast_hash": "bd716f98f071edf80fdd349e59a4a2f9",
-    "semantic_hash": ""
-  },
-  "store-assets/src/html/hero.html": {
-    "mtime": 1790767036.2862177,
-    "ast_hash": "b642c79f6853c20889055931d2ab9e00",
-    "semantic_hash": ""
-  },
-  "store-assets/src/html/poster.html": {
-    "mtime": 1790767036.2862177,
-    "ast_hash": "057e0911cd7995880ed435661444bb32",
-    "semantic_hash": ""
-  },
-  "store-assets/src/html/tile-small.html": {
-    "mtime": 1790767036.2862177,
-    "ast_hash": "7c700ff2ee4997b42d86a6fb3a787d0d",
-    "semantic_hash": ""
-  },
-  "store-assets/src/html/tile.html": {
-    "mtime": 1790767036.2862177,
-    "ast_hash": "0debcbd33e31f2c92d4d7358e21e8dc6",
-    "semantic_hash": ""
-  },
-  "store-assets/tools/imageio_ffmpeg-0.6.0.dist-info/top_level.txt": {
-    "mtime": 1790768911.9215045,
-    "ast_hash": "eb00a118d764bd19866c125b5ff007e2",
-    "semantic_hash": ""
-  },
-  "store-assets/tools/imageio_ffmpeg/binaries/README.md": {
-    "mtime": 1790768911.5262935,
-    "ast_hash": "3f9a6ab3f3e2943019420b08f99d08cc",
-    "semantic_hash": ""
-  },
-  "store-assets/hero/superhero-16x9-1920x1080.png": {
-    "mtime": 1790767049.042771,
-    "ast_hash": "474674f00b8c03184aad0e79f4aba73e",
-    "semantic_hash": ""
-  },
-  "store-assets/hero/superhero-16x9-3840x2160.png": {
-    "mtime": 1790767047.2884033,
-    "ast_hash": "22fcd37fd700f8eda0d80f3f6e137922",
-    "semantic_hash": ""
-  },
-  "store-assets/logos/boxart-1x1-1080x1080.png": {
-    "mtime": 1790767041.4296298,
-    "ast_hash": "e7b77b33e63dc99ee6466c07d0441807",
-    "semantic_hash": ""
-  },
-  "store-assets/logos/boxart-1x1-2160x2160.png": {
-    "mtime": 1790767040.2468076,
-    "ast_hash": "e1047e43778ebe73875c0103e7b0a6af",
-    "semantic_hash": ""
-  },
-  "store-assets/logos/poster-9x16-1440x2160.png": {
-    "mtime": 1790767037.428862,
-    "ast_hash": "22871441c785099d2768b614e0f9b362",
-    "semantic_hash": ""
-  },
-  "store-assets/logos/poster-9x16-720x1080.png": {
-    "mtime": 1790767038.5560584,
-    "ast_hash": "0bfb7446ff6cf591cd3a15d628131cbf",
-    "semantic_hash": ""
-  },
-  "store-assets/logos/tile-150.png": {
-    "mtime": 1790767043.9468324,
-    "ast_hash": "1aacff93aaa4292ece02825f52ac973c",
-    "semantic_hash": ""
-  },
-  "store-assets/logos/tile-300.png": {
-    "mtime": 1790767042.800267,
-    "ast_hash": "1cf6e88c6a1e73b374a7d9fcf459ede2",
-    "semantic_hash": ""
-  },
-  "store-assets/logos/tile-71.png": {
-    "mtime": 1790767045.0297785,
-    "ast_hash": "a13a3a8c361048bd038e209d88a47218",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/01-billing.png": {
-    "mtime": 1790768057.1379232,
-    "ast_hash": "efede1817e97482324c7c80b4b378c48",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/02-receipt.png": {
-    "mtime": 1790768063.6170647,
-    "ast_hash": "c93a979610ab8d5590c1816b28c5394e",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/03-inventory.png": {
-    "mtime": 1790768065.201498,
-    "ast_hash": "7bf22207059e03cade96e730a0a96370",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/04-sales-report.png": {
-    "mtime": 1790768071.829991,
-    "ast_hash": "5048604b8f7a2461fd9587e0c20184a8",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/05-customers.png": {
-    "mtime": 1790768079.5765684,
-    "ast_hash": "2e134d0e84f773025799df28519bbf89",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/06-users.png": {
-    "mtime": 1790768085.0381804,
-    "ast_hash": "7ac5abc83beb8d57333802dc5a9671a4",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/07-backup.png": {
-    "mtime": 1790768097.9460673,
-    "ast_hash": "b3eb92c495ddcc23a60c28b1db1b6553",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/framed/01-billing.png": {
-    "mtime": 1790768148.2285604,
-    "ast_hash": "54b59f2386314dc869de974fc718933b",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/framed/02-receipt.png": {
-    "mtime": 1790768148.9829977,
-    "ast_hash": "968c762b7c3ecbc0101808a36b8c08e9",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/framed/03-inventory.png": {
-    "mtime": 1790768149.6820366,
-    "ast_hash": "47140f56196994f7bc528501e68cff15",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/framed/04-sales-report.png": {
-    "mtime": 1790768150.3897283,
-    "ast_hash": "733bebb40ed2cdfb6c3c1113bd81a61a",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/framed/05-customers.png": {
-    "mtime": 1790768151.175997,
-    "ast_hash": "fad72245d450124f3a6a42965177d8ff",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/framed/06-users.png": {
-    "mtime": 1790768151.8740785,
-    "ast_hash": "04e15bc558aaa7542f056ebbf0bbb48b",
-    "semantic_hash": ""
-  },
-  "store-assets/screenshots/framed/07-backup.png": {
-    "mtime": 1790768152.5735154,
-    "ast_hash": "4c1137ac51a1d3e9626986d1b3ebd502",
-    "semantic_hash": ""
-  },
-  "store-assets/src/logo-simple.svg": {
-    "mtime": 1790766966.8734338,
-    "ast_hash": "132ced305258f598d4df5a7aeede2578",
-    "semantic_hash": ""
-  },
-  "store-assets/src/logo.svg": {
-    "mtime": 1790766966.8482652,
-    "ast_hash": "4d77d7de90b60dbd683ebe2bf5e63817",
-    "semantic_hash": ""
-  },
-  "store-assets/trailer/trailer-thumbnail-1920x1080.png": {
-    "mtime": 1790769183.8756337,
-    "ast_hash": "3ea644ef992cbecaea6bbf687aae248c",
-    "semantic_hash": ""
-  },
-  "store-assets/capture/runtime/trailer/raw.mp4": {
-    "mtime": 1790769050.5089953,
-    "ast_hash": "9a394d18223079fbc1c678747e24b27a",
-    "semantic_hash": ""
-  },
-  "store-assets/trailer/swifttill-trailer-1080p.mp4": {
-    "mtime": 1790769182.3924823,
-    "ast_hash": "1a419e4ebf84764dcf50255a43e67b6e",
     "semantic_hash": ""
   }
 }
