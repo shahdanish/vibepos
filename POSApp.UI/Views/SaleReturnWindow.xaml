@@ -102,7 +102,7 @@
                                                 Width="80" ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, Converter={StaticResource NumberConverter}}" Width="95"
                                                 ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Disc %" Binding="{Binding DiscountPercent, StringFormat=N0}" Width="70"
+                            <DataGridTextColumn Header="Discount" Binding="{Binding DiscountDisplay}" Width="80"
                                                 ElementStyle="{StaticResource CenterAlignStyle}" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Amount" Binding="{Binding Total, Converter={StaticResource NumberConverter}}" Width="110"
                                                 ElementStyle="{StaticResource RightAlignStyle}" IsReadOnly="True"/>

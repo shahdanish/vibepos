@@ -55,7 +55,7 @@
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="90"/>
+                            <DataGridTextColumn Header="Barcode" Binding="{Binding Barcode}" Width="125"/>
                             <DataGridTemplateColumn Header="Product Name" Width="*" SortMemberPath="ProductName">
                                 <DataGridTemplateColumn.CellStyle>
                                     <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">

@@ -1,7 +1,4 @@
-using System.IO.Compression;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using Google.Cloud.Firestore;
 using Microsoft.Data.Sqlite;
@@ -31,7 +28,7 @@ namespace POSApp.Infrastructure.Services
     {
         // Base64 characters per chunk document. Firestore's per-document limit is ~1 MB;
         // 700 KB keeps each chunk comfortably under it.
-        private const int ChunkCharSize = 700_000;
+        private const int ChunkCharSize = CloudBackupPayload.ChunkCharSize;
 
         // Keep the most recent N snapshots in the cloud; older ones are pruned after upload.
         private const int MaxSnapshots = 5;
@@ -120,14 +117,11 @@ namespace POSApp.Infrastructure.Services
                 // pools so the snapshot file is fully released before we read it.
                 SqliteConnection.ClearAllPools();
 
-                // 2) Read + hash + compress.
+                // 2) Read + hash + compress, 3) split into chunks.
                 var raw = await File.ReadAllBytesAsync(tempDb, ct);
-                var sha256 = Convert.ToHexString(SHA256.HashData(raw));
-                var compressed = Gzip(raw);
-                var base64 = Convert.ToBase64String(compressed);
-
-                // 3) Split into chunks.
-                var chunks = SplitString(base64, ChunkCharSize);
+                var payload = CloudBackupPayload.Encode(raw);
+                var sha256 = payload.Sha256;
+                var chunks = payload.Chunks;
 
                 var ts = DateTime.Now.ToString("yyyyMMdd_HHmmss");
                 var (schemaVersion, appVersion) = await GetVersionInfoAsync(ct);
@@ -150,7 +144,7 @@ namespace POSApp.Infrastructure.Services
                 await snapDoc.SetAsync(new Dictionary<string, object>
                 {
                     ["sizeBytes"] = (long)raw.Length,
-                    ["compressedBytes"] = (long)compressed.Length,
+                    ["compressedBytes"] = payload.CompressedBytes,
                     ["sha256"] = sha256,
                     ["chunkCount"] = chunks.Count,
                     ["chunkCharSize"] = ChunkCharSize,
@@ -240,14 +234,10 @@ namespace POSApp.Infrastructure.Services
                 if (chunkQuery.Count != expectedChunks)
                     return Skip($"Cloud backup is incomplete ({chunkQuery.Count}/{expectedChunks} chunks). Restore aborted.");
 
-                var sb = new StringBuilder();
-                foreach (var chunk in chunkQuery.Documents)
-                    sb.Append(chunk.GetValue<string>("data"));
-
                 byte[] raw;
                 try
                 {
-                    raw = Gunzip(Convert.FromBase64String(sb.ToString()));
+                    raw = CloudBackupPayload.Decode(chunkQuery.Documents.Select(chunk => chunk.GetValue<string>("data")));
                 }
                 catch (Exception ex)
                 {
@@ -255,8 +245,7 @@ namespace POSApp.Infrastructure.Services
                 }
 
                 // 4) Integrity verification BEFORE touching the local database.
-                var actualSha = Convert.ToHexString(SHA256.HashData(raw));
-                if (raw.LongLength != expectedSize || !string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase))
+                if (!CloudBackupPayload.Verify(raw, expectedSize, expectedSha))
                     return Skip("Cloud backup failed integrity check (checksum mismatch). Restore aborted — local data untouched.");
 
                 // 5) Write the verified bytes to a temp .db and validate it opens as SQLite.
@@ -394,7 +383,7 @@ namespace POSApp.Infrastructure.Services
             using var scope = _serviceProvider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var known = await Task.Run(() => db.Database.GetMigrations().ToHashSet(), ct);
-            return known.Contains(schemaVersion);
+            return CloudBackupPayload.IsSchemaKnown(known, schemaVersion);
         }
 
         private async Task<(string schemaVersion, string appVersion)> GetVersionInfoAsync(CancellationToken ct)
@@ -415,31 +404,6 @@ namespace POSApp.Infrastructure.Services
                 return doc.RootElement.GetProperty("project_id").GetString();
             }
             catch { return null; }
-        }
-
-        private static byte[] Gzip(byte[] data)
-        {
-            using var output = new MemoryStream();
-            using (var gz = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true))
-                gz.Write(data, 0, data.Length);
-            return output.ToArray();
-        }
-
-        private static byte[] Gunzip(byte[] data)
-        {
-            using var input = new MemoryStream(data);
-            using var gz = new GZipStream(input, CompressionMode.Decompress);
-            using var output = new MemoryStream();
-            gz.CopyTo(output);
-            return output.ToArray();
-        }
-
-        private static List<string> SplitString(string s, int size)
-        {
-            var parts = new List<string>((s.Length / size) + 1);
-            for (int i = 0; i < s.Length; i += size)
-                parts.Add(s.Substring(i, Math.Min(size, s.Length - i)));
-            return parts;
         }
 
         private static DateTime ParseTimestamp(string ts)

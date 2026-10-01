@@ -117,5 +117,33 @@ namespace POSApp.Tests
             Assert.Contains("1\tGlycerin 25gm\t2\t23.00\t\t46.00\n", text);
             Assert.Contains("\tTotal Bill\t3,732.10\n", text);
         }
+
+        [Fact]
+        public void ShopPhone_IsFormattedForTheUs_AndPrintedAsTypedElsewhere()
+        {
+            var original = ReceiptBranding.Current;
+            try
+            {
+                ReceiptBranding.Save(new ReceiptBrandingSettings { StoreName = "Test Shop", StorePhone = "5555550142" });
+
+                string Bill() => Sta.Run(() =>
+                {
+                    var vm = SaleFixtures.NewSaleScreen();
+                    SaleFixtures.FillCart(vm);
+                    return Sta.TextOf(vm.CreateProfessionalInvoice());
+                });
+
+                Assert.Contains("(555) 555-0142", Bill());
+
+                Region.Apply(RegionSettingsData.Pakistan());
+                var pk = Bill();
+                Assert.Contains("5555550142", pk);
+                Assert.DoesNotContain("(555)", pk);
+            }
+            finally
+            {
+                ReceiptBranding.Save(original);
+            }
+        }
     }
 }

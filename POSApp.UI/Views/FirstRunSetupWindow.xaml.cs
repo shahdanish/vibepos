@@ -12,19 +12,19 @@ namespace POSApp.UI.Views
     public partial class FirstRunSetupWindow : Window
     {
         /// <param name="RegionCode">Country whose full preset (dates, spacing, receipt decimals) applies, or Other.</param>
-        private sealed record CurrencyOption(string Label, string Symbol, string Name, NumberWordStyle Words, string RegionCode);
+        private sealed record CurrencyOption(string Label, string Symbol, string Name, string Code, NumberWordStyle Words, string RegionCode);
 
         // US Dollar first: it's the default for new Store installs.
         private static readonly CurrencyOption[] Currencies =
         {
-            new("$ — US Dollar (United States)", "$",   "Dollars",  NumberWordStyle.International, RegionCodes.UnitedStates),
-            new("€ — Euro",                "€",   "Euros",    NumberWordStyle.International, RegionCodes.Other),
-            new("£ — British Pound",       "£",   "Pounds",   NumberWordStyle.International, RegionCodes.Other),
-            new("AED — UAE Dirham",        "AED", "Dirhams",  NumberWordStyle.International, RegionCodes.Other),
-            new("SAR — Saudi Riyal",       "SAR", "Riyals",   NumberWordStyle.International, RegionCodes.Other),
-            new("Rs. — Pakistani Rupee",   "Rs.", "Rupees",   NumberWordStyle.SouthAsian,    RegionCodes.Pakistan),
-            new("₹ — Indian Rupee",        "₹",   "Rupees",   NumberWordStyle.SouthAsian,    RegionCodes.Other),
-            new("Tk — Bangladeshi Taka",   "Tk",  "Taka",     NumberWordStyle.SouthAsian,    RegionCodes.Other),
+            new("$ — US Dollar (United States)", "$",   "Dollars",  "USD", NumberWordStyle.International, RegionCodes.UnitedStates),
+            new("€ — Euro",                "€",   "Euros",    "EUR", NumberWordStyle.International, RegionCodes.Other),
+            new("£ — British Pound",       "£",   "Pounds",   "GBP", NumberWordStyle.International, RegionCodes.Other),
+            new("AED — UAE Dirham",        "AED", "Dirhams",  "AED", NumberWordStyle.International, RegionCodes.Other),
+            new("SAR — Saudi Riyal",       "SAR", "Riyals",   "SAR", NumberWordStyle.International, RegionCodes.Other),
+            new("Rs. — Pakistani Rupee",   "Rs.", "Rupees",   "PKR", NumberWordStyle.SouthAsian,    RegionCodes.Pakistan),
+            new("₹ — Indian Rupee",        "₹",   "Rupees",   "INR", NumberWordStyle.SouthAsian,    RegionCodes.Other),
+            new("Tk — Bangladeshi Taka",   "Tk",  "Taka",     "BDT", NumberWordStyle.SouthAsian,    RegionCodes.Other),
         };
 
         private readonly IFirstRunSetupService _setup;
@@ -72,6 +72,7 @@ namespace POSApp.UI.Views
                     region.RegionCode = c.RegionCode;
                     region.CurrencySymbol = c.Symbol;
                     region.CurrencyName = c.Name;
+                    region.CurrencyCode = c.Code;
                     region.NumberWords = c.Words;
                     Region.Save(region);
                 }

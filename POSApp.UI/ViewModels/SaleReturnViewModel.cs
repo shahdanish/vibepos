@@ -175,9 +175,11 @@ namespace POSApp.UI.ViewModels
                     ProductId = item.ProductId,
                     ProductName = item.ProductName,
                     OriginalQuantity = (int)item.Quantity,
+                    LineQuantity = item.Quantity,
                     ReturnQuantity = 0,
                     UnitPrice = item.UnitPrice,
                     CostPrice = item.CostPrice,
+                    DiscountType = item.DiscountType,
                     DiscountPercent = item.DiscountPercent,
                     Total = 0
                 });
@@ -246,6 +248,7 @@ namespace POSApp.UI.ViewModels
                         CostPrice = item.CostPrice,
                         UnitPrice = item.UnitPrice,
                         DiscountPercent = item.DiscountPercent,
+                        DiscountType = item.DiscountType,
                         Total = -item.Total
                     });
 
@@ -454,6 +457,8 @@ namespace POSApp.UI.ViewModels
         private decimal _costPrice;
         private decimal _unitPrice;
         private decimal _discountPercent;
+        private string _discountType = "%";
+        private decimal _lineQuantity;
         private decimal _total;
 
         public string ProductId
@@ -506,7 +511,10 @@ namespace POSApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref _discountPercent, value))
+                {
                     CalculateTotal();
+                    OnPropertyChanged(nameof(DiscountDisplay));
+                }
             }
         }
 
@@ -516,9 +524,58 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _total, value);
         }
 
+        /// <summary>
+        /// How the original line was discounted: "%" (percentage) or a flat amount for the whole
+        /// line ("AMT"; rows saved before the software was currency-neutral say "PKR").
+        /// </summary>
+        public string DiscountType
+        {
+            get => _discountType;
+            set
+            {
+                if (SetProperty(ref _discountType, value))
+                {
+                    CalculateTotal();
+                    OnPropertyChanged(nameof(DiscountDisplay));
+                }
+            }
+        }
+
+        /// <summary>The original line discount as the sale screen shows it: "10%" or "Rs. 25".</summary>
+        public string DiscountDisplay =>
+            _discountType == "%" ? $"{DiscountPercent:N0}%" : Region.MoneyWhole(DiscountPercent);
+
+        /// <summary>The exact quantity on the original line (it can be fractional, e.g. 2.5 kg).</summary>
+        public decimal LineQuantity
+        {
+            get => _lineQuantity;
+            set
+            {
+                if (SetProperty(ref _lineQuantity, value))
+                    CalculateTotal();
+            }
+        }
+
         private void CalculateTotal()
         {
-            Total = (UnitPrice * ReturnQuantity) - ((UnitPrice * ReturnQuantity * DiscountPercent) / 100);
+            Total = (UnitPrice * ReturnQuantity) - ReturnedDiscount();
+        }
+
+        /// <summary>
+        /// The part of the original line discount that belongs to the units being returned.
+        /// A percentage applies to them as-is. A flat amount was taken off the whole line, so it
+        /// is shared out per unit — returning every unit refunds exactly what was paid. (It used
+        /// to be treated as a percentage, refunding the wrong amount.)
+        /// </summary>
+        private decimal ReturnedDiscount()
+        {
+            if (_discountType == "%")
+                return (UnitPrice * ReturnQuantity * DiscountPercent) / 100;
+
+            var lineQuantity = _lineQuantity > 0 ? _lineQuantity : _originalQuantity;
+            if (ReturnQuantity <= 0 || lineQuantity <= 0) return 0;
+            if (ReturnQuantity >= lineQuantity) return DiscountPercent;
+            return Math.Round(DiscountPercent * ReturnQuantity / lineQuantity, 2, MidpointRounding.AwayFromZero);
         }
     }
 }

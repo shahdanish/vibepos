@@ -64,7 +64,7 @@ namespace POSApp.UI.ViewModels
 
         public string? EditionBadgeTooltip =>
             EditionGate.Edition == AppEdition.StorePro && EditionGate.Service?.ProExpiresOn is { } until
-                ? $"Swifttill Pro subscription — current period ends {until.LocalDateTime:dd MMM yyyy}"
+                ? $"Swifttill Pro subscription — current period ends {Region.LongDate(until.LocalDateTime)}"
                 : EditionGate.Edition == AppEdition.StoreLite ? "Swifttill Lite (free)" : null;
 
         public Visibility EditionBadgeVisibility =>

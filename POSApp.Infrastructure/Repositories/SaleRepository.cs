@@ -102,13 +102,16 @@ namespace POSApp.Infrastructure.Repositories
 
         public async Task<string> GetNextInvoiceNumberAsync(CancellationToken ct = default)
         {
-            // The highest purely numeric invoice number, by value. Taking the last row by Id and
-            // parsing it broke whenever that row was a return ("R-…"): the sequence restarted at
-            // 11016 and handed out numbers that were already on customers' receipts.
+            // The highest number already used, by value, counting sales ("11055") and returns
+            // ("R-11056") as one sequence — a return takes the next number too, so two returns
+            // never share one. Taking the last row by Id and parsing it broke whenever that row
+            // was a return: the sequence restarted at 11016 and reused numbers already on paper.
             var highest = await _context.Database
                 .SqlQueryRaw<long?>(
-                    "SELECT MAX(CAST(InvoiceNumber AS INTEGER)) AS \"Value\" FROM Sales " +
-                    "WHERE InvoiceNumber <> '' AND InvoiceNumber NOT GLOB '*[^0-9]*'")
+                    "SELECT MAX(CAST(Number AS INTEGER)) AS \"Value\" FROM (" +
+                    "  SELECT CASE WHEN InvoiceNumber LIKE 'R-%' THEN substr(InvoiceNumber, 3) ELSE InvoiceNumber END AS Number" +
+                    "  FROM Sales) " +
+                    "WHERE Number <> '' AND Number NOT GLOB '*[^0-9]*'")
                 .SingleAsync(ct);
 
             return (highest is long n ? n + 1 : FirstInvoiceNumber).ToString(CultureInfo.InvariantCulture);

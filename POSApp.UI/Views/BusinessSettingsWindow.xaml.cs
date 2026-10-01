@@ -60,6 +60,7 @@ namespace POSApp.UI.Views
             _culture = r.Culture;
             txtCurrencySymbol.Text = r.CurrencySymbol;
             txtCurrencyName.Text = r.CurrencyName;
+            txtCurrencyCode.Text = r.CurrencyCode;
             txtNationalIdLabel.Text = r.NationalIdLabel;
             txtStatutoryDeductionLabel.Text = r.StatutoryDeductionLabel;
 
@@ -94,6 +95,7 @@ namespace POSApp.UI.Views
                 Culture = _culture,
                 CurrencySymbol = txtCurrencySymbol.Text.Trim(),
                 CurrencyName = txtCurrencyName.Text.Trim(),
+                CurrencyCode = txtCurrencyCode.Text.Trim().ToUpperInvariant(),
                 NationalIdLabel = txtNationalIdLabel.Text.Trim(),
                 StatutoryDeductionLabel = txtStatutoryDeductionLabel.Text.Trim(),
                 SymbolSide = cboSymbolSide.SelectedIndex == 1 ? SymbolPosition.After : SymbolPosition.Before,
@@ -130,7 +132,7 @@ namespace POSApp.UI.Views
             {
                 Region.Apply(draft);
 
-                var headerLines = new[] { b.StoreName, b.StoreAddress, b.StorePhone, b.HeaderNote }
+                var headerLines = new[] { b.StoreName, b.StoreAddress, Region.Phone(b.StorePhone), b.HeaderNote }
                     .Where(l => !string.IsNullOrWhiteSpace(l));
                 txtPreviewHeader.Text = string.Join(Environment.NewLine, headerLines);
 
@@ -200,6 +202,13 @@ namespace POSApp.UI.Views
             {
                 NotificationHelper.ValidationErrorCustom("Currency Symbol is required — it is printed on every amount.");
                 txtCurrencySymbol.Focus();
+                return;
+            }
+
+            if (region.CurrencyCode.Length != 3 || !region.CurrencyCode.All(char.IsAsciiLetterUpper))
+            {
+                NotificationHelper.ValidationErrorCustom("Currency Code must be the 3-letter ISO code, e.g. PKR or USD.");
+                txtCurrencyCode.Focus();
                 return;
             }
 

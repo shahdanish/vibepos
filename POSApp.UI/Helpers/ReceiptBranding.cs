@@ -131,7 +131,7 @@ namespace POSApp.UI.Helpers
             if (!string.IsNullOrWhiteSpace(b.StoreAddress))
                 AddLine(new Run(b.StoreAddress) { FontSize = lineFontSize });
             if (!string.IsNullOrWhiteSpace(b.StorePhone))
-                AddLine(new Run(b.StorePhone) { FontSize = lineFontSize });
+                AddLine(new Run(Region.Phone(b.StorePhone)) { FontSize = lineFontSize });
             if (!string.IsNullOrWhiteSpace(b.HeaderNote))
                 AddLine(new Run(b.HeaderNote) { FontSize = lineFontSize });
 

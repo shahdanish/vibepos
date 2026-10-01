@@ -128,7 +128,7 @@ namespace POSApp.UI.Views
             dlg.LeftCountBrush.Color    = Color.FromRgb(0x38, 0x8E, 0x3C);
             dlg.LeftCardBg.Color        = Color.FromRgb(0xE8, 0xF5, 0xE9);
             dlg.LeftLabel.Text          = "Restored Size";
-            dlg.RightValueText.Text     = $"{Region.Date(snapshotTime, DateFormat.DayMonthName)} {Region.Time(snapshotTime)}";
+            dlg.RightValueText.Text     = $"{Region.Date(snapshotTime, DateFormat.DocumentDayMonth)} {Region.Time(snapshotTime)}";
             dlg.RightLabel.Text         = "Backup Date";
 
             dlg.DetailText.Text = "Your local database has been restored from the cloud backup. " +

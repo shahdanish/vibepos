@@ -34,6 +34,7 @@ namespace POSApp.Tests
             Assert.Equal(d.ToString("dd MMM yyyy", EnUs), Pk.Date(d, DateFormat.Long));
             Assert.Equal(d.ToString("dd-MMM-yyyy", EnUs), Pk.Date(d, DateFormat.Document));
             Assert.Equal(d.ToString("dd MMM", EnUs), Pk.Date(d, DateFormat.DayMonthName));
+            Assert.Equal(d.ToString("dd-MMM", EnUs), Pk.Date(d, DateFormat.DocumentDayMonth));
             Assert.Equal(d.ToString("dddd, dd MMM yyyy", EnUs), Pk.Date(d, DateFormat.Weekday));
             Assert.Equal(d.ToString("dddd, dd MMMM yyyy", EnUs), Pk.Date(d, DateFormat.WeekdayLong));
             Assert.Equal(d.ToString("MM/yyyy", EnUs), Pk.Date(d, DateFormat.MonthYear));
@@ -96,6 +97,7 @@ namespace POSApp.Tests
             Assert.True(s.SymbolSpacing);
             Assert.Equal(0, s.CompactDecimalPlaces);
             Assert.Equal(TimeStyle.TwelveHourPadded, s.Times);
+            Assert.Equal("PKR", s.CurrencyCode);
             Assert.Equal("Rs. 1,250.00", new FormatService(s).Money(1250m));
         }
 
@@ -136,6 +138,8 @@ namespace POSApp.Tests
             Assert.Equal("Wednesday, Oct 14, 2026", Us.Date(d, DateFormat.Weekday));
             Assert.Equal("Wednesday, October 14, 2026", Us.Date(d, DateFormat.WeekdayLong));
             Assert.Equal("2:35 PM", Us.Time(d));
+            Assert.Equal("10/14", Us.Date(d, DateFormat.DocumentDayMonth));
+            Assert.Equal("USD", Us.CurrencyCode);
             Assert.Equal("10/14/2026 2:35 PM", Us.DateAndTime(d, DateFormat.Document));
             Assert.Equal("01/05/2026", Us.Date(new DateTime(2026, 1, 5)));
         }

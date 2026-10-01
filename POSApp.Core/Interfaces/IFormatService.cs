@@ -24,6 +24,9 @@ namespace POSApp.Core.Interfaces
         /// <summary>31 Dec · Dec 31 · Dec 31</summary>
         DayMonthName,
 
+        /// <summary>Compact day and month on dialogs: 31-Dec · 12/31 · 12-31</summary>
+        DocumentDayMonth,
+
         /// <summary>Thursday, 31 Dec 2026 · Thursday, Dec 31, 2026 · Thursday, 2026-12-31</summary>
         Weekday,
 
@@ -45,6 +48,9 @@ namespace POSApp.Core.Interfaces
 
         /// <summary>The configured currency symbol on its own, e.g. "Rs." or "$".</summary>
         string CurrencySymbol { get; }
+
+        /// <summary>The ISO 4217 currency code, e.g. "PKR" or "USD".</summary>
+        string CurrencyCode { get; }
 
         /// <summary>True when US country rules apply (sales tax, US receipt).</summary>
         bool IsUnitedStates { get; }

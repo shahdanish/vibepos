@@ -25,6 +25,10 @@ TestResults/
 # Exception: keep standard DB structure if needed, but usually we ignore local databases to avoid committing test data
 # Keep posapp.db out of source control
 posapp.db
+# SQLite side files (write-ahead log / shared memory) and pre-restore safety copies
+*.db-wal
+*.db-shm
+*.prerestore
 
 # User-specific files
 *.rsuser

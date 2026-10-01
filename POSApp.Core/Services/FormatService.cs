@@ -26,6 +26,8 @@ namespace POSApp.Core.Services
 
         public string CurrencySymbol => Settings.CurrencySymbol;
 
+        public string CurrencyCode => Settings.CurrencyCode;
+
         public bool IsUnitedStates => RegionCodes.IsUnitedStates(Settings.RegionCode);
 
         // ── Numbers & money ───────────────────────────────────────────────
@@ -99,6 +101,7 @@ namespace POSApp.Core.Services
                 DateFormat.Long => Pick(style, "dd MMM yyyy", "MMM dd, yyyy", "yyyy-MMM-dd"),
                 DateFormat.Document => Pick(style, "dd-MMM-yyyy", "MM/dd/yyyy", "yyyy-MM-dd"),
                 DateFormat.DayMonthName => Pick(style, "dd MMM", "MMM dd", "MMM dd"),
+                DateFormat.DocumentDayMonth => Pick(style, "dd-MMM", "MM/dd", "MM-dd"),
                 DateFormat.Weekday => Pick(style, "dddd, dd MMM yyyy", "dddd, MMM dd, yyyy", "dddd, yyyy-MM-dd"),
                 DateFormat.WeekdayLong => Pick(style, "dddd, dd MMMM yyyy", "dddd, MMMM dd, yyyy", "dddd, yyyy-MM-dd"),
                 DateFormat.MonthYear => Pick(style, "MM/yyyy", "MM/yyyy", "yyyy-MM"),

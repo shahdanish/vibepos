@@ -136,6 +136,13 @@
                                 <TextBox x:Name="txtCurrencyName" Style="{StaticResource Field}"/>
                                 <TextBlock Text="Spelled out in the amount-in-words line on salary slips — Rupees, Dollars, Pounds, Dirhams."
                                            Style="{StaticResource Hint}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBlock Text="Currency code" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>
+                                    <TextBox x:Name="txtCurrencyCode" Style="{StaticResource Field}" Width="80" MaxLength="3"
+                                             CharacterCasing="Upper"/>
+                                    <TextBlock Text="PKR · USD · EUR · AED" VerticalAlignment="Center" Margin="10,0,0,0"
+                                               Style="{StaticResource Hint}"/>
+                                </StackPanel>
                             </StackPanel>
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Symbol Position" Style="{StaticResource FieldLabel}"/>

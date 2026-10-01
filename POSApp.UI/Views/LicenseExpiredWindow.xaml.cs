@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 using POSApp.Core.Interfaces;
+using POSApp.UI.Helpers;
 
 namespace POSApp.UI.Views
 {
@@ -64,7 +65,7 @@ namespace POSApp.UI.Views
             }
 
             Renewed = true;
-            var expiry = status.ExpiryUtc.ToLocalTime().ToString("dd MMM yyyy");
+            var expiry = Region.LongDate(status.ExpiryUtc.ToLocalTime());
             MessageBox.Show(
                 $"Thank you! Your license has been renewed and is now valid until {expiry}.",
                 "License Renewed", MessageBoxButton.OK, MessageBoxImage.Information);

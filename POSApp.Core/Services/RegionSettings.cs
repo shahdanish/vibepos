@@ -108,6 +108,9 @@ namespace POSApp.Core.Services
         /// <summary>Currency spelled out for the "amount in words" line, e.g. "Rupees", "Dollars".</summary>
         public string CurrencyName { get; set; } = "Rupees";
 
+        /// <summary>ISO 4217 code, e.g. "PKR", "USD" — for labels where a symbol is ambiguous ("$").</summary>
+        public string CurrencyCode { get; set; } = "PKR";
+
         /// <summary>What the identity document is called, e.g. "CNIC", "National ID".</summary>
         public string NationalIdLabel { get; set; } = "CNIC";
 
@@ -161,6 +164,7 @@ namespace POSApp.Core.Services
             Culture = "en-US",
             CurrencySymbol = "$",
             CurrencyName = "Dollars",
+            CurrencyCode = "USD",
             // Deliberately not "SSN": the software should not invite shops to collect one.
             NationalIdLabel = "ID Number",
             StatutoryDeductionLabel = "Social Security",

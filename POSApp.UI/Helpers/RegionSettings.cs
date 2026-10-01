@@ -176,8 +176,11 @@ namespace POSApp.UI.Helpers
         /// <summary>e.g. "EOBI (Rs.)".</summary>
         public static string StatutoryDeductionAmountLabel => $"{StatutoryDeductionLabel} ({Symbol})";
 
-        /// <summary>Tooltip for the flat-amount discount toggle, e.g. "Fixed amount discount (Rs.)".</summary>
-        public static string FixedDiscountTooltip => $"Fixed amount discount ({Symbol})";
+        /// <summary>The ISO currency code, e.g. "PKR" or "USD".</summary>
+        public static string CurrencyCode => Format.CurrencyCode;
+
+        /// <summary>Tooltip for the flat-amount discount toggle, e.g. "Fixed amount discount (PKR)".</summary>
+        public static string FixedDiscountTooltip => $"Fixed amount discount ({CurrencyCode})";
 
         // ── Number to words ───────────────────────────────────────────────────
 

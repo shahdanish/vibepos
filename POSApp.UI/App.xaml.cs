@@ -21,6 +21,15 @@ public partial class App : System.Windows.Application
 {
     public static IServiceProvider Services { get; private set; } = null!;
 
+    static App()
+    {
+        // Money and quantity boxes bind with UpdateSourceTrigger=PropertyChanged. Since .NET 4.5
+        // WPF then rewrites the box from the converted value on every keystroke, so typing
+        // "12." became "12" and "12.75" ended up as 1275. Keep what the user typed instead
+        // (the .NET 4.0 behaviour). Must run before the first TextBox is created.
+        FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
+    }
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -274,7 +283,7 @@ public partial class App : System.Windows.Application
             {
                 MessageBox.Show(
                     $"Your license will expire in {license.DaysRemaining} day(s), on " +
-                    $"{license.ExpiryUtc.ToLocalTime():dd MMM yyyy}.\n\n" +
+                    $"{POSApp.UI.Helpers.Region.LongDate(license.ExpiryUtc.ToLocalTime())}.\n\n" +
                     $"{licenseService.RenewalContactMessage}\n{licenseService.RenewalInstructions}",
                     "License Expiring Soon", MessageBoxButton.OK, MessageBoxImage.Warning);
             }

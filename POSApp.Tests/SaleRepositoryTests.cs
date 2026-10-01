@@ -34,7 +34,25 @@ namespace POSApp.Tests
             await repo.AddAsync(NewSale("R-11051", "Return")); // the newest row is a return
 
             // The old code parsed only the newest row, failed on "R-…" and restarted at 11016.
-            Assert.Equal("11051", await repo.GetNextInvoiceNumberAsync());
+            // The return took 11051, so the next number is 11052.
+            Assert.Equal("11052", await repo.GetNextInvoiceNumberAsync());
+        }
+
+        [Fact]
+        public async Task ConsecutiveReturns_GetDifferentNumbers()
+        {
+            using var db = _dir.NewMigratedContext();
+            var repo = new SaleRepository(db);
+            await repo.AddAsync(NewSale("11055"));
+
+            var first = "R-" + await repo.GetNextInvoiceNumberAsync();
+            await repo.AddAsync(NewSale(first, "Return"));
+            var second = "R-" + await repo.GetNextInvoiceNumberAsync();
+            await repo.AddAsync(NewSale(second, "Return"));
+
+            Assert.Equal("R-11056", first);
+            Assert.Equal("R-11057", second);
+            Assert.Equal("11058", await repo.GetNextInvoiceNumberAsync());
         }
 
         [Fact]
