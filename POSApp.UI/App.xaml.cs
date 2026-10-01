@@ -186,11 +186,13 @@ public partial class App : System.Windows.Application
 
         // Ensure database is created and migrated (applies new tables/columns). An existing
         // database is copied aside first, so a failed or unwanted upgrade can be undone.
+        bool databaseExisted = false;
         using (var scope = Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             try
             {
+                databaseExisted = dbContext.Database.GetAppliedMigrations().Any();
                 DatabaseMigrator.MigrateWithBackup(dbContext);
             }
             catch (Exception ex)
@@ -224,6 +226,23 @@ public partial class App : System.Windows.Application
         RegionSettingsStore.Saved += saved => _ = settingsMirror.StoreQuietlyAsync(SharedSettingsFiles.Region);
         POSApp.UI.Helpers.ReceiptBranding.Saved += () => _ = settingsMirror.StoreQuietlyAsync(SharedSettingsFiles.ReceiptBranding);
 
+        // New installs default to the United States. A till that was already in use before
+        // that change (the Pakistani shops) keeps what it had: if it never saved its region
+        // settings, the Pakistan preset it has always run on is written down for it, once.
+        var origin = new InstallOriginResult(InstallOrigin.Upgraded, FirstSeen: false);
+        try
+        {
+            using var scope = Services.CreateScope();
+            origin = await scope.ServiceProvider.GetRequiredService<IFirstRunSetupService>()
+                .RecordInstallOriginAsync(databaseExisted);
+            if (origin.FirstSeen && origin.Origin == InstallOrigin.Upgraded)
+                RegionSettingsStore.KeepLegacyDefaultsIfUnset();
+        }
+        catch
+        {
+            // Treated as an existing install: no setup wizard, nothing changed.
+        }
+
         var edition = Services.GetRequiredService<IEditionService>();
         await edition.RefreshAsync();
 
@@ -245,8 +264,10 @@ public partial class App : System.Windows.Application
             Services.GetRequiredService<ICloudBackupService>().Initialize(credentialsPath);
         }
 
-        // --- Store build: first launch asks for the shop details and the owner's login ----
-        if (EditionPolicy.IsStore(edition.Edition))
+        // --- First launch asks for the shop details and the owner's login: always on a Store
+        //     build, and on the direct build for a database it created (never for a till that
+        //     was already in use, whose seeded logins are its real ones) ---------------------
+        if (EditionPolicy.IsStore(edition.Edition) || origin.Origin == InstallOrigin.New)
         {
             bool setupDone;
             using (var scope = Services.CreateScope())

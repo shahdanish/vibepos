@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace POSApp.Core.Services
 {
@@ -44,11 +45,28 @@ namespace POSApp.Core.Services
         }
 
         /// <summary>
-        /// Reads settings JSON. Properties a file does not contain (written by an older build)
-        /// keep their defaults, which reproduce the original Pakistani behaviour.
+        /// Reads settings JSON. A property the file does not contain (it was written by an older
+        /// build) takes its value from the preset of the file's own country, not from today's
+        /// defaults. A file with no country at all predates the US defaults: every build before
+        /// them was Pakistani, so it is read on top of the Pakistan preset and an upgraded till
+        /// keeps printing exactly what it did.
         /// </summary>
-        public static RegionSettingsData Deserialize(string json) =>
-            JsonSerializer.Deserialize<RegionSettingsData>(json) ?? new RegionSettingsData();
+        public static RegionSettingsData Deserialize(string json)
+        {
+            if (JsonNode.Parse(json) is not JsonObject file)
+                return new RegionSettingsData();
+
+            var code = file[nameof(RegionSettingsData.RegionCode)] is JsonValue v && v.TryGetValue<string>(out var s) ? s : null;
+            var basis = code == null
+                ? RegionSettingsData.Pakistan()
+                : RegionSettingsData.PresetFor(code) ?? new RegionSettingsData();
+
+            var merged = JsonSerializer.SerializeToNode(basis)!.AsObject();
+            foreach (var (key, value) in file)
+                merged[key] = value?.DeepClone();
+
+            return merged.Deserialize<RegionSettingsData>() ?? basis;
+        }
 
         public static string Serialize(RegionSettingsData settings) =>
             JsonSerializer.Serialize(settings, WriteOptions);
@@ -79,5 +97,17 @@ namespace POSApp.Core.Services
 
         /// <summary>Forgets the cached settings so the next read comes from disk.</summary>
         public static void Reload() => _cached = null;
+
+        /// <summary>
+        /// For an install that existed before the US defaults: when it never saved a settings
+        /// file, writes the Pakistan preset it has always run on, so the change of defaults does
+        /// not switch a live Pakistani till to dollars. Returns true when it wrote the file.
+        /// </summary>
+        public static bool KeepLegacyDefaultsIfUnset()
+        {
+            if (File.Exists(FilePath))
+                return false;
+            return Save(RegionSettingsData.Pakistan());
+        }
     }
 }

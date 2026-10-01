@@ -1,13 +1,14 @@
 using System.Windows;
 using POSApp.Core.Interfaces;
+using POSApp.Infrastructure.SampleData;
 using POSApp.UI.Helpers;
 using POSApp.Core.Services;
 
 namespace POSApp.UI.Views
 {
     /// <summary>
-    /// First launch of a Store install: shop name/currency and the owner's login. Replaces the
-    /// demo accounts from the seed data so no two installs share a known password.
+    /// First launch of a new install: shop name/currency, the owner's login and optional sample
+    /// data. Replaces the demo accounts from the seed data so no two installs share a known password.
     /// </summary>
     public partial class FirstRunSetupWindow : Window
     {
@@ -33,6 +34,11 @@ namespace POSApp.UI.Views
         {
             InitializeComponent();
             _setup = setup;
+
+            Title = $"Welcome to {ProductBranding.Name}";
+            WelcomeTitle.Text = $"Welcome to {ProductBranding.Name} — let's set up your shop";
+            LoadSamplesText.Text =
+                $"Load the sample US pharmacy catalog ({UsPharmacySampleData.Items.Count} items) so I can try sales right away";
 
             Currency.ItemsSource = Currencies;
             Currency.SelectedItem = Currencies[0]; // US Dollar
@@ -77,10 +83,13 @@ namespace POSApp.UI.Views
                     Region.Save(region);
                 }
 
-                await _setup.CompleteAsync(new FirstRunSetupRequest(
+                var result = await _setup.CompleteAsync(new FirstRunSetupRequest(
                     AdminUsername.Text.Trim(),
                     AdminPassword.Password,
-                    KeepSamples.IsChecked == true));
+                    LoadSamples.IsChecked == true));
+
+                if (result.SampleProducts > 0)
+                    ShowSampleSummary(result);
 
                 DialogResult = true;
             }
@@ -98,6 +107,20 @@ namespace POSApp.UI.Views
             if (AdminPassword.Password.Length < 6) return "The password needs at least 6 characters.";
             if (AdminPassword.Password != AdminPasswordConfirm.Password) return "The two passwords don't match.";
             return null;
+        }
+
+        /// <summary>Lists what the sample data added, including the staff logins, which exist nowhere else.</summary>
+        private void ShowSampleSummary(FirstRunSetupResult result)
+        {
+            var text = $"Sample data loaded: {result.SampleProducts} products and {result.SampleCustomers} charge-account customers. " +
+                       "The most common items are on the sale screen's quick keys (F1–F10).";
+            if (result.SampleLogins.Count > 0)
+            {
+                text += "\n\nSample staff logins for testing:\n" +
+                        string.Join("\n", result.SampleLogins.Select(l => $"   {l.Username}  /  {l.Password}   ({l.Role})")) +
+                        "\n\nSign in with your own owner account. Delete the sample logins in Admin → Users before going live.";
+            }
+            MessageBox.Show(this, text, "Setup complete", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void ShowError(string message)

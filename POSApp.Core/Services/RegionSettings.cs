@@ -86,42 +86,48 @@ namespace POSApp.Core.Services
     /// country: the currency it prints, how numbers and dates look, what the national identity
     /// document is called, and which statutory payroll deduction the shop withholds.
     ///
-    /// Defaults reproduce the original Pakistani behaviour exactly. A settings file written by an
-    /// older build has none of the newer properties, so they take these defaults — an existing
-    /// till that upgrades sees no change until someone edits Admin → Business Settings.
+    /// Defaults are the United States: a new install is a US shop until it picks another
+    /// currency in first-run setup or Business Settings. Existing tills are protected two ways:
+    /// a settings file written before these US defaults is read on top of the
+    /// <see cref="Pakistan"/> preset (see <see cref="RegionSettingsStore.Deserialize"/>), and an
+    /// existing install that never saved a file gets the Pakistan preset written for it on its
+    /// first start on this version (<see cref="RegionSettingsStore.KeepLegacyDefaultsIfUnset"/>).
     /// </summary>
     public sealed class RegionSettingsData
     {
         /// <summary>Country code, see <see cref="RegionCodes"/>. Drives country rules, not formatting.</summary>
-        public string RegionCode { get; set; } = RegionCodes.Pakistan;
+        public string RegionCode { get; set; } = RegionCodes.UnitedStates;
 
         /// <summary>
         /// The culture name the preset was built from, e.g. "en-PK", "en-US". Kept for reference
         /// and future translation; printed formats come from the explicit fields below so that an
         /// operating-system culture update can never change what a receipt looks like.
         /// </summary>
-        public string Culture { get; set; } = "en-PK";
+        public string Culture { get; set; } = "en-US";
 
-        /// <summary>Symbol printed before every amount, e.g. "Rs.", "$", "AED", "£".</summary>
-        public string CurrencySymbol { get; set; } = "Rs.";
+        /// <summary>Symbol printed before every amount, e.g. "$", "Rs.", "AED", "£".</summary>
+        public string CurrencySymbol { get; set; } = "$";
 
-        /// <summary>Currency spelled out for the "amount in words" line, e.g. "Rupees", "Dollars".</summary>
-        public string CurrencyName { get; set; } = "Rupees";
+        /// <summary>Currency spelled out for the "amount in words" line, e.g. "Dollars", "Rupees".</summary>
+        public string CurrencyName { get; set; } = "Dollars";
 
-        /// <summary>ISO 4217 code, e.g. "PKR", "USD" — for labels where a symbol is ambiguous ("$").</summary>
-        public string CurrencyCode { get; set; } = "PKR";
-
-        /// <summary>What the identity document is called, e.g. "CNIC", "National ID".</summary>
-        public string NationalIdLabel { get; set; } = "CNIC";
+        /// <summary>ISO 4217 code, e.g. "USD", "PKR" — for labels where a symbol is ambiguous ("$").</summary>
+        public string CurrencyCode { get; set; } = "USD";
 
         /// <summary>
-        /// The statutory payroll deduction withheld in this country, e.g. "EOBI" (Pakistan),
-        /// "Social Security", "NI". Printed as a salary-slip deduction row.
+        /// What the identity document is called, e.g. "ID Number", "CNIC". Deliberately not
+        /// "SSN" for the US: the software should not invite shops to collect one.
         /// </summary>
-        public string StatutoryDeductionLabel { get; set; } = "EOBI";
+        public string NationalIdLabel { get; set; } = "ID Number";
 
-        /// <summary>Lakh/Crore vs Million/Billion when spelling an amount out in words.</summary>
-        public NumberWordStyle NumberWords { get; set; } = NumberWordStyle.SouthAsian;
+        /// <summary>
+        /// The statutory payroll deduction withheld in this country, e.g. "Social Security",
+        /// "EOBI" (Pakistan), "NI". Printed as a salary-slip deduction row.
+        /// </summary>
+        public string StatutoryDeductionLabel { get; set; } = "Social Security";
+
+        /// <summary>Million/Billion vs Lakh/Crore when spelling an amount out in words.</summary>
+        public NumberWordStyle NumberWords { get; set; } = NumberWordStyle.International;
 
         /// <summary>Whether the symbol goes before or after the number.</summary>
         public SymbolPosition SymbolSide { get; set; } = SymbolPosition.Before;
@@ -130,7 +136,7 @@ namespace POSApp.Core.Services
         /// Whether a space separates symbol and number: "Rs. 1,250.00" (true) or "$1,250.00"
         /// (false). Without the space a negative amount reads "-$5.00".
         /// </summary>
-        public bool SymbolSpacing { get; set; } = true;
+        public bool SymbolSpacing { get; set; } = false;
 
         /// <summary>
         /// Decimals shown on every amount. 2 for most currencies, 0 for ones with no
@@ -140,43 +146,45 @@ namespace POSApp.Core.Services
 
         /// <summary>
         /// Decimals in the narrow price columns of a receipt and in compact on-screen tallies.
-        /// 0 keeps the whole-number look Pakistani tills have always printed ("23", "1,251");
-        /// 2 is needed wherever prices carry cents ("3.49").
+        /// 2 is needed wherever prices carry cents ("3.49"); 0 keeps the whole-number look
+        /// Pakistani tills have always printed ("23", "1,251").
         /// </summary>
-        public int CompactDecimalPlaces { get; set; } = 0;
+        public int CompactDecimalPlaces { get; set; } = 2;
 
         /// <summary>Thousand- and decimal-separator style.</summary>
         public NumberFormatStyle NumberFormat { get; set; } = NumberFormatStyle.DotDecimal;
 
-        /// <summary>Day-first, month-first (US) or ISO dates.</summary>
-        public DateStyle Dates { get; set; } = DateStyle.DayFirst;
+        /// <summary>Month-first (US), day-first or ISO dates.</summary>
+        public DateStyle Dates { get; set; } = DateStyle.MonthFirst;
 
-        /// <summary>12-hour with a leading zero (original), 12-hour (US) or 24-hour times.</summary>
-        public TimeStyle Times { get; set; } = TimeStyle.TwelveHourPadded;
+        /// <summary>12-hour (US), 12-hour with a leading zero (original Pakistani) or 24-hour times.</summary>
+        public TimeStyle Times { get; set; } = TimeStyle.TwelveHour;
 
-        /// <summary>Pakistan — the original behaviour and the default for every existing install.</summary>
-        public static RegionSettingsData Pakistan() => new();
-
-        /// <summary>United States: "$1,250.00", 10/14/2026, 2:35 PM, (555) 555-0123.</summary>
-        public static RegionSettingsData UnitedStates() => new()
+        /// <summary>
+        /// Pakistan — the original behaviour, kept exactly for the existing Pakistani tills:
+        /// "Rs. 1,250.00", 14/10/2026, 02:35 PM, Lakh/Crore in words.
+        /// </summary>
+        public static RegionSettingsData Pakistan() => new()
         {
-            RegionCode = RegionCodes.UnitedStates,
-            Culture = "en-US",
-            CurrencySymbol = "$",
-            CurrencyName = "Dollars",
-            CurrencyCode = "USD",
-            // Deliberately not "SSN": the software should not invite shops to collect one.
-            NationalIdLabel = "ID Number",
-            StatutoryDeductionLabel = "Social Security",
-            NumberWords = NumberWordStyle.International,
+            RegionCode = RegionCodes.Pakistan,
+            Culture = "en-PK",
+            CurrencySymbol = "Rs.",
+            CurrencyName = "Rupees",
+            CurrencyCode = "PKR",
+            NationalIdLabel = "CNIC",
+            StatutoryDeductionLabel = "EOBI",
+            NumberWords = NumberWordStyle.SouthAsian,
             SymbolSide = SymbolPosition.Before,
-            SymbolSpacing = false,
+            SymbolSpacing = true,
             DecimalPlaces = 2,
-            CompactDecimalPlaces = 2,
+            CompactDecimalPlaces = 0,
             NumberFormat = NumberFormatStyle.DotDecimal,
-            Dates = DateStyle.MonthFirst,
-            Times = TimeStyle.TwelveHour
+            Dates = DateStyle.DayFirst,
+            Times = TimeStyle.TwelveHourPadded
         };
+
+        /// <summary>United States — the default: "$1,250.00", 10/14/2026, 2:35 PM, (555) 555-0123.</summary>
+        public static RegionSettingsData UnitedStates() => new();
 
         /// <summary>The preset for a region code, or null when the code has no preset.</summary>
         public static RegionSettingsData? PresetFor(string? regionCode) => regionCode?.ToUpperInvariant() switch

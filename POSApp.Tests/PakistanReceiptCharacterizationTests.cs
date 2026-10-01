@@ -20,7 +20,7 @@ namespace POSApp.Tests
         private static readonly CultureInfo EnUs = CultureInfo.GetCultureInfo("en-US");
         private readonly RegionSettingsData _original = Region.Current;
 
-        public PakistanReceiptCharacterizationTests() => Region.Apply(new RegionSettingsData());
+        public PakistanReceiptCharacterizationTests() => Region.Apply(RegionSettingsData.Pakistan());
 
         public void Dispose() => Region.Apply(_original);
 

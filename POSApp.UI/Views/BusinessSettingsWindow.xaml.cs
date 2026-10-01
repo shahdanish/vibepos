@@ -22,7 +22,7 @@ namespace POSApp.UI.Views
         private bool _loading;
 
         /// <summary>Country codes in the order of the Country drop-down.</summary>
-        private static readonly string[] RegionCodeByIndex = { RegionCodes.Pakistan, RegionCodes.UnitedStates, RegionCodes.Other };
+        private static readonly string[] RegionCodeByIndex = { RegionCodes.UnitedStates, RegionCodes.Pakistan, RegionCodes.Other };
 
         /// <summary>Culture of the loaded settings or the last preset applied; not edited on screen.</summary>
         private string _culture = "en-PK";
@@ -246,7 +246,7 @@ namespace POSApp.UI.Views
         private void Setting_Changed(object sender, SelectionChangedEventArgs e) => UpdatePreview();
 
         /// <summary>
-        /// Picking Pakistan or United States fills in that country's formats; "Other country"
+        /// Picking United States or Pakistan fills in that country's formats; "Other country"
         /// leaves every field as it is so a custom setup is never wiped.
         /// </summary>
         private void Region_Changed(object sender, SelectionChangedEventArgs e)
@@ -286,7 +286,7 @@ namespace POSApp.UI.Views
 
             if (region.CurrencyCode.Length != 3 || !region.CurrencyCode.All(char.IsAsciiLetterUpper))
             {
-                NotificationHelper.ValidationErrorCustom("Currency Code must be the 3-letter ISO code, e.g. PKR or USD.");
+                NotificationHelper.ValidationErrorCustom("Currency Code must be the 3-letter ISO code, e.g. USD or PKR.");
                 txtCurrencyCode.Focus();
                 return;
             }

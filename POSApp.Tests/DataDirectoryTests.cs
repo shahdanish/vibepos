@@ -89,7 +89,7 @@ namespace POSApp.Tests
                 var setup = new FirstRunSetupService(db);
                 Assert.False(await setup.IsCompleteAsync());
 
-                await setup.CompleteAsync(new FirstRunSetupRequest("owner", "Owner#2026", KeepSampleProducts: false));
+                await setup.CompleteAsync(new FirstRunSetupRequest("owner", "Owner#2026", LoadSampleData: false));
                 Assert.True(await setup.IsCompleteAsync());
             }
 
@@ -117,14 +117,15 @@ namespace POSApp.Tests
                 await db.Database.MigrateAsync();
 
             await using (var db = new AppDbContext())
-                await new FirstRunSetupService(db).CompleteAsync(new FirstRunSetupRequest("admin", "NewPass1", KeepSampleProducts: true));
+                await new FirstRunSetupService(db).CompleteAsync(new FirstRunSetupRequest("admin", "NewPass1", LoadSampleData: false));
 
             await using (var db = new AppDbContext())
             {
                 var users = new UserRepository(db);
                 Assert.Null(await users.ValidateUserAsync("admin", "admin123"));
                 Assert.NotNull(await users.ValidateUserAsync("admin", "NewPass1"));
-                Assert.True(await db.Products.AnyAsync(p => p.Id == 1));
+                // The seeded products come from the original Pakistani build; setup always retires them.
+                Assert.False(await db.Products.IgnoreQueryFilters().AnyAsync(p => p.Id == 1));
             }
         }
 

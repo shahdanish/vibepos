@@ -112,7 +112,7 @@
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Tax / Reg. Number" Style="{StaticResource FieldLabel}"/>
                             <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,0,0,10">
                                 <TextBox x:Name="txtHeaderNote" Style="{StaticResource Field}"/>
-                                <TextBlock Text="Your own registration line — NTN / STRN (Pakistan), VAT or TRN (Gulf/EU), GSTIN (India), EIN (US). Leave empty to skip it."
+                                <TextBlock Text="Your own registration line — EIN or state tax ID (US), VAT or TRN (Gulf/EU), GSTIN (India), NTN / STRN (Pakistan). Leave empty to skip it."
                                            Style="{StaticResource Hint}"/>
                             </StackPanel>
 
@@ -157,7 +157,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Currency Symbol *" Style="{StaticResource FieldLabel}"/>
                             <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
                                 <TextBox x:Name="txtCurrencySymbol" Style="{StaticResource Field}" MaxLength="8"/>
-                                <TextBlock Text="Rs.  ·  $  ·  £  ·  €  ·  AED  ·  ₹  ·  ৳  ·  kr  ·  ₦"
+                                <TextBlock Text="$  ·  €  ·  £  ·  AED  ·  Rs.  ·  ₹  ·  ৳  ·  kr  ·  ₦"
                                            Style="{StaticResource Hint}"/>
                             </StackPanel>
 
@@ -170,7 +170,7 @@
                                     <TextBlock Text="Currency code" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>
                                     <TextBox x:Name="txtCurrencyCode" Style="{StaticResource Field}" Width="80" MaxLength="3"
                                              CharacterCasing="Upper"/>
-                                    <TextBlock Text="PKR · USD · EUR · AED" VerticalAlignment="Center" Margin="10,0,0,0"
+                                    <TextBlock Text="USD · EUR · AED · PKR" VerticalAlignment="Center" Margin="10,0,0,0"
                                                Style="{StaticResource Hint}"/>
                                 </StackPanel>
                             </StackPanel>
@@ -179,7 +179,7 @@
                             <ComboBox Grid.Row="2" Grid.Column="1" x:Name="cboSymbolSide"
                                       Style="{StaticResource Picker}" Margin="0,0,0,10"
                                       SelectionChanged="Setting_Changed">
-                                <ComboBoxItem Content="Before the amount    →  Rs. 1,250.00"/>
+                                <ComboBoxItem Content="Before the amount    →  $1,250.00"/>
                                 <ComboBoxItem Content="After the amount     →  1,250.00 kr"/>
                             </ComboBox>
 
@@ -187,7 +187,7 @@
                             <ComboBox Grid.Row="3" Grid.Column="1" x:Name="cboSymbolSpacing"
                                       Style="{StaticResource Picker}" Margin="0,0,0,10"
                                       SelectionChanged="Setting_Changed">
-                                <ComboBoxItem Content="With a space    →  Rs. 1,250.00"/>
+                                <ComboBoxItem Content="With a space    →  Rs. 1,250.00   (Pakistan)"/>
                                 <ComboBoxItem Content="No space        →  $1,250.00   (United States)"/>
                             </ComboBox>
 
@@ -217,7 +217,7 @@
                             <ComboBox Grid.Row="6" Grid.Column="1" x:Name="cboNumberFormat"
                                       Style="{StaticResource Picker}" Margin="0,0,0,10"
                                       SelectionChanged="Setting_Changed">
-                                <ComboBoxItem Content="1,234.56    (Pakistan, India, UK, US)"/>
+                                <ComboBoxItem Content="1,234.56    (US, UK, India, Pakistan)"/>
                                 <ComboBoxItem Content="1.234,56    (Germany, Italy, Spain, Brazil)"/>
                                 <ComboBoxItem Content="1 234.56    (space grouping)"/>
                                 <ComboBoxItem Content="1 234,56    (France, Scandinavia)"/>
@@ -262,11 +262,11 @@
                             <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
                                 <ComboBox x:Name="cboRegion" Style="{StaticResource Picker}"
                                           SelectionChanged="Region_Changed">
-                                    <ComboBoxItem Content="Pakistan"/>
                                     <ComboBoxItem Content="United States"/>
+                                    <ComboBoxItem Content="Pakistan"/>
                                     <ComboBoxItem Content="Other country"/>
                                 </ComboBox>
-                                <TextBlock Text="Choosing Pakistan or United States fills in that country's usual currency, number and date settings on these tabs. You can still change each one afterwards."
+                                <TextBlock Text="Choosing United States or Pakistan fills in that country's usual currency, number and date settings on these tabs. You can still change each one afterwards."
                                            Style="{StaticResource Hint}"/>
                             </StackPanel>
 
@@ -294,14 +294,14 @@
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="ID Document Name" Style="{StaticResource FieldLabel}"/>
                             <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,0,0,10">
                                 <TextBox x:Name="txtNationalIdLabel" Style="{StaticResource Field}"/>
-                                <TextBlock Text="The employee identity field label — CNIC (Pakistan), Aadhaar (India), Emirates ID (UAE), National Insurance No. (UK), ID Number (US)."
+                                <TextBlock Text="The employee identity field label — ID Number (US), National Insurance No. (UK), Emirates ID (UAE), Aadhaar (India), CNIC (Pakistan)."
                                            Style="{StaticResource Hint}"/>
                             </StackPanel>
 
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Payroll Deduction" Style="{StaticResource FieldLabel}"/>
                             <StackPanel Grid.Row="4" Grid.Column="1">
                                 <TextBox x:Name="txtStatutoryDeductionLabel" Style="{StaticResource Field}"/>
-                                <TextBlock Text="The compulsory salary deduction in your country — EOBI (Pakistan), PF (India), Pension (UAE), NI (UK), Social Security (US)."
+                                <TextBlock Text="The compulsory salary deduction in your country — Social Security (US), NI (UK), Pension (UAE), PF (India), EOBI (Pakistan)."
                                            Style="{StaticResource Hint}"/>
                             </StackPanel>
                         </Grid>

@@ -60,9 +60,11 @@
                                             </Border>
                                         </DockPanel>
 
+                                        <!-- Two lines, so long medicine names keep their strength ("Acetaminophen 500 mg …") -->
                                         <TextBlock Grid.Row="1" Text="{Binding Name}" TextWrapping="Wrap"
-                                                   TextTrimming="CharacterEllipsis" FontSize="12" FontWeight="SemiBold"
-                                                   VerticalAlignment="Center" MaxHeight="34" Margin="0,2"/>
+                                                   TextTrimming="CharacterEllipsis" FontSize="11.5" FontWeight="SemiBold"
+                                                   LineHeight="15" LineStackingStrategy="BlockLineHeight"
+                                                   VerticalAlignment="Center" MaxHeight="30" Margin="0,1"/>
 
                                         <TextBlock Grid.Row="2" Text="{Binding PriceText}" FontSize="12"
                                                    FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}"/>

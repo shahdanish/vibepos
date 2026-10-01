@@ -63,10 +63,9 @@ namespace POSApp.Tests
         }
 
         [Fact]
-        public void Pakistan_IsTheDefaultAndHasNoUsRules()
+        public void Pakistan_HasNoUsRules()
         {
-            var defaults = new RegionSettingsData();
-            Assert.Equal(RegionCodes.Pakistan, defaults.RegionCode);
+            Assert.Equal(RegionCodes.Pakistan, RegionSettingsData.Pakistan().RegionCode);
             Assert.False(Pk.IsUnitedStates);
             Assert.Equal("0332-3324911", Pk.Phone(" 0332-3324911 "));
         }

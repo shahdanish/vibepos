@@ -16,13 +16,16 @@ namespace POSApp.Tests
 
         public void Dispose() => Region.Save(_original);
 
+        /// <summary>The Pakistan preset (the original layout these formats were written against) with some changes.</summary>
+        private static RegionSettingsData Pk(Action<RegionSettingsData> change)
+        {
+            var settings = RegionSettingsData.Pakistan();
+            change(settings);
+            return settings;
+        }
+
         private static void Use(string symbol, string name, NumberWordStyle words) =>
-            Region.Save(new RegionSettingsData
-            {
-                CurrencySymbol = symbol,
-                CurrencyName = name,
-                NumberWords = words
-            });
+            Region.Save(Pk(s => { s.CurrencySymbol = symbol; s.CurrencyName = name; s.NumberWords = words; }));
 
         [Fact]
         public void Money_UsesConfiguredSymbol()
@@ -69,14 +72,7 @@ namespace POSApp.Tests
         [Fact]
         public void Labels_TrackTheConfiguredSymbolAndIdName()
         {
-            Region.Save(new RegionSettingsData
-            {
-                CurrencySymbol = "£",
-                CurrencyName = "Pounds",
-                NationalIdLabel = "National Insurance No.",
-                StatutoryDeductionLabel = "NI",
-                NumberWords = NumberWordStyle.International
-            });
+            Region.Save(Pk(s => { s.CurrencySymbol = "£"; s.CurrencyName = "Pounds"; s.NationalIdLabel = "National Insurance No."; s.StatutoryDeductionLabel = "NI"; s.NumberWords = NumberWordStyle.International; }));
 
             Assert.Equal("Amount (£)", Region.AmountLabel);
             Assert.Equal("Amount (£) *", Region.AmountLabelRequired);
@@ -87,9 +83,9 @@ namespace POSApp.Tests
         }
 
         [Fact]
-        public void Defaults_StayPakistaniSoExistingTillsAreUnchanged()
+        public void PakistanPreset_KeepsTheOriginalLabelsAndWords()
         {
-            var d = new RegionSettingsData();
+            var d = RegionSettingsData.Pakistan();
             Assert.Equal("Rs.", d.CurrencySymbol);
             Assert.Equal("Rupees", d.CurrencyName);
             Assert.Equal("CNIC", d.NationalIdLabel);
@@ -100,12 +96,7 @@ namespace POSApp.Tests
         [Fact]
         public void SymbolPosition_CanGoAfterTheAmount()
         {
-            Region.Save(new RegionSettingsData
-            {
-                CurrencySymbol = "kr",
-                SymbolSide = SymbolPosition.After,
-                NumberFormat = NumberFormatStyle.SpaceGroupCommaDecimal
-            });
+            Region.Save(Pk(s => { s.CurrencySymbol = "kr"; s.SymbolSide = SymbolPosition.After; s.NumberFormat = NumberFormatStyle.SpaceGroupCommaDecimal; }));
 
             Assert.Equal("1\u00a0250,00 kr", Region.Money(1250m));
         }
@@ -117,7 +108,7 @@ namespace POSApp.Tests
         [InlineData(NumberFormatStyle.SpaceGroupCommaDecimal, "1\u00a0234,56")]
         public void NumberFormat_UsesTheConfiguredSeparators(NumberFormatStyle style, string expected)
         {
-            Region.Save(new RegionSettingsData { NumberFormat = style, DecimalPlaces = 2 });
+            Region.Save(Pk(s => { s.NumberFormat = style; s.DecimalPlaces = 2; }));
             Assert.Equal(expected, Region.Number(1234.56m));
         }
 
@@ -127,7 +118,7 @@ namespace POSApp.Tests
         [InlineData(3, "JPY 1,250.500")]
         public void DecimalPlaces_AreConfigurable(int places, string expected)
         {
-            Region.Save(new RegionSettingsData { CurrencySymbol = "JPY", DecimalPlaces = places });
+            Region.Save(Pk(s => { s.CurrencySymbol = "JPY"; s.DecimalPlaces = places; }));
             Assert.Equal(expected, Region.Money(1250.5m));
         }
 
@@ -137,7 +128,7 @@ namespace POSApp.Tests
         [InlineData(DateStyle.Iso,        "2026-12-31", "2026-Dec-31")]
         public void Dates_FollowTheConfiguredStyle(DateStyle style, string numeric, string longForm)
         {
-            Region.Save(new RegionSettingsData { Dates = style });
+            Region.Save(Pk(s => { s.Dates = style; }));
             var d = new DateTime(2026, 12, 31, 21, 30, 0);
 
             Assert.Equal(numeric, Region.Date(d));
@@ -148,20 +139,20 @@ namespace POSApp.Tests
         [Fact]
         public void Apply_ChangesSettingsWithoutWritingToDisk()
         {
-            Region.Save(new RegionSettingsData { CurrencySymbol = "Rs." });
+            Region.Save(Pk(s => { s.CurrencySymbol = "Rs."; }));
 
-            Region.Apply(new RegionSettingsData { CurrencySymbol = "$" });
+            Region.Apply(Pk(s => { s.CurrencySymbol = "$"; }));
             Assert.Equal("$ 10.00", Region.Money(10m));
 
             // Nothing was persisted, so a reload brings the saved symbol back.
-            Region.Apply(new RegionSettingsData { CurrencySymbol = "Rs." });
+            Region.Apply(Pk(s => { s.CurrencySymbol = "Rs."; }));
             Assert.Equal("Rs. 10.00", Region.Money(10m));
         }
 
         [Fact]
-        public void NewDefaults_MatchThePreviousHardcodedBehaviour()
+        public void PakistanPreset_MatchesThePreviousHardcodedBehaviour()
         {
-            var d = new RegionSettingsData();
+            var d = RegionSettingsData.Pakistan();
             Assert.Equal(SymbolPosition.Before, d.SymbolSide);
             Assert.Equal(2, d.DecimalPlaces);
             Assert.Equal(NumberFormatStyle.DotDecimal, d.NumberFormat);

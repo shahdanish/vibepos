@@ -108,7 +108,7 @@ namespace POSApp.Tests
         [Fact]
         public void Preview_DoesNotLeakUnsavedSettingsIntoTheApp()
         {
-            var saved = new RegionSettingsData { CurrencySymbol = "Rs." };
+            var saved = RegionSettingsData.Pakistan();
             Region.Apply(saved);
 
             OnStaThread(() =>

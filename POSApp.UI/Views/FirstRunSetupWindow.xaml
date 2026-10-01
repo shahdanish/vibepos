@@ -15,7 +15,7 @@
 
         <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="24,16">
             <StackPanel>
-                <TextBlock Text="Welcome to Swifttill — let's set up your shop" Style="{StaticResource HeaderTitle}"/>
+                <TextBlock x:Name="WelcomeTitle" Text="Welcome — let's set up your shop" Style="{StaticResource HeaderTitle}"/>
                 <TextBlock Text="This takes a minute. You can change everything later in Admin → Business Settings."
                            Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
             </StackPanel>
@@ -82,11 +82,16 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Samples -->
+                <!-- Sample data -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="3. Getting started" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
-                        <CheckBox x:Name="KeepSamples" Content="Keep two sample products so I can try a sale right away"/>
+                        <TextBlock Text="3. Sample data (optional)" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                        <CheckBox x:Name="LoadSamples" VerticalContentAlignment="Top">
+                            <TextBlock x:Name="LoadSamplesText" TextWrapping="Wrap"
+                                       Text="Load the sample US pharmacy catalog so I can try sales right away"/>
+                        </CheckBox>
+                        <TextBlock x:Name="SamplesHint" Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="26,6,0,0"
+                                   Text="Over-the-counter medicines under their generic names, with typical US prices, stock, lot numbers and expiry dates, plus three charge-account customers, quick keys and two staff logins for testing. Edit or delete any of it later."/>
                     </StackPanel>
                 </Border>
 
