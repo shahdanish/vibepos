@@ -1,0 +1,156 @@
+<Window x:Class="POSApp.UI.Views.SplitPaymentDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
+        Title="{helpers:ShopTitle Split Payment}" Height="640" Width="540" MinHeight="460" MinWidth="460"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Icon="pack://application:,,,/POSApp.UI;component/app-icon.png"
+        Background="{DynamicResource PageBackgroundBrush}">
+    <Window.Resources>
+        <!-- One payment-method chip -->
+        <Style x:Key="MethodChoice" TargetType="RadioButton">
+            <Setter Property="GroupName" Value="Method"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Chip" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="2" CornerRadius="8" Padding="14,8" MinWidth="96">
+                            <ContentPresenter HorizontalAlignment="Center" TextElement.FontWeight="SemiBold"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource BrandPrimaryBrush}"/>
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource BrandSubtleBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{DynamicResource HeaderBar}" Padding="16,10">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                    <TextBlock Text="Remaining" Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" HorizontalAlignment="Right"/>
+                    <TextBlock x:Name="RemainingText" Foreground="White" FontSize="22" FontWeight="Bold" HorizontalAlignment="Right"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Split payment" Style="{DynamicResource HeaderTitle}"/>
+                    <TextBlock x:Name="TotalText" Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" Margin="0,2,0,0"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="14,12,14,4">
+                <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="Pay with" Style="{DynamicResource FormLabel}"/>
+                        <WrapPanel>
+                            <RadioButton x:Name="CashChoice" Style="{StaticResource MethodChoice}" Content="Cash" IsChecked="True" Checked="Method_Changed"/>
+                            <RadioButton x:Name="CardChoice" Style="{StaticResource MethodChoice}" Content="Card" Checked="Method_Changed"/>
+                            <RadioButton x:Name="CheckChoice" Style="{StaticResource MethodChoice}" Content="Check" Checked="Method_Changed"/>
+                            <RadioButton x:Name="AccountChoice" Style="{StaticResource MethodChoice}" Content="Charge Account" Checked="Method_Changed"/>
+                        </WrapPanel>
+                        <TextBlock x:Name="AccountHint" Style="{DynamicResource HintText}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Amount" Style="{DynamicResource FormLabel}"/>
+                        <TextBox x:Name="AmountBox" FontSize="18" FontWeight="SemiBold" TextAlignment="Right" Padding="8,6"
+                                 AutomationProperties.Name="Amount"/>
+
+                        <!-- Card: what the separate card terminal printed (never the card number) -->
+                        <Grid x:Name="CardPanel" Margin="0,10,0,0" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Card type" Style="{DynamicResource FormLabel}"/>
+                                <ComboBox x:Name="CardBrand" SelectedIndex="0" AutomationProperties.Name="Card type">
+                                    <ComboBoxItem Content="Visa"/>
+                                    <ComboBoxItem Content="Mastercard"/>
+                                    <ComboBoxItem Content="American Express"/>
+                                    <ComboBoxItem Content="Discover"/>
+                                    <ComboBoxItem Content="Debit"/>
+                                    <ComboBoxItem Content="FSA/HSA card"/>
+                                    <ComboBoxItem Content="Other"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Last 4" Style="{DynamicResource FormLabel}"/>
+                                <TextBox x:Name="CardLast4" MaxLength="4" AutomationProperties.Name="Last 4"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="Auth code (optional)" Style="{DynamicResource FormLabel}"/>
+                                <TextBox x:Name="AuthCode" MaxLength="20" AutomationProperties.Name="Auth code"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel x:Name="CheckPanel" Margin="0,10,0,0" Visibility="Collapsed">
+                            <TextBlock Text="Check number (optional)" Style="{DynamicResource FormLabel}"/>
+                            <TextBox x:Name="CheckNumber" MaxLength="20" AutomationProperties.Name="Check number"/>
+                        </StackPanel>
+
+                        <Button x:Name="AddButton" Content="Add payment  (Enter)" Style="{DynamicResource SecondaryButton}"
+                                HorizontalAlignment="Right" Margin="0,12,0,0" Padding="16,6" Click="Add_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{DynamicResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Payments" Style="{DynamicResource SectionTitle}"/>
+                        <ItemsControl x:Name="PaymentList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,3">
+                                        <Button DockPanel.Dock="Right" Content="✕" ToolTip="Remove this payment" Style="{DynamicResource IconButton}"
+                                                Margin="8,0,0,0" Padding="6,2" Click="Remove_Click" Tag="{Binding}"
+                                                AutomationProperties.Name="Remove payment"/>
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding AmountText}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Description}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock x:Name="EmptyText" Style="{DynamicResource EmptyStateText}" Margin="0,6"
+                                   Text="No payments yet. Take part of the bill in one way, then the rest in another."/>
+                        <TextBlock x:Name="ChangeText" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource SuccessTextBrush}"
+                                   HorizontalAlignment="Right" Margin="0,8,0,0" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+
+                <Border x:Name="ErrorPanel" Style="{DynamicResource DangerCallout}" Visibility="Collapsed" Margin="0,10,0,0">
+                    <TextBlock x:Name="ErrorText" TextWrapping="Wrap" FontSize="12"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceAltBrush}" Padding="14,10"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Button Content="Cancel" Style="{DynamicResource NeutralButton}" IsCancel="True" HorizontalAlignment="Left" Padding="18,8"/>
+                <Button x:Name="DoneButton" Content="Use these payments" Style="{DynamicResource PrimaryButton}"
+                        HorizontalAlignment="Right" Padding="20,8" IsEnabled="False" Click="Done_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -42,6 +42,8 @@ namespace POSApp.UI.ViewModels
         private string? _newCustomerPhone;
         private string? _newCustomerAddress;
         private decimal _newCustomerInitialBalance;
+        private bool _newCustomerTaxExempt;
+        private string? _newCustomerTaxExemptNumber;
 
         // Last payment tracking
         private CustomerPayment? _lastPayment;
@@ -167,6 +169,22 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _newCustomerInitialBalance, value);
         }
 
+        /// <summary>US: sales tax exemption (resale or exempt organisation) is shown on the form.</summary>
+        public bool ShowTaxExemption => Region.IsUnitedStates;
+
+        public bool NewCustomerTaxExempt
+        {
+            get => _newCustomerTaxExempt;
+            set => SetProperty(ref _newCustomerTaxExempt, value);
+        }
+
+        /// <summary>The exemption certificate number, printed on the customer's exempt receipts.</summary>
+        public string? NewCustomerTaxExemptNumber
+        {
+            get => _newCustomerTaxExemptNumber;
+            set => SetProperty(ref _newCustomerTaxExemptNumber, value);
+        }
+
         public ICommand AddPaymentCommand { get; }      // also handles updates (Save)
         public ICommand DeletePaymentCommand { get; }
         public ICommand EditPaymentCommand { get; }
@@ -247,6 +265,8 @@ namespace POSApp.UI.ViewModels
                 _newCustomerPhone = customer.Phone;
                 _newCustomerAddress = customer.Address;
                 _newCustomerInitialBalance = customer.CurrentBalance;
+                _newCustomerTaxExempt = customer.IsTaxExempt;
+                _newCustomerTaxExemptNumber = customer.TaxExemptNumber;
             }
             else
             {
@@ -254,8 +274,12 @@ namespace POSApp.UI.ViewModels
                 _newCustomerPhone = null;
                 _newCustomerAddress = null;
                 _newCustomerInitialBalance = 0;
+                _newCustomerTaxExempt = false;
+                _newCustomerTaxExemptNumber = null;
             }
 
+            OnPropertyChanged(nameof(NewCustomerTaxExempt));
+            OnPropertyChanged(nameof(NewCustomerTaxExemptNumber));
             OnPropertyChanged(nameof(NewCustomerName));
             OnPropertyChanged(nameof(NewCustomerPhone));
             OnPropertyChanged(nameof(NewCustomerAddress));
@@ -295,6 +319,11 @@ namespace POSApp.UI.ViewModels
                 _editingCustomer.Phone = NewCustomerPhone;
                 _editingCustomer.CellNo = NewCustomerPhone;
                 _editingCustomer.Address = NewCustomerAddress;
+                if (ShowTaxExemption)
+                {
+                    _editingCustomer.IsTaxExempt = NewCustomerTaxExempt;
+                    _editingCustomer.TaxExemptNumber = string.IsNullOrWhiteSpace(NewCustomerTaxExemptNumber) ? null : NewCustomerTaxExemptNumber.Trim();
+                }
                 _editingCustomer.ModifiedDate = DateTime.Now;
 
                 await _customerRepository.UpdateAsync(_editingCustomer);
@@ -394,6 +423,8 @@ namespace POSApp.UI.ViewModels
                     Address = NewCustomerAddress,
                     PreBalance = NewCustomerInitialBalance,
                     CurrentBalance = NewCustomerInitialBalance,
+                    IsTaxExempt = ShowTaxExemption && NewCustomerTaxExempt,
+                    TaxExemptNumber = ShowTaxExemption && !string.IsNullOrWhiteSpace(NewCustomerTaxExemptNumber) ? NewCustomerTaxExemptNumber.Trim() : null,
                     CreatedDate = DateTime.Now
                 };
 

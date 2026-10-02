@@ -175,6 +175,14 @@
                         <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" 
                                   DisplayMemberPath="Name" Padding="8" Margin="0,0,0,10"/>
 
+                        <!-- US sales tax class (only when the shop has tax categories) -->
+                        <StackPanel Visibility="{Binding HasTaxCategories, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Tax category" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding TaxCategoryChoices}" SelectedItem="{Binding SelectedTaxCategory}"
+                                      DisplayMemberPath="Label" Padding="8" Margin="0,0,0,10"
+                                      AutomationProperties.Name="Tax category"/>
+                        </StackPanel>
+
                         <TextBlock Text="{x:Static helpers:Region.CostPriceLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding CostPrice, UpdateSourceTrigger=LostFocus, TargetNullValue='', StringFormat=0.##}"
                                  Padding="8" Margin="0,0,0,10"/>

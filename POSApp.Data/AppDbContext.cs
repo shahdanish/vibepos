@@ -38,6 +38,10 @@ namespace POSApp.Data
         public DbSet<MedicalRep> MedicalReps { get; set; }
         public DbSet<CallSchedule> CallSchedules { get; set; }
 
+        // US checkout: sales tax and tenders
+        public DbSet<TaxCategory> TaxCategories { get; set; }
+        public DbSet<SalePayment> SalePayments { get; set; }
+
         // HR Module
         public DbSet<Employee> Employees { get; set; }
         public DbSet<SalarySlip> SalarySlips { get; set; }
@@ -88,6 +92,35 @@ namespace POSApp.Data
                 .Property(s => s.Balance)
                 .HasPrecision(18, 2);
 
+            modelBuilder.Entity<Sale>()
+                .Property(s => s.TaxTotal)
+                .HasPrecision(18, 2);
+
+            // US checkout: tenders and tax classes (additive; older sales simply have none)
+            modelBuilder.Entity<SalePayment>()
+                .HasOne(p => p.Sale)
+                .WithMany(s => s.Payments)
+                .HasForeignKey(p => p.SaleId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SalePayment>()
+                .Property(p => p.Amount)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<SalePayment>()
+                .Property(p => p.Tendered)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<SalePayment>()
+                .Ignore(p => p.Change);
+
+            modelBuilder.Entity<TaxCategory>()
+                .Property(c => c.RatePercent)
+                .HasPrecision(9, 4);
+            // Products.TaxCategoryId is a plain column, deliberately without a foreign key:
+            // SQLite cannot add one to an existing table without rebuilding it, and a live
+            // till's Products table must never be rebuilt. TaxRepository clears it instead
+            // when a category is deleted.
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => p.TaxCategoryId);
+
             // Configure SaleItem entity
             modelBuilder.Entity<SaleItem>()
                 .HasKey(si => si.Id);
@@ -112,6 +145,14 @@ namespace POSApp.Data
 
             modelBuilder.Entity<SaleItem>()
                 .Property(si => si.Total)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<SaleItem>()
+                .Property(si => si.TaxRate)
+                .HasPrecision(9, 4);
+
+            modelBuilder.Entity<SaleItem>()
+                .Property(si => si.TaxAmount)
                 .HasPrecision(18, 2);
 
             // Configure Product entity

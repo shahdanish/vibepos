@@ -40,10 +40,7 @@ namespace POSApp.Tests
             using (var db = new AppDbContext())
             {
                 db.GetService<IMigrator>().Migrate(PreviousReleaseSchema);
-                var sale = new Sale { InvoiceNumber = "11050", SaleDate = new DateTime(2026, 9, 1, 10, 0, 0), TotalBill = 46, CustomerName = "Ahmed" };
-                sale.SaleItems.Add(new SaleItem { ProductId = "101124", ProductName = "Glycerin 25gm", Quantity = 2, UnitPrice = 23, Total = 46 });
-                db.Sales.Add(sale);
-                db.SaveChanges();
+                LegacyRows.InsertPreviousReleaseSale(db, customerName: "Ahmed");
             }
 
             // Same steps as CloudBackupService.BackupToCloudAsync, minus the upload.

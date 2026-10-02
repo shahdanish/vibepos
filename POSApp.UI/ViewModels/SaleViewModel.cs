@@ -19,6 +19,15 @@ namespace POSApp.UI.ViewModels
         private readonly IProductRepository _productRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly IFavoriteRepository? _favoriteRepository;
+        private readonly ITaxRepository? _taxRepository;
+
+        // US checkout: sales tax and tenders. Pakistani tills never take this path.
+        private TaxSettings _tax = TaxSettings.Off;
+        private SaleTaxResult? _taxResult;
+        private decimal _subtotal;
+        private decimal _taxTotal;
+        private List<SalePayment>? _splitPayments;
+        private IReadOnlyList<SalePayment> _resolvedPayments = Array.Empty<SalePayment>();
 
         /// <summary>F1–F12 trigger the first twelve quick keys.</summary>
         public const int HotKeyCount = 12;
@@ -114,7 +123,9 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        public IReadOnlyList<string> PaymentTypes { get; } = new[] { "Cash", "Credit", "Credit Card", "Bank Transfer" };
+        /// <summary>US tills take cash, card, check or charge account; others keep the original list.</summary>
+        public IReadOnlyList<string> PaymentTypes { get; } =
+            Region.IsUnitedStates ? PaymentMethods.UnitedStates : PaymentMethods.Original;
 
         public string PaymentType
         {
@@ -126,18 +137,142 @@ namespace POSApp.UI.ViewModels
             }
         }
 
-        public bool IsCreditPayment => _paymentType == "Credit";
+        /// <summary>The bill goes on the customer's account ("Credit" / "Charge Account"): show the customer picker.</summary>
+        public bool IsCreditPayment => PaymentMethods.IsOnAccount(_paymentType);
+
+        // ── US checkout ──────────────────────────────────────────────────────
+
+        /// <summary>US sale screen: tenders (and sales tax when it is switched on).</summary>
+        public bool IsUsCheckout => Region.IsUnitedStates;
+
+        /// <summary>Sales tax is charged: a US till with tax switched on in Business Settings.</summary>
+        public bool TaxApplies => IsUsCheckout && _tax.Enabled;
+
+        /// <summary>The bill before tax (after every discount).</summary>
+        public decimal Subtotal
+        {
+            get => _subtotal;
+            private set => SetProperty(ref _subtotal, value);
+        }
+
+        /// <summary>Sales tax included in <see cref="TotalBill"/>.</summary>
+        public decimal TaxTotal
+        {
+            get => _taxTotal;
+            private set => SetProperty(ref _taxTotal, value);
+        }
+
+        /// <summary>The selected customer is tax-exempt, so no tax is charged.</summary>
+        public bool IsTaxExempt => TaxApplies && SelectedCustomer?.IsTaxExempt == true;
+
+        public string TaxLabel
+        {
+            get
+            {
+                if (IsTaxExempt) return "Sales tax (exempt)";
+                var rates = _taxResult?.ByRate;
+                return rates is { Count: 1 } ? $"Sales tax {rates[0].RatePercent:0.###}%" : "Sales tax";
+            }
+        }
+
+        /// <summary>A split payment has been entered and will be used on Save/Print.</summary>
+        public bool IsSplitPayment => _splitPayments != null;
+
+        /// <summary>"Cash $20.00 + Card $25.95" for the sale screen.</summary>
+        public string SplitSummary => _splitPayments == null
+            ? string.Empty
+            : "Split: " + string.Join(" + ", _splitPayments.Select(p => $"{p.Method} {Region.Money(p.Amount)}"));
+
+        /// <summary>The split entered for this bill, or null.</summary>
+        public IReadOnlyList<SalePayment>? SplitPayments => _splitPayments;
+
+        /// <summary>The tenders the last printed/saved bill was paid with (US).</summary>
+        public IReadOnlyList<SalePayment> Payments => _resolvedPayments;
+
+        /// <summary>The per-line tax of the current bill (US); null when no tax is charged.</summary>
+        public SaleTaxResult? TaxResult => _taxResult;
+
+        /// <summary>Uses the tenders from the Split payment dialog for this bill.</summary>
+        public void ApplySplitPayments(IReadOnlyList<SalePayment> payments)
+        {
+            _splitPayments = payments.ToList();
+            ReceiveCash = _splitPayments.Sum(p => p.Tendered);
+            OnSplitChanged();
+        }
+
+        /// <summary>Drops a split payment (also done whenever the bill total changes).</summary>
+        public void ClearSplit()
+        {
+            if (_splitPayments == null) return;
+            _splitPayments = null;
+            ReceiveCash = null;
+            OnSplitChanged();
+        }
+
+        private void OnSplitChanged()
+        {
+            OnPropertyChanged(nameof(IsSplitPayment));
+            OnPropertyChanged(nameof(SplitSummary));
+        }
+
+        private decimal RateFor(string productId) =>
+            _tax.RateFor(Products.FirstOrDefault(p => p.ProductId == productId)?.TaxCategoryId);
+
+        /// <summary>
+        /// US only: works out the tenders for this bill (the split, or the single payment method)
+        /// before it is printed or saved. False, with the cashier told why, when it can't be paid.
+        /// </summary>
+        internal bool ResolvePayments()
+        {
+            if (!IsUsCheckout)
+            {
+                _resolvedPayments = Array.Empty<SalePayment>();
+                return true;
+            }
+
+            List<SalePayment> payments;
+            if (_splitPayments != null)
+            {
+                payments = _splitPayments;
+            }
+            else
+            {
+                var (payment, error) = TenderCalculator.Single(PaymentType, TotalBill, ReceiveCash);
+                if (error != null)
+                {
+                    NotificationHelper.ValidationErrorCustom(error);
+                    return false;
+                }
+                payments = payment == null ? new List<SalePayment>() : new List<SalePayment> { payment };
+            }
+
+            if (payments.Any(p => PaymentMethods.IsOnAccount(p.Method)) && SelectedCustomer == null)
+            {
+                NotificationHelper.ValidationErrorCustom("Choose the customer whose charge account this goes on.");
+                return false;
+            }
+
+            _resolvedPayments = payments;
+            if (payments.Count > 0)
+                ReceiveCash = payments.Sum(p => p.Tendered);
+            return true;
+        }
 
         public Customer? SelectedCustomer
         {
             get => _selectedCustomer;
             set
             {
-                if (SetProperty(ref _selectedCustomer, value) && value != null)
+                if (SetProperty(ref _selectedCustomer, value))
                 {
-                    CustomerName = value.Name;
-                    MobileNumber = value.CellNo ?? value.Phone;
-                    PreBalance = value.CurrentBalance;
+                    if (value != null)
+                    {
+                        CustomerName = value.Name;
+                        MobileNumber = value.CellNo ?? value.Phone;
+                        PreBalance = value.CurrentBalance;
+                    }
+                    // A tax-exempt customer changes the US total.
+                    if (TaxApplies) CalculateTotals();
                 }
             }
         }
@@ -345,12 +480,13 @@ namespace POSApp.UI.ViewModels
         public ICommand RemoveItemFromQuickKeysCommand { get; }
 
         public SaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository,
-                             IFavoriteRepository? favoriteRepository = null)
+                             IFavoriteRepository? favoriteRepository = null, ITaxRepository? taxRepository = null)
         {
             _saleRepository = saleRepository;
             _productRepository = productRepository;
             _customerRepository = customerRepository;
             _favoriteRepository = favoriteRepository;
+            _taxRepository = taxRepository;
 
             // Load saved settings
             var settings = SettingsManager.LoadSettings();
@@ -427,6 +563,14 @@ namespace POSApp.UI.ViewModels
             foreach (var customer in customers)
             {
                 Customers.Add(customer);
+            }
+
+            if (IsUsCheckout && _taxRepository != null)
+            {
+                try { _tax = await _taxRepository.GetSettingsAsync(); }
+                catch { _tax = TaxSettings.Off; } // never block the sale screen over tax settings
+                OnPropertyChanged(nameof(TaxApplies));
+                CalculateTotals();
             }
 
             await LoadQuickKeysAsync();
@@ -660,7 +804,33 @@ namespace POSApp.UI.ViewModels
 
             var subtotal = SaleItems.Sum(item => item.Total);
             subtotal -= DiscountOnProducts ?? 0;
-            TotalBill = subtotal - (DiscountOnBill ?? 0);
+            var billTotal = subtotal - (DiscountOnBill ?? 0);
+
+            if (TaxApplies)
+            {
+                _taxResult = SaleTaxCalculator.Calculate(
+                    SaleItems.Select(i => new TaxLineInput(i.Total, RateFor(i.ProductId))).ToList(),
+                    (DiscountOnProducts ?? 0) + (DiscountOnBill ?? 0),
+                    IsTaxExempt);
+                Subtotal = _taxResult.Subtotal;
+                TaxTotal = _taxResult.TaxTotal;
+                TotalBill = _taxResult.Total;
+            }
+            else
+            {
+                // The original calculation, unchanged.
+                _taxResult = null;
+                Subtotal = billTotal;
+                TaxTotal = 0;
+                TotalBill = billTotal;
+            }
+            OnPropertyChanged(nameof(TaxLabel));
+            OnPropertyChanged(nameof(IsTaxExempt));
+
+            // A split entered for a different total no longer fits the bill.
+            if (_splitPayments != null && _splitPayments.Sum(p => p.Amount) != TotalBill)
+                ClearSplit();
+
             CalculateBalance();
             OnPropertyChanged(nameof(TotalPurchasePrice));
             OnPropertyChanged(nameof(TotalItemsDiscount));
@@ -702,14 +872,17 @@ namespace POSApp.UI.ViewModels
             try
             {
                 if (!alreadyPrepared)
+                {
+                    if (!ResolvePayments()) return;
                     await PrepareForSaveAsync();
+                }
 
                 var sale = new Sale
                 {
                     InvoiceNumber = InvoiceNumber,
                     SaleDate = SaleDate,
                     SaleType = "Sale",
-                    PaymentType = PaymentType,
+                    PaymentType = IsUsCheckout && _resolvedPayments.Count > 1 ? PaymentMethods.Split : PaymentType,
                     CustomerId = SelectedCustomer?.Id,
                     CustomerName = CustomerName,
                     Address = Address,
@@ -720,13 +893,18 @@ namespace POSApp.UI.ViewModels
                     DiscountOnProducts = DiscountOnProducts ?? 0,
                     DiscountOnBill = DiscountOnBill ?? 0,
                     TotalBill = TotalBill,
+                    TaxTotal = TaxTotal,
+                    TaxExemptNumber = IsTaxExempt ? SelectedCustomer?.TaxExemptNumber : null,
                     ReceiveCash = ReceiveCash ?? 0,
                     Balance = Balance,
                     AutoPrinted = AutoPrint
                 };
 
+                var lineIndex = 0;
                 foreach (var item in SaleItems)
                 {
+                    var tax = _taxResult != null && lineIndex < _taxResult.Lines.Count ? _taxResult.Lines[lineIndex] : null;
+                    lineIndex++;
                     sale.SaleItems.Add(new SaleItem
                     {
                         ProductId = item.ProductId,
@@ -736,7 +914,24 @@ namespace POSApp.UI.ViewModels
                         UnitPrice = item.UnitPrice,
                         DiscountPercent = item.DiscountPercent,
                         DiscountType = item.DiscountType,
-                        Total = item.Total
+                        Total = item.Total,
+                        TaxRate = tax?.RatePercent ?? 0,
+                        TaxAmount = tax?.Tax ?? 0
+                    });
+                }
+
+                // US: the tenders go in with the sale (one insert, so never half-saved).
+                foreach (var p in _resolvedPayments)
+                {
+                    sale.Payments.Add(new SalePayment
+                    {
+                        Method = p.Method,
+                        Amount = p.Amount,
+                        Tendered = p.Tendered,
+                        CardBrand = p.CardBrand,
+                        CardLast4 = p.CardLast4,
+                        Reference = p.Reference,
+                        CreatedDate = SaleDate
                     });
                 }
 
@@ -754,13 +949,29 @@ namespace POSApp.UI.ViewModels
                 }
 
                 // Update customer balance for credit sales
-                if (PaymentType == "Credit" && SelectedCustomer != null)
+                if (!IsUsCheckout)
                 {
-                    SelectedCustomer.CurrentBalance += TotalBill;
-                    SelectedCustomer.TotalPurchases += TotalBill;
-                    SelectedCustomer.LastPurchaseDate = SaleDate;
-                    SelectedCustomer.ModifiedDate = DateTime.Now;
-                    await _customerRepository.UpdateAsync(SelectedCustomer);
+                    if (PaymentType == "Credit" && SelectedCustomer != null)
+                    {
+                        SelectedCustomer.CurrentBalance += TotalBill;
+                        SelectedCustomer.TotalPurchases += TotalBill;
+                        SelectedCustomer.LastPurchaseDate = SaleDate;
+                        SelectedCustomer.ModifiedDate = DateTime.Now;
+                        await _customerRepository.UpdateAsync(SelectedCustomer);
+                    }
+                }
+                else
+                {
+                    // US: only the charge-account part of the payment is owed by the customer.
+                    var onAccount = _resolvedPayments.Where(p => PaymentMethods.IsOnAccount(p.Method)).Sum(p => p.Amount);
+                    if (onAccount > 0 && SelectedCustomer != null)
+                    {
+                        SelectedCustomer.CurrentBalance += onAccount;
+                        SelectedCustomer.TotalPurchases += TotalBill;
+                        SelectedCustomer.LastPurchaseDate = SaleDate;
+                        SelectedCustomer.ModifiedDate = DateTime.Now;
+                        await _customerRepository.UpdateAsync(SelectedCustomer);
+                    }
                 }
 
                 // Auto-print if requested (prints only — does NOT re-enter SaveSale)
@@ -779,6 +990,9 @@ namespace POSApp.UI.ViewModels
 
         private void NewSale()
         {
+            _splitPayments = null;
+            _resolvedPayments = Array.Empty<SalePayment>();
+            OnSplitChanged();
             SaleItems.Clear();
             CustomerName = "Cash";
             SelectedCustomer = null;
@@ -842,6 +1056,9 @@ namespace POSApp.UI.ViewModels
                 NotificationHelper.ValidationErrorCustom("No items to print. Please add items to the sale first.");
                 return;
             }
+
+            // US: settle the tenders first, so the receipt shows how it was paid.
+            if (!ResolvePayments()) return;
 
             try
             {
@@ -1108,6 +1325,35 @@ namespace POSApp.UI.ViewModels
                 totalsGroup.Rows.Add(row);
             }
 
+            if (IsUsCheckout)
+            {
+                // US receipt: subtotal, tax by rate, total, then how it was paid and the change.
+                AddTotalRow("Subtotal", Region.Number(SaleItems.Sum(i => i.Total)));
+                var billDisc = (DiscountOnBill ?? 0) + (DiscountOnProducts ?? 0);
+                if (billDisc > 0)
+                    AddTotalRow("Discount", "-" + Region.Number(billDisc));
+                if (IsTaxExempt)
+                {
+                    var cert = SelectedCustomer?.TaxExemptNumber;
+                    AddTotalRow("Tax exempt" + (string.IsNullOrWhiteSpace(cert) ? "" : $" #{cert}"), Region.Number(0));
+                }
+                else if (_taxResult != null)
+                {
+                    foreach (var rate in _taxResult.ByRate)
+                        AddTotalRow($"Sales tax {rate.RatePercent:0.###}%", Region.Number(rate.Tax));
+                }
+                AddTotalRow("TOTAL", Region.Money(TotalBill), bold: true, fontSize: 14);
+                foreach (var p in _resolvedPayments)
+                    AddTotalRow(TenderCalculator.Describe(p), Region.Number(p.Tendered));
+                var change = TenderCalculator.Change(_resolvedPayments);
+                if (change > 0)
+                    AddTotalRow("Change", Region.Money(change), bold: true);
+                if (TotalItemsDiscount > 0)
+                    AddTotalRow("You saved", Region.Money(TotalItemsDiscount + billDisc));
+                AddTotalRow("Items", SaleItems.Sum(i => i.Quantity).ToString(), bold: true);
+            }
+            else
+            {
             if (TotalItemsDiscount > 0)
                 AddTotalRow("Item Discounts", Region.Number(TotalItemsDiscount));
             var totalDisc = (DiscountOnBill ?? 0) + (DiscountOnProducts ?? 0) + TotalItemsDiscount;
@@ -1119,6 +1365,7 @@ namespace POSApp.UI.ViewModels
             AddTotalRow("Cash Received", Region.Number(ReceiveCash ?? 0), bold: true);
             AddTotalRow("Total Items Quantity", SaleItems.Sum(i => i.Quantity).ToString(), bold: true);
             AddTotalRow("Balance Amount", Region.Number(Balance), bold: true, fontSize: 14);
+            }
 
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);

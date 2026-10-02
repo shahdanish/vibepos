@@ -60,6 +60,26 @@ namespace POSApp.Tests
         }
     }
 
+    /// <summary>
+    /// Rows written the way an older release stored them. Plain SQL with only the columns that
+    /// existed then: today's model has more, so it can't insert into an old-schema database.
+    /// </summary>
+    internal static class LegacyRows
+    {
+        /// <summary>One 46.00 sale of two "Glycerin 25gm", as the previous release saved it.</summary>
+        public static void InsertPreviousReleaseSale(AppDbContext db, string customerName = "Cash")
+        {
+            db.Database.ExecuteSqlRaw(
+                "INSERT INTO Sales (InvoiceNumber, SaleDate, SaleType, PaymentType, CustomerName, PreBalance, " +
+                "DiscountOnProducts, DiscountOnBill, TotalBill, ReceiveCash, Balance, AutoPrinted, CreatedDate) " +
+                "VALUES ('11050', '2026-09-01 10:00:00', 'Sale', 'Cash', {0}, '0.0', '0.0', '0.0', '46.0', '0.0', '0.0', 0, '2026-09-01 10:00:00')",
+                customerName);
+            db.Database.ExecuteSqlRaw(
+                "INSERT INTO SaleItems (SaleId, ProductId, ProductName, Quantity, Bonus, CostPrice, UnitPrice, DiscountPercent, DiscountType, Total) " +
+                "VALUES ((SELECT MAX(Id) FROM Sales), '101124', 'Glycerin 25gm', '2.0', 0, '0.0', '23.0', '0.0', '%', '46.0')");
+        }
+    }
+
     /// <summary>Builds a sale screen over mocked repositories, and a representative cart.</summary>
     internal static class SaleFixtures
     {
@@ -67,7 +87,10 @@ namespace POSApp.Tests
             Func<string>? nextInvoiceNumber = null,
             List<Sale>? saved = null,
             IFavoriteRepository? favorites = null,
-            bool wholesale = false)
+            bool wholesale = false,
+            ITaxRepository? tax = null,
+            IEnumerable<Product>? catalogue = null,
+            List<Customer>? updatedCustomers = null)
         {
             var sales = new Mock<ISaleRepository>();
             sales.Setup(r => r.GetNextInvoiceNumberAsync(It.IsAny<CancellationToken>()))
@@ -76,13 +99,16 @@ namespace POSApp.Tests
                  .ReturnsAsync((Sale s, CancellationToken _) => { saved?.Add(s); return s; });
 
             var products = new Mock<IProductRepository>();
-            products.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Product>());
+            products.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync((catalogue ?? Enumerable.Empty<Product>()).ToList());
             var customers = new Mock<ICustomerRepository>();
             customers.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Customer>());
+            customers.Setup(r => r.UpdateAsync(It.IsAny<Customer>(), It.IsAny<CancellationToken>()))
+                     .Callback((Customer c, CancellationToken _) => updatedCustomers?.Add(c))
+                     .Returns(Task.CompletedTask);
 
             return wholesale
-                ? new WholeSaleViewModel(sales.Object, products.Object, customers.Object, favorites)
-                : new SaleViewModel(sales.Object, products.Object, customers.Object, favorites);
+                ? new WholeSaleViewModel(sales.Object, products.Object, customers.Object, favorites, tax)
+                : new SaleViewModel(sales.Object, products.Object, customers.Object, favorites, tax);
         }
 
         /// <summary>A cart that exercises %, flat-amount and no discount, a fractional price and bill discounts.</summary>

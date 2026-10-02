@@ -341,6 +341,11 @@
                             <Button Content="Print" Command="{Binding PrintCommand}"
                                     Style="{StaticResource PurpleButton}" Margin="0,0,8,8"
                                     ToolTip="Ctrl+P — Print &amp; save invoice"/>
+                            <!-- US: pay one bill several ways (cash + card, card + charge account, ...) -->
+                            <Button Content="Split…" Click="SplitPayment_Click"
+                                    Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"
+                                    Visibility="{Binding IsUsCheckout, Converter={StaticResource BoolToVis}}"
+                                    ToolTip="Ctrl+T — Take this bill in more than one payment"/>
                             <Button Content="New Sale" Command="{Binding NewCommand}"
                                     Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"
                                     ToolTip="Ctrl+N — Start a new sale"/>
@@ -351,6 +356,11 @@
                                     Style="{StaticResource NeutralButton}" Margin="0,0,8,8"
                                     ToolTip="Esc — Close this window"/>
                         </WrapPanel>
+
+                        <!-- The split entered for this bill (US) -->
+                        <TextBlock Text="{Binding SplitSummary}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource InfoTextBrush}" Margin="0,0,0,6"
+                                   Visibility="{Binding IsSplitPayment, Converter={StaticResource BoolToVis}}"/>
 
                         <!-- Keyboard shortcut legend -->
                         <Border Margin="0,4,0,0">
@@ -374,6 +384,10 @@
                                 </Border>
                                 <Border Style="{StaticResource KeyCap}">
                                     <TextBlock Text="Ctrl+M Calc"/>
+                                </Border>
+                                <Border Style="{StaticResource KeyCap}"
+                                        Visibility="{Binding IsUsCheckout, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="Ctrl+T Split"/>
                                 </Border>
                                 <Border Style="{StaticResource KeyCap}">
                                     <TextBlock Text="Esc Close"/>
@@ -411,6 +425,18 @@
                                      FontSize="13" Padding="6" Width="170" HorizontalAlignment="Right" TextAlignment="Right"/>
                         </Grid>
                         <Border Style="{StaticResource Divider}" Margin="0,4,0,6"/>
+                        <!-- US sales tax, one line so the cart keeps its height on small screens -->
+                        <Grid Margin="0,0,0,2" Visibility="{Binding TaxApplies, Converter={StaticResource BoolToVis}}">
+                            <TextBlock FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center">
+                                <Run Text="Subtotal"/>
+                                <Run Text="{Binding Subtotal, Converter={StaticResource MoneyConverter}, Mode=OneWay}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </TextBlock>
+                            <TextBlock FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" Margin="0,0,8,0">
+                                <Run Text="{Binding TaxLabel, Mode=OneWay}"/>
+                                <Run Text="{Binding TaxTotal, Converter={StaticResource MoneyConverter}, Mode=OneWay}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </TextBlock>
+                        </Grid>
                         <Grid Margin="0,5,0,5">
                             <TextBlock Text="Total" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>

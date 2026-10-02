@@ -130,6 +130,21 @@
                                 <TextBlock Text="TOTAL REFUND" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,5"/>
                                 <TextBlock Text="{Binding TotalReturnAmount, Converter={StaticResource MoneyConverter}}"
                                            FontSize="22" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
+                                <!-- US: the sales tax being refunded with the items -->
+                                <TextBlock FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding TaxRefund, Converter={StaticResource GreaterThanZeroConverter}}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                    <Run Text="incl. sales tax"/>
+                                    <Run Text="{Binding TaxRefund, Converter={StaticResource MoneyConverter}, Mode=OneWay}"/>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
                     </Grid>

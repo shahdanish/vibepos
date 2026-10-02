@@ -13,7 +13,23 @@ namespace POSApp.UI.ViewModels
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IFavoriteRepository? _favoriteRepository;
+        private readonly ITaxRepository? _taxRepository;
         private IReadOnlySet<int> _quickKeyIds = new HashSet<int>();
+        private TaxCategoryChoice? _selectedTaxCategory;
+
+        /// <summary>A product's tax-category choice; Id null means "the shop's default".</summary>
+        public sealed record TaxCategoryChoice(int? Id, string Label);
+
+        /// <summary>The US tax categories to pick from, headed by "Default (…)". Empty when there are none.</summary>
+        public ObservableCollection<TaxCategoryChoice> TaxCategoryChoices { get; } = new();
+
+        public bool HasTaxCategories => TaxCategoryChoices.Count > 0;
+
+        public TaxCategoryChoice? SelectedTaxCategory
+        {
+            get => _selectedTaxCategory;
+            set => SetProperty(ref _selectedTaxCategory, value);
+        }
 
         private Product? _selectedProduct;
         private string _productId = string.Empty;
@@ -182,11 +198,12 @@ namespace POSApp.UI.ViewModels
         }
 
         public ProductManagementViewModel(IProductRepository productRepository, ICategoryRepository categoryRepository,
-                                          IFavoriteRepository? favoriteRepository = null)
+                                          IFavoriteRepository? favoriteRepository = null, ITaxRepository? taxRepository = null)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _favoriteRepository = favoriteRepository;
+            _taxRepository = taxRepository;
 
             AddCommand = new RelayCommand(async _ => await AddProduct());
             UpdateCommand = new RelayCommand(async _ => await UpdateProduct(), _ => SelectedProduct != null);
@@ -236,7 +253,35 @@ namespace POSApp.UI.ViewModels
 
             if (_favoriteRepository != null)
                 QuickKeyIds = await _favoriteRepository.GetQuickKeyProductIdsAsync();
+
+            await LoadTaxCategoriesAsync();
         }
+
+        private async Task LoadTaxCategoriesAsync()
+        {
+            if (_taxRepository == null || !Region.IsUnitedStates) return;
+            try
+            {
+                var settings = await _taxRepository.GetSettingsAsync();
+                TaxCategoryChoices.Clear();
+                if (settings.Categories.Count > 0)
+                {
+                    var fallback = settings.Default;
+                    TaxCategoryChoices.Add(new TaxCategoryChoice(null, $"Default ({fallback?.Name})"));
+                    foreach (var c in settings.Categories)
+                        TaxCategoryChoices.Add(new TaxCategoryChoice(c.Id, $"{c.Name} ({c.RatePercent:0.###}%)"));
+                }
+                OnPropertyChanged(nameof(HasTaxCategories));
+                SelectedTaxCategory = ChoiceFor(SelectedProduct?.TaxCategoryId);
+            }
+            catch
+            {
+                // Tax categories are optional on this screen.
+            }
+        }
+
+        private TaxCategoryChoice? ChoiceFor(int? taxCategoryId) =>
+            TaxCategoryChoices.FirstOrDefault(c => c.Id == taxCategoryId) ?? TaxCategoryChoices.FirstOrDefault();
 
         /// <summary>Stars or un-stars a product as a quick key on the sale screens.</summary>
         public async Task ToggleQuickKeyAsync(Product? product)
@@ -310,6 +355,7 @@ namespace POSApp.UI.ViewModels
             BatchNo = product.BatchNo;
             ExpiryDate = product.ExpiryDate;
             SelectedCategory = Categories.FirstOrDefault(c => c.Id == product.CategoryId);
+            SelectedTaxCategory = ChoiceFor(product.TaxCategoryId);
         }
 
         private async Task AddProduct()
@@ -363,7 +409,8 @@ namespace POSApp.UI.ViewModels
                     Rack = Rack,
                     BatchNo = string.IsNullOrWhiteSpace(BatchNo) ? null : BatchNo.Trim(),
                     ExpiryDate = ExpiryDate,
-                    CategoryId = SelectedCategory?.Id
+                    CategoryId = SelectedCategory?.Id,
+                    TaxCategoryId = SelectedTaxCategory?.Id
                 };
 
                 await _productRepository.AddAsync(product);
@@ -404,6 +451,8 @@ namespace POSApp.UI.ViewModels
                 SelectedProduct.BatchNo = string.IsNullOrWhiteSpace(BatchNo) ? null : BatchNo.Trim();
                 SelectedProduct.ExpiryDate = ExpiryDate;
                 SelectedProduct.CategoryId = SelectedCategory?.Id;
+                if (HasTaxCategories)
+                    SelectedProduct.TaxCategoryId = SelectedTaxCategory?.Id;
 
                 await _productRepository.UpdateAsync(SelectedProduct);
                 NotificationHelper.ProductUpdated(ProductName);
@@ -475,6 +524,7 @@ namespace POSApp.UI.ViewModels
             BatchNo = null;
             ExpiryDate = null;
             SelectedCategory = null;
+            SelectedTaxCategory = ChoiceFor(null);
         }
 
         private void GenerateBarcode()

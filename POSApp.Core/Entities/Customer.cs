@@ -13,6 +13,12 @@ namespace POSApp.Core.Entities
         public int LoyaltyPoints { get; set; }
         public decimal TotalPurchases { get; set; }
         public DateTime? LastPurchaseDate { get; set; }
+
+        /// <summary>Sales to this customer carry no sales tax (US resale or exempt organisation).</summary>
+        public bool IsTaxExempt { get; set; }
+
+        /// <summary>The customer's exemption certificate number, printed on exempt receipts.</summary>
+        public string? TaxExemptNumber { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         

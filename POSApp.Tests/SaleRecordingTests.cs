@@ -115,7 +115,11 @@ namespace POSApp.Tests
             Assert.Contains("Date: 10/14/2026 2:35 PM", text);
             Assert.Contains("2\tCooking Oil 1L\t3\t1,250.50\t375.15\t3,376.35\n", text);
             Assert.Contains("1\tGlycerin 25gm\t2\t23.00\t\t46.00\n", text);
-            Assert.Contains("\tTotal Bill\t3,732.10\n", text);
+            // US receipt: subtotal, bill discount, then the total with the currency symbol.
+            Assert.Contains("\tSubtotal\t3,747.35\n", text);
+            Assert.Contains("\tDiscount\t-15.25\n", text);
+            Assert.Contains("\tTOTAL\t$3,732.10\n", text);
+            Assert.DoesNotContain("Total Bill", text);
         }
 
         [Fact]

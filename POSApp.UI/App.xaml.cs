@@ -72,6 +72,7 @@ public partial class App : System.Windows.Application
         services.AddScoped<IPurchaseRepository, PurchaseRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+        services.AddScoped<ITaxRepository, TaxRepository>();
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IMedicalRepRepository, MedicalRepRepository>();

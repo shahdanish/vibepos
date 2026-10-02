@@ -17,6 +17,9 @@ namespace POSApp.Core.Entities
         public string? BatchNo { get; set; }
         public DateTime? ExpiryDate { get; set; }
         public int? CategoryId { get; set; }
+
+        /// <summary>Sales-tax class (US). Null means the shop's default tax category.</summary>
+        public int? TaxCategoryId { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
 

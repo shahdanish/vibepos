@@ -194,6 +194,17 @@
                                  Padding="7" Margin="0,0,0,10" FontSize="13" TextAlignment="Right"
                                  Visibility="{Binding IsNewCustomer, Converter={StaticResource BoolToVis}}"/>
 
+                        <!-- US: sales tax exemption -->
+                        <StackPanel Visibility="{Binding ShowTaxExemption, Converter={StaticResource BoolToVis}}" Margin="0,0,0,10">
+                            <CheckBox Content="Tax-exempt (no sales tax on this customer's purchases)"
+                                      IsChecked="{Binding NewCustomerTaxExempt}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Exemption certificate #" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"
+                                       Visibility="{Binding NewCustomerTaxExempt, Converter={StaticResource BoolToVis}}"/>
+                            <TextBox Text="{Binding NewCustomerTaxExemptNumber, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="7" FontSize="13" MaxLength="40"
+                                     Visibility="{Binding NewCustomerTaxExempt, Converter={StaticResource BoolToVis}}"/>
+                        </StackPanel>
+
                         <Button Content="{Binding SaveCustomerButtonText}" Command="{Binding SaveCustomerCommand}"
                                 Style="{StaticResource SuccessButton}" Padding="10,8" Margin="0,0,0,6"/>
                         <UniformGrid Columns="2" Margin="0,0,0,16">

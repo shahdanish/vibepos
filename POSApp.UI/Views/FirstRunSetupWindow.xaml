@@ -45,12 +45,21 @@
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Currency" Style="{StaticResource FormLabel}"/>
-                                <ComboBox x:Name="Currency" DisplayMemberPath="Label"/>
+                                <ComboBox x:Name="Currency" DisplayMemberPath="Label" SelectionChanged="Currency_Changed"/>
                             </StackPanel>
                         </Grid>
 
                         <TextBlock Text="Address (optional)" Style="{StaticResource FormLabel}"/>
                         <TextBox x:Name="ShopAddress" helpers:Input.Placeholder="Street, city"/>
+
+                        <!-- US: the sales tax rate to start with -->
+                        <StackPanel x:Name="TaxPanel" Margin="0,12,0,0">
+                            <TextBlock Text="Sales tax rate %" Style="{StaticResource FormLabel}"/>
+                            <TextBox x:Name="TaxRate" Width="120" HorizontalAlignment="Left" Text="0"
+                                     AutomationProperties.Name="Sales tax rate"/>
+                            <TextBlock Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="0,4,0,0"
+                                       Text="Your combined state + local rate, e.g. 8.25. Leave 0 if you don't collect sales tax yet. Prescription drugs start untaxed; adjust any category later in Admin → Business Settings → Sales Tax."/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

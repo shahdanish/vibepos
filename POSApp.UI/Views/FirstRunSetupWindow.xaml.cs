@@ -29,11 +29,13 @@ namespace POSApp.UI.Views
         };
 
         private readonly IFirstRunSetupService _setup;
+        private readonly ITaxRepository _tax;
 
-        public FirstRunSetupWindow(IFirstRunSetupService setup)
+        public FirstRunSetupWindow(IFirstRunSetupService setup, ITaxRepository tax)
         {
             InitializeComponent();
             _setup = setup;
+            _tax = tax;
 
             Title = $"Welcome to {ProductBranding.Name}";
             WelcomeTitle.Text = $"Welcome to {ProductBranding.Name} — let's set up your shop";
@@ -81,6 +83,10 @@ namespace POSApp.UI.Views
                     region.CurrencyCode = c.Code;
                     region.NumberWords = c.Words;
                     Region.Save(region);
+
+                    // US shops get the usual tax categories, charged at the rate entered.
+                    if (RegionCodes.IsUnitedStates(c.RegionCode))
+                        await _tax.EnsureUsDefaultsAsync(ParsedTaxRate() ?? 0m);
                 }
 
                 var result = await _setup.CompleteAsync(new FirstRunSetupRequest(
@@ -106,7 +112,23 @@ namespace POSApp.UI.Views
             if (AdminUsername.Text.Trim().Length < 3) return "The username needs at least 3 characters.";
             if (AdminPassword.Password.Length < 6) return "The password needs at least 6 characters.";
             if (AdminPassword.Password != AdminPasswordConfirm.Password) return "The two passwords don't match.";
+            if (IsUsSelected && ParsedTaxRate() == null) return "Enter the sales tax rate as a percentage between 0 and 30, e.g. 8.25.";
             return null;
+        }
+
+        private bool IsUsSelected => Currency.SelectedItem is CurrencyOption c && RegionCodes.IsUnitedStates(c.RegionCode);
+
+        /// <summary>The tax rate typed in, or null when it isn't a percentage from 0 to 30.</summary>
+        private decimal? ParsedTaxRate() =>
+            decimal.TryParse(TaxRate.Text.Replace("%", "").Trim(), System.Globalization.NumberStyles.Number,
+                             System.Globalization.CultureInfo.InvariantCulture, out var rate) && rate >= 0 && rate <= 30
+                ? rate
+                : null;
+
+        private void Currency_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (TaxPanel != null)
+                TaxPanel.Visibility = IsUsSelected ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// <summary>Lists what the sample data added, including the staff logins, which exist nowhere else.</summary>

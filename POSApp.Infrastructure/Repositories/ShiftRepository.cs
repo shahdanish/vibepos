@@ -1,3 +1,4 @@
+using POSApp.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
@@ -44,10 +45,13 @@ namespace POSApp.Infrastructure.Repositories
             var shift = await _context.Shifts.FindAsync([shiftId], ct);
             if (shift != null)
             {
-                // Calculate expected: opening + today's sales - today's expenses
-                var todaySales = await _context.Sales
+                // Calculate expected: opening + today's sales - today's expenses. US sales count
+                // their cash tenders only; sales without tenders keep the original ReceiveCash sum.
+                var sales = await _context.Sales.AsNoTracking()
                     .Where(s => s.SaleDate >= shift.OpenedAt)
-                    .SumAsync(s => s.ReceiveCash, ct);
+                    .Include(s => s.Payments)
+                    .ToListAsync(ct);
+                var todaySales = sales.Sum(s => DrawerCash.For(s, x => x.ReceiveCash));
 
                 var todayExpenses = await _context.Expenses
                     .Where(e => e.Date >= shift.OpenedAt)

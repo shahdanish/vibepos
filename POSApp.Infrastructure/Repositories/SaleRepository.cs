@@ -19,6 +19,7 @@ namespace POSApp.Infrastructure.Repositories
         {
             return await _context.Sales
                 .Include(s => s.SaleItems)
+                .Include(s => s.Payments)
                 .Include(s => s.Customer)
                 .FirstOrDefaultAsync(s => s.Id == id, ct);
         }
@@ -27,6 +28,7 @@ namespace POSApp.Infrastructure.Repositories
         {
             return await _context.Sales
                 .Include(s => s.SaleItems)
+                .Include(s => s.Payments)
                 .Include(s => s.Customer)
                 .Include(s => s.Pharmacy)
                 .Include(s => s.Doctor)
@@ -37,6 +39,7 @@ namespace POSApp.Infrastructure.Repositories
         {
             return await _context.Sales
                 .Include(s => s.SaleItems)
+                .Include(s => s.Payments)
                 .Include(s => s.Customer)
                 .Include(s => s.Pharmacy)
                 .Include(s => s.Doctor)
@@ -51,6 +54,7 @@ namespace POSApp.Infrastructure.Repositories
 
             return await _context.Sales
                 .Include(s => s.SaleItems)
+                .Include(s => s.Payments)
                 .Include(s => s.Customer)
                 .Include(s => s.Pharmacy)
                 .Include(s => s.Doctor)
@@ -66,6 +70,7 @@ namespace POSApp.Infrastructure.Repositories
 
             return await _context.Sales
                 .Include(s => s.SaleItems)
+                .Include(s => s.Payments)
                 .Include(s => s.Customer)
                 .Include(s => s.Pharmacy)
                 .Include(s => s.Doctor)

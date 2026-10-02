@@ -16,6 +16,8 @@ namespace POSApp.UI.ViewModels
     {
         private readonly ISaleRepository _saleRepository;
         private readonly IProductRepository _productRepository;
+        private readonly ICustomerRepository? _customerRepository;
+        private decimal _taxRefund;
 
         private string _searchInvoiceNumber = string.Empty;
         private Sale? _originalSale;
@@ -73,6 +75,26 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _totalReturnAmount, value);
         }
 
+        /// <summary>US: the sales tax paid on the units being returned, included in <see cref="TotalReturnAmount"/>.</summary>
+        public decimal TaxRefund
+        {
+            get => _taxRefund;
+            private set => SetProperty(ref _taxRefund, value);
+        }
+
+        /// <summary>
+        /// US: how the refund goes back. The original sale's own tender when it was paid one
+        /// way; cash when it was split and included cash (otherwise the first tender); cash for
+        /// sales made before tenders were recorded.
+        /// </summary>
+        public static string RefundMethodFor(Sale sale)
+        {
+            var methods = sale.Payments.Select(p => p.Method).Distinct().ToList();
+            if (methods.Count == 1) return methods[0];
+            if (methods.Count == 0 || methods.Contains(PaymentMethods.Cash)) return PaymentMethods.Cash;
+            return methods[0];
+        }
+
         public string SearchStatus
         {
             get => _searchStatus;
@@ -83,10 +105,12 @@ namespace POSApp.UI.ViewModels
         public ICommand ProcessAndPrintCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public SaleReturnViewModel(ISaleRepository saleRepository, IProductRepository productRepository)
+        public SaleReturnViewModel(ISaleRepository saleRepository, IProductRepository productRepository,
+                                   ICustomerRepository? customerRepository = null)
         {
             _saleRepository = saleRepository;
             _productRepository = productRepository;
+            _customerRepository = customerRepository;
 
             ReturnItems.CollectionChanged += ReturnItems_CollectionChanged;
 
@@ -118,7 +142,9 @@ namespace POSApp.UI.ViewModels
 
         private void RecalculateTotal()
         {
-            TotalReturnAmount = ReturnItems.Sum(i => i.Total);
+            // Tax is only ever non-zero on US sales; for every other sale this is the original sum.
+            TaxRefund = ReturnItems.Sum(i => i.ReturnedTax);
+            TotalReturnAmount = ReturnItems.Sum(i => i.Total) + TaxRefund;
         }
 
         private async Task GenerateReturnInvoiceNumber()
@@ -181,6 +207,8 @@ namespace POSApp.UI.ViewModels
                     CostPrice = item.CostPrice,
                     DiscountType = item.DiscountType,
                     DiscountPercent = item.DiscountPercent,
+                    TaxRate = item.TaxRate,
+                    LineTaxAmount = item.TaxAmount,
                     Total = 0
                 });
             }
@@ -234,9 +262,23 @@ namespace POSApp.UI.ViewModels
                     Phone = OriginalSale.Phone,
                     BillNote = string.Join(". ", noteparts),
                     TotalBill = -TotalReturnAmount,
+                    TaxTotal = -TaxRefund,
                     ReceiveCash = -TotalReturnAmount,
                     Balance = 0
                 };
+
+                // US: record how the money went back, so the drawer count knows a cash refund.
+                var refundMethod = Region.IsUnitedStates ? RefundMethodFor(OriginalSale) : null;
+                if (refundMethod != null)
+                {
+                    returnSale.Payments.Add(new SalePayment
+                    {
+                        Method = refundMethod,
+                        Amount = -TotalReturnAmount,
+                        Tendered = -TotalReturnAmount,
+                        CreatedDate = ReturnDate
+                    });
+                }
 
                 foreach (var item in itemsToReturn)
                 {
@@ -249,7 +291,9 @@ namespace POSApp.UI.ViewModels
                         UnitPrice = item.UnitPrice,
                         DiscountPercent = item.DiscountPercent,
                         DiscountType = item.DiscountType,
-                        Total = -item.Total
+                        Total = -item.Total,
+                        TaxRate = item.TaxRate,
+                        TaxAmount = -item.ReturnedTax
                     });
 
                     var product = await _productRepository.GetByProductIdAsync(item.ProductId);
@@ -261,6 +305,17 @@ namespace POSApp.UI.ViewModels
                 }
 
                 await _saleRepository.AddAsync(returnSale);
+
+                // US: a refund to the charge account lowers what the customer owes.
+                if (PaymentMethods.IsOnAccount(refundMethod) && OriginalSale.CustomerId is int customerId && _customerRepository != null)
+                {
+                    var customer = await _customerRepository.GetByIdAsync(customerId);
+                    if (customer != null)
+                    {
+                        customer.CurrentBalance -= TotalReturnAmount;
+                        await _customerRepository.UpdateAsync(customer);
+                    }
+                }
 
                 // Print silently, then reset — no popup
                 PrintReturnReceipt();
@@ -434,7 +489,11 @@ namespace POSApp.UI.ViewModels
             }
 
             AddTotalRow("Total Items Qty", ReturnItems.Where(i => i.ReturnQuantity > 0).Sum(i => i.ReturnQuantity).ToString(), bold: true);
+            if (Region.IsUnitedStates && TaxRefund > 0)
+                AddTotalRow("Sales tax refunded", Region.Number(TaxRefund));
             AddTotalRow("Total Refund", Region.Number(TotalReturnAmount), bold: true, fontSize: 12);
+            if (Region.IsUnitedStates && OriginalSale != null)
+                AddTotalRow("Refunded to", RefundMethodFor(OriginalSale));
 
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);
@@ -546,6 +605,28 @@ namespace POSApp.UI.ViewModels
             _discountType == "%" ? $"{DiscountPercent:N0}%" : Region.MoneyWhole(DiscountPercent);
 
         /// <summary>The exact quantity on the original line (it can be fractional, e.g. 2.5 kg).</summary>
+        /// <summary>Sales-tax rate of the original line (US); 0 on other sales.</summary>
+        public decimal TaxRate { get; set; }
+
+        /// <summary>Sales tax charged on the whole original line (US); 0 on other sales.</summary>
+        public decimal LineTaxAmount { get; set; }
+
+        /// <summary>
+        /// The share of the line's tax that belongs to the units being returned: all of it when
+        /// the whole line comes back, otherwise per unit, to the cent.
+        /// </summary>
+        public decimal ReturnedTax
+        {
+            get
+            {
+                if (LineTaxAmount == 0 || ReturnQuantity <= 0) return 0;
+                var lineQuantity = _lineQuantity > 0 ? _lineQuantity : _originalQuantity;
+                if (lineQuantity <= 0) return 0;
+                if (ReturnQuantity >= lineQuantity) return LineTaxAmount;
+                return Math.Round(LineTaxAmount * ReturnQuantity / lineQuantity, 2, MidpointRounding.AwayFromZero);
+            }
+        }
+
         public decimal LineQuantity
         {
             get => _lineQuantity;

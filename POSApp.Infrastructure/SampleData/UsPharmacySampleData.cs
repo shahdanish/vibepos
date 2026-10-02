@@ -3,6 +3,7 @@ using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
 using POSApp.Core.Services;
 using POSApp.Data;
+using POSApp.Infrastructure.Repositories;
 
 namespace POSApp.Infrastructure.SampleData
 {
@@ -27,6 +28,12 @@ namespace POSApp.Infrastructure.SampleData
         public sealed record CategoryInfo(string Name, string Description);
 
         public sealed record CustomerInfo(string Name, string Phone, decimal OpeningBalance);
+
+        /// <summary>
+        /// Sample categories whose items are non-prescription drugs, so they get the shop's OTC tax
+        /// category (many states tax them differently from general merchandise).
+        /// </summary>
+        private static readonly HashSet<int> OtcDrugCategories = new() { 1, 2, 3, 4, 5, 7, 8, 11 };
 
         /// <summary>Category numbers used by <see cref="Items"/> (1-based; also the aisle number).</summary>
         public static IReadOnlyList<CategoryInfo> Categories { get; } = new CategoryInfo[]
@@ -240,6 +247,10 @@ namespace POSApp.Infrastructure.SampleData
             }
 
             // ── Products ────────────────────────────────────────────────────────
+            var otcTaxCategory = await db.TaxCategories
+                .Where(c => c.Name == TaxRepository.OtcCategoryName)
+                .Select(c => (int?)c.Id)
+                .FirstOrDefaultAsync(ct);
             var barcodes = (await db.Products.IgnoreQueryFilters().Select(p => p.Barcode).ToListAsync(ct)).ToHashSet();
             var productIds = (await db.Products.IgnoreQueryFilters().Select(p => p.ProductId).ToListAsync(ct)).ToHashSet();
             var sequence = new Dictionary<int, int>();
@@ -267,6 +278,7 @@ namespace POSApp.Infrastructure.SampleData
                     BatchNo = $"L{expiry:yyMM}{(char)('A' + i % 20)}{(i * 37 % 900) + 100}",
                     ExpiryDate = expiry,
                     CategoryId = categoryIds[item.Category],
+                    TaxCategoryId = OtcDrugCategories.Contains(item.Category) ? otcTaxCategory : null,
                     CreatedDate = today
                 };
                 db.Products.Add(product);

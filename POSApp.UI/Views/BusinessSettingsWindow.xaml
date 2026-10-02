@@ -309,6 +309,35 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- ════════════════ SALES TAX (US) ════════════════ -->
+            <TabItem x:Name="SalesTaxTab" Header="  Sales Tax  " Visibility="Collapsed">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,12"
+                                   Text="Sales tax added to US sales. Give each category the combined state + local rate you collect, and 0% for items your state does not tax (prescription drugs, and in many states groceries or non-prescription drugs). Your state's tax agency has the rates that apply to you."/>
+
+                        <CheckBox x:Name="chkTaxEnabled" Content="Charge sales tax on sales" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                        <DataGrid x:Name="gridTaxCategories" AutoGenerateColumns="False" CanUserAddRows="False"
+                                  CanUserDeleteRows="False" HeadersVisibility="Column" MinHeight="180"
+                                  SelectionMode="Single" GridLinesVisibility="Horizontal">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Category" Binding="{Binding Name, UpdateSourceTrigger=LostFocus}" Width="*"/>
+                                <DataGridTextColumn Header="Rate %" Binding="{Binding RateText, UpdateSourceTrigger=LostFocus}" Width="90"/>
+                                <DataGridCheckBoxColumn Header="Default" Binding="{Binding IsDefault, UpdateSourceTrigger=PropertyChanged}" Width="70"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0"
+                                   Text="The default category applies to every product that has no tax category of its own (set one on the product in Inventory → Products)."/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Content="+ Add category" Click="AddTaxCategory_Click" Padding="12,5" Margin="0,0,8,0"/>
+                            <Button Content="Remove selected" Click="RemoveTaxCategory_Click" Padding="12,5"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <!-- ════════════════ APPEARANCE ════════════════ -->
             <TabItem Header="  Appearance  ">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">

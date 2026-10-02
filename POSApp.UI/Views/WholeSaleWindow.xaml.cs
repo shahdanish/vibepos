@@ -74,9 +74,12 @@ namespace POSApp.UI.Views
             else if (ctrl && e.Key == Key.W) { e.Handled = true; _viewModel.SwitchModeCommand.Execute(null); }
             else if (ctrl && e.Key == Key.Q) { e.Handled = true; _viewModel.QuickSaleCommand.Execute(null); }
             else if (ctrl && e.Key == Key.M) { e.Handled = true; CalculatorWindow.ShowCalculator(); }
+            else if (ctrl && e.Key == Key.T && _viewModel.IsUsCheckout) { e.Handled = true; SplitPaymentDialog.Run(this, _viewModel); }
             else if (TryHandleQuickKeyHotKey(e)) { e.Handled = true; }
             else if (e.Key == Key.Escape) { e.Handled = true; Close(); }
         }
+
+        private void SplitPayment_Click(object sender, RoutedEventArgs e) => SplitPaymentDialog.Run(this, _viewModel);
 
         // F1–F12 add the first twelve quick keys — except inside the cart grid, where F2
         // edits a cell. Returns true when a quick key was added.

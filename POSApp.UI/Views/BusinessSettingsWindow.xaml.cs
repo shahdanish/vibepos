@@ -1,5 +1,9 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Automation;
+using POSApp.Core.Entities;
+using POSApp.Core.Interfaces;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -30,11 +34,26 @@ namespace POSApp.UI.Views
         /// <summary>Accent picked on the Appearance tab (applied live, saved with Save).</summary>
         private string _accent = ThemeManager.DefaultAccent;
 
+        /// <summary>One editable row on the Sales Tax tab.</summary>
+        public sealed class TaxCategoryRow
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string RateText { get; set; } = "0";
+            public bool IsDefault { get; set; }
+        }
+
+        private readonly ObservableCollection<TaxCategoryRow> _taxRows = new();
+
+        /// <summary>Null when the tab is not shown (not a US shop, or no database, e.g. in tests).</summary>
+        private ITaxRepository? _taxRepository;
+
         public BusinessSettingsWindow()
         {
             InitializeComponent();
             LoadAll(ReceiptBranding.Current, Region.Current);
             LoadAppearance(SettingsManager.LoadSettings());
+            Loaded += async (_, _) => await LoadSalesTaxAsync();
 
             // Appearance is previewed on the whole app; closing puts back whatever is saved,
             // so an unsaved choice never sticks around.
@@ -44,6 +63,73 @@ namespace POSApp.UI.Views
                 ThemeManager.ApplyAccent(saved.Accent);
                 ThemeManager.ApplyDensity(saved.Density);
             };
+        }
+
+        // ── Sales tax (US) ────────────────────────────────────────────────────
+
+        private async Task LoadSalesTaxAsync()
+        {
+            if (!Region.IsUnitedStates || App.Services?.GetService(typeof(ITaxRepository)) is not ITaxRepository repository)
+                return;
+
+            try
+            {
+                await repository.EnsureUsDefaultsAsync(0m); // categories to start from; tax stays off until switched on
+                var settings = await repository.GetSettingsAsync();
+                _taxRows.Clear();
+                foreach (var c in settings.Categories)
+                    _taxRows.Add(new TaxCategoryRow
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        RateText = c.RatePercent.ToString("0.####", CultureInfo.InvariantCulture),
+                        IsDefault = c.IsDefault
+                    });
+                chkTaxEnabled.IsChecked = settings.Enabled;
+                gridTaxCategories.ItemsSource = _taxRows;
+                _taxRepository = repository;
+                SalesTaxTab.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Text = "Sales tax settings could not be loaded: " + ex.Message;
+            }
+        }
+
+        private void AddTaxCategory_Click(object sender, RoutedEventArgs e)
+        {
+            var row = new TaxCategoryRow { Name = "New category", RateText = "0" };
+            _taxRows.Add(row);
+            gridTaxCategories.SelectedItem = row;
+            gridTaxCategories.ScrollIntoView(row);
+        }
+
+        private void RemoveTaxCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (gridTaxCategories.SelectedItem is TaxCategoryRow row)
+                _taxRows.Remove(row);
+        }
+
+        /// <summary>Checks and converts the Sales Tax tab, or returns an error for the cashier.</summary>
+        private (List<TaxCategory>? Categories, string? Error) ReadTaxCategories()
+        {
+            gridTaxCategories.CommitEdit(DataGridEditingUnit.Row, true);
+            var list = new List<TaxCategory>();
+            var defaultTaken = false;
+            foreach (var row in _taxRows)
+            {
+                if (string.IsNullOrWhiteSpace(row.Name))
+                    return (null, "Every tax category needs a name.");
+                if (!decimal.TryParse(row.RateText.Replace("%", "").Trim(), NumberStyles.Number, CultureInfo.InvariantCulture, out var rate)
+                    || rate < 0 || rate > 30)
+                    return (null, $"The rate for '{row.Name}' must be a percentage between 0 and 30, e.g. 8.25.");
+                var isDefault = row.IsDefault && !defaultTaken;
+                defaultTaken |= isDefault;
+                list.Add(new TaxCategory { Id = row.Id, Name = row.Name.Trim(), RatePercent = rate, IsDefault = isDefault });
+            }
+            if (chkTaxEnabled.IsChecked == true && list.Count == 0)
+                return (null, "Add at least one tax category before switching sales tax on.");
+            return (list, null);
         }
 
         // ── Appearance ────────────────────────────────────────────────────────
@@ -265,10 +351,22 @@ namespace POSApp.UI.Views
 
         // ── Save / defaults ───────────────────────────────────────────────────
 
-        private void Save_Click(object sender, RoutedEventArgs e)
+        private async void Save_Click(object sender, RoutedEventArgs e)
         {
             var branding = ReadBranding();
             var region = ReadRegion();
+
+            List<TaxCategory>? taxCategories = null;
+            if (_taxRepository != null)
+            {
+                var (categories, taxError) = ReadTaxCategories();
+                if (taxError != null)
+                {
+                    NotificationHelper.ValidationErrorCustom(taxError);
+                    return;
+                }
+                taxCategories = categories;
+            }
 
             if (string.IsNullOrWhiteSpace(branding.StoreName))
             {
@@ -305,6 +403,20 @@ namespace POSApp.UI.Views
                 s.Accent = accent;
                 s.Density = density;
             });
+
+            if (_taxRepository != null && taxCategories != null)
+            {
+                try
+                {
+                    await _taxRepository.SaveSettingsAsync(chkTaxEnabled.IsChecked == true, taxCategories);
+                    await LoadSalesTaxAsync(); // new rows get their ids
+                }
+                catch (Exception ex)
+                {
+                    NotificationHelper.OperationFailed("save sales tax", ex.Message);
+                    return;
+                }
+            }
 
             UpdatePreview();
             txtStatus.Text = $"Saved at {Region.Time(DateTime.Now)}. Printouts use these immediately — " +

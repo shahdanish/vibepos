@@ -1,3 +1,4 @@
+using POSApp.Core.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using POSApp.Core.Entities;
@@ -124,9 +125,14 @@ namespace POSApp.UI.ViewModels
             }
         }
 
+        /// <summary>The card, check and charge-account part of the day's US sales: not in the drawer.</summary>
+        private decimal _nonCashSales;
+
         private async Task LoadSummaryForDate()
         {
             var existing = await _dailySummaryRepository.GetByDateAsync(SelectedDate);
+            var daySales = (await _saleRepository.GetByDateAsync(SelectedDate)).ToList();
+            _nonCashSales = daySales.Sum(s => s.TotalBill - DrawerCash.For(s, x => x.TotalBill));
             
             if (existing != null)
             {
@@ -140,8 +146,7 @@ namespace POSApp.UI.ViewModels
             }
             else
             {
-                var sales = await _saleRepository.GetByDateAsync(SelectedDate);
-                TotalSales = sales.Sum(s => s.TotalBill);
+                TotalSales = daySales.Sum(s => s.TotalBill);
 
                 var expenses = await _expenseRepository.GetByDateRangeAsync(SelectedDate, SelectedDate);
                 TotalExpenses = expenses.Sum(e => e.Amount);
@@ -156,7 +161,8 @@ namespace POSApp.UI.ViewModels
 
         private void CalculateExpectedClosing()
         {
-            ExpectedClosing = OpeningBalance + TotalSales - TotalExpenses;
+            // Expected cash in the drawer: non-cash (US card/check/account) takings are left out.
+            ExpectedClosing = OpeningBalance + TotalSales - _nonCashSales - TotalExpenses;
             CalculateVariance();
         }
 
