@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
+using POSApp.Core.Entities;
 using POSApp.Core.Services;
 
 namespace POSApp.UI.Helpers
@@ -71,6 +72,84 @@ namespace POSApp.UI.Helpers
             return doc;
         }
 
+        public static FlowDocument PseLog(IReadOnlyList<PseLogEntry> entries, DateTime from, DateTime to)
+        {
+            var doc = NewDocument();
+            doc.Blocks.Add(ReceiptBranding.BuildHeader(20, 12));
+            doc.Blocks.Add(Title("PSEUDOEPHEDRINE LOGBOOK"));
+            doc.Blocks.Add(Note($"{Region.Date(from)}  to  {Region.Date(to)}  ·  {entries.Count} {(entries.Count == 1 ? "entry" : "entries")}  ·  " +
+                                $"{entries.Sum(e => e.BaseMg) / 1000m:0.###} g base\nPrinted {Region.DocumentDateTime(AppClock.Now)}"));
+            doc.Blocks.Add(Columns(
+                new[] { "Date / time", "Purchaser", "ID", "Product", "Qty", "Base g", "Clerk" },
+                new[] { 1.4, 1.6, 1.4, 2.2, 0.5, 0.7, 0.9 },
+                entries.Select(e => new[]
+                {
+                    Region.DocumentDateTime(e.PurchaseDate),
+                    e.PurchaserName + (string.IsNullOrWhiteSpace(e.PurchaserAddress) ? "" : "\n" + e.PurchaserAddress),
+                    $"{e.IdType}\n{e.IdNumber}",
+                    e.ProductName,
+                    e.Packages.ToString("0.##"),
+                    (e.BaseMg / 1000m).ToString("0.###"),
+                    e.RecordedBy
+                })));
+            if (entries.Count == 0) doc.Blocks.Add(Note("No purchases recorded in this period."));
+            return doc;
+        }
+
+        public static IEnumerable<IEnumerable<string>> PseLogCsv(IReadOnlyList<PseLogEntry> entries)
+        {
+            yield return new[] { "Date", "Purchaser", "Address", "ID type", "ID number", "Date of birth", "Product code", "Product", "Packages", "Base mg", "Clerk" };
+            foreach (var e in entries.OrderBy(e => e.PurchaseDate))
+                yield return new[]
+                {
+                    Csv.DateTime(e.PurchaseDate), Csv.Text(e.PurchaserName), Csv.Text(e.PurchaserAddress), Csv.Text(e.IdType), Csv.Text(e.IdNumber),
+                    e.DateOfBirth is DateTime dob ? Csv.Date(dob) : "", Csv.Text(e.ProductId), Csv.Text(e.ProductName),
+                    Csv.Number(e.Packages), Csv.Number(e.BaseMg), Csv.Text(e.RecordedBy)
+                };
+        }
+
+        /// <summary>Expired products and those expiring within <paramref name="days"/>, soonest first.</summary>
+        public static FlowDocument ExpiringProducts(IReadOnlyList<Product> products, DateTime today, int days)
+        {
+            var doc = NewDocument();
+            doc.Blocks.Add(ReceiptBranding.BuildHeader(20, 12));
+            doc.Blocks.Add(Title("EXPIRING PRODUCTS"));
+            var expired = products.Count(p => p.ExpiryDate < today);
+            doc.Blocks.Add(Note($"Expired, or expiring by {Region.Date(today.AddDays(days))}  ·  {expired} expired, {products.Count - expired} expiring\n" +
+                                $"Printed {Region.DocumentDateTime(AppClock.Now)}"));
+            doc.Blocks.Add(Columns(
+                new[] { "Expires", "Status", "Product", "Lot", "Stock", "Shelf" },
+                new[] { 1.0, 1.1, 3.0, 1.0, 0.6, 0.6 },
+                products.Select(p => new[]
+                {
+                    Region.Date(p.ExpiryDate!.Value),
+                    ExpiryStatus(p.ExpiryDate!.Value, today),
+                    p.ProductName,
+                    p.BatchNo ?? "",
+                    p.Stock.ToString(),
+                    p.Rack ?? ""
+                })));
+            if (products.Count == 0) doc.Blocks.Add(Note("Nothing expires in this window."));
+            return doc;
+        }
+
+        public static string ExpiryStatus(DateTime expiry, DateTime today)
+        {
+            var days = (expiry.Date - today.Date).Days;
+            return days < 0 ? "EXPIRED" : days == 0 ? "Today" : days <= 30 ? $"{days} days" : $"{days / 30} mo";
+        }
+
+        public static IEnumerable<IEnumerable<string>> ExpiringCsv(IReadOnlyList<Product> products, DateTime today)
+        {
+            yield return new[] { "Expiry date", "Status", "Product code", "Barcode", "Product", "Lot", "Stock", "Shelf" };
+            foreach (var p in products)
+                yield return new[]
+                {
+                    Csv.Date(p.ExpiryDate!.Value), ExpiryStatus(p.ExpiryDate!.Value, today), Csv.Text(p.ProductId), Csv.Text(p.Barcode),
+                    Csv.Text(p.ProductName), Csv.Text(p.BatchNo), p.Stock.ToString(), Csv.Text(p.Rack)
+                };
+        }
+
         // ── Building blocks ─────────────────────────────────────────────────────
 
         /// <summary>An amount taken off, shown with a minus sign (but never "-$0.00").</summary>
@@ -82,6 +161,7 @@ namespace POSApp.UI.Helpers
             FontSize = 12,
             PagePadding = new Thickness(24),
             ColumnWidth = double.PositiveInfinity,
+            TextAlignment = TextAlignment.Left,
             Background = Brushes.White,
             Foreground = Brushes.Black
         };
@@ -121,6 +201,28 @@ namespace POSApp.UI.Helpers
             table.RowGroups.Add(group);
             section.Blocks.Add(table);
             return section;
+        }
+
+        /// <summary>A table with a header row; column widths are relative.</summary>
+        public static Table Columns(IReadOnlyList<string> headers, IReadOnlyList<double> widths, IEnumerable<string[]> rows)
+        {
+            var table = new Table { CellSpacing = 0, FontSize = 10, Margin = new Thickness(0, 6, 0, 0) };
+            foreach (var w in widths) table.Columns.Add(new TableColumn { Width = new GridLength(w, GridUnitType.Star) });
+            var group = new TableRowGroup();
+            var head = new TableRow { Background = Brushes.Gainsboro };
+            foreach (var h in headers) head.Cells.Add(Cell(h, TextAlignment.Left, bold: true));
+            group.Rows.Add(head);
+            foreach (var r in rows)
+            {
+                var row = new TableRow();
+                foreach (var c in r) row.Cells.Add(new TableCell(new Paragraph(new Run(c)) { Margin = new Thickness(0) })
+                {
+                    Padding = new Thickness(2, 2, 2, 2), BorderBrush = Brushes.LightGray, BorderThickness = new Thickness(0, 0, 0, 1)
+                });
+                group.Rows.Add(row);
+            }
+            table.RowGroups.Add(group);
+            return table;
         }
 
         private static TableCell Cell(string text, TextAlignment align, bool bold) =>

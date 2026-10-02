@@ -1,16 +1,16 @@
-<Window x:Class="POSApp.UI.Views.TaxReportDialog"
+<Window x:Class="POSApp.UI.Views.ReportPeriodDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:helpers="clr-namespace:POSApp.UI.Helpers"
-        Title="{helpers:ShopTitle Sales Tax Report}" Width="460" SizeToContent="Height"
+        Title="Report" Width="460" SizeToContent="Height"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         Icon="pack://application:,,,/POSApp.UI;component/app-icon.png"
         Background="{DynamicResource PageBackgroundBrush}">
     <StackPanel>
         <Border Style="{StaticResource HeaderBar}" Padding="16,10">
             <StackPanel>
-                <TextBlock Text="Sales tax report" Style="{StaticResource HeaderTitle}"/>
-                <TextBlock Text="Taxable, non-taxable and exempt sales and the tax collected, for your sales-tax return."
+                <TextBlock x:Name="Heading" Style="{StaticResource HeaderTitle}"/>
+                <TextBlock x:Name="Subtitle"
                            Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"/>
             </StackPanel>
         </Border>

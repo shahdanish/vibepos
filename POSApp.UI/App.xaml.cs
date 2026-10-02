@@ -89,6 +89,7 @@ public partial class App : System.Windows.Application
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
         services.AddScoped<ITaxRepository, TaxRepository>();
+        services.AddScoped<IFrontStoreRepository, FrontStoreRepository>();
         services.AddScoped<IAutoBackupService, AutoBackupService>();
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
@@ -136,7 +137,6 @@ public partial class App : System.Windows.Application
         services.AddTransient<WholeSaleWindow>();
         services.AddTransient<SaleReturnWindow>();
         services.AddTransient<SalesReportWindow>();
-        services.AddTransient<TaxReportDialog>();
         services.AddTransient<ProductManagementWindow>();
         services.AddTransient<CategoryManagementWindow>();
         // Phase-1 feature windows
@@ -256,6 +256,9 @@ public partial class App : System.Windows.Application
                 .RecordInstallOriginAsync(databaseExisted);
             if (origin.FirstSeen && origin.Origin == InstallOrigin.Upgraded)
                 RegionSettingsStore.KeepLegacyDefaultsIfUnset();
+            // US: the Pharmacist / Pharmacy Technician roles and the PSE logbook permission, by name.
+            if (POSApp.UI.Helpers.Region.IsUnitedStates)
+                await scope.ServiceProvider.GetRequiredService<IFrontStoreRepository>().EnsureRolesAsync();
             // New installs back themselves up daily; existing tills switch it on in Backup & Restore.
             if (origin.FirstSeen && origin.Origin == InstallOrigin.New)
                 await scope.ServiceProvider.GetRequiredService<IAutoBackupService>().SetEnabledAsync(true);

@@ -20,6 +20,18 @@ namespace POSApp.Core.Entities
 
         /// <summary>Sales-tax class (US). Null means the shop's default tax category.</summary>
         public int? TaxCategoryId { get; set; }
+
+        /// <summary>Customers must show ID proving this age (e.g. 18 or 21); 0 = no age check.</summary>
+        public int MinimumAge { get; set; }
+
+        /// <summary>Contains pseudoephedrine or ephedrine: each sale is written to the logbook and limited.</summary>
+        public bool IsPse { get; set; }
+
+        /// <summary>Base drug per package in mg, for the PSE limits (e.g. 24 × 30 mg HCl ≈ 590 mg base).</summary>
+        public decimal PseBaseMgPerPack { get; set; }
+
+        /// <summary>Can be paid for with an FSA/HSA card (the shop decides which items qualify).</summary>
+        public bool IsFsaEligible { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
 

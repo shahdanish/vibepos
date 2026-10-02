@@ -21,9 +21,11 @@ namespace POSApp.Infrastructure.SampleData
     {
         /// <param name="QuickKey">Position on the sale screen's quick keys (1 = F1), or 0.</param>
         /// <param name="ExpiresInDays">Fixed expiry for a few items, so "expiring soon" has examples.</param>
+        /// <param name="MinimumAge">Photo ID needed at the register (18 for nicotine replacement and DXM).</param>
+        /// <param name="PseBaseMg">Pseudoephedrine base per package; above 0 makes it a logbook item.</param>
         public sealed record Item(
             string Name, int Category, decimal Cost, decimal Price, int Stock, int ReorderAt,
-            int QuickKey = 0, int? ExpiresInDays = null);
+            int QuickKey = 0, int? ExpiresInDays = null, int MinimumAge = 0, decimal PseBaseMg = 0);
 
         public sealed record CategoryInfo(string Name, string Description);
 
@@ -34,6 +36,12 @@ namespace POSApp.Infrastructure.SampleData
         /// category (many states tax them differently from general merchandise).
         /// </summary>
         private static readonly HashSet<int> OtcDrugCategories = new() { 1, 2, 3, 4, 5, 7, 8, 11 };
+
+        /// <summary>
+        /// Sample categories flagged FSA/HSA eligible (medicines, first aid, diabetes and home
+        /// health; not vitamins). A real shop checks each item against its card processor's list.
+        /// </summary>
+        private static readonly HashSet<int> FsaEligibleCategories = new() { 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12 };
 
         /// <summary>Category numbers used by <see cref="Items"/> (1-based; also the aisle number).</summary>
         public static IReadOnlyList<CategoryInfo> Categories { get; } = new CategoryInfo[]
@@ -73,15 +81,15 @@ namespace POSApp.Infrastructure.SampleData
 
             // 2 Cold, Cough & Flu
             new("Guaifenesin 600 mg Extended-Release Tablets, 20 ct", 2, 6.30m, 11.99m, 26, 8, QuickKey: 4),
-            new("Dextromethorphan HBr & Guaifenesin Cough Syrup, 4 fl oz", 2, 4.20m, 7.99m, 22, 6),
-            new("Non-Drowsy Cough & Fever Liquid (Acetaminophen, Dextromethorphan), 8 fl oz", 2, 4.90m, 8.99m, 15, 5),
-            new("Nighttime Cold & Flu Liquid (Acetaminophen, Dextromethorphan, Doxylamine), 8 fl oz", 2, 4.90m, 8.99m, 18, 5),
+            new("Dextromethorphan HBr & Guaifenesin Cough Syrup, 4 fl oz", 2, 4.20m, 7.99m, 22, 6, MinimumAge: 18),
+            new("Non-Drowsy Cough & Fever Liquid (Acetaminophen, Dextromethorphan), 8 fl oz", 2, 4.90m, 8.99m, 15, 5, MinimumAge: 18),
+            new("Nighttime Cold & Flu Liquid (Acetaminophen, Dextromethorphan, Doxylamine), 8 fl oz", 2, 4.90m, 8.99m, 18, 5, MinimumAge: 18),
             new("Menthol Cough Drops, 30 ct", 2, 1.40m, 2.79m, 50, 15, QuickKey: 5),
             new("Benzocaine & Menthol Sore Throat Lozenges, 18 ct", 2, 2.70m, 4.99m, 20, 6),
             new("Phenol 1.4% Sore Throat Spray, 6 fl oz", 2, 3.30m, 5.99m, 12, 4),
             new("Saline 0.65% Nasal Spray, 1.5 fl oz", 2, 1.60m, 3.29m, 30, 8),
             new("Oxymetazoline HCl 0.05% Nasal Spray, 0.5 fl oz", 2, 2.90m, 5.49m, 20, 6),
-            new("Children's Cough & Chest Congestion DM Liquid, 4 fl oz", 2, 4.30m, 7.99m, 10, 4),
+            new("Children's Cough & Chest Congestion DM Liquid, 4 fl oz", 2, 4.30m, 7.99m, 10, 4, MinimumAge: 18),
             new("Camphor, Eucalyptus & Menthol Chest Rub, 3.53 oz", 2, 3.40m, 6.49m, 14, 4),
 
             // 3 Allergy & Sinus
@@ -93,6 +101,9 @@ namespace POSApp.Infrastructure.SampleData
             new("Fluticasone Propionate 50 mcg Nasal Spray, 120 sprays", 3, 7.90m, 14.99m, 18, 6),
             new("Triamcinolone Acetonide 55 mcg Nasal Spray, 120 sprays", 3, 7.70m, 14.49m, 0, 4),
             new("Children's Loratadine Oral Solution 5 mg/5 mL, 4 fl oz", 3, 4.60m, 8.99m, 10, 4),
+            // Kept behind the counter; each sale goes in the PSE logbook (24 × 30 mg HCl ≈ 590 mg base).
+            new("Pseudoephedrine HCl 30 mg Tablets, 24 ct", 3, 3.40m, 6.49m, 12, 4, PseBaseMg: 590m),
+            new("Pseudoephedrine HCl 120 mg Extended-Release Tablets, 10 ct", 3, 5.10m, 9.99m, 8, 3, PseBaseMg: 983m),
 
             // 4 Digestive Health
             new("Omeprazole 20 mg Delayed-Release Tablets, 42 ct", 4, 10.40m, 19.99m, 18, 6),
@@ -178,10 +189,10 @@ namespace POSApp.Infrastructure.SampleData
             new("Alcohol Prep Pads, 100 ct", 10, 1.30m, 2.69m, 30, 8),
 
             // 11 Smoking Cessation
-            new("Nicotine Polacrilex Gum 2 mg, Mint, 20 ct", 11, 6.20m, 11.99m, 8, 3),
-            new("Nicotine Polacrilex Gum 4 mg, Mint, 100 ct", 11, 21.50m, 39.99m, 6, 2),
-            new("Nicotine Transdermal Patch 21 mg/24 hr, Step 1, 14 ct", 11, 21.00m, 38.99m, 5, 2),
-            new("Nicotine Polacrilex Lozenge 2 mg, 72 ct", 11, 18.90m, 34.99m, 4, 2),
+            new("Nicotine Polacrilex Gum 2 mg, Mint, 20 ct", 11, 6.20m, 11.99m, 8, 3, MinimumAge: 18),
+            new("Nicotine Polacrilex Gum 4 mg, Mint, 100 ct", 11, 21.50m, 39.99m, 6, 2, MinimumAge: 18),
+            new("Nicotine Transdermal Patch 21 mg/24 hr, Step 1, 14 ct", 11, 21.00m, 38.99m, 5, 2, MinimumAge: 18),
+            new("Nicotine Polacrilex Lozenge 2 mg, 72 ct", 11, 18.90m, 34.99m, 4, 2, MinimumAge: 18),
 
             // 12 Home Health
             new("Digital Oral Thermometer", 12, 4.90m, 8.99m, 10, 3),
@@ -279,6 +290,10 @@ namespace POSApp.Infrastructure.SampleData
                     ExpiryDate = expiry,
                     CategoryId = categoryIds[item.Category],
                     TaxCategoryId = OtcDrugCategories.Contains(item.Category) ? otcTaxCategory : null,
+                    MinimumAge = item.MinimumAge,
+                    IsPse = item.PseBaseMg > 0,
+                    PseBaseMgPerPack = item.PseBaseMg,
+                    IsFsaEligible = FsaEligibleCategories.Contains(item.Category),
                     CreatedDate = today
                 };
                 db.Products.Add(product);

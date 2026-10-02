@@ -30,16 +30,22 @@ namespace POSApp.UI.Views
 
         private readonly decimal _total;
         private readonly bool _accountAllowed;
+
+        /// <summary>The most FSA/HSA cards may pay on this bill, or null when not tracked.</summary>
+        private readonly decimal? _fsaLimit;
+
+        public const string FsaCardType = "FSA/HSA card";
         private readonly ObservableCollection<Row> _rows = new();
 
         /// <summary>The payments, once the dialog returned true.</summary>
         public IReadOnlyList<SalePayment> Payments => _rows.Select(r => r.Payment).ToList();
 
         /// <param name="accountCustomer">The customer whose charge account can be used, or null.</param>
-        public SplitPaymentDialog(decimal total, string? accountCustomer, IEnumerable<SalePayment>? existing = null)
+        public SplitPaymentDialog(decimal total, string? accountCustomer, IEnumerable<SalePayment>? existing = null, decimal? fsaLimit = null)
         {
             InitializeComponent();
             _total = total;
+            _fsaLimit = fsaLimit;
             _accountAllowed = accountCustomer != null;
 
             TotalText.Text = $"Total due {Region.Money(total)}";
@@ -65,7 +71,8 @@ namespace POSApp.UI.Views
                 return false;
             }
 
-            var dialog = new SplitPaymentDialog(vm.TotalBill, vm.SelectedCustomer?.Name, vm.SplitPayments) { Owner = owner };
+            var dialog = new SplitPaymentDialog(vm.TotalBill, vm.SelectedCustomer?.Name, vm.SplitPayments,
+                                                vm.TracksFsa ? vm.FsaEligibleTotal : null) { Owner = owner };
             if (dialog.ShowDialog() != true) return false;
             vm.ApplySplitPayments(dialog.Payments);
             return true;
@@ -99,6 +106,22 @@ namespace POSApp.UI.Views
             }
 
             var method = SelectedMethod;
+            var cardType = (CardBrand.SelectedItem as ComboBoxItem)?.Content as string;
+            if (method == PaymentMethods.Card && cardType == FsaCardType && _fsaLimit is decimal limit)
+            {
+                var fsaSoFar = _rows.Where(r => r.Payment.CardBrand == FsaCardType).Sum(r => r.Payment.Amount);
+                var room = Math.Max(0m, limit - fsaSoFar);
+                if (room == 0)
+                {
+                    ShowError("Nothing on this bill is FSA/HSA eligible (or the eligible part is already paid). Use another card for the rest.");
+                    return;
+                }
+                if (amount > room)
+                {
+                    ShowError($"An FSA/HSA card can pay only for eligible items: up to {Region.Money(room)} on this bill.");
+                    return;
+                }
+            }
             var (payment, error) = TenderCalculator.Take(
                 method, Math.Round(amount, 2), Remaining,
                 cardBrand: method == PaymentMethods.Card ? (CardBrand.SelectedItem as ComboBoxItem)?.Content as string : null,

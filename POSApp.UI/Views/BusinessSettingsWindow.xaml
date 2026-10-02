@@ -338,6 +338,42 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- ════════════════ PHARMACY (US front store) ════════════════ -->
+            <TabItem x:Name="PharmacyTab" Header="  Pharmacy  " Visibility="Collapsed">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,12"
+                                   Text="Rules for the pharmacy front store. Your state may set stricter pseudoephedrine limits or require an electronic tracking system — this program keeps a local logbook only and does not connect to one."/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="210"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="PSE limit per day (g base)" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Column="1" Margin="0,0,0,10">
+                                <TextBox x:Name="txtPseDaily" Style="{StaticResource Field}" Width="120" HorizontalAlignment="Left"
+                                         AutomationProperties.Name="PSE daily limit"/>
+                                <TextBlock Style="{StaticResource Hint}" Text="Per purchaser. The federal amount is 3.6 g."/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Text="PSE limit per 30 days (g base)" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                                <TextBox x:Name="txtPse30" Style="{StaticResource Field}" Width="120" HorizontalAlignment="Left"
+                                         AutomationProperties.Name="PSE 30-day limit"/>
+                                <TextBlock Style="{StaticResource Hint}" Text="Per purchaser. The federal amount is 9 g."/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="2" Text="Expired products" Style="{StaticResource FieldLabel}"/>
+                            <CheckBox Grid.Row="2" Grid.Column="1" x:Name="chkBlockExpired"
+                                      Content="Refuse to sell a product past its expiry date"/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <!-- ════════════════ DEVICES (this PC) ════════════════ -->
             <TabItem Header="  Devices  ">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">

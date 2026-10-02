@@ -137,10 +137,73 @@ namespace POSApp.UI.ViewModels
         public bool IsPharmacyUser { get; } =
             SessionManager.HasPermission(POSApp.Core.Entities.Permissions.PharmacySale);
 
+        /// <summary>Batch and expiry: the distributor pharmacy role, and every US shop.</summary>
         public Visibility PharmacyFieldsVisibility =>
-            SessionManager.HasPermission(POSApp.Core.Entities.Permissions.PharmacyManage)
+            SessionManager.HasPermission(POSApp.Core.Entities.Permissions.PharmacyManage) || Region.IsUnitedStates
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+
+        // ── US front store ────────────────────────────────────────────────────
+        private int _minimumAge;
+        private bool _isFsaEligible;
+        private bool _isPse;
+        private decimal? _pseBaseMgPerPack;
+
+        /// <summary>ID check (US, every edition).</summary>
+        public bool ShowFrontStoreFields => Region.IsUnitedStates;
+
+        /// <summary>FSA/HSA and PSE (US, the Pro front-store feature).</summary>
+        public bool ShowPharmacyFields => Region.IsUnitedStates && EditionGate.IsEnabled(POSApp.Core.Services.AppFeature.FrontStorePharmacy);
+
+        /// <summary>0, 18 or 21 as the combo's index 0, 1, 2.</summary>
+        public int MinimumAgeIndex
+        {
+            get => _minimumAge >= 21 ? 2 : _minimumAge >= 18 ? 1 : 0;
+            set
+            {
+                var age = value == 2 ? 21 : value == 1 ? 18 : 0;
+                if (age == _minimumAge) return;
+                _minimumAge = age;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsFsaEligible
+        {
+            get => _isFsaEligible;
+            set => SetProperty(ref _isFsaEligible, value);
+        }
+
+        public bool IsPse
+        {
+            get => _isPse;
+            set => SetProperty(ref _isPse, value);
+        }
+
+        public decimal? PseBaseMgPerPack
+        {
+            get => _pseBaseMgPerPack;
+            set => SetProperty(ref _pseBaseMgPerPack, value);
+        }
+
+        private void LoadFrontStoreFields(Product? product)
+        {
+            _minimumAge = product?.MinimumAge ?? 0;
+            OnPropertyChanged(nameof(MinimumAgeIndex));
+            IsFsaEligible = product?.IsFsaEligible ?? false;
+            IsPse = product?.IsPse ?? false;
+            PseBaseMgPerPack = product is { PseBaseMgPerPack: > 0 } ? product.PseBaseMgPerPack : null;
+        }
+
+        private void ApplyFrontStoreFields(Product product)
+        {
+            if (!ShowFrontStoreFields) return;
+            product.MinimumAge = _minimumAge;
+            if (!ShowPharmacyFields) return;
+            product.IsFsaEligible = IsFsaEligible;
+            product.IsPse = IsPse;
+            product.PseBaseMgPerPack = IsPse ? PseBaseMgPerPack ?? 0 : 0;
+        }
 
         public Category? SelectedCategory
         {
@@ -356,6 +419,7 @@ namespace POSApp.UI.ViewModels
             ExpiryDate = product.ExpiryDate;
             SelectedCategory = Categories.FirstOrDefault(c => c.Id == product.CategoryId);
             SelectedTaxCategory = ChoiceFor(product.TaxCategoryId);
+            LoadFrontStoreFields(product);
         }
 
         private async Task AddProduct()
@@ -412,6 +476,7 @@ namespace POSApp.UI.ViewModels
                     CategoryId = SelectedCategory?.Id,
                     TaxCategoryId = SelectedTaxCategory?.Id
                 };
+                ApplyFrontStoreFields(product);
 
                 await _productRepository.AddAsync(product);
                 NotificationHelper.ProductAdded(ProductName);
@@ -453,6 +518,7 @@ namespace POSApp.UI.ViewModels
                 SelectedProduct.CategoryId = SelectedCategory?.Id;
                 if (HasTaxCategories)
                     SelectedProduct.TaxCategoryId = SelectedTaxCategory?.Id;
+                ApplyFrontStoreFields(SelectedProduct);
 
                 await _productRepository.UpdateAsync(SelectedProduct);
                 NotificationHelper.ProductUpdated(ProductName);
@@ -525,6 +591,7 @@ namespace POSApp.UI.ViewModels
             ExpiryDate = null;
             SelectedCategory = null;
             SelectedTaxCategory = ChoiceFor(null);
+            LoadFrontStoreFields(null);
         }
 
         private void GenerateBarcode()

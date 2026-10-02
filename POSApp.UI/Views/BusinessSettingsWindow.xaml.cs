@@ -48,13 +48,20 @@ namespace POSApp.UI.Views
         /// <summary>Null when the tab is not shown (not a US shop, or no database, e.g. in tests).</summary>
         private ITaxRepository? _taxRepository;
 
+        /// <summary>Null when the Pharmacy tab is not shown.</summary>
+        private IFrontStoreRepository? _frontStore;
+
         public BusinessSettingsWindow()
         {
             InitializeComponent();
             LoadAll(ReceiptBranding.Current, Region.Current);
             LoadAppearance(SettingsManager.LoadSettings());
             LoadDevices(SettingsManager.LoadSettings());
-            Loaded += async (_, _) => await LoadSalesTaxAsync();
+            Loaded += async (_, _) =>
+            {
+                await LoadSalesTaxAsync();
+                await LoadPharmacyAsync();
+            };
 
             // Appearance is previewed on the whole app; closing puts back whatever is saved,
             // so an unsaved choice never sticks around.
@@ -131,6 +138,41 @@ namespace POSApp.UI.Views
             if (chkTaxEnabled.IsChecked == true && list.Count == 0)
                 return (null, "Add at least one tax category before switching sales tax on.");
             return (list, null);
+        }
+
+        // ── Pharmacy (US front store) ─────────────────────────────────────────
+
+        private async Task LoadPharmacyAsync()
+        {
+            if (!Region.IsUnitedStates || App.Services?.GetService(typeof(IFrontStoreRepository)) is not IFrontStoreRepository repository)
+                return;
+            try
+            {
+                var s = await repository.GetSettingsAsync();
+                txtPseDaily.Text = (s.PseDailyLimitMg / 1000m).ToString("0.###", CultureInfo.InvariantCulture);
+                txtPse30.Text = (s.PseThirtyDayLimitMg / 1000m).ToString("0.###", CultureInfo.InvariantCulture);
+                chkBlockExpired.IsChecked = s.BlockExpired;
+                _frontStore = repository;
+                PharmacyTab.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Text = "Pharmacy settings could not be loaded: " + ex.Message;
+            }
+        }
+
+        /// <summary>The Pharmacy tab's values, or an error for the cashier.</summary>
+        private (FrontStoreSettings? Settings, string? Error) ReadPharmacy()
+        {
+            static decimal? Grams(string text) =>
+                decimal.TryParse(text.Trim(), NumberStyles.Number, CultureInfo.InvariantCulture, out var g) && g > 0 && g <= 100 ? g : null;
+            var daily = Grams(txtPseDaily.Text);
+            var thirty = Grams(txtPse30.Text);
+            if (daily == null || thirty == null)
+                return (null, "PSE limits must be grams between 0 and 100, e.g. 3.6 and 9.");
+            if (daily > thirty)
+                return (null, "The daily PSE limit can't be more than the 30-day limit.");
+            return (new FrontStoreSettings(daily.Value * 1000m, thirty.Value * 1000m, chkBlockExpired.IsChecked == true), null);
         }
 
         // ── Devices (this PC) ─────────────────────────────────────────────────
@@ -385,6 +427,18 @@ namespace POSApp.UI.Views
             var branding = ReadBranding();
             var region = ReadRegion();
 
+            FrontStoreSettings? pharmacy = null;
+            if (_frontStore != null)
+            {
+                var (read, pharmacyError) = ReadPharmacy();
+                if (pharmacyError != null)
+                {
+                    NotificationHelper.ValidationErrorCustom(pharmacyError);
+                    return;
+                }
+                pharmacy = read;
+            }
+
             List<TaxCategory>? taxCategories = null;
             if (_taxRepository != null)
             {
@@ -438,6 +492,16 @@ namespace POSApp.UI.Views
                 s.CashDrawerPrinter = drawerPrinter;
                 s.CashDrawerPin5 = drawerPin5;
             });
+
+            if (_frontStore != null && pharmacy != null)
+            {
+                try { await _frontStore.SaveSettingsAsync(pharmacy); }
+                catch (Exception ex)
+                {
+                    NotificationHelper.OperationFailed("save pharmacy settings", ex.Message);
+                    return;
+                }
+            }
 
             if (_taxRepository != null && taxCategories != null)
             {

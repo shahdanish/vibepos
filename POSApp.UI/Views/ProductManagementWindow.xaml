@@ -227,6 +227,27 @@
                                         DisplayDateStart="2020-01-01"/>
                         </StackPanel>
 
+                        <!-- US front store: ID check, FSA/HSA, pseudoephedrine -->
+                        <StackPanel Visibility="{Binding ShowFrontStoreFields, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="ID check at the register" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <ComboBox SelectedIndex="{Binding MinimumAgeIndex}" Padding="8" Margin="0,0,0,10"
+                                      AutomationProperties.Name="ID check">
+                                <ComboBoxItem Content="No ID check"/>
+                                <ComboBoxItem Content="18+ (nicotine replacement, cough medicine with DXM in many states)"/>
+                                <ComboBoxItem Content="21+ (tobacco)"/>
+                            </ComboBox>
+                            <StackPanel Visibility="{Binding ShowPharmacyFields, Converter={StaticResource BoolToVis}}">
+                                <CheckBox Content="FSA/HSA eligible" IsChecked="{Binding IsFsaEligible}" Margin="0,0,0,8"/>
+                                <CheckBox Content="Contains pseudoephedrine / ephedrine (PSE logbook)" IsChecked="{Binding IsPse}" Margin="0,0,0,6"/>
+                                <StackPanel Visibility="{Binding IsPse, Converter={StaticResource BoolToVis}}" Margin="26,0,0,10">
+                                    <TextBlock Text="Base drug per package (mg)" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                                    <TextBox Text="{Binding PseBaseMgPerPack, UpdateSourceTrigger=LostFocus, TargetNullValue=''}" Padding="8"/>
+                                    <TextBlock Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="0,4,0,0"
+                                               Text="Tablets × mg per tablet × 0.82 for the HCl salt, e.g. 24 × 30 mg = 590 mg. Check the package."/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+
                         <StackPanel>
                             <Button Content="Add New Product" Command="{Binding AddCommand}" 
                                     Style="{StaticResource SuccessButton}" Padding="10,8" Margin="0,0,0,10"/>

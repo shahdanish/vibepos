@@ -84,6 +84,18 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenSaleReturnCommand { get; }
         public ICommand OpenSalesReportCommand { get; }
         public ICommand OpenTaxReportCommand { get; }
+        public ICommand OpenPseLogCommand { get; }
+        public ICommand OpenExpiringProductsCommand { get; }
+
+        /// <summary>US, for users who can see the PSE logbook.</summary>
+        public Visibility PseLogVisibility =>
+            Region.IsUnitedStates && SessionManager.HasPermission(Permissions.PseLogView)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>US, for users who manage products.</summary>
+        public Visibility ExpiringProductsVisibility =>
+            Region.IsUnitedStates && SessionManager.HasPermission(Permissions.ProductsManage)
+                ? Visibility.Visible : Visibility.Collapsed;
         public ICommand OpenProductManagementCommand { get; }
         public ICommand OpenCategoryManagementCommand { get; }
         public ICommand OpenDashboardCommand { get; }
@@ -135,6 +147,8 @@ namespace POSApp.UI.ViewModels
             OpenSaleReturnCommand       = new RelayCommand(_ => OpenSaleReturn());
             OpenSalesReportCommand      = new RelayCommand(_ => OpenSalesReport());
             OpenTaxReportCommand        = new RelayCommand(_ => OpenTaxReport());
+            OpenPseLogCommand           = new RelayCommand(_ => OpenPseLog());
+            OpenExpiringProductsCommand = new RelayCommand(_ => OpenExpiringProducts());
             OpenProductManagementCommand = new RelayCommand(_ => OpenProductManagement());
             OpenCategoryManagementCommand = new RelayCommand(_ => OpenCategoryManagement());
             OpenDashboardCommand        = new RelayCommand(_ => OpenDashboard());
@@ -200,10 +214,40 @@ namespace POSApp.UI.ViewModels
         {
             if (!SessionManager.HasPermission(Permissions.ReportsSales))
             { NotificationHelper.ValidationErrorCustom("You don't have permission to view sales reports."); return; }
-            var dialog = App.Services?.GetRequiredService<TaxReportDialog>();
-            if (dialog == null) return;
-            dialog.Owner = Application.Current.MainWindow;
-            dialog.ShowDialog();
+            if (App.Services?.GetService<ISaleRepository>() is not ISaleRepository sales) return;
+            ReportPeriodDialog.ForSalesTax(sales, Application.Current.MainWindow).ShowDialog();
+        }
+
+        private void OpenPseLog()
+        {
+            if (!EditionGate.Require(AppFeature.FrontStorePharmacy)) return;
+            if (!SessionManager.HasPermission(Permissions.PseLogView))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to view the PSE logbook."); return; }
+            if (App.Services?.GetService<IFrontStoreRepository>() is not IFrontStoreRepository frontStore) return;
+            ReportPeriodDialog.ForPseLog(frontStore, Application.Current.MainWindow).ShowDialog();
+        }
+
+        /// <summary>Expired products and those expiring in the next 90 days.</summary>
+        private async void OpenExpiringProducts()
+        {
+            if (!EditionGate.Require(AppFeature.FrontStorePharmacy)) return;
+            if (!SessionManager.HasPermission(Permissions.ProductsManage))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to manage products."); return; }
+            if (App.Services?.GetService<IFrontStoreRepository>() is not IFrontStoreRepository frontStore) return;
+            try
+            {
+                const int days = 90;
+                var today = AppClock.Now.Date;
+                var products = await frontStore.GetExpiringAsync(today.AddDays(days));
+                new ReportViewerWindow("Expiring Products",
+                    () => ReportDocuments.ExpiringProducts(products, today, days),
+                    () => ReportDocuments.ExpiringCsv(products, today),
+                    $"expiring-products-{today:yyyy-MM-dd}.csv") { Owner = Application.Current.MainWindow }.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("build the expiry report", ex.Message);
+            }
         }
 
         private void OpenProductManagement()

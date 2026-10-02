@@ -142,7 +142,7 @@ namespace POSApp.Tests
         [InlineData("ThisYear", "2026-01-01", "2026-12-31")]
         public void Periods_MatchTheCalendar(string name, string from, string to)
         {
-            var (f, t) = TaxReportDialog.PeriodFor(name, new DateTime(2026, 10, 2));
+            var (f, t) = ReportPeriodDialog.PeriodFor(name, new DateTime(2026, 10, 2));
             Assert.Equal(DateTime.Parse(from), f);
             Assert.Equal(DateTime.Parse(to), t);
         }

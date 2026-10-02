@@ -42,6 +42,9 @@ namespace POSApp.Data
         public DbSet<TaxCategory> TaxCategories { get; set; }
         public DbSet<SalePayment> SalePayments { get; set; }
 
+        // US pharmacy front store
+        public DbSet<PseLogEntry> PseLogEntries { get; set; }
+
         // HR Module
         public DbSet<Employee> Employees { get; set; }
         public DbSet<SalarySlip> SalarySlips { get; set; }
@@ -114,6 +117,24 @@ namespace POSApp.Data
             modelBuilder.Entity<TaxCategory>()
                 .Property(c => c.RatePercent)
                 .HasPrecision(9, 4);
+
+            // PSE logbook: kept even if its sale is ever deleted (it is the shop's record).
+            modelBuilder.Entity<PseLogEntry>()
+                .HasOne(e => e.Sale)
+                .WithMany(s => s.PseLogEntries)
+                .HasForeignKey(e => e.SaleId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<PseLogEntry>()
+                .HasIndex(e => new { e.IdNumber, e.PurchaseDate });
+            modelBuilder.Entity<PseLogEntry>()
+                .Property(e => e.Packages)
+                .HasPrecision(18, 3);
+            modelBuilder.Entity<PseLogEntry>()
+                .Property(e => e.BaseMg)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<Product>()
+                .Property(p => p.PseBaseMgPerPack)
+                .HasPrecision(18, 2);
             // Products.TaxCategoryId is a plain column, deliberately without a foreign key:
             // SQLite cannot add one to an existing table without rebuilding it, and a live
             // till's Products table must never be rebuilt. TaxRepository clears it instead

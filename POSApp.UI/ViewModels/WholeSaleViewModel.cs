@@ -6,8 +6,9 @@ namespace POSApp.UI.ViewModels
     public class WholeSaleViewModel : SaleViewModel
     {
         public WholeSaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository,
-                                  IFavoriteRepository? favoriteRepository = null, ITaxRepository? taxRepository = null)
-            : base(saleRepository, productRepository, customerRepository, favoriteRepository, taxRepository)
+                                  IFavoriteRepository? favoriteRepository = null, ITaxRepository? taxRepository = null,
+                                  IFrontStoreRepository? frontStoreRepository = null)
+            : base(saleRepository, productRepository, customerRepository, favoriteRepository, taxRepository, frontStoreRepository)
         {
         }
 

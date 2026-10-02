@@ -35,6 +35,9 @@ namespace POSApp.Core.Entities
         public const string DoctorsManage = "Doctors.Manage";
         public const string CallScheduleManage = "CallSchedule.Manage";
 
+        // Front store (US pharmacy)
+        public const string PseLogView = "Pse.LogView";
+
         // HR
         public const string EmployeesManage = "Employees.Manage";
         public const string SalaryManage = "Salary.Manage";

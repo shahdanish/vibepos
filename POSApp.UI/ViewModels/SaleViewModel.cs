@@ -20,6 +20,14 @@ namespace POSApp.UI.ViewModels
         private readonly ICustomerRepository _customerRepository;
         private readonly IFavoriteRepository? _favoriteRepository;
         private readonly ITaxRepository? _taxRepository;
+        private readonly IFrontStoreRepository? _frontStoreRepository;
+
+        // US front store: ID check, expired items, PSE logbook, FSA/HSA.
+        private FrontStoreSettings _frontStore = FrontStoreSettings.Default;
+        private int _idCheckedAge;
+        private DateTime? _verifiedDob;
+        private IReadOnlyList<PseLogEntry>? _pseEntries;
+        private decimal _fsaEligibleTotal;
 
         // US checkout: sales tax and tenders. Pakistani tills never take this path.
         private TaxSettings _tax = TaxSettings.Off;
@@ -182,6 +190,98 @@ namespace POSApp.UI.ViewModels
         public string SplitSummary => _splitPayments == null
             ? string.Empty
             : "Split: " + string.Join(" + ", _splitPayments.Select(p => $"{p.Method} {Region.Money(p.Amount)}"));
+
+        // ── US front store ───────────────────────────────────────────────────
+
+        /// <summary>
+        /// Set by the window: asks the cashier to check photo ID for an age-restricted item
+        /// (minimum age, product name). Returns the customer's date of birth, or null if cancelled.
+        /// </summary>
+        public Func<int, string, DateTime?>? RequestIdCheck { get; set; }
+
+        /// <summary>
+        /// Set by the window: takes the purchaser's details for the pseudoephedrine logbook and
+        /// checks the purchase limits. Returns the logbook lines, or null if cancelled or refused.
+        /// </summary>
+        public Func<IReadOnlyList<PseCheckoutLine>, IReadOnlyList<PseLogEntry>?>? RequestPseLog { get; set; }
+
+        /// <summary>FSA/HSA amounts are tracked (US, the Pro front-store feature).</summary>
+        public bool TracksFsa => IsUsCheckout && EditionGate.IsEnabled(AppFeature.FrontStorePharmacy);
+
+        /// <summary>What an FSA/HSA card may pay on this bill: eligible items and their tax.</summary>
+        public decimal FsaEligibleTotal
+        {
+            get => _fsaEligibleTotal;
+            private set => SetProperty(ref _fsaEligibleTotal, value);
+        }
+
+        /// <summary>The minimum age the cashier has checked ID for on this sale (0 = none).</summary>
+        public int IdCheckedAge => _idCheckedAge;
+
+        /// <summary>
+        /// US checks before an item goes in the cart: not past its expiry date, and photo ID
+        /// for age-restricted items (once per sale; a later item needing an older age asks again
+        /// only if the date of birth already given isn't old enough).
+        /// </summary>
+        private bool PassesFrontStoreChecks(Product product)
+        {
+            if (!IsUsCheckout) return true;
+
+            if (_frontStore.BlockExpired && product.ExpiryDate is DateTime expiry && expiry.Date < AppClock.Now.Date)
+            {
+                NotificationHelper.ShowError($"'{product.ProductName}' expired on {Region.Date(expiry)} and can't be sold. Please take it off the shelf.");
+                return false;
+            }
+
+            if (product.MinimumAge > _idCheckedAge)
+            {
+                var dob = _verifiedDob ?? RequestIdCheck?.Invoke(product.MinimumAge, product.ProductName);
+                if (dob == null) return false;
+                var age = AgeCheck.AgeOn(dob.Value, AppClock.Now);
+                if (age < product.MinimumAge)
+                {
+                    NotificationHelper.ShowError($"The customer is {age}. '{product.ProductName}' can only be sold to customers {product.MinimumAge} or older.");
+                    return false;
+                }
+                _verifiedDob = dob;
+                _idCheckedAge = Math.Max(_idCheckedAge, product.MinimumAge);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// US: a bill with pseudoephedrine needs the purchaser in the logbook (and within the
+        /// limits) before it can be printed or saved.
+        /// </summary>
+        private bool ResolvePse()
+        {
+            _pseEntries = null;
+            if (!IsUsCheckout) return true;
+
+            var lines = SaleItems
+                .Select(i => (Item: i, Product: Products.FirstOrDefault(p => p.ProductId == i.ProductId)))
+                .Where(x => x.Product?.IsPse == true)
+                .Select(x => new PseCheckoutLine(x.Item.ProductId, x.Item.ProductName, x.Item.Quantity, x.Item.Quantity * x.Product!.PseBaseMgPerPack))
+                .ToList();
+            if (lines.Count == 0) return true;
+
+            var entries = RequestPseLog?.Invoke(lines);
+            if (entries == null) return false;
+            _pseEntries = entries;
+            return true;
+        }
+
+        private decimal ComputeFsaEligible()
+        {
+            if (!TracksFsa || SaleItems.Count == 0) return 0;
+            var eligible = SaleItems.Select(i => Products.FirstOrDefault(p => p.ProductId == i.ProductId)?.IsFsaEligible == true).ToList();
+            if (!eligible.Contains(true)) return 0;
+
+            var lines = _taxResult?.Lines ?? SaleTaxCalculator.Calculate(
+                SaleItems.Select(i => new TaxLineInput(i.Total, 0m)).ToList(),
+                (DiscountOnProducts ?? 0) + (DiscountOnBill ?? 0), taxExempt: false).Lines;
+            return FsaEligibility.EligibleAmount(lines.Select((l, i) => new FsaLine(eligible[i], l.Taxable, l.Tax)));
+        }
 
         /// <summary>The split entered for this bill, or null.</summary>
         public IReadOnlyList<SalePayment>? SplitPayments => _splitPayments;
@@ -480,8 +580,10 @@ namespace POSApp.UI.ViewModels
         public ICommand RemoveItemFromQuickKeysCommand { get; }
 
         public SaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository,
-                             IFavoriteRepository? favoriteRepository = null, ITaxRepository? taxRepository = null)
+                             IFavoriteRepository? favoriteRepository = null, ITaxRepository? taxRepository = null,
+                             IFrontStoreRepository? frontStoreRepository = null)
         {
+            _frontStoreRepository = frontStoreRepository;
             _saleRepository = saleRepository;
             _productRepository = productRepository;
             _customerRepository = customerRepository;
@@ -563,6 +665,12 @@ namespace POSApp.UI.ViewModels
             foreach (var customer in customers)
             {
                 Customers.Add(customer);
+            }
+
+            if (IsUsCheckout && _frontStoreRepository != null)
+            {
+                try { _frontStore = await _frontStoreRepository.GetSettingsAsync(); }
+                catch { _frontStore = FrontStoreSettings.Default; }
             }
 
             if (IsUsCheckout && _taxRepository != null)
@@ -670,6 +778,8 @@ namespace POSApp.UI.ViewModels
                 return false;
             }
 
+            if (!PassesFrontStoreChecks(product)) return false;
+
             // Already in the cart: one more, instead of a duplicate row.
             var existingItem = SaleItems.FirstOrDefault(item => item.ProductId == product.ProductId);
             if (existingItem != null)
@@ -749,6 +859,8 @@ namespace POSApp.UI.ViewModels
                 Quantity = 1; // Default to 1 if invalid
             }
 
+            if (!PassesFrontStoreChecks(SelectedProduct)) return;
+
             // If the product is already in the cart, bump its quantity instead of
             // adding a duplicate row (matches the barcode-scan behaviour).
             var existingItem = SaleItems.FirstOrDefault(i => i.ProductId == SelectedProduct.ProductId);
@@ -826,6 +938,7 @@ namespace POSApp.UI.ViewModels
             }
             OnPropertyChanged(nameof(TaxLabel));
             OnPropertyChanged(nameof(IsTaxExempt));
+            FsaEligibleTotal = ComputeFsaEligible();
 
             // A split entered for a different total no longer fits the bill.
             if (_splitPayments != null && _splitPayments.Sum(p => p.Amount) != TotalBill)
@@ -873,6 +986,7 @@ namespace POSApp.UI.ViewModels
             {
                 if (!alreadyPrepared)
                 {
+                    if (!ResolvePse()) return;
                     if (!ResolvePayments()) return;
                     await PrepareForSaveAsync();
                 }
@@ -896,6 +1010,7 @@ namespace POSApp.UI.ViewModels
                     TaxTotal = TaxTotal,
                     TaxExemptNumber = IsTaxExempt ? SelectedCustomer?.TaxExemptNumber : null,
                     IsTaxExempt = IsTaxExempt,
+                    IdCheckedAge = _idCheckedAge,
                     ReceiveCash = ReceiveCash ?? 0,
                     Balance = Balance,
                     AutoPrinted = AutoPrint
@@ -919,6 +1034,14 @@ namespace POSApp.UI.ViewModels
                         TaxRate = tax?.RatePercent ?? 0,
                         TaxAmount = tax?.Tax ?? 0
                     });
+                }
+
+                // US: the PSE logbook lines go in with the sale.
+                foreach (var entry in _pseEntries ?? Array.Empty<PseLogEntry>())
+                {
+                    entry.PurchaseDate = SaleDate;
+                    entry.RecordedBy = SessionManager.CurrentUser?.Username ?? string.Empty;
+                    sale.PseLogEntries.Add(entry);
                 }
 
                 // US: the tenders go in with the sale (one insert, so never half-saved).
@@ -997,6 +1120,9 @@ namespace POSApp.UI.ViewModels
 
         private void NewSale()
         {
+            _idCheckedAge = 0;
+            _verifiedDob = null;
+            _pseEntries = null;
             _splitPayments = null;
             _resolvedPayments = Array.Empty<SalePayment>();
             OnSplitChanged();
@@ -1064,7 +1190,8 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
-            // US: settle the tenders first, so the receipt shows how it was paid.
+            // US: the PSE logbook and the tenders first, so the receipt shows how it was paid.
+            if (!ResolvePse()) return;
             if (!ResolvePayments()) return;
 
             try
@@ -1350,6 +1477,8 @@ namespace POSApp.UI.ViewModels
                         AddTotalRow($"Sales tax {rate.RatePercent:0.###}%", Region.Number(rate.Tax));
                 }
                 AddTotalRow("TOTAL", Region.Money(TotalBill), bold: true, fontSize: 14);
+                if (FsaEligibleTotal > 0)
+                    AddTotalRow("FSA/HSA eligible", Region.Number(FsaEligibleTotal));
                 foreach (var p in _resolvedPayments)
                     AddTotalRow(TenderCalculator.Describe(p), Region.Number(p.Tendered));
                 var change = TenderCalculator.Change(_resolvedPayments);

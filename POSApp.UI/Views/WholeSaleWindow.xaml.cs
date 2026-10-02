@@ -55,6 +55,10 @@ namespace POSApp.UI.Views
 
             PreviewKeyDown += WholeSaleWindow_KeyDown;
 
+            // US front store: ID checks and the pseudoephedrine logbook.
+            _viewModel.RequestIdCheck = (age, product) => IdCheckDialog.Ask(this, age, product);
+            _viewModel.RequestPseLog = lines => PseLogDialog.Ask(this, lines);
+
             // Pick up quick keys starred in Products (or in the other sale window) meanwhile.
             Activated += async (_, _) => await _viewModel.LoadQuickKeysAsync();
 

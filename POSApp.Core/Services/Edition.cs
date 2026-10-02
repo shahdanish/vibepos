@@ -25,7 +25,8 @@ namespace POSApp.Core.Services
         HumanResources,     // employees + salary slips
         Pharmacy,           // pharmacy sale, pharmacies, doctors, reps, call schedule
         CloudBackup,
-        YearlyLicence       // the offline renewal-code licence gate
+        YearlyLicence,      // the offline renewal-code licence gate
+        FrontStorePharmacy  // US pharmacy front store: PSE logbook, FSA/HSA flags, expiry report
     }
 
     /// <summary>
@@ -45,7 +46,8 @@ namespace POSApp.Core.Services
             AppFeature.ExcelExport,
             AppFeature.MultiUser,
             AppFeature.RoleManagement,
-            AppFeature.HumanResources
+            AppFeature.HumanResources,
+            AppFeature.FrontStorePharmacy
         };
 
         /// <summary>True when the build contains the feature at all (whether or not it is unlocked).</summary>
@@ -90,6 +92,7 @@ namespace POSApp.Core.Services
             AppFeature.Pharmacy       => "Pharmacy module",
             AppFeature.CloudBackup    => "Cloud backup",
             AppFeature.YearlyLicence  => "Licence",
+            AppFeature.FrontStorePharmacy => "Pharmacy front store (PSE logbook, FSA/HSA, expiry report)",
             _ => feature.ToString()
         };
     }

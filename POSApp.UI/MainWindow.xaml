@@ -210,6 +210,8 @@
                 <!-- ── INVENTORY — both roles -->
                 <MenuItem Header="📦 Inventory" Style="{StaticResource NavDropStyle}">
                     <MenuItem Header="🏷 Products"      Command="{Binding OpenProductManagementCommand}"  Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="⏳ Expiring Products" Command="{Binding OpenExpiringProductsCommand}" Style="{StaticResource DropItemStyle}"
+                              Visibility="{Binding ExpiringProductsVisibility}"/>
                     <MenuItem Header="📂 Categories"    Command="{Binding OpenCategoryManagementCommand}" Style="{StaticResource DropItemStyle}"/>
                     <Separator Style="{StaticResource DropSepStyle}"/>
                     <MenuItem Header="🛒 Purchase"      Command="{Binding OpenPurchaseEntryCommand}"      Style="{StaticResource DropItemStyle}"/>
@@ -229,6 +231,8 @@
                     <MenuItem Header="📈 Sales Report" Command="{Binding OpenSalesReportCommand}"  Style="{StaticResource DropItemStyle}"/>
                     <MenuItem Header="🧾 Sales Tax Report" Command="{Binding OpenTaxReportCommand}" Style="{StaticResource DropItemStyle}"
                               Visibility="{Binding TaxReportVisibility}"/>
+                    <MenuItem Header="💊 PSE Logbook" Command="{Binding OpenPseLogCommand}" Style="{StaticResource DropItemStyle}"
+                              Visibility="{Binding PseLogVisibility}"/>
                 </MenuItem>
 
                 <!-- ── ADMIN — both roles; Users/Roles hidden for PharmacyUser -->
