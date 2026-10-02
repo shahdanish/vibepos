@@ -28,6 +28,9 @@ namespace POSApp.Core.Entities
         /// <summary>Card authorization code or check number.</summary>
         public string? Reference { get; set; }
 
+        /// <summary>The payment provider's id for an integrated card payment (used to refund it).</summary>
+        public string? ProcessorReference { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public Sale? Sale { get; set; }

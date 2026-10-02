@@ -374,6 +374,53 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- ════════════════ CARD PAYMENTS (US) ════════════════ -->
+            <TabItem x:Name="PaymentsTab" Header="  Card Payments  " Visibility="Collapsed">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,12"
+                                   Text="With an integrated reader the bill total goes to the reader by itself — nothing to key in twice, and the card brand, last four digits and approval code print on the receipt. Card numbers stay on the reader and with the processor; they never pass through this computer."/>
+
+                        <RadioButton x:Name="rbCardSeparate" GroupName="CardReader" Margin="0,0,0,6" Checked="CardReaderChoice_Changed"
+                                     Content="Separate card machine — key the amount in on it, then choose Card here"/>
+                        <RadioButton x:Name="rbCardStripe" GroupName="CardReader" Margin="0,0,0,12" Checked="CardReaderChoice_Changed"
+                                     Content="Stripe Terminal smart reader (connected over the internet)"/>
+
+                        <Grid x:Name="StripePanel" Margin="20,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Secret key" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Column="1" Margin="0,0,0,10">
+                                <PasswordBox x:Name="pwdStripeKey" Padding="6,4" FontSize="13" HorizontalAlignment="Stretch"
+                                             AutomationProperties.Name="Stripe secret key"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="Stripe dashboard → Developers → API keys. Starts with sk_live_ (or sk_test_ to try it out with no real money). Saved encrypted, for this computer only."/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Text="Reader" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox x:Name="cboCardReader" Style="{StaticResource Picker}" Width="260" AutomationProperties.Name="Card reader"/>
+                                    <Button Content="Find readers" Click="FindReaders_Click" Padding="12,5" Margin="10,0,0,0"/>
+                                    <Button x:Name="btnTestReader" Content="Set up a test reader" Click="TestReader_Click" Padding="12,5" Margin="8,0,0,0"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="Register the reader to your Stripe account first (Stripe dashboard → Terminal → Readers). The test reader works with sk_test_ keys only."/>
+                                <TextBlock x:Name="txtPaymentsStatus" TextWrapping="Wrap" Margin="0,8,0,0" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,14,0,0"
+                                   Text="Stripe charges its own processing fees under your agreement with Stripe. Refunds of reader payments go back to the same card from Sale Return."/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <!-- ════════════════ DEVICES (this PC) ════════════════ -->
             <TabItem Header="  Devices  ">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">

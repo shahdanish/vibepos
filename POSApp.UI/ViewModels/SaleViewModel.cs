@@ -37,6 +37,9 @@ namespace POSApp.UI.ViewModels
         private List<SalePayment>? _splitPayments;
         private IReadOnlyList<SalePayment> _resolvedPayments = Array.Empty<SalePayment>();
 
+        // Cards approved on the integrated reader for the bill on screen, not yet saved with it.
+        private readonly List<SalePayment> _readerCharges = new();
+
         /// <summary>F1–F12 trigger the first twelve quick keys.</summary>
         public const int HotKeyCount = 12;
 
@@ -205,6 +208,21 @@ namespace POSApp.UI.ViewModels
         /// </summary>
         public Func<IReadOnlyList<PseCheckoutLine>, IReadOnlyList<PseLogEntry>?>? RequestPseLog { get; set; }
 
+        /// <summary>
+        /// Set by the window when an integrated card reader is set up: charges the amount on the
+        /// reader (amount, description) and returns the approved charge, or null when declined or cancelled.
+        /// </summary>
+        public Func<decimal, string, CardChargeResult?>? RequestCardCharge { get; set; }
+
+        /// <summary>
+        /// Set with <see cref="RequestCardCharge"/>: refunds an approved charge that no saved sale
+        /// uses (the bill changed or was abandoned). Returns true once refunded.
+        /// </summary>
+        public Func<string, decimal, Task<bool>>? VoidCardCharge { get; set; }
+
+        /// <summary>A card was charged on the reader for this bill but the sale is not saved yet.</summary>
+        public bool HasUnsavedCardCharges => _readerCharges.Count > 0;
+
         /// <summary>FSA/HSA amounts are tracked (US, the Pro front-store feature).</summary>
         public bool TracksFsa => IsUsCheckout && EditionGate.IsEnabled(AppFeature.FrontStorePharmacy);
 
@@ -356,6 +374,84 @@ namespace POSApp.UI.ViewModels
             if (payments.Count > 0)
                 ReceiveCash = payments.Sum(p => p.Tendered);
             return true;
+        }
+
+        /// <summary>
+        /// US with an integrated card reader: charges each card tender on the reader, after
+        /// <see cref="ResolvePayments"/>. A charge already approved for this bill (say the printer
+        /// failed and the cashier tries again) is used again instead of charging twice; approved
+        /// charges the bill no longer needs are refunded. False when a card was not approved.
+        /// </summary>
+        internal async Task<bool> ChargeCardsOnReaderAsync()
+        {
+            if (RequestCardCharge == null || !IsUsCheckout) return true;
+
+            var cards = _resolvedPayments.Where(p => p.Method == PaymentMethods.Card).ToList();
+            var unused = new List<SalePayment>(_readerCharges);
+            foreach (var card in cards)
+            {
+                var earlier = card.ProcessorReference != null
+                    ? unused.FirstOrDefault(c => c.ProcessorReference == card.ProcessorReference)
+                    : unused.FirstOrDefault(c => c.Amount == card.Amount);
+                if (earlier == null) continue;
+                unused.Remove(earlier);
+                CopyCardDetails(earlier, card);
+            }
+            await VoidReaderChargesAsync(unused);
+
+            foreach (var card in cards.Where(c => c.ProcessorReference == null))
+            {
+                var result = RequestCardCharge(card.Amount, $"Sale {InvoiceNumber}");
+                if (result == null) return false;
+                var charged = new SalePayment
+                {
+                    Method = PaymentMethods.Card,
+                    Amount = card.Amount,
+                    Tendered = card.Amount,
+                    CardBrand = result.Brand,
+                    CardLast4 = result.Last4,
+                    Reference = result.AuthCode,
+                    ProcessorReference = result.PaymentReference
+                };
+                _readerCharges.Add(charged);
+                CopyCardDetails(charged, card);
+            }
+            return true;
+        }
+
+        private static void CopyCardDetails(SalePayment from, SalePayment to)
+        {
+            to.CardBrand = from.CardBrand;
+            to.CardLast4 = from.CardLast4;
+            to.Reference = from.Reference;
+            to.ProcessorReference = from.ProcessorReference;
+        }
+
+        /// <summary>Tells the cashier what happened to a reader charge (message, title, refunded). Replaced in tests.</summary>
+        internal Action<string, string, bool> CardNotice { get; set; } = (message, title, refunded) =>
+        {
+            if (refunded) NotificationHelper.ShowInfo(message, title);
+            else NotificationHelper.ShowWarning(message, title);
+        };
+
+        /// <summary>Refunds the card charges of a bill being closed without saving.</summary>
+        public Task DiscardCardChargesAsync() => VoidReaderChargesAsync(_readerCharges.ToList());
+
+        /// <summary>Refunds reader charges no sale will be saved with, telling the cashier what happened.</summary>
+        private async Task VoidReaderChargesAsync(IReadOnlyList<SalePayment> charges)
+        {
+            foreach (var charge in charges)
+            {
+                _readerCharges.Remove(charge);
+                bool refunded;
+                try { refunded = VoidCardCharge != null && await VoidCardCharge(charge.ProcessorReference!, charge.Amount); }
+                catch { refunded = false; }
+                var what = $"{Region.Money(charge.Amount)} on {TenderCalculator.Describe(charge)}";
+                if (refunded)
+                    CardNotice($"The card charge of {what} was refunded to the card: no sale was saved with it.", "Card refunded", true);
+                else
+                    CardNotice($"The card charge of {what} is no longer part of a sale and could not be refunded automatically. Refund it from your Stripe dashboard.", "Card charge not refunded", false);
+            }
         }
 
         public Customer? SelectedCustomer
@@ -982,6 +1078,7 @@ namespace POSApp.UI.ViewModels
                 return;
             }
 
+            var saved = false;
             try
             {
                 if (!alreadyPrepared)
@@ -989,6 +1086,7 @@ namespace POSApp.UI.ViewModels
                     if (!ResolvePse()) return;
                     if (!ResolvePayments()) return;
                     await PrepareForSaveAsync();
+                    if (!await ChargeCardsOnReaderAsync()) return;
                 }
 
                 var sale = new Sale
@@ -1055,11 +1153,14 @@ namespace POSApp.UI.ViewModels
                         CardBrand = p.CardBrand,
                         CardLast4 = p.CardLast4,
                         Reference = p.Reference,
+                        ProcessorReference = p.ProcessorReference,
                         CreatedDate = SaleDate
                     });
                 }
 
                 await _saleRepository.AddAsync(sale);
+                _readerCharges.Clear();   // saved with the sale now; a later failure must not refund or charge it again
+                saved = true;
 
                 // Cash went into the till: open the drawer (when this PC has one switched on).
                 var tookCash = IsUsCheckout
@@ -1114,12 +1215,26 @@ namespace POSApp.UI.ViewModels
             }
             catch (Exception ex)
             {
-                NotificationHelper.OperationFailed("save sale", ex.Message);
+                if (!saved)
+                {
+                    NotificationHelper.OperationFailed("save sale", ex.Message);
+                    return;
+                }
+
+                // The sale (and any card charge) is already stored. Clear the cart so a
+                // second press of Save does not charge the card again.
+                CardNotice(
+                    $"The sale was saved, but a step after that failed: {ex.Message}\n\nThe screen was cleared so the card is not charged again.",
+                    "Sale saved",
+                    true);
+                NewSale();
             }
         }
 
         private void NewSale()
         {
+            // A bill abandoned after its card was charged: give the money back.
+            if (_readerCharges.Count > 0) _ = VoidReaderChargesAsync(_readerCharges.ToList());
             _idCheckedAge = 0;
             _verifiedDob = null;
             _pseEntries = null;
@@ -1204,6 +1319,7 @@ namespace POSApp.UI.ViewModels
                 NotificationHelper.OperationFailed("prepare invoice", ex.Message);
                 return;
             }
+            if (!await ChargeCardsOnReaderAsync()) return;
 
             // Print first, then save once. Pass printAfterSave: false so SaveSale
             // does not print again (which previously caused an endless popup loop).

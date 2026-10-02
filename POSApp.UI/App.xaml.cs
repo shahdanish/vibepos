@@ -91,6 +91,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<ITaxRepository, TaxRepository>();
         services.AddScoped<IFrontStoreRepository, FrontStoreRepository>();
         services.AddScoped<IAutoBackupService, AutoBackupService>();
+        services.AddScoped<ICardTerminalSettingsStore, POSApp.Infrastructure.Payments.CardTerminalSettingsStore>();
+        services.AddScoped<POSApp.Infrastructure.Payments.CardTerminalFactory>();
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IMedicalRepRepository, MedicalRepRepository>();

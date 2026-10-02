@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using POSApp.UI.Helpers;
 using POSApp.Core.Services;
+using POSApp.Infrastructure.Payments;
 
 namespace POSApp.UI.Views
 {
@@ -51,6 +52,9 @@ namespace POSApp.UI.Views
         /// <summary>Null when the Pharmacy tab is not shown.</summary>
         private IFrontStoreRepository? _frontStore;
 
+        /// <summary>Null when the Card Payments tab is not shown.</summary>
+        private ICardTerminalSettingsStore? _cardSettings;
+
         public BusinessSettingsWindow()
         {
             InitializeComponent();
@@ -61,6 +65,7 @@ namespace POSApp.UI.Views
             {
                 await LoadSalesTaxAsync();
                 await LoadPharmacyAsync();
+                await LoadPaymentsAsync();
             };
 
             // Appearance is previewed on the whole app; closing puts back whatever is saved,
@@ -173,6 +178,116 @@ namespace POSApp.UI.Views
             if (daily > thirty)
                 return (null, "The daily PSE limit can't be more than the 30-day limit.");
             return (new FrontStoreSettings(daily.Value * 1000m, thirty.Value * 1000m, chkBlockExpired.IsChecked == true), null);
+        }
+
+        // ── Card payments (US) ────────────────────────────────────────────────
+
+        /// <summary>A reader in the picker: its Stripe id and how it is shown.</summary>
+        private sealed record ReaderChoice(string Id, string Label)
+        {
+            public override string ToString() => Label == Id ? Id : $"{Label}  ({Id})";
+        }
+
+        private async Task LoadPaymentsAsync()
+        {
+            if (!Region.IsUnitedStates || App.Services?.GetService(typeof(ICardTerminalSettingsStore)) is not ICardTerminalSettingsStore store)
+                return;
+            try
+            {
+                var s = await store.GetAsync();
+                pwdStripeKey.Password = s.ApiKey ?? string.Empty;
+                cboCardReader.Items.Clear();
+                if (!string.IsNullOrWhiteSpace(s.ReaderId))
+                {
+                    cboCardReader.Items.Add(new ReaderChoice(s.ReaderId!, s.ReaderId!));
+                    cboCardReader.SelectedIndex = 0;
+                }
+                if (s.Provider == CardTerminalSettings.StripeTerminal) rbCardStripe.IsChecked = true;
+                else rbCardSeparate.IsChecked = true;
+                if (s.Provider == CardTerminalSettings.StripeTerminal && s.ApiKey == null)
+                    txtPaymentsStatus.Text = "Enter the secret key again: it is saved for one computer only (for example after restoring a backup on a new PC).";
+                _cardSettings = store;
+                PaymentsTab.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Text = "Card payment settings could not be loaded: " + ex.Message;
+            }
+        }
+
+        private void CardReaderChoice_Changed(object sender, RoutedEventArgs e) =>
+            StripePanel.IsEnabled = rbCardStripe.IsChecked == true;
+
+        private string StripeKey => pwdStripeKey.Password.Trim();
+
+        private static bool LooksLikeStripeKey(string key) =>
+            key.StartsWith("sk_", StringComparison.Ordinal) || key.StartsWith("rk_", StringComparison.Ordinal);
+
+        private async void FindReaders_Click(object sender, RoutedEventArgs e)
+        {
+            if (!LooksLikeStripeKey(StripeKey))
+            {
+                txtPaymentsStatus.Text = "Enter your Stripe secret key first (it starts with sk_).";
+                return;
+            }
+            txtPaymentsStatus.Text = "Looking for readers…";
+            try
+            {
+                var readers = await CardTerminalFactory.ForSetup(StripeKey).ListReadersAsync();
+                var current = (cboCardReader.SelectedItem as ReaderChoice)?.Id;
+                cboCardReader.Items.Clear();
+                foreach (var r in readers)
+                    cboCardReader.Items.Add(new ReaderChoice(r.Id, r.Online ? r.Label : r.Label + " (offline)"));
+                cboCardReader.SelectedItem = cboCardReader.Items.OfType<ReaderChoice>().FirstOrDefault(r => r.Id == current)
+                                             ?? cboCardReader.Items.OfType<ReaderChoice>().FirstOrDefault();
+                txtPaymentsStatus.Text = readers.Count switch
+                {
+                    0 => "No readers on this Stripe account yet. Register one in the Stripe dashboard (Terminal → Readers), or set up a test reader.",
+                    1 => "Found 1 reader.",
+                    _ => $"Found {readers.Count} readers. Choose the one at this till."
+                };
+            }
+            catch (Exception ex)
+            {
+                txtPaymentsStatus.Text = "Could not reach Stripe: " + ex.Message;
+            }
+        }
+
+        private async void TestReader_Click(object sender, RoutedEventArgs e)
+        {
+            if (!StripeKey.StartsWith("sk_test_", StringComparison.Ordinal))
+            {
+                txtPaymentsStatus.Text = "A test reader needs a test secret key (it starts with sk_test_).";
+                return;
+            }
+            txtPaymentsStatus.Text = "Setting up a test reader…";
+            try
+            {
+                var id = await CardTerminalFactory.ForSetup(StripeKey).CreateSimulatedReaderAsync();
+                var choice = new ReaderChoice(id, "Test reader");
+                cboCardReader.Items.Add(choice);
+                cboCardReader.SelectedItem = choice;
+                txtPaymentsStatus.Text = "Test reader ready. Save, then ring up a sale paid by Card: the payment screen has a \"Use a test card\" button.";
+            }
+            catch (Exception ex)
+            {
+                txtPaymentsStatus.Text = "Could not set up a test reader: " + ex.Message;
+            }
+        }
+
+        /// <summary>The Card Payments tab's values, or an error for the cashier.</summary>
+        private (CardTerminalSettings? Settings, string? Error) ReadPayments()
+        {
+            var readerId = (cboCardReader.SelectedItem as ReaderChoice)?.Id;
+            if (rbCardStripe.IsChecked != true)
+                return (new CardTerminalSettings(CardTerminalSettings.None, LooksLikeStripeKey(StripeKey) ? StripeKey : null, readerId), null);
+            if (StripeKey.StartsWith("pk_", StringComparison.Ordinal))
+                return (null, "That is the publishable key. Enter the secret key (it starts with sk_).");
+            if (!LooksLikeStripeKey(StripeKey))
+                return (null, "Enter your Stripe secret key (it starts with sk_live_ or sk_test_), or choose the separate card machine.");
+            if (readerId == null)
+                return (null, "Choose the card reader: press Find readers.");
+            return (new CardTerminalSettings(CardTerminalSettings.StripeTerminal, StripeKey, readerId), null);
         }
 
         // ── Devices (this PC) ─────────────────────────────────────────────────
@@ -439,6 +554,18 @@ namespace POSApp.UI.Views
                 pharmacy = read;
             }
 
+            CardTerminalSettings? payments = null;
+            if (_cardSettings != null)
+            {
+                var (read, paymentsError) = ReadPayments();
+                if (paymentsError != null)
+                {
+                    NotificationHelper.ValidationErrorCustom(paymentsError);
+                    return;
+                }
+                payments = read;
+            }
+
             List<TaxCategory>? taxCategories = null;
             if (_taxRepository != null)
             {
@@ -499,6 +626,16 @@ namespace POSApp.UI.Views
                 catch (Exception ex)
                 {
                     NotificationHelper.OperationFailed("save pharmacy settings", ex.Message);
+                    return;
+                }
+            }
+
+            if (_cardSettings != null && payments != null)
+            {
+                try { await _cardSettings.SaveAsync(payments); }
+                catch (Exception ex)
+                {
+                    NotificationHelper.OperationFailed("save card payment settings", ex.Message);
                     return;
                 }
             }

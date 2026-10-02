@@ -105,6 +105,9 @@
                             </StackPanel>
                         </Grid>
 
+                        <TextBlock x:Name="CardReaderHint" Style="{DynamicResource HintText}" TextWrapping="Wrap" Margin="0,6,0,0" Visibility="Collapsed"
+                                   Text="Card amounts are charged on the card reader when you print or save the sale; the reader's card details are used."/>
+
                         <StackPanel x:Name="CheckPanel" Margin="0,10,0,0" Visibility="Collapsed">
                             <TextBlock Text="Check number (optional)" Style="{DynamicResource FormLabel}"/>
                             <TextBox x:Name="CheckNumber" MaxLength="20" AutomationProperties.Name="Check number"/>

@@ -30,6 +30,7 @@ namespace POSApp.UI.Views
 
         private readonly decimal _total;
         private readonly bool _accountAllowed;
+        private readonly bool _cardReader;
 
         /// <summary>The most FSA/HSA cards may pay on this bill, or null when not tracked.</summary>
         private readonly decimal? _fsaLimit;
@@ -41,12 +42,14 @@ namespace POSApp.UI.Views
         public IReadOnlyList<SalePayment> Payments => _rows.Select(r => r.Payment).ToList();
 
         /// <param name="accountCustomer">The customer whose charge account can be used, or null.</param>
-        public SplitPaymentDialog(decimal total, string? accountCustomer, IEnumerable<SalePayment>? existing = null, decimal? fsaLimit = null)
+        public SplitPaymentDialog(decimal total, string? accountCustomer, IEnumerable<SalePayment>? existing = null, decimal? fsaLimit = null,
+                                  bool cardReader = false)
         {
             InitializeComponent();
             _total = total;
             _fsaLimit = fsaLimit;
             _accountAllowed = accountCustomer != null;
+            _cardReader = cardReader;
 
             TotalText.Text = $"Total due {Region.Money(total)}";
             AccountChoice.IsEnabled = _accountAllowed;
@@ -72,7 +75,7 @@ namespace POSApp.UI.Views
             }
 
             var dialog = new SplitPaymentDialog(vm.TotalBill, vm.SelectedCustomer?.Name, vm.SplitPayments,
-                                                vm.TracksFsa ? vm.FsaEligibleTotal : null) { Owner = owner };
+                                                vm.TracksFsa ? vm.FsaEligibleTotal : null, vm.RequestCardCharge != null) { Owner = owner };
             if (dialog.ShowDialog() != true) return false;
             vm.ApplySplitPayments(dialog.Payments);
             return true;
@@ -90,6 +93,7 @@ namespace POSApp.UI.Views
         {
             if (!IsLoaded) return;
             CardPanel.Visibility = CardChoice.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+            CardReaderHint.Visibility = _cardReader && CardChoice.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
             CheckPanel.Visibility = CheckChoice.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
             FocusAmount();
         }

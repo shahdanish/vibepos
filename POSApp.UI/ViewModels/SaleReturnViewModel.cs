@@ -18,6 +18,7 @@ namespace POSApp.UI.ViewModels
         private readonly IProductRepository _productRepository;
         private readonly ICustomerRepository? _customerRepository;
         private decimal _taxRefund;
+        private SalePayment? _refund;   // how the money went back on the return being printed (US)
 
         private string _searchInvoiceNumber = string.Empty;
         private Sale? _originalSale;
@@ -93,6 +94,75 @@ namespace POSApp.UI.ViewModels
             if (methods.Count == 1) return methods[0];
             if (methods.Count == 0 || methods.Contains(PaymentMethods.Cash)) return PaymentMethods.Cash;
             return methods[0];
+        }
+
+        /// <summary>
+        /// Set by the window when an integrated card reader is set up: refunds (payment reference,
+        /// amount) to the card the sale was paid with.
+        /// </summary>
+        public Func<string, decimal, Task<CardRefundResult>>? RefundToCard { get; set; }
+
+        /// <summary>
+        /// A card refund that already went through for the invoice on screen. A second attempt
+        /// (the return failed to save) reuses it instead of refunding the card again.
+        /// </summary>
+        private SalePayment? _cardRefund;
+        private string? _cardRefundInvoice;
+
+        /// <summary>The integrated-reader card payment a refund can go back to: the sale's only card payment.</summary>
+        public static SalePayment? ReaderCardPayment(Sale sale)
+        {
+            var cards = sale.Payments.Where(p => p.Method == PaymentMethods.Card).ToList();
+            return cards.Count == 1 && !string.IsNullOrEmpty(cards[0].ProcessorReference) ? cards[0] : null;
+        }
+
+        /// <summary>Asks the cashier a yes/no question (message, title). Replaced in tests.</summary>
+        internal Func<string, string, bool> Confirm { get; set; } = (message, title) => NotificationHelper.Confirm(message, title);
+
+        /// <summary>
+        /// US: the refund for this return, paid back the way the sale was paid. A sale taken on the
+        /// integrated reader is refunded to that card first; if the card refund fails the cashier
+        /// can give cash instead. Null when the cashier stops.
+        /// </summary>
+        internal async Task<SalePayment?> TakeRefundAsync(Sale original)
+        {
+            if (_cardRefund != null && original.InvoiceNumber == _cardRefundInvoice)
+            {
+                if (_cardRefund.Amount != -TotalReturnAmount)
+                {
+                    Confirm(
+                        $"The card was already refunded {Region.Money(-_cardRefund.Amount)}. " +
+                        "Set the return back to that amount before saving. It will not be refunded again.",
+                        "Card already refunded");
+                    return null;
+                }
+                return _cardRefund;
+            }
+
+            var refund = new SalePayment
+            {
+                Method = RefundMethodFor(original),
+                Amount = -TotalReturnAmount,
+                Tendered = -TotalReturnAmount,
+                CreatedDate = ReturnDate
+            };
+            if (refund.Method != PaymentMethods.Card || RefundToCard == null || ReaderCardPayment(original) is not { } card)
+                return refund;
+
+            var result = await RefundToCard(card.ProcessorReference!, TotalReturnAmount);
+            if (result.Succeeded)
+            {
+                refund.CardBrand = card.CardBrand;
+                refund.CardLast4 = card.CardLast4;
+                refund.ProcessorReference = result.RefundReference;
+                _cardRefund = refund;
+                _cardRefundInvoice = original.InvoiceNumber;
+                return refund;
+            }
+            if (!Confirm($"The card refund did not go through: {result.Message}\n\nGive the refund in cash instead?", "Card refund"))
+                return null;
+            refund.Method = PaymentMethods.Cash;
+            return refund;
         }
 
         public string SearchStatus
@@ -182,6 +252,11 @@ namespace POSApp.UI.ViewModels
                 }
 
                 SearchStatus = $"✓ {sale.CustomerName}  |  Original: {Region.Money(sale.TotalBill)}  |  Date: {Region.Date(sale.SaleDate, DateFormat.Document)}";
+                if (sale.InvoiceNumber != _cardRefundInvoice)
+                {
+                    _cardRefund = null;
+                    _cardRefundInvoice = null;
+                }
                 OriginalSale = sale;
                 await ApplyEarlierReturnsAsync(sale);
             }
@@ -266,6 +341,9 @@ namespace POSApp.UI.ViewModels
                 }
             }
 
+            var cardRefunded = false;
+            var saved = false;
+            _refund = null;
             try
             {
                 // Fresh return number and the real return time (the screen may have been open for hours).
@@ -296,17 +374,15 @@ namespace POSApp.UI.ViewModels
                 };
 
                 // US: record how the money went back, so the drawer count knows a cash refund.
-                var refundMethod = Region.IsUnitedStates ? RefundMethodFor(OriginalSale) : null;
-                if (refundMethod != null)
+                if (Region.IsUnitedStates)
                 {
-                    returnSale.Payments.Add(new SalePayment
-                    {
-                        Method = refundMethod,
-                        Amount = -TotalReturnAmount,
-                        Tendered = -TotalReturnAmount,
-                        CreatedDate = ReturnDate
-                    });
+                    var refund = await TakeRefundAsync(OriginalSale);
+                    if (refund == null) return;
+                    cardRefunded = refund.ProcessorReference != null;
+                    returnSale.Payments.Add(refund);
+                    _refund = refund;
                 }
+                var refundMethod = _refund?.Method;
 
                 foreach (var item in itemsToReturn)
                 {
@@ -333,6 +409,7 @@ namespace POSApp.UI.ViewModels
                 }
 
                 await _saleRepository.AddAsync(returnSale);
+                saved = true;
 
                 // US: a refund to the charge account lowers what the customer owes.
                 if (PaymentMethods.IsOnAccount(refundMethod) && OriginalSale.CustomerId is int customerId && _customerRepository != null)
@@ -353,6 +430,9 @@ namespace POSApp.UI.ViewModels
                 _returnDateChosenByUser = false;
                 OnPropertyChanged(nameof(ReturnDate));
                 OriginalSale = null;
+                _refund = null;
+                _cardRefund = null;
+                _cardRefundInvoice = null;
                 ReturnItems.Clear();
                 SearchInvoiceNumber = string.Empty;
                 ReturnReason = string.Empty;
@@ -361,7 +441,25 @@ namespace POSApp.UI.ViewModels
             }
             catch (Exception ex)
             {
-                NotificationHelper.OperationFailed("process return", ex.Message);
+                if (saved)
+                {
+                    NotificationHelper.OperationFailed("finish the saved return",
+                        ex.Message + "\n\nThe return was saved. The screen has been cleared so it is not refunded again.");
+                    OriginalSale = null;
+                    _refund = null;
+                    _cardRefund = null;
+                    _cardRefundInvoice = null;
+                    ReturnItems.Clear();
+                    SearchInvoiceNumber = string.Empty;
+                    ReturnReason = string.Empty;
+                    TotalReturnAmount = 0;
+                    SearchStatus = string.Empty;
+                    return;
+                }
+
+                NotificationHelper.OperationFailed("process return", cardRefunded
+                    ? $"{ex.Message}\n\nThe card was already refunded {Region.Money(-(_cardRefund?.Amount ?? TotalReturnAmount))}. Saving again will not refund it a second time."
+                    : ex.Message);
             }
         }
 
@@ -521,7 +619,7 @@ namespace POSApp.UI.ViewModels
                 AddTotalRow("Sales tax refunded", Region.Number(TaxRefund));
             AddTotalRow("Total Refund", Region.Number(TotalReturnAmount), bold: true, fontSize: 12);
             if (Region.IsUnitedStates && OriginalSale != null)
-                AddTotalRow("Refunded to", RefundMethodFor(OriginalSale));
+                AddTotalRow("Refunded to", _refund != null ? TenderCalculator.Describe(_refund) : RefundMethodFor(OriginalSale));
 
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);

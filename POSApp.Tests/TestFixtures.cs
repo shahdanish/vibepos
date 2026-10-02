@@ -90,7 +90,8 @@ namespace POSApp.Tests
             bool wholesale = false,
             ITaxRepository? tax = null,
             IEnumerable<Product>? catalogue = null,
-            List<Customer>? updatedCustomers = null)
+            List<Customer>? updatedCustomers = null,
+            Action? onProductUpdate = null)
         {
             var sales = new Mock<ISaleRepository>();
             sales.Setup(r => r.GetNextInvoiceNumberAsync(It.IsAny<CancellationToken>()))
@@ -100,6 +101,9 @@ namespace POSApp.Tests
 
             var products = new Mock<IProductRepository>();
             products.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync((catalogue ?? Enumerable.Empty<Product>()).ToList());
+            products.Setup(r => r.UpdateAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()))
+                    .Callback(() => onProductUpdate?.Invoke())
+                    .Returns(Task.CompletedTask);
             var customers = new Mock<ICustomerRepository>();
             customers.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Customer>());
             customers.Setup(r => r.UpdateAsync(It.IsAny<Customer>(), It.IsAny<CancellationToken>()))
