@@ -427,9 +427,54 @@ namespace POSApp.UI.ViewModels
             }
         }
 
+        /// <summary>
+        /// Saves the sales listed on screen as a CSV file that opens in Excel: one row per sale,
+        /// with tax and how it was paid.
+        /// </summary>
         private void ExportToExcel()
         {
-            NotificationHelper.ValidationErrorCustom("Excel export is not yet implemented.");
+            if (Sales.Count == 0)
+            {
+                NotificationHelper.ValidationErrorCustom("There are no sales in this view to export.");
+                return;
+            }
+
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = $"sales-{StartDate:yyyy-MM-dd}-to-{EndDate:yyyy-MM-dd}.csv",
+                Filter = "CSV file (opens in Excel)|*.csv",
+                DefaultExt = ".csv"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                Csv.Write(dialog.FileName, SalesCsvRows(Sales));
+                NotificationHelper.ShowSuccess($"Saved {Sales.Count} sales to {System.IO.Path.GetFileName(dialog.FileName)}. It opens in Excel.");
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("export sales", ex.Message);
+            }
+        }
+
+        /// <summary>The CSV rows for a list of sales (header first).</summary>
+        public static IEnumerable<IEnumerable<string>> SalesCsvRows(IEnumerable<Sale> sales)
+        {
+            yield return new[] { "Date", "Invoice", "Type", "Customer", "Payment", "Items", "Before tax", "Tax", "Total", "Paid", "Change/Balance" };
+            foreach (var s in sales.OrderBy(s => s.SaleDate))
+            {
+                var payment = s.Payments.Count > 0
+                    ? string.Join(" + ", s.Payments.Select(p => $"{p.Method} {Csv.Money(p.Amount)}"))
+                    : s.PaymentType;
+                yield return new[]
+                {
+                    Csv.DateTime(s.SaleDate), Csv.Text(s.InvoiceNumber), Csv.Text(s.SaleType), Csv.Text(s.CustomerName),
+                    Csv.Text(payment), Csv.Number(s.SaleItems.Sum(i => i.Quantity)),
+                    Csv.Money(s.TotalBill - s.TaxTotal), Csv.Money(s.TaxTotal), Csv.Money(s.TotalBill),
+                    Csv.Money(s.ReceiveCash), Csv.Money(s.Balance)
+                };
+            }
         }
 
         private async Task RefreshData()

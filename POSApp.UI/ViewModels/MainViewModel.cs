@@ -35,6 +35,11 @@ namespace POSApp.UI.ViewModels
             SessionManager.HasPermission(Permissions.CallScheduleManage) && EditionGate.IsInBuild(AppFeature.Pharmacy)
                 ? Visibility.Visible : Visibility.Collapsed;
 
+        /// <summary>US shops, for users who can see sales reports.</summary>
+        public Visibility TaxReportVisibility =>
+            Region.IsUnitedStates && SessionManager.HasPermission(Permissions.ReportsSales)
+                ? Visibility.Visible : Visibility.Collapsed;
+
         public Visibility UserManagementVisibility =>
             SessionManager.HasPermission(Permissions.UsersManage)
                 ? Visibility.Visible : Visibility.Collapsed;
@@ -78,6 +83,7 @@ namespace POSApp.UI.ViewModels
         public ICommand OpenWholeSaleCommand { get; }
         public ICommand OpenSaleReturnCommand { get; }
         public ICommand OpenSalesReportCommand { get; }
+        public ICommand OpenTaxReportCommand { get; }
         public ICommand OpenProductManagementCommand { get; }
         public ICommand OpenCategoryManagementCommand { get; }
         public ICommand OpenDashboardCommand { get; }
@@ -128,6 +134,7 @@ namespace POSApp.UI.ViewModels
             OpenWholeSaleCommand        = new RelayCommand(_ => OpenWholeSale());
             OpenSaleReturnCommand       = new RelayCommand(_ => OpenSaleReturn());
             OpenSalesReportCommand      = new RelayCommand(_ => OpenSalesReport());
+            OpenTaxReportCommand        = new RelayCommand(_ => OpenTaxReport());
             OpenProductManagementCommand = new RelayCommand(_ => OpenProductManagement());
             OpenCategoryManagementCommand = new RelayCommand(_ => OpenCategoryManagement());
             OpenDashboardCommand        = new RelayCommand(_ => OpenDashboard());
@@ -188,6 +195,16 @@ namespace POSApp.UI.ViewModels
 
         private void OpenSalesReport()
             => App.Services?.GetRequiredService<SalesReportWindow>().ShowDialog();
+
+        private void OpenTaxReport()
+        {
+            if (!SessionManager.HasPermission(Permissions.ReportsSales))
+            { NotificationHelper.ValidationErrorCustom("You don't have permission to view sales reports."); return; }
+            var dialog = App.Services?.GetRequiredService<TaxReportDialog>();
+            if (dialog == null) return;
+            dialog.Owner = Application.Current.MainWindow;
+            dialog.ShowDialog();
+        }
 
         private void OpenProductManagement()
             => App.Services?.GetRequiredService<ProductManagementWindow>().ShowDialog();

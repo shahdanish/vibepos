@@ -58,6 +58,12 @@
                         </StackPanel>
                     </Border>
 
+                    <Button Content="X report (this shift so far)" Command="{Binding XReportCommand}"
+                            Style="{StaticResource SecondaryButton}" Padding="10,8" Margin="0,0,0,10"
+                            ToolTip="Sales, payments and expected cash for the open shift. Nothing is closed."/>
+                    <Button Content="Z report (selected closed shift)" Command="{Binding ZReportCommand}"
+                            Style="{StaticResource SecondaryButton}" Padding="10,8" Margin="0,0,0,10"
+                            ToolTip="End-of-day report for the closed shift picked in Shift History"/>
                     <Button Content="🔄 Refresh" Command="{Binding RefreshCommand}" 
                             Style="{StaticResource SecondaryButton}" Padding="10,8" Margin="0,0,0,10"/>
                     <Button Content="Close Window" Click="Close_Click" 
@@ -75,7 +81,7 @@
 
                     <TextBlock Grid.Row="0" Text="Shift History" Style="{StaticResource SectionTitle}"/>
 
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding ShiftHistory}" 
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding ShiftHistory}" SelectedItem="{Binding SelectedHistoryShift}" 
                               AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Opened" Binding="{Binding OpenedAt, Converter={StaticResource DateConverter}, ConverterParameter=shorttime}" Width="120"/>

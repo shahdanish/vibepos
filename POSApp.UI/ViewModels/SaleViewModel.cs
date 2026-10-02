@@ -895,6 +895,7 @@ namespace POSApp.UI.ViewModels
                     TotalBill = TotalBill,
                     TaxTotal = TaxTotal,
                     TaxExemptNumber = IsTaxExempt ? SelectedCustomer?.TaxExemptNumber : null,
+                    IsTaxExempt = IsTaxExempt,
                     ReceiveCash = ReceiveCash ?? 0,
                     Balance = Balance,
                     AutoPrinted = AutoPrint
@@ -936,6 +937,12 @@ namespace POSApp.UI.ViewModels
                 }
 
                 await _saleRepository.AddAsync(sale);
+
+                // Cash went into the till: open the drawer (when this PC has one switched on).
+                var tookCash = IsUsCheckout
+                    ? _resolvedPayments.Any(p => p.Method == PaymentMethods.Cash)
+                    : PaymentType == "Cash";
+                if (tookCash) CashDrawer.Open();
 
                 // Decrement stock for each sold item
                 foreach (var item in SaleItems)
@@ -1370,10 +1377,46 @@ namespace POSApp.UI.ViewModels
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);
 
+            // US: the invoice number as a barcode, scanned at the return counter to find the sale.
+            if (IsUsCheckout && !string.IsNullOrWhiteSpace(InvoiceNumber))
+            {
+                var barcode = InvoiceBarcode(InvoiceNumber);
+                if (barcode != null) doc.Blocks.Add(barcode);
+            }
+
             // --- FOOTER (per-client branding) ---
             doc.Blocks.Add(ReceiptBranding.BuildFooter());
 
             return doc;
+        }
+
+        /// <summary>A Code 128 barcode of the invoice number for the receipt, or null if it can't be drawn.</summary>
+        private static BlockUIContainer? InvoiceBarcode(string invoiceNumber)
+        {
+            try
+            {
+                var png = new POSApp.Infrastructure.Services.BarcodeService().GenerateBarcode(invoiceNumber, 260, 50);
+                var image = new System.Windows.Media.Imaging.BitmapImage();
+                using (var stream = new System.IO.MemoryStream(png))
+                {
+                    image.BeginInit();
+                    image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                    image.StreamSource = stream;
+                    image.EndInit();
+                }
+                image.Freeze();
+                return new BlockUIContainer(new System.Windows.Controls.Image
+                {
+                    Source = image, Width = 200, Height = 40, Stretch = Stretch.Uniform,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                })
+                { Margin = new Thickness(0, 8, 0, 0) };
+            }
+            catch (Exception ex)
+            {
+                CrashLog.Write(ex, "Receipt barcode");
+                return null;
+            }
         }
     }
 

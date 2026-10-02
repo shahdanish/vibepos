@@ -98,6 +98,8 @@
                             <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Orig Qty" Binding="{Binding OriginalQuantity}" Width="80"
                                                 ElementStyle="{StaticResource CenterAlignStyle}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Returned" Binding="{Binding AlreadyReturned}" Width="80"
+                                                ElementStyle="{StaticResource CenterAlignStyle}" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Ret Qty" Binding="{Binding ReturnQuantity, UpdateSourceTrigger=PropertyChanged}"
                                                 Width="80" ElementStyle="{StaticResource CenterAlignStyle}"/>
                             <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, Converter={StaticResource NumberConverter}}" Width="95"

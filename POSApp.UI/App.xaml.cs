@@ -30,9 +30,25 @@ public partial class App : System.Windows.Application
         FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
     }
 
+    private static async Task RunAutoBackupAsync()
+    {
+        try
+        {
+            using var scope = Services.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<IAutoBackupService>().RunIfDueAsync();
+        }
+        catch (Exception ex)
+        {
+            POSApp.UI.Helpers.CrashLog.Write(ex, "Automatic backup");
+        }
+    }
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Errors nothing else caught are logged and shown, instead of closing the program mid-sale.
+        POSApp.UI.Helpers.CrashLog.Install(this);
 
         // Pre-login dialogs (setup wizard, licence gate) must not end the app when they close.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -73,6 +89,7 @@ public partial class App : System.Windows.Application
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
         services.AddScoped<ITaxRepository, TaxRepository>();
+        services.AddScoped<IAutoBackupService, AutoBackupService>();
         services.AddScoped<IPharmacyRepository, PharmacyRepository>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IMedicalRepRepository, MedicalRepRepository>();
@@ -119,6 +136,7 @@ public partial class App : System.Windows.Application
         services.AddTransient<WholeSaleWindow>();
         services.AddTransient<SaleReturnWindow>();
         services.AddTransient<SalesReportWindow>();
+        services.AddTransient<TaxReportDialog>();
         services.AddTransient<ProductManagementWindow>();
         services.AddTransient<CategoryManagementWindow>();
         // Phase-1 feature windows
@@ -238,11 +256,20 @@ public partial class App : System.Windows.Application
                 .RecordInstallOriginAsync(databaseExisted);
             if (origin.FirstSeen && origin.Origin == InstallOrigin.Upgraded)
                 RegionSettingsStore.KeepLegacyDefaultsIfUnset();
+            // New installs back themselves up daily; existing tills switch it on in Backup & Restore.
+            if (origin.FirstSeen && origin.Origin == InstallOrigin.New)
+                await scope.ServiceProvider.GetRequiredService<IAutoBackupService>().SetEnabledAsync(true);
         }
         catch
         {
             // Treated as an existing install: no setup wizard, nothing changed.
         }
+
+        // Daily automatic backup: now, and every few hours while the till stays open all day.
+        _ = RunAutoBackupAsync();
+        var backupTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromHours(3) };
+        backupTimer.Tick += (_, _) => _ = RunAutoBackupAsync();
+        backupTimer.Start();
 
         var edition = Services.GetRequiredService<IEditionService>();
         await edition.RefreshAsync();

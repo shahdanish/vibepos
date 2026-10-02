@@ -40,6 +40,20 @@ namespace POSApp.Infrastructure.Repositories
             return shift;
         }
 
+        public async Task<ShiftActivity> GetActivityAsync(DateTime from, DateTime to, CancellationToken ct = default)
+        {
+            var sales = await _context.Sales.AsNoTracking()
+                .Where(s => s.SaleDate >= from && s.SaleDate <= to)
+                .Include(s => s.Payments)
+                .ToListAsync(ct);
+            var expenses = (await _context.Expenses.AsNoTracking()
+                    .Where(e => e.Date >= from && e.Date <= to)
+                    .Select(e => e.Amount)
+                    .ToListAsync(ct))
+                .Sum();
+            return new ShiftActivity(sales, expenses);
+        }
+
         public async Task CloseShiftAsync(int shiftId, decimal actualClosingBalance, CancellationToken ct = default)
         {
             var shift = await _context.Shifts.FindAsync([shiftId], ct);

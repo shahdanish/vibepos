@@ -34,6 +34,21 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Daily automatic copy -->
+                <Border Style="{StaticResource CardBorder}"
+                        Visibility="{Binding HasAutoBackup, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="Automatic backup" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                        <CheckBox Content="Back up the database automatically once a day (keeps the last 14 copies)"
+                                  IsChecked="{Binding AutoBackupEnabled}"/>
+                        <TextBlock Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="26,4,0,0">
+                            <Run Text="Saved in"/>
+                            <Run Text="{Binding AutoBackupFolder, Mode=OneWay}"/>
+                            <Run Text="— copy that folder to a USB drive or cloud folder now and then, in case this PC fails."/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
                 <!-- Actions -->
                 <Border Style="{StaticResource CardBorder}">
                     <StackPanel>

@@ -183,11 +183,36 @@ namespace POSApp.UI.ViewModels
 
                 SearchStatus = $"✓ {sale.CustomerName}  |  Original: {Region.Money(sale.TotalBill)}  |  Date: {Region.Date(sale.SaleDate, DateFormat.Document)}";
                 OriginalSale = sale;
+                await ApplyEarlierReturnsAsync(sale);
             }
             catch (Exception ex)
             {
                 NotificationHelper.OperationFailed("search invoice", ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Marks what earlier returns already took back from this invoice, so the same units
+        /// can't be refunded twice. Quantities are matched per product, line by line in order.
+        /// </summary>
+        private async Task ApplyEarlierReturnsAsync(Sale sale)
+        {
+            var earlier = await _saleRepository.GetReturnsForInvoiceAsync(sale.InvoiceNumber) ?? Array.Empty<Sale>();
+            var returnedByProduct = earlier
+                .SelectMany(r => r.SaleItems)
+                .GroupBy(i => i.ProductId)
+                .ToDictionary(g => g.Key, g => (int)Math.Round(-g.Sum(i => i.Quantity)));
+
+            foreach (var item in ReturnItems)
+            {
+                if (!returnedByProduct.TryGetValue(item.ProductId, out var left) || left <= 0) continue;
+                var taken = Math.Min(left, item.OriginalQuantity);
+                item.AlreadyReturned = taken;
+                returnedByProduct[item.ProductId] = left - taken;
+            }
+
+            if (ReturnItems.Count > 0 && ReturnItems.All(i => i.ReturnableQuantity <= 0))
+                SearchStatus += "  |  Everything on this invoice has already been returned.";
         }
 
         private void LoadReturnItems(Sale sale)
@@ -232,9 +257,11 @@ namespace POSApp.UI.ViewModels
 
             foreach (var item in itemsToReturn)
             {
-                if (item.ReturnQuantity > item.OriginalQuantity)
+                if (item.ReturnQuantity > item.ReturnableQuantity)
                 {
-                    NotificationHelper.ValidationErrorCustom($"Return quantity for '{item.ProductName}' cannot exceed original quantity of {item.OriginalQuantity}.");
+                    NotificationHelper.ValidationErrorCustom(item.AlreadyReturned > 0
+                        ? $"Only {item.ReturnableQuantity} of '{item.ProductName}' can still be returned ({item.AlreadyReturned} of {item.OriginalQuantity} already returned)."
+                        : $"Return quantity for '{item.ProductName}' cannot exceed original quantity of {item.OriginalQuantity}.");
                     return;
                 }
             }
@@ -261,6 +288,7 @@ namespace POSApp.UI.ViewModels
                     Address = OriginalSale.Address,
                     Phone = OriginalSale.Phone,
                     BillNote = string.Join(". ", noteparts),
+                    OriginalInvoiceNumber = OriginalSale.InvoiceNumber,
                     TotalBill = -TotalReturnAmount,
                     TaxTotal = -TaxRefund,
                     ReceiveCash = -TotalReturnAmount,
@@ -605,6 +633,22 @@ namespace POSApp.UI.ViewModels
             _discountType == "%" ? $"{DiscountPercent:N0}%" : Region.MoneyWhole(DiscountPercent);
 
         /// <summary>The exact quantity on the original line (it can be fractional, e.g. 2.5 kg).</summary>
+        private int _alreadyReturned;
+
+        /// <summary>Units of this line refunded by earlier returns of the same invoice.</summary>
+        public int AlreadyReturned
+        {
+            get => _alreadyReturned;
+            set
+            {
+                if (SetProperty(ref _alreadyReturned, value))
+                    OnPropertyChanged(nameof(ReturnableQuantity));
+            }
+        }
+
+        /// <summary>Units that can still be returned.</summary>
+        public int ReturnableQuantity => Math.Max(0, OriginalQuantity - AlreadyReturned);
+
         /// <summary>Sales-tax rate of the original line (US); 0 on other sales.</summary>
         public decimal TaxRate { get; set; }
 

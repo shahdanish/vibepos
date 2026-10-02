@@ -53,6 +53,7 @@ namespace POSApp.UI.Views
             InitializeComponent();
             LoadAll(ReceiptBranding.Current, Region.Current);
             LoadAppearance(SettingsManager.LoadSettings());
+            LoadDevices(SettingsManager.LoadSettings());
             Loaded += async (_, _) => await LoadSalesTaxAsync();
 
             // Appearance is previewed on the whole app; closing puts back whatever is saved,
@@ -130,6 +131,34 @@ namespace POSApp.UI.Views
             if (chkTaxEnabled.IsChecked == true && list.Count == 0)
                 return (null, "Add at least one tax category before switching sales tax on.");
             return (list, null);
+        }
+
+        // ── Devices (this PC) ─────────────────────────────────────────────────
+
+        private const string DefaultPrinterChoice = "(default printer)";
+
+        private void LoadDevices(SettingsManager.UserSettings settings)
+        {
+            cboDrawerPrinter.Items.Clear();
+            cboDrawerPrinter.Items.Add(DefaultPrinterChoice);
+            foreach (var name in CashDrawer.InstalledPrinters())
+                cboDrawerPrinter.Items.Add(name);
+            if (!string.IsNullOrWhiteSpace(settings.CashDrawerPrinter) && !cboDrawerPrinter.Items.Contains(settings.CashDrawerPrinter))
+                cboDrawerPrinter.Items.Add(settings.CashDrawerPrinter);
+            cboDrawerPrinter.SelectedItem = string.IsNullOrWhiteSpace(settings.CashDrawerPrinter) ? DefaultPrinterChoice : settings.CashDrawerPrinter;
+            cboDrawerPin.SelectedIndex = settings.CashDrawerPin5 ? 1 : 0;
+            chkCashDrawer.IsChecked = settings.CashDrawerEnabled;
+        }
+
+        private string SelectedDrawerPrinter =>
+            cboDrawerPrinter.SelectedItem is string s && s != DefaultPrinterChoice ? s : string.Empty;
+
+        private void TestDrawer_Click(object sender, RoutedEventArgs e)
+        {
+            var error = CashDrawer.OpenOn(SelectedDrawerPrinter, cboDrawerPin.SelectedIndex == 1);
+            txtStatus.Text = error == null
+                ? "Sent the open-drawer signal. If the drawer stayed shut, try the other connector or check its cable."
+                : "Cash drawer: " + error;
         }
 
         // ── Appearance ────────────────────────────────────────────────────────
@@ -398,10 +427,16 @@ namespace POSApp.UI.Views
 
             var accent = _accent;
             var density = SelectedDensity;
+            var drawerOn = chkCashDrawer.IsChecked == true;
+            var drawerPrinter = SelectedDrawerPrinter;
+            var drawerPin5 = cboDrawerPin.SelectedIndex == 1;
             SettingsManager.SaveSetting(s =>
             {
                 s.Accent = accent;
                 s.Density = density;
+                s.CashDrawerEnabled = drawerOn;
+                s.CashDrawerPrinter = drawerPrinter;
+                s.CashDrawerPin5 = drawerPin5;
             });
 
             if (_taxRepository != null && taxCategories != null)

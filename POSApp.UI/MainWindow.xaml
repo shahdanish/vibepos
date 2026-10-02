@@ -227,6 +227,8 @@
                 <MenuItem Header="📈 Reports" Style="{StaticResource NavDropStyle}">
                     <MenuItem Header="📊 Dashboard"    Command="{Binding OpenDashboardCommand}"    Style="{StaticResource DropItemStyle}"/>
                     <MenuItem Header="📈 Sales Report" Command="{Binding OpenSalesReportCommand}"  Style="{StaticResource DropItemStyle}"/>
+                    <MenuItem Header="🧾 Sales Tax Report" Command="{Binding OpenTaxReportCommand}" Style="{StaticResource DropItemStyle}"
+                              Visibility="{Binding TaxReportVisibility}"/>
                 </MenuItem>
 
                 <!-- ── ADMIN — both roles; Users/Roles hidden for PharmacyUser -->

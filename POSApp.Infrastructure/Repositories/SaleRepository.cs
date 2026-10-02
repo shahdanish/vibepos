@@ -35,6 +35,23 @@ namespace POSApp.Infrastructure.Repositories
                 .FirstOrDefaultAsync(s => s.InvoiceNumber == invoiceNumber, ct);
         }
 
+        public async Task<IReadOnlyList<Sale>> GetReturnsForInvoiceAsync(string invoiceNumber, CancellationToken ct = default)
+        {
+            var legacyNote = $"Return for Invoice: {invoiceNumber}";
+            var candidates = await _context.Sales.AsNoTracking()
+                .Where(s => s.SaleType == "Return" &&
+                            (s.OriginalInvoiceNumber == invoiceNumber || (s.BillNote != null && s.BillNote.StartsWith(legacyNote))))
+                .Include(s => s.SaleItems)
+                .ToListAsync(ct);
+
+            // The note match is a prefix: "Return for Invoice: 1101" must not pick up invoice 11015.
+            return candidates
+                .Where(s => s.OriginalInvoiceNumber == invoiceNumber ||
+                            s.BillNote == legacyNote ||
+                            (s.BillNote != null && s.BillNote.StartsWith(legacyNote + ".")))
+                .ToList();
+        }
+
         public async Task<IEnumerable<Sale>> GetAllAsync(CancellationToken ct = default)
         {
             return await _context.Sales

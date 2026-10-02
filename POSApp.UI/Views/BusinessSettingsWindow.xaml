@@ -338,6 +338,43 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- ════════════════ DEVICES (this PC) ════════════════ -->
+            <TabItem Header="  Devices  ">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,12"
+                                   Text="Hardware on this computer. Barcode scanners need no setup — they type like a keyboard."/>
+
+                        <TextBlock Text="Cash drawer" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                        <CheckBox x:Name="chkCashDrawer" Content="Open the cash drawer after cash sales (Ctrl+D opens it without a sale)"
+                                  Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Receipt printer" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Column="1" Margin="0,0,0,10">
+                                <ComboBox x:Name="cboDrawerPrinter" Style="{StaticResource Picker}" AutomationProperties.Name="Cash drawer printer"/>
+                                <TextBlock Style="{StaticResource Hint}" Text="The printer the drawer cable plugs into (usually the receipt printer)."/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Text="Drawer connector" Style="{StaticResource FieldLabel}"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                                <ComboBox x:Name="cboDrawerPin" Style="{StaticResource Picker}" Width="200">
+                                    <ComboBoxItem Content="Pin 2 (most drawers)"/>
+                                    <ComboBoxItem Content="Pin 5"/>
+                                </ComboBox>
+                                <Button Content="Test drawer" Click="TestDrawer_Click" Padding="12,5" Margin="10,0,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <!-- ════════════════ APPEARANCE ════════════════ -->
             <TabItem Header="  Appearance  ">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">

@@ -38,6 +38,15 @@ namespace POSApp.UI.Helpers
 
             /// <summary>"Comfortable" (original) or "Compact" (more fits on small screens).</summary>
             public string Density { get; set; } = ThemeManager.DefaultDensity;
+
+            /// <summary>Open the cash drawer wired to the receipt printer after cash sales.</summary>
+            public bool CashDrawerEnabled { get; set; }
+
+            /// <summary>The receipt printer the drawer is plugged into; empty = the default printer.</summary>
+            public string CashDrawerPrinter { get; set; } = string.Empty;
+
+            /// <summary>The drawer is wired to kick pin 5 instead of the usual pin 2.</summary>
+            public bool CashDrawerPin5 { get; set; }
         }
 
         static SettingsManager()

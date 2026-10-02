@@ -23,6 +23,12 @@ namespace POSApp.Core.Entities
 
         /// <summary>The customer's exemption certificate number when the sale was tax-exempt.</summary>
         public string? TaxExemptNumber { get; set; }
+
+        /// <summary>The sale was made tax-exempt (US), with or without a certificate number on file.</summary>
+        public bool IsTaxExempt { get; set; }
+
+        /// <summary>On a return: the invoice it refunds, so the same items can't be returned twice.</summary>
+        public string? OriginalInvoiceNumber { get; set; }
         public decimal ReceiveCash { get; set; }
         public decimal Balance { get; set; }
         public bool AutoPrinted { get; set; }

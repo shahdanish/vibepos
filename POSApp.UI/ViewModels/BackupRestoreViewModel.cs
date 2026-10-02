@@ -9,6 +9,44 @@ namespace POSApp.UI.ViewModels
     public sealed class BackupRestoreViewModel : ViewModelBase
     {
         private readonly IDatabaseBackupService _backupService;
+        private readonly POSApp.Core.Interfaces.IAutoBackupService? _autoBackup;
+        private bool _autoBackupEnabled;
+
+        /// <summary>Daily automatic copy of the database (see <see cref="AutoBackupFolder"/>).</summary>
+        public bool AutoBackupEnabled
+        {
+            get => _autoBackupEnabled;
+            set
+            {
+                if (SetProperty(ref _autoBackupEnabled, value) && _autoBackup != null)
+                    _ = SaveAutoBackupAsync(value);
+            }
+        }
+
+        public string AutoBackupFolder => _autoBackup?.Folder ?? string.Empty;
+
+        public bool HasAutoBackup => _autoBackup != null;
+
+        private async Task SaveAutoBackupAsync(bool enabled)
+        {
+            try
+            {
+                await _autoBackup!.SetEnabledAsync(enabled);
+                if (enabled)
+                {
+                    var made = await _autoBackup.RunIfDueAsync();
+                    StatusMessage = made != null ? $"Automatic backups on. First copy: {Path.GetFileName(made)}" : "Automatic backups on.";
+                }
+                else
+                {
+                    StatusMessage = "Automatic backups off.";
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("change automatic backups", ex.Message);
+            }
+        }
         
         private string _backupDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "POSApp_Backups");
         private bool _isBackupInProgress;
@@ -41,14 +79,30 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _statusMessage, value);
         }
 
+        private async Task LoadAutoBackupAsync()
+        {
+            try
+            {
+                _autoBackupEnabled = await _autoBackup!.IsEnabledAsync();
+                OnPropertyChanged(nameof(AutoBackupEnabled));
+            }
+            catch
+            {
+                // Optional on this screen.
+            }
+        }
+
         public ICommand CreateBackupCommand { get; }
         public ICommand RestoreBackupCommand { get; }
         public ICommand RefreshBackupsCommand { get; }
         public ICommand SelectBackupDirectoryCommand { get; }
 
-        public BackupRestoreViewModel(IDatabaseBackupService backupService)
+        public BackupRestoreViewModel(IDatabaseBackupService backupService, POSApp.Core.Interfaces.IAutoBackupService? autoBackup = null)
         {
             _backupService = backupService;
+            _autoBackup = autoBackup;
+            if (autoBackup != null)
+                _ = LoadAutoBackupAsync();
 
             CreateBackupCommand = new RelayCommand(async _ => await CreateBackup());
             RestoreBackupCommand = new RelayCommand(async _ => await RestoreBackup());

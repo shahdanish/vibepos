@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using POSApp.Core.Entities;
 using POSApp.Core.Interfaces;
+using POSApp.Core.Services;
 using POSApp.UI.Helpers;
 
 namespace POSApp.UI.ViewModels
@@ -53,6 +54,43 @@ namespace POSApp.UI.ViewModels
         public ICommand CloseShiftCommand { get; }
         public ICommand RefreshCommand { get; }
 
+        /// <summary>X report: the open shift so far (nothing is closed or reset).</summary>
+        public ICommand XReportCommand { get; }
+
+        /// <summary>Z report: the closed shift picked in the history list.</summary>
+        public ICommand ZReportCommand { get; }
+
+        private Shift? _selectedHistoryShift;
+        public Shift? SelectedHistoryShift
+        {
+            get => _selectedHistoryShift;
+            set => SetProperty(ref _selectedHistoryShift, value);
+        }
+
+        /// <summary>Set by the window: shows a finished report.</summary>
+        public Action<ShiftReport>? ShowReport { get; set; }
+
+        /// <summary>Builds the X or Z report for <paramref name="shift"/> from what was sold in its time.</summary>
+        public async Task<ShiftReport> BuildReportAsync(Shift shift)
+        {
+            var to = shift.ClosedAt ?? AppClock.Now;
+            var activity = await _shiftRepository.GetActivityAsync(shift.OpenedAt, to);
+            return ShiftReportBuilder.Build(shift, activity.Sales, activity.Expenses, to);
+        }
+
+        private async Task ShowReportFor(Shift? shift)
+        {
+            if (shift == null) return;
+            try
+            {
+                ShowReport?.Invoke(await BuildReportAsync(shift));
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.OperationFailed("build the shift report", ex.Message);
+            }
+        }
+
         public ShiftViewModel(IShiftRepository shiftRepository)
         {
             _shiftRepository = shiftRepository;
@@ -60,6 +98,9 @@ namespace POSApp.UI.ViewModels
             OpenShiftCommand = new RelayCommand(async _ => await OpenShift(), _ => !IsShiftOpen);
             CloseShiftCommand = new RelayCommand(async _ => await CloseShift(), _ => IsShiftOpen);
             RefreshCommand = new RelayCommand(async _ => await LoadData());
+            XReportCommand = new RelayCommand(async _ => await ShowReportFor(CurrentShift), _ => IsShiftOpen);
+            ZReportCommand = new RelayCommand(async _ => await ShowReportFor(SelectedHistoryShift),
+                                              _ => SelectedHistoryShift?.IsClosed == true);
 
             _ = LoadData();
         }
@@ -153,6 +194,8 @@ namespace POSApp.UI.ViewModels
 
                 ClosingBalance = 0;
                 await LoadData();
+                // The shift just closed is ready for its Z report.
+                SelectedHistoryShift = ShiftHistory.FirstOrDefault(s => s.Id == justClosed?.Id);
             }
             catch (Exception ex)
             {

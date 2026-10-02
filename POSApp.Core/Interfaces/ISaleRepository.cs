@@ -6,6 +6,12 @@ namespace POSApp.Core.Interfaces
     {
         Task<Sale?> GetByIdAsync(int id, CancellationToken ct = default);
         Task<Sale?> GetByInvoiceNumberAsync(string invoiceNumber, CancellationToken ct = default);
+
+        /// <summary>
+        /// Returns already made against <paramref name="invoiceNumber"/> (with their items), found by
+        /// the original-invoice link or, for returns saved before it existed, their note.
+        /// </summary>
+        Task<IReadOnlyList<Sale>> GetReturnsForInvoiceAsync(string invoiceNumber, CancellationToken ct = default);
         Task<IEnumerable<Sale>> GetAllAsync(CancellationToken ct = default);
         Task<IEnumerable<Sale>> GetByDateAsync(DateTime date, CancellationToken ct = default);
         Task<IEnumerable<Sale>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default);
