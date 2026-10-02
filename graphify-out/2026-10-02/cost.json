@@ -1,0 +1,19 @@
+{
+  "runs": [
+    {
+      "date": "2026-06-05T08:04:23.912810+00:00",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 174
+    },
+    {
+      "date": "2026-10-01T10:23:28.186904+00:00",
+      "input_tokens": 873413,
+      "output_tokens": 0,
+      "files": 25,
+      "note": "semantic update of 11 docs + 14 images; tokens are combined input+output per agent (harness reports totals only)"
+    }
+  ],
+  "total_input_tokens": 873413,
+  "total_output_tokens": 0
+}
