@@ -205,6 +205,15 @@
                                      Visibility="{Binding NewCustomerTaxExempt, Converter={StaticResource BoolToVis}}"/>
                         </StackPanel>
 
+                        <StackPanel Visibility="{Binding ShowLoyalty, Converter={StaticResource BoolToVis}}" Margin="0,0,0,10">
+                            <CheckBox Content="Enrolled in loyalty" IsChecked="{Binding NewCustomerLoyaltyEnrolled}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Loyalty points" FontWeight="SemiBold" Margin="0,0,0,4" FontSize="12"/>
+                            <TextBox Text="{Binding NewCustomerLoyaltyPoints, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="7" FontSize="13" TextAlignment="Right"/>
+                            <TextBlock Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="0,4,0,0"
+                                       Text="Points are earned on United States sales after this box is checked. 100 points = $1 off unless you change it in Business Settings → Wording."/>
+                        </StackPanel>
+
                         <Button Content="{Binding SaveCustomerButtonText}" Command="{Binding SaveCustomerCommand}"
                                 Style="{StaticResource SuccessButton}" Padding="10,8" Margin="0,0,0,6"/>
                         <UniformGrid Columns="2" Margin="0,0,0,16">

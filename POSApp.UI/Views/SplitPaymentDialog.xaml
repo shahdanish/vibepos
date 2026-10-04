@@ -47,11 +47,11 @@
         <Border Grid.Row="0" Style="{DynamicResource HeaderBar}" Padding="16,10">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
-                    <TextBlock Text="Remaining" Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding [pay.remaining], Source={x:Static helpers:PhraseBook.Current}}" Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" HorizontalAlignment="Right"/>
                     <TextBlock x:Name="RemainingText" Foreground="White" FontSize="22" FontWeight="Bold" HorizontalAlignment="Right"/>
                 </StackPanel>
                 <StackPanel>
-                    <TextBlock Text="Split payment" Style="{DynamicResource HeaderTitle}"/>
+                    <TextBlock Text="{Binding [pay.title], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource HeaderTitle}"/>
                     <TextBlock x:Name="TotalText" Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" Margin="0,2,0,0"/>
                 </StackPanel>
             </DockPanel>
@@ -61,16 +61,18 @@
             <StackPanel Margin="14,12,14,4">
                 <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="Pay with" Style="{DynamicResource FormLabel}"/>
+                        <TextBlock Text="{Binding [pay.with], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                         <WrapPanel>
-                            <RadioButton x:Name="CashChoice" Style="{StaticResource MethodChoice}" Content="Cash" IsChecked="True" Checked="Method_Changed"/>
-                            <RadioButton x:Name="CardChoice" Style="{StaticResource MethodChoice}" Content="Card" Checked="Method_Changed"/>
-                            <RadioButton x:Name="CheckChoice" Style="{StaticResource MethodChoice}" Content="Check" Checked="Method_Changed"/>
-                            <RadioButton x:Name="AccountChoice" Style="{StaticResource MethodChoice}" Content="Charge Account" Checked="Method_Changed"/>
+                            <RadioButton x:Name="CashChoice" Style="{StaticResource MethodChoice}" Content="{Binding [pay.cash], Source={x:Static helpers:PhraseBook.Current}}" IsChecked="True" Checked="Method_Changed"/>
+                            <RadioButton x:Name="CardChoice" Style="{StaticResource MethodChoice}" Content="{Binding [pay.card], Source={x:Static helpers:PhraseBook.Current}}" Checked="Method_Changed"/>
+                            <RadioButton x:Name="CheckChoice" Style="{StaticResource MethodChoice}" Content="{Binding [pay.check], Source={x:Static helpers:PhraseBook.Current}}" Checked="Method_Changed"/>
+                            <RadioButton x:Name="AccountChoice" Style="{StaticResource MethodChoice}" Content="{Binding [pay.account], Source={x:Static helpers:PhraseBook.Current}}" Checked="Method_Changed"/>
+                            <RadioButton x:Name="GiftChoice" Style="{StaticResource MethodChoice}" Content="{Binding [pay.gift], Source={x:Static helpers:PhraseBook.Current}}" Checked="Method_Changed"/>
+                            <RadioButton x:Name="LoyaltyChoice" Style="{StaticResource MethodChoice}" Content="{Binding [pay.loyalty], Source={x:Static helpers:PhraseBook.Current}}" Checked="Method_Changed"/>
                         </WrapPanel>
                         <TextBlock x:Name="AccountHint" Style="{DynamicResource HintText}" TextWrapping="Wrap" Margin="0,0,0,8"/>
 
-                        <TextBlock Text="Amount" Style="{DynamicResource FormLabel}"/>
+                        <TextBlock Text="{Binding [pay.amount], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                         <TextBox x:Name="AmountBox" FontSize="18" FontWeight="SemiBold" TextAlignment="Right" Padding="8,6"
                                  AutomationProperties.Name="Amount"/>
 
@@ -112,6 +114,13 @@
                             <TextBlock Text="Check number (optional)" Style="{DynamicResource FormLabel}"/>
                             <TextBox x:Name="CheckNumber" MaxLength="20" AutomationProperties.Name="Check number"/>
                         </StackPanel>
+
+                        <StackPanel x:Name="GiftPanel" Margin="0,10,0,0" Visibility="Collapsed">
+                            <TextBlock Text="{Binding [pay.giftCode], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
+                            <TextBox x:Name="GiftCode" MaxLength="20" CharacterCasing="Upper" AutomationProperties.Name="Gift card code"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="LoyaltyHint" Style="{DynamicResource HintText}" TextWrapping="Wrap" Margin="0,8,0,0" Visibility="Collapsed"/>
 
                         <Button x:Name="AddButton" Content="Add payment  (Enter)" Style="{DynamicResource SecondaryButton}"
                                 HorizontalAlignment="Right" Margin="0,12,0,0" Padding="16,6" Click="Add_Click"/>

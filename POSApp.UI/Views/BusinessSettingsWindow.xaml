@@ -421,6 +421,51 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- ════════════════ WORDING (language, edited phrases, loyalty) ════════════════ -->
+            <TabItem Header="  Wording  ">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">
+                    <StackPanel>
+                        <TextBlock x:Name="txtWordingHint" Style="{StaticResource Hint}" Margin="0,0,0,12" TextWrapping="Wrap"
+                                   Text="These are the words on the login screen, the sale screen and payment. Pick a language, then edit any line. An empty line goes back to that language. Save, and the open screens update."/>
+
+                        <TextBlock Text="Language" Style="{StaticResource FieldLabel}"/>
+                        <ComboBox x:Name="cboShopLanguage" Width="220" HorizontalAlignment="Left" Margin="0,0,0,12"
+                                  SelectionChanged="ShopLanguage_Changed" AutomationProperties.Name="Shop language">
+                            <ComboBoxItem Content="English" Tag="en"/>
+                            <ComboBoxItem Content="Español" Tag="es"/>
+                        </ComboBox>
+
+                        <DataGrid x:Name="gridPhrases" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                                  HeadersVisibility="Column" MinHeight="220" MaxHeight="320"
+                                  SelectionMode="Single" GridLinesVisibility="Horizontal">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Where" Binding="{Binding Group}" IsReadOnly="True" Width="100"/>
+                                <DataGridTextColumn Header="Default" Binding="{Binding DefaultText}" IsReadOnly="True" Width="*"/>
+                                <DataGridTextColumn Header="Your wording" Binding="{Binding CustomText, UpdateSourceTrigger=LostFocus}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Text="Loyalty" FontWeight="SemiBold" FontSize="14" Margin="0,16,0,6"/>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,8" TextWrapping="Wrap"
+                                   Text="Used on United States sales. Points are earned on merchandise only. Gift cards, and the part paid with points, do not earn points. A customer earns points only after they are enrolled in Customers."/>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Points earned per $1 spent" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="txtPointsPerDollar" Grid.Column="1" Margin="0,0,0,8" Text="1" AutomationProperties.Name="Points per dollar"/>
+                            <TextBlock Grid.Row="1" Text="Points needed for $1 off" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="txtPointsPerReward" Grid.Row="1" Grid.Column="1" Text="100" AutomationProperties.Name="Points per reward dollar"/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <!-- ════════════════ DEVICES (this PC) ════════════════ -->
             <TabItem Header="  Devices  ">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="15">

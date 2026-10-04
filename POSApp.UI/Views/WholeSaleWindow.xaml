@@ -79,17 +79,19 @@
 
                     <!-- Credit customer row -->
                     <Grid Margin="0,0,0,8"
-                          Visibility="{Binding IsCreditPayment, Converter={StaticResource BoolToVis}}">
+                          Visibility="{Binding ShowCustomerPicker, Converter={StaticResource BoolToVis}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                            <TextBlock Text="Credit Customer" Style="{StaticResource FormLabel}"
+                            <TextBlock Text="{Binding CustomerPickerLabel}" Style="{StaticResource FormLabel}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                             <ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}"
                                       DisplayMemberPath="Name" IsEditable="True" IsTextSearchEnabled="True" />
+                            <TextBlock Text="{Binding LoyaltyStatus}" Style="{StaticResource HintText}"
+                                       Visibility="{Binding IsUsCheckout, Converter={StaticResource BoolToVis}}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="0,0,8,0">
                             <TextBlock Text="Outstanding Balance" Style="{StaticResource FormLabel}"
@@ -312,7 +314,7 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBlock Grid.Row="1" Text="Scan a barcode or pick a product above to add items"
+                    <TextBlock Grid.Row="1" Text="{Binding [sale.empty], Source={x:Static helpers:PhraseBook.Current}}"
                                Style="{StaticResource EmptyStateText}"
                                Visibility="{Binding HasItems, ElementName=ItemsGrid, Converter={StaticResource InverseBoolToVis}}"/>
                 </Grid>
@@ -335,24 +337,28 @@
                             <Button Content="{Binding ModeSwitchLabel}" Command="{Binding SwitchModeCommand}"
                                     Style="{StaticResource InfoButton}" Margin="0,0,8,8"
                                     ToolTip="Ctrl+W — Switch to Retail Sale mode"/>
-                            <Button Content="Save Sale" Command="{Binding SaveCommand}"
+                            <Button Content="{Binding [sale.save], Source={x:Static helpers:PhraseBook.Current}}" Command="{Binding SaveCommand}"
                                     Style="{StaticResource SuccessButton}" FontSize="14" Margin="0,0,8,8"
                                     ToolTip="Ctrl+Enter — Save the current sale"/>
-                            <Button Content="Print" Command="{Binding PrintCommand}"
+                            <Button Content="{Binding [sale.print], Source={x:Static helpers:PhraseBook.Current}}" Command="{Binding PrintCommand}"
                                     Style="{StaticResource PurpleButton}" Margin="0,0,8,8"
                                     ToolTip="Ctrl+P — Print &amp; save invoice"/>
-                            <!-- US: pay one bill several ways (cash + card, card + charge account, ...) -->
-                            <Button Content="Split…" Click="SplitPayment_Click"
+                            <!-- US: pay one bill several ways (cash + card, gift card, loyalty, ...) -->
+                            <Button Content="{Binding [sale.split], Source={x:Static helpers:PhraseBook.Current}}" Click="SplitPayment_Click"
                                     Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"
                                     Visibility="{Binding IsUsCheckout, Converter={StaticResource BoolToVis}}"
                                     ToolTip="Ctrl+T — Take this bill in more than one payment"/>
-                            <Button Content="New Sale" Command="{Binding NewCommand}"
+                            <Button Content="{Binding [sale.gift], Source={x:Static helpers:PhraseBook.Current}}" Click="GiftCard_Click"
+                                    Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"
+                                    Visibility="{Binding IsUsCheckout, Converter={StaticResource BoolToVis}}"
+                                    ToolTip="Ctrl+G — Sell a gift card on this sale"/>
+                            <Button Content="{Binding [sale.new], Source={x:Static helpers:PhraseBook.Current}}" Command="{Binding NewCommand}"
                                     Style="{StaticResource SecondaryButton}" Margin="0,0,8,8"
                                     ToolTip="Ctrl+N — Start a new sale"/>
                             <Button Content="🖩  Calculator" Click="Calculator_Click"
                                     Style="{StaticResource NeutralButton}" Margin="0,0,8,8"
                                     ToolTip="Ctrl+M — Open calculator (keyboard-ready)"/>
-                            <Button Content="Close" Click="Exit_Click"
+                            <Button Content="{Binding [sale.close], Source={x:Static helpers:PhraseBook.Current}}" Click="Exit_Click"
                                     Style="{StaticResource NeutralButton}" Margin="0,0,8,8"
                                     ToolTip="Esc — Close this window"/>
                         </WrapPanel>

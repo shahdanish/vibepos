@@ -49,13 +49,13 @@
                     <TextBlock Text="{helpers:ShopTitle}" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
                                Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"
                                TextAlignment="Center" TextWrapping="Wrap" Margin="0,14,0,0"/>
-                    <TextBlock Text="Sign in to continue" Style="{StaticResource HintText}" FontSize="13"
+                    <TextBlock Text="{Binding [login.subtitle], Source={x:Static helpers:PhraseBook.Current}}" Style="{StaticResource HintText}" FontSize="13"
                                HorizontalAlignment="Center" Margin="0,4,0,0"/>
                 </StackPanel>
 
                 <!-- Username -->
                 <StackPanel Grid.Row="1" Margin="0,0,0,16">
-                    <TextBlock Text="Username" Style="{StaticResource FormLabel}"/>
+                    <TextBlock Text="{Binding [login.username], Source={x:Static helpers:PhraseBook.Current}}" Style="{StaticResource FormLabel}"/>
                     <TextBox x:Name="txtUsername" helpers:Input.Placeholder="Enter your username"
                              Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                              FontSize="14" Padding="10,8"
@@ -64,7 +64,7 @@
 
                 <!-- Password -->
                 <StackPanel Grid.Row="2" Margin="0,0,0,16">
-                    <TextBlock Text="Password" Style="{StaticResource FormLabel}"/>
+                    <TextBlock Text="{Binding [login.password], Source={x:Static helpers:PhraseBook.Current}}" Style="{StaticResource FormLabel}"/>
                     <PasswordBox x:Name="txtPassword" helpers:Input.Placeholder="Enter your password" FontSize="14" Padding="10,8"
                                  PasswordChanged="TxtPassword_PasswordChanged"
                                  KeyDown="TxtPassword_KeyDown"/>
@@ -78,10 +78,10 @@
 
                 <!-- Actions -->
                 <StackPanel Grid.Row="5">
-                    <Button Content="Sign in" Command="{Binding LoginCommand}"
+                    <Button Content="{Binding [login.signIn], Source={x:Static helpers:PhraseBook.Current}}" Command="{Binding LoginCommand}"
                             Style="{StaticResource PrimaryButton}"
                             MinHeight="44" FontSize="14" HorizontalAlignment="Stretch"/>
-                    <Button Content="Exit" Command="{Binding CancelCommand}"
+                    <Button Content="{Binding [login.exit], Source={x:Static helpers:PhraseBook.Current}}" Command="{Binding CancelCommand}"
                             Style="{StaticResource IconButton}" Foreground="{DynamicResource TextMutedBrush}"
                             HorizontalAlignment="Center" Margin="0,10,0,0" Padding="16,4"/>
                 </StackPanel>

@@ -47,6 +47,12 @@ namespace POSApp.Core.Entities
         public const string Check = "Check";
         public const string ChargeAccount = "Charge Account";
 
+        /// <summary>Store gift card. The code is in <see cref="SalePayment.Reference"/>.</summary>
+        public const string GiftCard = "Gift Card";
+
+        /// <summary>Loyalty points. The points used are in <see cref="SalePayment.Reference"/>.</summary>
+        public const string Loyalty = "Loyalty";
+
         /// <summary>Recorded as <see cref="Sale.PaymentType"/> when a sale was paid with more than one tender.</summary>
         public const string Split = "Split";
 

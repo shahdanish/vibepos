@@ -11,6 +11,9 @@ namespace POSApp.Core.Entities
         public decimal PreBalance { get; set; }
         public decimal CurrentBalance { get; set; }
         public int LoyaltyPoints { get; set; }
+
+        /// <summary>When set, this customer's purchases earn loyalty points (US).</summary>
+        public bool LoyaltyEnrolled { get; set; }
         public decimal TotalPurchases { get; set; }
         public DateTime? LastPurchaseDate { get; set; }
 

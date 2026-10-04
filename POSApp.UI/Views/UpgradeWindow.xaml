@@ -33,79 +33,106 @@
         </Style>
     </Window.Resources>
 
-    <StackPanel>
-        <Border Height="6" Background="{DynamicResource BrandPrimaryBrush}"/>
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="6" Background="{DynamicResource BrandPrimaryBrush}"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="640">
+            <StackPanel Margin="28,22,28,20">
+                <Border Width="48" Height="48" CornerRadius="12" HorizontalAlignment="Left"
+                        Background="{DynamicResource BrandSubtleBrush}">
+                    <TextBlock Text="⭐" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
-        <StackPanel Margin="28,22,28,20">
-            <Border Width="48" Height="48" CornerRadius="12" HorizontalAlignment="Left"
-                    Background="{DynamicResource BrandSubtleBrush}">
-                <TextBlock Text="⭐" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Border>
+                <TextBlock x:Name="TitleText" Text="Upgrade to Swifttill Pro" Margin="0,14,0,0"
+                           FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                <TextBlock Style="{StaticResource HintText}" FontSize="13" Margin="0,4,0,16"
+                           Text="A subscription unlocks everything below."/>
 
-            <TextBlock x:Name="TitleText" Text="Upgrade to Swifttill Pro" Margin="0,14,0,0"
-                       FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
-                       Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
-            <TextBlock Style="{StaticResource HintText}" FontSize="13" Margin="0,4,0,16"
-                       Text="A subscription unlocks everything below. Cancel any time from your Microsoft account — your data always stays on this PC."/>
+                <Border Style="{StaticResource StatTile}">
+                    <ItemsControl x:Name="FeatureList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="✓" Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
 
-            <Border Style="{StaticResource StatTile}">
-                <ItemsControl x:Name="FeatureList">
+                <TextBlock x:Name="PlanHeading" Text="Choose a plan" Style="{StaticResource FormLabel}"
+                           Margin="0,16,0,6" Visibility="Collapsed"/>
+                <TextBlock x:Name="LoadingText" Text="Loading plans from the Microsoft Store…"
+                           Style="{StaticResource HintText}" FontSize="12" Margin="0,16,0,0"/>
+                <ItemsControl x:Name="PlanList" Margin="0,0,0,0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="0,3">
-                                <TextBlock Text="✓" Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold" Margin="0,0,10,0"/>
-                                <TextBlock Text="{Binding}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            </StackPanel>
+                            <RadioButton GroupName="Plans" Style="{StaticResource PlanCard}"
+                                         Tag="{Binding Id}" Checked="Plan_Checked" Loaded="Plan_Loaded">
+                                <Grid>
+                                    <StackPanel Margin="0,0,110,0">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="{Binding TrialText}" FontSize="12"
+                                                   Foreground="{DynamicResource SuccessTextBrush}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding TrialText}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding PriceText}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                               FontWeight="SemiBold" Foreground="{DynamicResource BrandPrimaryBrush}"/>
+                                </Grid>
+                            </RadioButton>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </Border>
 
-            <!-- Plans (filled from the Store) -->
-            <TextBlock Text="Choose a plan" Style="{StaticResource FormLabel}" Margin="0,16,0,6"/>
-            <TextBlock x:Name="LoadingText" Text="Loading plans from the Microsoft Store…"
-                       Style="{StaticResource HintText}" FontSize="12"/>
-            <ItemsControl x:Name="PlanList">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton GroupName="Plans" Style="{StaticResource PlanCard}"
-                                     Tag="{Binding Id}" Checked="Plan_Checked" Loaded="Plan_Loaded">
-                            <Grid>
-                                <StackPanel Margin="0,0,110,0">
-                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="{Binding TrialText}" FontSize="12"
-                                               Foreground="{DynamicResource SuccessTextBrush}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding TrialText}" Value="{x:Null}">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                                <TextBlock Text="{Binding PriceText}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                           FontWeight="SemiBold" Foreground="{DynamicResource BrandPrimaryBrush}"/>
-                            </Grid>
-                        </RadioButton>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                <TextBlock x:Name="CancelHint" Visibility="Collapsed" Style="{StaticResource HintText}"
+                           FontSize="13" Margin="0,4,0,0"
+                           Text="Cancel any time from your Microsoft account — your data always stays on this PC."/>
 
-            <Border x:Name="MessagePanel" Style="{StaticResource WarningCallout}" Margin="0,4,0,0" Visibility="Collapsed">
-                <TextBlock x:Name="MessageText" TextWrapping="Wrap" FontSize="12"/>
-            </Border>
+                <Border x:Name="MessagePanel" Style="{StaticResource WarningCallout}" Margin="0,12,0,0" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock x:Name="MessageText" TextWrapping="Wrap" FontSize="12"/>
+                        <TextBlock x:Name="ErrorCodeText" TextWrapping="Wrap" FontSize="11" Margin="0,4,0,0" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
 
-            <Grid Margin="0,16,0,0">
-                <Button x:Name="LaterButton" Content="Not now" Click="Later_Click" IsCancel="True"
-                        Style="{StaticResource NeutralButton}" HorizontalAlignment="Left"/>
-                <Button x:Name="UpgradeButton" Content="Subscribe" Click="Upgrade_Click" IsDefault="True"
-                        IsEnabled="False"
-                        Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" MinWidth="150"/>
-            </Grid>
-        </StackPanel>
-    </StackPanel>
+                <Button x:Name="SignInButton" Content="Sign in to the Microsoft Store" Click="SignIn_Click"
+                        Visibility="Collapsed" HorizontalAlignment="Left" Margin="0,10,0,0"
+                        Style="{StaticResource NeutralButton}"/>
+                <TextBlock x:Name="SupportLink" Visibility="Collapsed" Margin="0,10,0,0" FontSize="13">
+                    <Hyperlink Click="Support_Click" Foreground="{DynamicResource BrandPrimaryBrush}">Contact support</Hyperlink>
+                </TextBlock>
+
+                <Grid Margin="0,16,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="LaterButton" Grid.Column="0" Content="Not now" Click="Later_Click" IsCancel="True"
+                            Style="{StaticResource NeutralButton}" HorizontalAlignment="Left"/>
+                    <Button x:Name="RetryButton" Grid.Column="1" Content="Retry" Click="Retry_Click"
+                            IsEnabled="False" Margin="8,0,0,0"
+                            Style="{StaticResource NeutralButton}" HorizontalAlignment="Left"/>
+                    <Button x:Name="UpgradeButton" Grid.Column="2" Content="Subscribe" Click="Upgrade_Click" IsDefault="True"
+                            IsEnabled="False"
+                            Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" MinWidth="150"/>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </Window>

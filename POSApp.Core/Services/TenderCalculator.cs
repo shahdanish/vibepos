@@ -67,7 +67,12 @@ namespace POSApp.Core.Services
             if (!string.IsNullOrEmpty(p.CardBrand)) details.Add(p.CardBrand!);
             if (!string.IsNullOrEmpty(p.CardLast4)) details.Add("****" + p.CardLast4);
             if (!string.IsNullOrEmpty(p.Reference))
-                details.Add(p.Method == PaymentMethods.Check ? "#" + p.Reference : "Auth " + p.Reference);
+            {
+                if (p.Method == PaymentMethods.GiftCard) details.Add(p.Reference!);
+                else if (p.Method == PaymentMethods.Loyalty) details.Add(p.Reference + " pts");
+                else if (p.Method == PaymentMethods.Check) details.Add("#" + p.Reference);
+                else details.Add("Auth " + p.Reference);
+            }
             return details.Count == 0 ? p.Method : $"{p.Method} ({string.Join(" ", details)})";
         }
     }

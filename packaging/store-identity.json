@@ -4,6 +4,6 @@
   "Publisher": "CN=F6F3250D-99E3-41B7-AB8D-F6B70D32C0F5",
   "PublisherDisplayName": "DF Labs",
   "DisplayName": "swifttill",
-  "Description": "Swifttill — fast, simple point-of-sale for small shops: barcode sales, receipts, stock, customer credit (khata) and daily reports.",
+  "Description": "Swifttill — point of sale for a small pharmacy front counter and retail shop: barcode sales, sales tax, split payments, gift cards, loyalty points, receipts, stock and daily reports.",
   "ProProductIdPrefix": "pro_"
 }

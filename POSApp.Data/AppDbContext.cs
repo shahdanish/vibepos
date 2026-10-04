@@ -45,6 +45,8 @@ namespace POSApp.Data
         // US pharmacy front store
         public DbSet<PseLogEntry> PseLogEntries { get; set; }
 
+        public DbSet<GiftCard> GiftCards { get; set; }
+
         // HR Module
         public DbSet<Employee> Employees { get; set; }
         public DbSet<SalarySlip> SalarySlips { get; set; }
@@ -141,6 +143,16 @@ namespace POSApp.Data
             // when a category is deleted.
             modelBuilder.Entity<Product>()
                 .HasIndex(p => p.TaxCategoryId);
+
+            modelBuilder.Entity<GiftCard>()
+                .HasIndex(c => c.Code)
+                .IsUnique();
+            modelBuilder.Entity<GiftCard>()
+                .Property(c => c.Balance)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<GiftCard>()
+                .Property(c => c.IssuedAmount)
+                .HasPrecision(18, 2);
 
             // Configure SaleItem entity
             modelBuilder.Entity<SaleItem>()

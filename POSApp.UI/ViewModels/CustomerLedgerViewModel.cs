@@ -44,6 +44,8 @@ namespace POSApp.UI.ViewModels
         private decimal _newCustomerInitialBalance;
         private bool _newCustomerTaxExempt;
         private string? _newCustomerTaxExemptNumber;
+        private bool _newCustomerLoyaltyEnrolled;
+        private int _newCustomerLoyaltyPoints;
 
         // Last payment tracking
         private CustomerPayment? _lastPayment;
@@ -185,6 +187,21 @@ namespace POSApp.UI.ViewModels
             set => SetProperty(ref _newCustomerTaxExemptNumber, value);
         }
 
+        /// <summary>US: enroll this customer and edit the point balance.</summary>
+        public bool ShowLoyalty => Region.IsUnitedStates;
+
+        public bool NewCustomerLoyaltyEnrolled
+        {
+            get => _newCustomerLoyaltyEnrolled;
+            set => SetProperty(ref _newCustomerLoyaltyEnrolled, value);
+        }
+
+        public int NewCustomerLoyaltyPoints
+        {
+            get => _newCustomerLoyaltyPoints;
+            set => SetProperty(ref _newCustomerLoyaltyPoints, value);
+        }
+
         public ICommand AddPaymentCommand { get; }      // also handles updates (Save)
         public ICommand DeletePaymentCommand { get; }
         public ICommand EditPaymentCommand { get; }
@@ -267,6 +284,8 @@ namespace POSApp.UI.ViewModels
                 _newCustomerInitialBalance = customer.CurrentBalance;
                 _newCustomerTaxExempt = customer.IsTaxExempt;
                 _newCustomerTaxExemptNumber = customer.TaxExemptNumber;
+                _newCustomerLoyaltyEnrolled = customer.LoyaltyEnrolled;
+                _newCustomerLoyaltyPoints = customer.LoyaltyPoints;
             }
             else
             {
@@ -276,10 +295,14 @@ namespace POSApp.UI.ViewModels
                 _newCustomerInitialBalance = 0;
                 _newCustomerTaxExempt = false;
                 _newCustomerTaxExemptNumber = null;
+                _newCustomerLoyaltyEnrolled = false;
+                _newCustomerLoyaltyPoints = 0;
             }
 
             OnPropertyChanged(nameof(NewCustomerTaxExempt));
             OnPropertyChanged(nameof(NewCustomerTaxExemptNumber));
+            OnPropertyChanged(nameof(NewCustomerLoyaltyEnrolled));
+            OnPropertyChanged(nameof(NewCustomerLoyaltyPoints));
             OnPropertyChanged(nameof(NewCustomerName));
             OnPropertyChanged(nameof(NewCustomerPhone));
             OnPropertyChanged(nameof(NewCustomerAddress));
@@ -323,6 +346,11 @@ namespace POSApp.UI.ViewModels
                 {
                     _editingCustomer.IsTaxExempt = NewCustomerTaxExempt;
                     _editingCustomer.TaxExemptNumber = string.IsNullOrWhiteSpace(NewCustomerTaxExemptNumber) ? null : NewCustomerTaxExemptNumber.Trim();
+                }
+                if (ShowLoyalty)
+                {
+                    _editingCustomer.LoyaltyEnrolled = NewCustomerLoyaltyEnrolled;
+                    _editingCustomer.LoyaltyPoints = Math.Max(0, NewCustomerLoyaltyPoints);
                 }
                 _editingCustomer.ModifiedDate = DateTime.Now;
 
@@ -425,6 +453,8 @@ namespace POSApp.UI.ViewModels
                     CurrentBalance = NewCustomerInitialBalance,
                     IsTaxExempt = ShowTaxExemption && NewCustomerTaxExempt,
                     TaxExemptNumber = ShowTaxExemption && !string.IsNullOrWhiteSpace(NewCustomerTaxExemptNumber) ? NewCustomerTaxExemptNumber.Trim() : null,
+                    LoyaltyEnrolled = ShowLoyalty && NewCustomerLoyaltyEnrolled,
+                    LoyaltyPoints = ShowLoyalty ? Math.Max(0, NewCustomerLoyaltyPoints) : 0,
                     CreatedDate = DateTime.Now
                 };
 
@@ -434,6 +464,8 @@ namespace POSApp.UI.ViewModels
                 NewCustomerPhone = null;
                 NewCustomerAddress = null;
                 NewCustomerInitialBalance = 0;
+                NewCustomerLoyaltyEnrolled = false;
+                NewCustomerLoyaltyPoints = 0;
 
                 await LoadCustomers();
                 SelectedCustomer = Customers.FirstOrDefault(c => c.CustomerId == customerId);

@@ -23,8 +23,11 @@ namespace POSApp.Core.Interfaces
         /// <summary>Re-reads the Store licence. No-op for the direct edition.</summary>
         Task RefreshAsync();
 
-        /// <summary>The Pro plans on sale (e.g. monthly and yearly), with Store-formatted prices.</summary>
-        Task<IReadOnlyList<ProOffer>> GetProOffersAsync();
+        /// <summary>
+        /// The Pro subscription add-ons on sale, with Store-formatted prices, or the reason none came back.
+        /// <paramref name="ownerWindowHandle"/> is the HWND the Store uses if it needs to prompt.
+        /// </summary>
+        Task<ProOfferQuery> GetProOffersAsync(IntPtr ownerWindowHandle);
 
         /// <summary>
         /// Shows the Store purchase dialog for <paramref name="offerId"/> (a <see cref="ProOffer.Id"/>).
@@ -39,6 +42,16 @@ namespace POSApp.Core.Interfaces
     /// <param name="PriceText">Localised recurring price, e.g. "Rs 1,500.00/month".</param>
     /// <param name="TrialText">e.g. "1 month free trial", or null when there is no trial.</param>
     public sealed record ProOffer(string Id, string Title, string PriceText, string? TrialText);
+
+    /// <summary>
+    /// Result of asking the Store for Pro plans.
+    /// <paramref name="ErrorCode"/> is the HRESULT (for example 0x80070525) when the Store reported one.
+    /// The dialog shows it only for <see cref="StorePlanProblem.Other"/>.
+    /// </summary>
+    public sealed record ProOfferQuery(
+        IReadOnlyList<ProOffer> Offers,
+        StorePlanProblem Problem,
+        string? ErrorCode);
 
     public enum UpgradeResult
     {

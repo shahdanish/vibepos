@@ -13,10 +13,10 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource HeaderBar}" Padding="24,16">
+        <Border Grid.Row="0" Style="{DynamicResource HeaderBar}" Padding="24,16">
             <StackPanel>
-                <TextBlock x:Name="WelcomeTitle" Text="Welcome — let's set up your shop" Style="{StaticResource HeaderTitle}"/>
-                <TextBlock Text="This takes a minute. You can change everything later in Admin → Business Settings."
+                <TextBlock x:Name="WelcomeTitle" Text="{Binding [setup.welcome], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource HeaderTitle}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding [setup.hint], Source={x:Static helpers:PhraseBook.Current}}"
                            Foreground="{DynamicResource OnBrandMutedBrush}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
             </StackPanel>
         </Border>
@@ -26,11 +26,11 @@
             <StackPanel Margin="24,16,24,8">
 
                 <!-- Shop -->
-                <Border Style="{StaticResource CardBorder}">
+                <Border Style="{DynamicResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="1. Your shop" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="{Binding [setup.shop], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource SectionTitle}"/>
 
-                        <TextBlock Text="Shop name *" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Text="{Binding [setup.shopName], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                         <TextBox x:Name="ShopName" helpers:Input.Placeholder="e.g. Corner Mart" Margin="0,0,0,12"/>
 
                         <Grid Margin="0,0,0,12">
@@ -40,37 +40,37 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="Phone (optional)" Style="{StaticResource FormLabel}"/>
+                                <TextBlock Text="{Binding [setup.phone], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                                 <TextBox x:Name="ShopPhone" helpers:Input.Placeholder="e.g. +1 555 0100"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Currency" Style="{StaticResource FormLabel}"/>
+                                <TextBlock Text="{Binding [setup.currency], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                                 <ComboBox x:Name="Currency" DisplayMemberPath="Label" SelectionChanged="Currency_Changed"/>
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock Text="Address (optional)" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Text="{Binding [setup.address], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                         <TextBox x:Name="ShopAddress" helpers:Input.Placeholder="Street, city"/>
 
                         <!-- US: the sales tax rate to start with -->
                         <StackPanel x:Name="TaxPanel" Margin="0,12,0,0">
-                            <TextBlock Text="Sales tax rate %" Style="{StaticResource FormLabel}"/>
+                            <TextBlock Text="{Binding [setup.tax], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                             <TextBox x:Name="TaxRate" Width="120" HorizontalAlignment="Left" Text="0"
                                      AutomationProperties.Name="Sales tax rate"/>
-                            <TextBlock Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="0,4,0,0"
+                            <TextBlock Style="{DynamicResource HintText}" TextWrapping="Wrap" Margin="0,4,0,0"
                                        Text="Your combined state + local rate, e.g. 8.25. Leave 0 if you don't collect sales tax yet. Prescription drugs start untaxed; adjust any category later in Admin → Business Settings → Sales Tax."/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <!-- Owner account -->
-                <Border Style="{StaticResource CardBorder}">
+                <Border Style="{DynamicResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="2. Owner account" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                        <TextBlock Text="You'll use this to sign in. Add cashiers later from Admin → Users."
-                                   Style="{StaticResource HintText}" Margin="0,0,0,12"/>
+                        <TextBlock Text="{Binding [setup.owner], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource SectionTitle}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding [setup.ownerHint], Source={x:Static helpers:PhraseBook.Current}}"
+                                   Style="{DynamicResource HintText}" Margin="0,0,0,12" TextWrapping="Wrap"/>
 
-                        <TextBlock Text="Username *" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Text="{Binding [setup.username], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                         <TextBox x:Name="AdminUsername" helpers:Input.Placeholder="e.g. owner" Margin="0,0,0,12"/>
 
                         <Grid>
@@ -80,11 +80,11 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="Password *" Style="{StaticResource FormLabel}"/>
+                                <TextBlock Text="{Binding [setup.password], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                                 <PasswordBox x:Name="AdminPassword" helpers:Input.Placeholder="At least 6 characters"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Confirm password *" Style="{StaticResource FormLabel}"/>
+                                <TextBlock Text="{Binding [setup.confirm], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
                                 <PasswordBox x:Name="AdminPasswordConfirm" helpers:Input.Placeholder="Type it again"/>
                             </StackPanel>
                         </Grid>
@@ -92,19 +92,64 @@
                 </Border>
 
                 <!-- Sample data -->
-                <Border Style="{StaticResource CardBorder}">
+                <Border Style="{DynamicResource CardBorder}">
                     <StackPanel>
-                        <TextBlock Text="3. Sample data (optional)" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding [setup.samples], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource SectionTitle}" Margin="0,0,0,8"/>
                         <CheckBox x:Name="LoadSamples" VerticalContentAlignment="Top">
                             <TextBlock x:Name="LoadSamplesText" TextWrapping="Wrap"
                                        Text="Load the sample US pharmacy catalog so I can try sales right away"/>
                         </CheckBox>
-                        <TextBlock x:Name="SamplesHint" Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="26,6,0,0"
+                        <TextBlock x:Name="SamplesHint" Style="{DynamicResource HintText}" TextWrapping="Wrap" Margin="26,6,0,0"
                                    Text="Over-the-counter medicines under their generic names, with typical US prices, stock, lot numbers and expiry dates, plus three charge-account customers, quick keys and two staff logins for testing. Edit or delete any of it later."/>
                     </StackPanel>
                 </Border>
 
-                <Border x:Name="ErrorPanel" Style="{StaticResource DangerCallout}" Visibility="Collapsed" Margin="0,0,0,12">
+                <!-- Language, edited phrases, and loyalty rates -->
+                <Border Style="{DynamicResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [setup.language], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource SectionTitle}" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding [setup.languageHint], Source={x:Static helpers:PhraseBook.Current}}"
+                                   Style="{DynamicResource HintText}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="{Binding [setup.languageLabel], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}"/>
+                        <ComboBox x:Name="ShopLanguage" Width="220" HorizontalAlignment="Left" SelectionChanged="Language_Changed" Margin="0,0,0,10">
+                            <ComboBoxItem Content="English" Tag="en"/>
+                            <ComboBoxItem Content="Español" Tag="es"/>
+                        </ComboBox>
+
+                        <DataGrid x:Name="PhraseGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                                  HeadersVisibility="Column" MaxHeight="220" MinHeight="120"
+                                  SelectionMode="Single" GridLinesVisibility="Horizontal">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Where" Binding="{Binding Group}" IsReadOnly="True" Width="90"/>
+                                <DataGridTextColumn Header="Default" Binding="{Binding DefaultText}" IsReadOnly="True" Width="*"/>
+                                <DataGridTextColumn Header="Your wording" Binding="{Binding CustomText, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <StackPanel x:Name="LoyaltyPanel" Margin="0,12,0,0">
+                            <TextBlock Text="{Binding [loyalty.hint], Source={x:Static helpers:PhraseBook.Current}}"
+                                       Style="{DynamicResource HintText}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding [loyalty.perDollar], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}" TextWrapping="Wrap"/>
+                                    <TextBox x:Name="PointsPerDollar" Text="1" AutomationProperties.Name="Points per dollar"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="{Binding [loyalty.perReward], Source={x:Static helpers:PhraseBook.Current}}" Style="{DynamicResource FormLabel}" TextWrapping="Wrap"/>
+                                    <TextBox x:Name="PointsPerReward" Text="100" AutomationProperties.Name="Points per reward dollar"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border x:Name="ErrorPanel" Style="{DynamicResource DangerCallout}" Visibility="Collapsed" Margin="0,0,0,12">
                     <TextBlock x:Name="ErrorText" TextWrapping="Wrap" FontSize="12"/>
                 </Border>
             </StackPanel>
@@ -113,9 +158,9 @@
         <Border Grid.Row="2" Background="{DynamicResource SurfaceAltBrush}" Padding="24,12"
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
             <Grid>
-                <Button Content="Exit" Click="Exit_Click" Style="{StaticResource NeutralButton}" HorizontalAlignment="Left"/>
-                <Button x:Name="FinishButton" Content="Finish setup" Click="Finish_Click" IsDefault="True"
-                        Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" MinWidth="150"/>
+                <Button Content="{Binding [login.exit], Source={x:Static helpers:PhraseBook.Current}}" Click="Exit_Click" Style="{DynamicResource NeutralButton}" HorizontalAlignment="Left"/>
+                <Button x:Name="FinishButton" Content="{Binding [setup.finish], Source={x:Static helpers:PhraseBook.Current}}" Click="Finish_Click" IsDefault="True"
+                        Style="{DynamicResource PrimaryButton}" HorizontalAlignment="Right" MinWidth="150"/>
             </Grid>
         </Border>
     </Grid>

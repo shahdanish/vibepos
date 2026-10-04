@@ -29,7 +29,7 @@ namespace POSApp.Infrastructure.SampleData
 
         public sealed record CategoryInfo(string Name, string Description);
 
-        public sealed record CustomerInfo(string Name, string Phone, decimal OpeningBalance);
+        public sealed record CustomerInfo(string Name, string Phone, decimal OpeningBalance, bool LoyaltyEnrolled = false, int LoyaltyPoints = 0);
 
         /// <summary>
         /// Sample categories whose items are non-prescription drugs, so they get the shop's OTC tax
@@ -206,9 +206,9 @@ namespace POSApp.Infrastructure.SampleData
         /// <summary>Charge-account customers. Fictional names; 555-01xx numbers are reserved for fiction.</summary>
         public static IReadOnlyList<CustomerInfo> Customers { get; } = new CustomerInfo[]
         {
-            new("Linda Thompson", "5555550142", 0m),
+            new("Linda Thompson", "5555550142", 0m, true, 0),
             new("Robert Garcia", "5555550178", 24.50m),
-            new("Karen Wilson", "5555550193", 0m),
+            new("Karen Wilson", "5555550193", 0m, true, 250),
         };
 
         /// <summary>
@@ -333,6 +333,8 @@ namespace POSApp.Infrastructure.SampleData
                     CellNo = info.Phone,
                     PreBalance = info.OpeningBalance,
                     CurrentBalance = info.OpeningBalance,
+                    LoyaltyEnrolled = info.LoyaltyEnrolled,
+                    LoyaltyPoints = info.LoyaltyPoints,
                     CreatedDate = today
                 });
                 customersAdded++;

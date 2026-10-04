@@ -7,6 +7,7 @@ using POSApp.Data;
 using POSApp.Core.Interfaces;
 using POSApp.Infrastructure.Repositories;
 using POSApp.Infrastructure.Services;
+using POSApp.UI.Helpers;
 using POSApp.UI.ViewModels;
 using POSApp.UI.Views;
 using POSApp.UI.Converters;
@@ -90,6 +91,8 @@ public partial class App : System.Windows.Application
         services.AddScoped<IFavoriteRepository, FavoriteRepository>();
         services.AddScoped<ITaxRepository, TaxRepository>();
         services.AddScoped<IFrontStoreRepository, FrontStoreRepository>();
+        services.AddScoped<IGiftCardRepository, GiftCardRepository>();
+        services.AddScoped<IShopTextStore, ShopTextStore>();
         services.AddScoped<IAutoBackupService, AutoBackupService>();
         services.AddScoped<ICardTerminalSettingsStore, POSApp.Infrastructure.Payments.CardTerminalSettingsStore>();
         services.AddScoped<POSApp.Infrastructure.Payments.CardTerminalFactory>();
@@ -244,6 +247,16 @@ public partial class App : System.Windows.Application
         {
             // Never block start-up over the settings copy; the next start retries.
         }
+        try
+        {
+            using var textScope = Services.CreateScope();
+            PhraseBook.Current.Apply(await textScope.ServiceProvider.GetRequiredService<IShopTextStore>().GetAsync());
+        }
+        catch
+        {
+            // A new database has no wording yet. English stays on until setup saves it.
+        }
+
         RegionSettingsStore.Saved += saved => _ = settingsMirror.StoreQuietlyAsync(SharedSettingsFiles.Region);
         POSApp.UI.Helpers.ReceiptBranding.Saved += () => _ = settingsMirror.StoreQuietlyAsync(SharedSettingsFiles.ReceiptBranding);
 

@@ -3,7 +3,9 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using POSApp.Core.Entities;
+using POSApp.Core.Interfaces;
 using POSApp.Core.Services;
 using POSApp.UI.Helpers;
 using POSApp.UI.ViewModels;
@@ -31,6 +33,10 @@ namespace POSApp.UI.Views
         private readonly decimal _total;
         private readonly bool _accountAllowed;
         private readonly bool _cardReader;
+        private readonly Func<string, Task<GiftCard?>>? _lookupGiftCard;
+        private readonly int _loyaltyPoints;
+        private readonly bool _loyaltyEnrolled;
+        private readonly int _pointsPerReward;
 
         /// <summary>The most FSA/HSA cards may pay on this bill, or null when not tracked.</summary>
         private readonly decimal? _fsaLimit;
@@ -43,13 +49,19 @@ namespace POSApp.UI.Views
 
         /// <param name="accountCustomer">The customer whose charge account can be used, or null.</param>
         public SplitPaymentDialog(decimal total, string? accountCustomer, IEnumerable<SalePayment>? existing = null, decimal? fsaLimit = null,
-                                  bool cardReader = false)
+                                  bool cardReader = false, Func<string, Task<GiftCard?>>? lookupGiftCard = null,
+                                  int loyaltyPoints = 0, bool loyaltyEnrolled = false, int pointsPerReward = 100)
         {
             InitializeComponent();
             _total = total;
             _fsaLimit = fsaLimit;
             _accountAllowed = accountCustomer != null;
             _cardReader = cardReader;
+            _lookupGiftCard = lookupGiftCard;
+            _loyaltyPoints = loyaltyPoints;
+            _loyaltyEnrolled = loyaltyEnrolled;
+            _pointsPerReward = pointsPerReward;
+            LoyaltyChoice.IsEnabled = loyaltyEnrolled && pointsPerReward > 0 && loyaltyPoints > 0;
 
             TotalText.Text = $"Total due {Region.Money(total)}";
             AccountChoice.IsEnabled = _accountAllowed;
@@ -74,8 +86,21 @@ namespace POSApp.UI.Views
                 return false;
             }
 
-            var dialog = new SplitPaymentDialog(vm.TotalBill, vm.SelectedCustomer?.Name, vm.SplitPayments,
-                                                vm.TracksFsa ? vm.FsaEligibleTotal : null, vm.RequestCardCharge != null) { Owner = owner };
+            Func<string, Task<GiftCard?>>? lookup = null;
+            if (App.Services != null)
+            {
+                lookup = async code =>
+                {
+                    using var scope = App.Services.CreateScope();
+                    return await scope.ServiceProvider.GetRequiredService<IGiftCardRepository>().GetByCodeAsync(code);
+                };
+            }
+            var customer = vm.SelectedCustomer;
+            var rates = PhraseBook.Current.Settings;
+            var dialog = new SplitPaymentDialog(vm.TotalBill, customer?.Name, vm.SplitPayments,
+                                                vm.TracksFsa ? vm.FsaEligibleTotal : null, vm.RequestCardCharge != null,
+                                                lookup, customer?.LoyaltyPoints ?? 0, customer?.LoyaltyEnrolled == true,
+                                                rates.PointsPerRewardDollar) { Owner = owner };
             if (dialog.ShowDialog() != true) return false;
             vm.ApplySplitPayments(dialog.Payments);
             return true;
@@ -87,6 +112,8 @@ namespace POSApp.UI.Views
             CardChoice.IsChecked == true ? PaymentMethods.Card :
             CheckChoice.IsChecked == true ? PaymentMethods.Check :
             AccountChoice.IsChecked == true ? PaymentMethods.ChargeAccount :
+            GiftChoice.IsChecked == true ? PaymentMethods.GiftCard :
+            LoyaltyChoice.IsChecked == true ? PaymentMethods.Loyalty :
             PaymentMethods.Cash;
 
         private void Method_Changed(object sender, RoutedEventArgs e)
@@ -95,12 +122,21 @@ namespace POSApp.UI.Views
             CardPanel.Visibility = CardChoice.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
             CardReaderHint.Visibility = _cardReader && CardChoice.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
             CheckPanel.Visibility = CheckChoice.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+            GiftPanel.Visibility = GiftChoice.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+            LoyaltyHint.Visibility = LoyaltyChoice.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+            if (LoyaltyChoice.IsChecked == true)
+            {
+                var max = LoyaltyRules.MaxDollars(_loyaltyPoints, _pointsPerReward);
+                LoyaltyHint.Text = _loyaltyEnrolled
+                    ? $"{_loyaltyPoints} points, up to {Region.Money(max)} on this sale."
+                    : "Pick a customer who is enrolled in loyalty on the sale screen first.";
+            }
             FocusAmount();
         }
 
-        private void Add_Click(object sender, RoutedEventArgs e) => AddPayment();
+        private async void Add_Click(object sender, RoutedEventArgs e) => await AddPayment();
 
-        private void AddPayment()
+        private async Task AddPayment()
         {
             if (!decimal.TryParse(AmountBox.Text.Replace(Region.Current.CurrencySymbol, "").Trim(),
                                   NumberStyles.Number, CultureInfo.InvariantCulture, out var amount))
@@ -110,6 +146,74 @@ namespace POSApp.UI.Views
             }
 
             var method = SelectedMethod;
+            string? reference = null;
+            if (method == PaymentMethods.GiftCard)
+            {
+                var code = GiftCardRules.Normalize(GiftCode.Text);
+                if (code.Length < 4)
+                {
+                    ShowError("Enter the gift card code.");
+                    return;
+                }
+                if (_lookupGiftCard == null)
+                {
+                    ShowError("Gift cards are not available.");
+                    return;
+                }
+                GiftCard? card;
+                try { card = await _lookupGiftCard(code); }
+                catch (Exception ex)
+                {
+                    ShowError(ex.Message);
+                    return;
+                }
+                if (card == null)
+                {
+                    ShowError($"Gift card {code} was not found.");
+                    return;
+                }
+                var already = _rows.Where(r => r.Payment.Method == PaymentMethods.GiftCard
+                                               && GiftCardRules.Normalize(r.Payment.Reference) == card.Code)
+                                    .Sum(r => r.Payment.Amount);
+                var (pay, giftError) = GiftCardRules.Redeemable(card.Balance - already, card.IsVoid, amount, Remaining);
+                if (giftError != null)
+                {
+                    ShowError(giftError);
+                    return;
+                }
+                if (pay < amount)
+                {
+                    ShowError($"This gift card has {Region.Money(card.Balance - already)} left. Enter that or less.");
+                    return;
+                }
+                amount = pay;
+                reference = card.Code;
+            }
+            else if (method == PaymentMethods.Loyalty)
+            {
+                if (!_loyaltyEnrolled)
+                {
+                    ShowError("Pick a customer who is enrolled in loyalty on the sale screen first.");
+                    return;
+                }
+                var alreadyPoints = _rows.Where(r => r.Payment.Method == PaymentMethods.Loyalty)
+                                          .Sum(r => int.TryParse(r.Payment.Reference, out var n) ? n : 0);
+                var (points, dollars, loyaltyError) = LoyaltyRules.Redeem(
+                    Math.Max(0, _loyaltyPoints - alreadyPoints), amount, Remaining, _pointsPerReward);
+                if (loyaltyError != null)
+                {
+                    ShowError(loyaltyError);
+                    return;
+                }
+                if (dollars < amount)
+                {
+                    ShowError($"Points cover up to {Region.Money(dollars)}. Enter that or less.");
+                    return;
+                }
+                amount = dollars;
+                reference = points.ToString(CultureInfo.InvariantCulture);
+            }
+
             var cardType = (CardBrand.SelectedItem as ComboBoxItem)?.Content as string;
             if (method == PaymentMethods.Card && cardType == FsaCardType && _fsaLimit is decimal limit)
             {
@@ -130,7 +234,9 @@ namespace POSApp.UI.Views
                 method, Math.Round(amount, 2), Remaining,
                 cardBrand: method == PaymentMethods.Card ? (CardBrand.SelectedItem as ComboBoxItem)?.Content as string : null,
                 cardLast4: method == PaymentMethods.Card ? CardLast4.Text : null,
-                reference: method == PaymentMethods.Card ? AuthCode.Text : method == PaymentMethods.Check ? CheckNumber.Text : null);
+                reference: method == PaymentMethods.Card ? AuthCode.Text
+                    : method == PaymentMethods.Check ? CheckNumber.Text
+                    : reference);
             if (error != null)
             {
                 ShowError(error);
@@ -141,6 +247,7 @@ namespace POSApp.UI.Views
             CardLast4.Clear();
             AuthCode.Clear();
             CheckNumber.Clear();
+            GiftCode.Clear();
             Refresh();
         }
 
@@ -164,7 +271,7 @@ namespace POSApp.UI.Views
         {
             if (e.Key != Key.Enter || Keyboard.FocusedElement is Button) return;
             e.Handled = true;
-            if (Remaining > 0) AddPayment();
+            if (Remaining > 0) _ = AddPayment();
             else Done_Click(this, e);
         }
 

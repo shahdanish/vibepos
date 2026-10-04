@@ -91,7 +91,9 @@ namespace POSApp.Tests
             ITaxRepository? tax = null,
             IEnumerable<Product>? catalogue = null,
             List<Customer>? updatedCustomers = null,
-            Action? onProductUpdate = null)
+            Action? onProductUpdate = null,
+            IGiftCardRepository? giftCards = null,
+            IShopTextStore? shopText = null)
         {
             var sales = new Mock<ISaleRepository>();
             sales.Setup(r => r.GetNextInvoiceNumberAsync(It.IsAny<CancellationToken>()))
@@ -111,8 +113,8 @@ namespace POSApp.Tests
                      .Returns(Task.CompletedTask);
 
             return wholesale
-                ? new WholeSaleViewModel(sales.Object, products.Object, customers.Object, favorites, tax)
-                : new SaleViewModel(sales.Object, products.Object, customers.Object, favorites, tax);
+                ? new WholeSaleViewModel(sales.Object, products.Object, customers.Object, favorites, tax, giftCards: giftCards, shopText: shopText)
+                : new SaleViewModel(sales.Object, products.Object, customers.Object, favorites, tax, giftCards: giftCards, shopText: shopText);
         }
 
         /// <summary>A cart that exercises %, flat-amount and no discount, a fractional price and bill discounts.</summary>

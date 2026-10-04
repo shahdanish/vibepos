@@ -1,4 +1,7 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using POSApp.Core.Interfaces;
 using POSApp.Infrastructure.SampleData;
 using POSApp.UI.Helpers;
@@ -30,20 +33,25 @@ namespace POSApp.UI.Views
 
         private readonly IFirstRunSetupService _setup;
         private readonly ITaxRepository _tax;
+        private readonly IShopTextStore _shopText;
+        private ObservableCollection<PhraseRow> _phrases = new();
+        private bool _loading = true;
 
-        public FirstRunSetupWindow(IFirstRunSetupService setup, ITaxRepository tax)
+        public FirstRunSetupWindow(IFirstRunSetupService setup, ITaxRepository tax, IShopTextStore shopText)
         {
             InitializeComponent();
             _setup = setup;
             _tax = tax;
+            _shopText = shopText;
 
             Title = $"Welcome to {ProductBranding.Name}";
-            WelcomeTitle.Text = $"Welcome to {ProductBranding.Name} — let's set up your shop";
-            LoadSamplesText.Text =
-                $"Load the sample US pharmacy catalog ({UsPharmacySampleData.Items.Count} items) so I can try sales right away";
+            ShopLanguage.SelectedIndex = 0;
+            LoadPhraseGrid(ShopPhrases.English);
+            RefreshSampleLabel();
 
             Currency.ItemsSource = Currencies;
             Currency.SelectedItem = Currencies[0]; // US Dollar
+            _loading = false;
 
             var branding = ReceiptBranding.Current;
             if (branding.StoreName != new ReceiptBrandingSettings().StoreName)
@@ -89,6 +97,8 @@ namespace POSApp.UI.Views
                         await _tax.EnsureUsDefaultsAsync(ParsedTaxRate() ?? 0m);
                 }
 
+                await SaveWordingAsync();
+
                 var result = await _setup.CompleteAsync(new FirstRunSetupRequest(
                     AdminUsername.Text.Trim(),
                     AdminPassword.Password,
@@ -113,7 +123,64 @@ namespace POSApp.UI.Views
             if (AdminPassword.Password.Length < 6) return "The password needs at least 6 characters.";
             if (AdminPassword.Password != AdminPasswordConfirm.Password) return "The two passwords don't match.";
             if (IsUsSelected && ParsedTaxRate() == null) return "Enter the sales tax rate as a percentage between 0 and 30, e.g. 8.25.";
+            if (IsUsSelected && !TryReadLoyalty(out _, out _, out var loyaltyError)) return loyaltyError;
             return null;
+        }
+
+        private string SelectedLanguage =>
+            (ShopLanguage.SelectedItem as ComboBoxItem)?.Tag as string ?? ShopPhrases.English;
+
+        private void LoadPhraseGrid(string language)
+        {
+            var custom = PhraseRow.CollectOverrides(_phrases);
+            _phrases = PhraseRow.Load(language, custom);
+            PhraseGrid.ItemsSource = _phrases;
+        }
+
+        private void Language_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            if (_loading || PhraseGrid == null) return;
+            LoadPhraseGrid(SelectedLanguage);
+            PhraseBook.Current.Apply(CurrentWording());
+            RefreshSampleLabel();
+        }
+
+        private void RefreshSampleLabel()
+        {
+            if (LoadSamplesText == null) return;
+            LoadSamplesText.Text = PhraseBook.Current["setup.samplesCheck"] + $" ({UsPharmacySampleData.Items.Count})";
+        }
+
+        private ShopTextSettings CurrentWording()
+        {
+            TryReadLoyalty(out var perDollar, out var perReward, out _);
+            return new ShopTextSettings(SelectedLanguage, PhraseRow.CollectOverrides(_phrases), perDollar, perReward);
+        }
+
+        private bool TryReadLoyalty(out decimal perDollar, out int perReward, out string? error)
+        {
+            perDollar = 1m;
+            perReward = 100;
+            error = null;
+            if (!IsUsSelected) return true;
+            if (!decimal.TryParse(PointsPerDollar.Text.Trim(), NumberStyles.Number, CultureInfo.InvariantCulture, out perDollar) || perDollar < 0)
+            {
+                error = "Enter the loyalty points earned per dollar, for example 1.";
+                return false;
+            }
+            if (!int.TryParse(PointsPerReward.Text.Trim(), out perReward) || perReward < 1)
+            {
+                error = "Enter how many points equal one dollar off, for example 100.";
+                return false;
+            }
+            return true;
+        }
+
+        private async Task SaveWordingAsync()
+        {
+            var settings = CurrentWording();
+            await _shopText.SaveAsync(settings);
+            PhraseBook.Current.Apply(settings);
         }
 
         private bool IsUsSelected => Currency.SelectedItem is CurrencyOption c && RegionCodes.IsUnitedStates(c.RegionCode);
@@ -129,6 +196,8 @@ namespace POSApp.UI.Views
         {
             if (TaxPanel != null)
                 TaxPanel.Visibility = IsUsSelected ? Visibility.Visible : Visibility.Collapsed;
+            if (LoyaltyPanel != null)
+                LoyaltyPanel.Visibility = IsUsSelected ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// <summary>Lists what the sample data added, including the staff logins, which exist nowhere else.</summary>

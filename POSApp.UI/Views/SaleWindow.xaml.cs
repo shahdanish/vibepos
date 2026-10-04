@@ -79,12 +79,20 @@ namespace POSApp.UI.Views
             else if (ctrl && e.Key == Key.Q) { e.Handled = true; _viewModel.QuickSaleCommand.Execute(null); }
             else if (ctrl && e.Key == Key.M) { e.Handled = true; CalculatorWindow.ShowCalculator(); }
             else if (ctrl && e.Key == Key.T && _viewModel.IsUsCheckout) { e.Handled = true; SplitPaymentDialog.Run(this, _viewModel); }
+            else if (ctrl && e.Key == Key.G && _viewModel.IsUsCheckout) { e.Handled = true; GiftCard_Click(this, e); }
             else if (ctrl && e.Key == Key.D && CashDrawer.IsEnabled) { e.Handled = true; OpenDrawerNoSale(); }
             else if (TryHandleQuickKeyHotKey(e)) { e.Handled = true; }
             else if (e.Key == Key.Escape) { e.Handled = true; Close(); }
         }
 
         private void SplitPayment_Click(object sender, RoutedEventArgs e) => SplitPaymentDialog.Run(this, _viewModel);
+
+        private void GiftCard_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_viewModel.IsUsCheckout) return;
+            if (!GiftCardDialog.TryAsk(this, out var amount, out var recipient)) return;
+            _viewModel.AddGiftCard(amount, recipient);
+        }
 
         /// <summary>Ctrl+D: open the drawer without a sale (making change) — cash-register managers only.</summary>
         private static void OpenDrawerNoSale()

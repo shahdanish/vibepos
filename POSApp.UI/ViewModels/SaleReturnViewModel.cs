@@ -96,11 +96,71 @@ namespace POSApp.UI.ViewModels
             return methods[0];
         }
 
+        /// <summary>Where the part of a return that is not gift card or loyalty goes back.</summary>
+        public static string NonStoreRefundMethod(Sale sale)
+        {
+            var method = RefundMethodFor(sale);
+            if (method is not (PaymentMethods.GiftCard or PaymentMethods.Loyalty)) return method;
+            return sale.Payments.Select(p => p.Method).FirstOrDefault(m => m is not (PaymentMethods.GiftCard or PaymentMethods.Loyalty))
+                   ?? PaymentMethods.Cash;
+        }
+
         /// <summary>
         /// Set by the window when an integrated card reader is set up: refunds (payment reference,
         /// amount) to the card the sale was paid with.
         /// </summary>
         public Func<string, decimal, Task<CardRefundResult>>? RefundToCard { get; set; }
+
+        /// <summary>
+        /// Puts a gift-card or loyalty refund back (the refund tender). Returns an error message,
+        /// or null when it worked. A second try of the same return does not do it again.
+        /// </summary>
+        public Func<SalePayment, Task<string?>>? RestoreStoreTender { get; set; }
+
+        /// <summary>
+        /// Lowers the balance of a gift card that was sold on this invoice, because that line is
+        /// being returned. The amount is the face value being returned.
+        /// </summary>
+        public Func<string, decimal, Task<string?>>? ReduceIssuedGiftCard { get; set; }
+
+        /// <summary>Store-credit tenders that go back alongside <see cref="TakeRefundAsync"/>'s main refund.</summary>
+        public IReadOnlyList<SalePayment> ExtraRefunds { get; private set; } = Array.Empty<SalePayment>();
+
+        private readonly HashSet<string> _storeTendersRestored = new();
+        private readonly HashSet<string> _issuedGiftCardsReduced = new();
+        private string? _storeAdjustInvoice;
+
+        /// <summary>Set after the loyalty claw-back for this return has been applied, so a retry does not take the points twice.</summary>
+        public bool LoyaltyClawbackDone { get; set; }
+
+        /// <summary>
+        /// Takes back loyalty points earned on the original sale. The window sets this.
+        /// Returns an error message, or null when it worked. The caller marks
+        /// <see cref="LoyaltyClawbackDone"/> after a null result.
+        /// </summary>
+        public Func<Task<string?>>? ClawBackEarnedLoyalty { get; set; }
+
+        /// <summary>
+        /// Points earned on <see cref="OriginalSale"/> that this return takes back.
+        /// Only merchandise counts: returning a gift card does not take points earned on
+        /// something else, and returning the merchandise takes them even when the gift card
+        /// stays. <paramref name="pointsPerDollar"/> is the shop's current rate.
+        /// </summary>
+        public int EarnedPointsToClawBack(decimal pointsPerDollar)
+        {
+            if (OriginalSale?.CustomerId == null) return 0;
+            var returned = ReturnItems
+                .Where(i => i.ReturnQuantity > 0 && i.ProductId != GiftCardRules.LineProductId)
+                .Sum(i => i.Total);
+            var merchandise = OriginalSale.SaleItems
+                .Where(i => i.ProductId != GiftCardRules.LineProductId)
+                .Sum(i => i.Total);
+            if (merchandise <= 0 || returned <= 0) return 0;
+            var loyaltyDollars = OriginalSale.Payments.Where(p => p.Method == PaymentMethods.Loyalty).Sum(p => p.Amount);
+            var discounts = OriginalSale.DiscountOnProducts + OriginalSale.DiscountOnBill;
+            var earned = LoyaltyRules.EarnedOnLines(merchandise, discounts, loyaltyDollars, pointsPerDollar);
+            return LoyaltyRules.PointsToRestore(earned, merchandise, returned);
+        }
 
         /// <summary>
         /// A card refund that already went through for the invoice on screen. A second attempt
@@ -124,11 +184,48 @@ namespace POSApp.UI.ViewModels
         /// integrated reader is refunded to that card first; if the card refund fails the cashier
         /// can give cash instead. Null when the cashier stops.
         /// </summary>
+        /// <summary>
+        /// The gift-card and loyalty parts of a return, in proportion to how much of the original
+        /// sale is coming back. The rest of the return is cash, card, check or the charge account.
+        /// </summary>
+        public static IReadOnlyList<SalePayment> StoreCreditRefunds(Sale original, decimal returnAmount)
+        {
+            if (original.TotalBill <= 0 || returnAmount <= 0) return Array.Empty<SalePayment>();
+            var share = Math.Min(1m, returnAmount / Math.Abs(original.TotalBill));
+            var list = new List<SalePayment>();
+            foreach (var payment in original.Payments.Where(p => p.Amount > 0 && p.Method is PaymentMethods.GiftCard or PaymentMethods.Loyalty))
+            {
+                var part = Math.Round(payment.Amount * share, 2, MidpointRounding.AwayFromZero);
+                if (part <= 0) continue;
+                string? reference = null;
+                if (payment.Method == PaymentMethods.GiftCard)
+                    reference = payment.Reference;
+                else if (int.TryParse(payment.Reference, out var points))
+                    reference = LoyaltyRules.PointsToRestore(points, payment.Amount, part).ToString();
+                list.Add(new SalePayment { Method = payment.Method, Amount = -part, Tendered = -part, Reference = reference });
+            }
+
+            var sum = list.Sum(p => -p.Amount);
+            if (sum > returnAmount && list.Count > 0)
+            {
+                var last = list[^1];
+                var adjusted = Math.Round(-last.Amount - (sum - returnAmount), 2, MidpointRounding.AwayFromZero);
+                if (adjusted < 0) adjusted = 0;
+                last.Amount = -adjusted;
+                last.Tendered = -adjusted;
+            }
+            return list;
+        }
+
         internal async Task<SalePayment?> TakeRefundAsync(Sale original)
         {
+            var store = StoreCreditRefunds(original, TotalReturnAmount).ToList();
+            var storeSum = store.Sum(p => -p.Amount);
+            var nonStore = Math.Max(0m, Math.Round(TotalReturnAmount - storeSum, 2, MidpointRounding.AwayFromZero));
+
             if (_cardRefund != null && original.InvoiceNumber == _cardRefundInvoice)
             {
-                if (_cardRefund.Amount != -TotalReturnAmount)
+                if (_cardRefund.Amount != -nonStore)
                 {
                     Confirm(
                         $"The card was already refunded {Region.Money(-_cardRefund.Amount)}. " +
@@ -136,20 +233,37 @@ namespace POSApp.UI.ViewModels
                         "Card already refunded");
                     return null;
                 }
+                ExtraRefunds = nonStore == 0 ? store.Skip(1).ToList() : store;
                 return _cardRefund;
             }
 
+            if (nonStore == 0 && store.Count > 0)
+            {
+                var first = store[0];
+                ExtraRefunds = store.Skip(1).ToList();
+                return new SalePayment
+                {
+                    Method = first.Method,
+                    Amount = first.Amount,
+                    Tendered = first.Tendered,
+                    Reference = first.Reference,
+                    CreatedDate = ReturnDate
+                };
+            }
+
+            ExtraRefunds = store;
             var refund = new SalePayment
             {
-                Method = RefundMethodFor(original),
-                Amount = -TotalReturnAmount,
-                Tendered = -TotalReturnAmount,
+                Method = NonStoreRefundMethod(original),
+                Amount = -nonStore,
+                Tendered = -nonStore,
                 CreatedDate = ReturnDate
             };
-            if (refund.Method != PaymentMethods.Card || RefundToCard == null || ReaderCardPayment(original) is not { } card)
+
+            if (refund.Method != PaymentMethods.Card || nonStore <= 0 || RefundToCard == null || ReaderCardPayment(original) is not { } card)
                 return refund;
 
-            var result = await RefundToCard(card.ProcessorReference!, TotalReturnAmount);
+            var result = await RefundToCard(card.ProcessorReference!, nonStore);
             if (result.Succeeded)
             {
                 refund.CardBrand = card.CardBrand;
@@ -256,6 +370,13 @@ namespace POSApp.UI.ViewModels
                 {
                     _cardRefund = null;
                     _cardRefundInvoice = null;
+                }
+                if (sale.InvoiceNumber != _storeAdjustInvoice)
+                {
+                    _storeTendersRestored.Clear();
+                    _issuedGiftCardsReduced.Clear();
+                    LoyaltyClawbackDone = false;
+                    _storeAdjustInvoice = sale.InvoiceNumber;
                 }
                 OriginalSale = sale;
                 await ApplyEarlierReturnsAsync(sale);
@@ -379,11 +500,62 @@ namespace POSApp.UI.ViewModels
                     var refund = await TakeRefundAsync(OriginalSale);
                     if (refund == null) return;
                     cardRefunded = refund.ProcessorReference != null;
+
+                    var issuedError = await ReduceIssuedGiftCardsAsync(itemsToReturn);
+                    if (issuedError != null)
+                    {
+                        NotificationHelper.OperationFailed("return the gift card", issuedError);
+                        return;
+                    }
+
+                    var storeRefunds = new List<SalePayment>();
+                    if (refund.Method is PaymentMethods.GiftCard or PaymentMethods.Loyalty)
+                        storeRefunds.Add(refund);
+                    storeRefunds.AddRange(ExtraRefunds);
+                    foreach (var part in storeRefunds)
+                    {
+                        var key = StoreTenderKey(part);
+                        if (_storeTendersRestored.Contains(key)) continue;
+                        if (RestoreStoreTender == null)
+                        {
+                            NotificationHelper.OperationFailed("refund the gift card or loyalty points",
+                                "Close this window and open Sale Return again, then retry.");
+                            return;
+                        }
+                        var restoreError = await RestoreStoreTender(part);
+                        if (restoreError != null)
+                        {
+                            NotificationHelper.OperationFailed("refund the gift card or loyalty points", restoreError);
+                            return;
+                        }
+                        _storeTendersRestored.Add(key);
+                    }
+
+                    if (!LoyaltyClawbackDone && OriginalSale.CustomerId != null && ClawBackEarnedLoyalty != null)
+                    {
+                        var clawError = await ClawBackEarnedLoyalty();
+                        if (clawError != null)
+                        {
+                            NotificationHelper.OperationFailed("adjust loyalty points", clawError);
+                            return;
+                        }
+                        LoyaltyClawbackDone = true;
+                    }
+
                     returnSale.Payments.Add(refund);
+                    foreach (var extra in ExtraRefunds)
+                    {
+                        returnSale.Payments.Add(new SalePayment
+                        {
+                            Method = extra.Method,
+                            Amount = extra.Amount,
+                            Tendered = extra.Tendered,
+                            Reference = extra.Reference,
+                            CreatedDate = ReturnDate
+                        });
+                    }
                     _refund = refund;
                 }
-                var refundMethod = _refund?.Method;
-
                 foreach (var item in itemsToReturn)
                 {
                     returnSale.SaleItems.Add(new SaleItem
@@ -412,12 +584,13 @@ namespace POSApp.UI.ViewModels
                 saved = true;
 
                 // US: a refund to the charge account lowers what the customer owes.
-                if (PaymentMethods.IsOnAccount(refundMethod) && OriginalSale.CustomerId is int customerId && _customerRepository != null)
+                var onAccount = returnSale.Payments.Where(p => PaymentMethods.IsOnAccount(p.Method)).Sum(p => -p.Amount);
+                if (onAccount > 0 && OriginalSale.CustomerId is int customerId && _customerRepository != null)
                 {
                     var customer = await _customerRepository.GetByIdAsync(customerId);
                     if (customer != null)
                     {
-                        customer.CurrentBalance -= TotalReturnAmount;
+                        customer.CurrentBalance -= onAccount;
                         await _customerRepository.UpdateAsync(customer);
                     }
                 }
@@ -433,6 +606,7 @@ namespace POSApp.UI.ViewModels
                 _refund = null;
                 _cardRefund = null;
                 _cardRefundInvoice = null;
+                ClearStoreAdjustments();
                 ReturnItems.Clear();
                 SearchInvoiceNumber = string.Empty;
                 ReturnReason = string.Empty;
@@ -449,6 +623,7 @@ namespace POSApp.UI.ViewModels
                     _refund = null;
                     _cardRefund = null;
                     _cardRefundInvoice = null;
+                    ClearStoreAdjustments();
                     ReturnItems.Clear();
                     SearchInvoiceNumber = string.Empty;
                     ReturnReason = string.Empty;
@@ -457,10 +632,48 @@ namespace POSApp.UI.ViewModels
                     return;
                 }
 
-                NotificationHelper.OperationFailed("process return", cardRefunded
-                    ? $"{ex.Message}\n\nThe card was already refunded {Region.Money(-(_cardRefund?.Amount ?? TotalReturnAmount))}. Saving again will not refund it a second time."
+                var alreadyMoved = cardRefunded || _storeTendersRestored.Count > 0 || _issuedGiftCardsReduced.Count > 0;
+                NotificationHelper.OperationFailed("process return", alreadyMoved
+                    ? $"{ex.Message}\n\nMoney was already sent back (card, gift card, or loyalty points). Saving again will not do that a second time."
                     : ex.Message);
             }
+        }
+
+        private async Task<string?> ReduceIssuedGiftCardsAsync(IReadOnlyList<ReturnItemViewModel> items)
+        {
+            if (!Region.IsUnitedStates) return null;
+            var faces = new Dictionary<string, decimal>(StringComparer.Ordinal);
+            foreach (var item in items.Where(i => i.ProductId == GiftCardRules.LineProductId && i.ReturnQuantity > 0))
+            {
+                var code = GiftCardRules.CodeIn(item.ProductName);
+                if (code == null)
+                    return $"'{item.ProductName}' has no gift card code, so it cannot be returned.";
+                var face = Math.Round(item.UnitPrice * item.ReturnQuantity, 2, MidpointRounding.AwayFromZero);
+                faces[code] = faces.GetValueOrDefault(code) + face;
+            }
+
+            foreach (var pair in faces)
+            {
+                if (_issuedGiftCardsReduced.Contains(pair.Key)) continue;
+                if (ReduceIssuedGiftCard == null)
+                    return "Close this window and open Sale Return again, then retry.";
+                var error = await ReduceIssuedGiftCard(pair.Key, pair.Value);
+                if (error != null) return error;
+                _issuedGiftCardsReduced.Add(pair.Key);
+            }
+            return null;
+        }
+
+        private static string StoreTenderKey(SalePayment payment) =>
+            payment.Method + "|" + (payment.Reference ?? string.Empty) + "|" + payment.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+        private void ClearStoreAdjustments()
+        {
+            _storeTendersRestored.Clear();
+            _issuedGiftCardsReduced.Clear();
+            LoyaltyClawbackDone = false;
+            _storeAdjustInvoice = null;
+            ExtraRefunds = Array.Empty<SalePayment>();
         }
 
         private void PrintReturnReceipt()
@@ -619,7 +832,14 @@ namespace POSApp.UI.ViewModels
                 AddTotalRow("Sales tax refunded", Region.Number(TaxRefund));
             AddTotalRow("Total Refund", Region.Number(TotalReturnAmount), bold: true, fontSize: 12);
             if (Region.IsUnitedStates && OriginalSale != null)
-                AddTotalRow("Refunded to", _refund != null ? TenderCalculator.Describe(_refund) : RefundMethodFor(OriginalSale));
+            {
+                var refundParts = new List<string>();
+                if (_refund != null) refundParts.Add(TenderCalculator.Describe(_refund));
+                refundParts.AddRange(ExtraRefunds.Select(TenderCalculator.Describe));
+                AddTotalRow("Refunded to", refundParts.Count > 0
+                    ? string.Join(" + ", refundParts)
+                    : RefundMethodFor(OriginalSale));
+            }
 
             totalsTable.RowGroups.Add(totalsGroup);
             doc.Blocks.Add(totalsTable);

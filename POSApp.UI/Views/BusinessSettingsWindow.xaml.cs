@@ -55,6 +55,10 @@ namespace POSApp.UI.Views
         /// <summary>Null when the Card Payments tab is not shown.</summary>
         private ICardTerminalSettingsStore? _cardSettings;
 
+        private IShopTextStore? _shopText;
+        private System.Collections.ObjectModel.ObservableCollection<PhraseRow> _phraseRows = new();
+        private ShopTextSettings _wordingAtOpen = ShopTextSettings.Default;
+
         public BusinessSettingsWindow()
         {
             InitializeComponent();
@@ -66,6 +70,7 @@ namespace POSApp.UI.Views
                 await LoadSalesTaxAsync();
                 await LoadPharmacyAsync();
                 await LoadPaymentsAsync();
+                await LoadWordingAsync();
             };
 
             // Appearance is previewed on the whole app; closing puts back whatever is saved,
@@ -75,7 +80,61 @@ namespace POSApp.UI.Views
                 var saved = SettingsManager.LoadSettings();
                 ThemeManager.ApplyAccent(saved.Accent);
                 ThemeManager.ApplyDensity(saved.Density);
+                PhraseBook.Current.Apply(_wordingAtOpen);
             };
+        }
+
+        private async Task LoadWordingAsync()
+        {
+            try
+            {
+                var settings = ShopTextSettings.Default;
+                if (App.Services?.GetService(typeof(IShopTextStore)) is IShopTextStore store)
+                {
+                    _shopText = store;
+                    settings = await store.GetAsync();
+                }
+                if (!IsLoaded) return;
+                _wordingAtOpen = settings;
+                ShowWording(settings);
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Text = "Wording could not be loaded: " + ex.Message;
+            }
+        }
+
+        private void ShowWording(ShopTextSettings settings)
+        {
+            _loading = true;
+            cboShopLanguage.SelectedIndex = settings.IsSpanish ? 1 : 0;
+            _phraseRows = PhraseRow.Load(settings.Language, settings.Overrides);
+            gridPhrases.ItemsSource = _phraseRows;
+            txtPointsPerDollar.Text = settings.PointsPerDollar.ToString(CultureInfo.InvariantCulture);
+            txtPointsPerReward.Text = settings.PointsPerRewardDollar.ToString(CultureInfo.InvariantCulture);
+            _loading = false;
+        }
+
+        private void ShopLanguage_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            if (_loading || gridPhrases == null) return;
+            var custom = PhraseRow.CollectOverrides(_phraseRows);
+            _phraseRows = PhraseRow.Load(SelectedShopLanguage(), custom);
+            gridPhrases.ItemsSource = _phraseRows;
+        }
+
+        private string SelectedShopLanguage() =>
+            (cboShopLanguage.SelectedItem as ComboBoxItem)?.Tag as string ?? ShopPhrases.English;
+
+        /// <summary>The wording tab, or an error the cashier can fix.</summary>
+        private (ShopTextSettings? Settings, string? Error) ReadWording()
+        {
+            gridPhrases.CommitEdit(DataGridEditingUnit.Row, true);
+            if (!decimal.TryParse(txtPointsPerDollar.Text.Trim(), NumberStyles.Number, CultureInfo.InvariantCulture, out var perDollar) || perDollar < 0)
+                return (null, "Enter the loyalty points earned per dollar, for example 1.");
+            if (!int.TryParse(txtPointsPerReward.Text.Trim(), out var perReward) || perReward < 1)
+                return (null, "Enter how many points equal one dollar off, for example 100.");
+            return (new ShopTextSettings(SelectedShopLanguage(), PhraseRow.CollectOverrides(_phraseRows), perDollar, perReward), null);
         }
 
         // ── Sales tax (US) ────────────────────────────────────────────────────
@@ -578,6 +637,13 @@ namespace POSApp.UI.Views
                 taxCategories = categories;
             }
 
+            var (wording, wordingError) = ReadWording();
+            if (wordingError != null)
+            {
+                NotificationHelper.ValidationErrorCustom(wordingError);
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(branding.StoreName))
             {
                 NotificationHelper.ValidationErrorCustom("Shop Name is required — it is the main line on every receipt.");
@@ -636,6 +702,21 @@ namespace POSApp.UI.Views
                 catch (Exception ex)
                 {
                     NotificationHelper.OperationFailed("save card payment settings", ex.Message);
+                    return;
+                }
+            }
+
+            if (_shopText != null && wording != null)
+            {
+                try
+                {
+                    await _shopText.SaveAsync(wording);
+                    _wordingAtOpen = wording;
+                    PhraseBook.Current.Apply(wording);
+                }
+                catch (Exception ex)
+                {
+                    NotificationHelper.OperationFailed("save wording", ex.Message);
                     return;
                 }
             }

@@ -21,6 +21,8 @@ namespace POSApp.UI.ViewModels
         private readonly IFavoriteRepository? _favoriteRepository;
         private readonly ITaxRepository? _taxRepository;
         private readonly IFrontStoreRepository? _frontStoreRepository;
+        private readonly IGiftCardRepository? _giftCards;
+        private readonly IShopTextStore? _shopText;
 
         // US front store: ID check, expired items, PSE logbook, FSA/HSA.
         private FrontStoreSettings _frontStore = FrontStoreSettings.Default;
@@ -144,12 +146,34 @@ namespace POSApp.UI.ViewModels
             set
             {
                 if (SetProperty(ref _paymentType, value))
+                {
                     OnPropertyChanged(nameof(IsCreditPayment));
+                    OnPropertyChanged(nameof(ShowCustomerPicker));
+                    OnPropertyChanged(nameof(CustomerPickerLabel));
+                }
             }
         }
 
         /// <summary>The bill goes on the customer's account ("Credit" / "Charge Account"): show the customer picker.</summary>
         public bool IsCreditPayment => PaymentMethods.IsOnAccount(_paymentType);
+
+        /// <summary>US tills can attach a customer to any sale (loyalty). Other tills only when the sale is on account.</summary>
+        public bool ShowCustomerPicker => IsCreditPayment || IsUsCheckout;
+
+        public string CustomerPickerLabel => IsCreditPayment ? "Credit Customer" : "Customer";
+
+        /// <summary>US: points on the customer picked for this sale, when they are enrolled.</summary>
+        public string LoyaltyStatus
+        {
+            get
+            {
+                if (!IsUsCheckout || SelectedCustomer == null) return string.Empty;
+                if (!SelectedCustomer.LoyaltyEnrolled)
+                    return PhraseBook.Current["loyalty.enroll"] + ": no";
+                var dollars = LoyaltyRules.MaxDollars(SelectedCustomer.LoyaltyPoints, PhraseBook.Current.Settings.PointsPerRewardDollar);
+                return $"{SelectedCustomer.LoyaltyPoints} pts ({Region.Money(dollars)})";
+            }
+        }
 
         // ── US checkout ──────────────────────────────────────────────────────
 
@@ -333,8 +357,26 @@ namespace POSApp.UI.ViewModels
             OnPropertyChanged(nameof(SplitSummary));
         }
 
-        private decimal RateFor(string productId) =>
-            _tax.RateFor(Products.FirstOrDefault(p => p.ProductId == productId)?.TaxCategoryId);
+        private decimal RateFor(SaleItemViewModel item) =>
+            item.IsGiftCardIssue ? 0 : _tax.RateFor(Products.FirstOrDefault(p => p.ProductId == item.ProductId)?.TaxCategoryId);
+
+        /// <summary>Adds a gift card to the bill. The code is printed on the receipt. Not taxed.</summary>
+        public void AddGiftCard(decimal amount, string? recipientName = null)
+        {
+            if (!IsUsCheckout || amount <= 0) return;
+            var code = GiftCardRules.NewCode();
+            SaleItems.Add(new SaleItemViewModel
+            {
+                ProductId = GiftCardRules.LineProductId,
+                ProductName = PhraseBook.Current["gift.line"] + " " + code,
+                Quantity = 1,
+                UnitPrice = Math.Round(amount, 2, MidpointRounding.AwayFromZero),
+                IsGiftCardIssue = true,
+                GiftCardCode = code,
+                GiftCardRecipient = string.IsNullOrWhiteSpace(recipientName) ? null : recipientName.Trim()
+            });
+            CalculateTotals();
+        }
 
         /// <summary>
         /// US only: works out the tenders for this bill (the split, or the single payment method)
@@ -467,6 +509,7 @@ namespace POSApp.UI.ViewModels
                         MobileNumber = value.CellNo ?? value.Phone;
                         PreBalance = value.CurrentBalance;
                     }
+                    OnPropertyChanged(nameof(LoyaltyStatus));
                     // A tax-exempt customer changes the US total.
                     if (TaxApplies) CalculateTotals();
                 }
@@ -677,9 +720,12 @@ namespace POSApp.UI.ViewModels
 
         public SaleViewModel(ISaleRepository saleRepository, IProductRepository productRepository, ICustomerRepository customerRepository,
                              IFavoriteRepository? favoriteRepository = null, ITaxRepository? taxRepository = null,
-                             IFrontStoreRepository? frontStoreRepository = null)
+                             IFrontStoreRepository? frontStoreRepository = null,
+                             IGiftCardRepository? giftCards = null, IShopTextStore? shopText = null)
         {
             _frontStoreRepository = frontStoreRepository;
+            _giftCards = giftCards;
+            _shopText = shopText;
             _saleRepository = saleRepository;
             _productRepository = productRepository;
             _customerRepository = customerRepository;
@@ -1017,7 +1063,7 @@ namespace POSApp.UI.ViewModels
             if (TaxApplies)
             {
                 _taxResult = SaleTaxCalculator.Calculate(
-                    SaleItems.Select(i => new TaxLineInput(i.Total, RateFor(i.ProductId))).ToList(),
+                    SaleItems.Select(i => new TaxLineInput(i.Total, RateFor(i))).ToList(),
                     (DiscountOnProducts ?? 0) + (DiscountOnBill ?? 0),
                     IsTaxExempt);
                 Subtotal = _taxResult.Subtotal;
@@ -1070,6 +1116,135 @@ namespace POSApp.UI.ViewModels
             OnPropertyChanged(nameof(SaleDate));
         }
 
+        /// <summary>False when a gift card or loyalty tender on this bill cannot be taken.</summary>
+        private async Task<bool> CheckStoreCreditAsync()
+        {
+            if (!IsUsCheckout) return true;
+
+            var reserved = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var item in SaleItems.Where(i => i.IsGiftCardIssue))
+            {
+                if (string.IsNullOrWhiteSpace(item.GiftCardCode))
+                    item.GiftCardCode = GiftCardRules.NewCode();
+                var taken = false;
+                for (var attempt = 0; attempt < 5; attempt++)
+                {
+                    var code = GiftCardRules.Normalize(item.GiftCardCode);
+                    taken = reserved.Contains(code)
+                            || (_giftCards != null && await _giftCards.GetByCodeAsync(code) != null);
+                    if (!taken) break;
+                    item.GiftCardCode = GiftCardRules.NewCode();
+                }
+
+                var finalCode = GiftCardRules.Normalize(item.GiftCardCode);
+                if (reserved.Contains(finalCode) || (_giftCards != null && await _giftCards.GetByCodeAsync(finalCode) != null))
+                {
+                    NotificationHelper.ValidationErrorCustom("Could not create a new gift card code. Try the sale again.");
+                    return false;
+                }
+
+                item.GiftCardCode = finalCode;
+                reserved.Add(finalCode);
+                item.ProductName = PhraseBook.Current["gift.line"] + " " + finalCode;
+            }
+
+            if (_giftCards != null)
+            {
+                foreach (var group in _resolvedPayments.Where(p => p.Method == PaymentMethods.GiftCard)
+                             .GroupBy(p => GiftCardRules.Normalize(p.Reference)))
+                {
+                    var card = await _giftCards.GetByCodeAsync(group.Key);
+                    if (card == null)
+                    {
+                        NotificationHelper.ValidationErrorCustom($"Gift card {group.Key} was not found.");
+                        return false;
+                    }
+                    var requested = group.Sum(p => p.Amount);
+                    var (pay, error) = GiftCardRules.Redeemable(card.Balance, card.IsVoid, requested, requested);
+                    if (error != null || pay < requested)
+                    {
+                        NotificationHelper.ValidationErrorCustom(error ?? $"Gift card {card.Code} cannot pay {Region.Money(requested)}.");
+                        return false;
+                    }
+                }
+            }
+
+            var loyaltyPoints = LoyaltyPointsOn(_resolvedPayments);
+            if (loyaltyPoints > 0)
+            {
+                if (SelectedCustomer != null)
+                {
+                    var fresh = await _customerRepository.GetByIdAsync(SelectedCustomer.Id);
+                    if (fresh != null)
+                    {
+                        SelectedCustomer.LoyaltyPoints = fresh.LoyaltyPoints;
+                        SelectedCustomer.LoyaltyEnrolled = fresh.LoyaltyEnrolled;
+                        OnPropertyChanged(nameof(LoyaltyStatus));
+                    }
+                }
+                if (SelectedCustomer == null || !SelectedCustomer.LoyaltyEnrolled)
+                {
+                    NotificationHelper.ValidationErrorCustom("Pick a customer who is enrolled in loyalty before paying with points.");
+                    return false;
+                }
+                if (SelectedCustomer.LoyaltyPoints < loyaltyPoints)
+                {
+                    NotificationHelper.ValidationErrorCustom($"This customer has {SelectedCustomer.LoyaltyPoints} points, and this bill uses {loyaltyPoints}.");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static int LoyaltyPointsOn(IEnumerable<SalePayment> payments) =>
+            payments.Where(p => p.Method == PaymentMethods.Loyalty)
+                .Sum(p => int.TryParse(p.Reference, out var n) ? n : 0);
+
+        /// <summary>Issues gift cards, spends gift-card balances, and updates loyalty points for a saved sale.</summary>
+        private async Task ApplyStoreCreditAsync()
+        {
+            if (_giftCards != null)
+            {
+                foreach (var item in SaleItems.Where(i => i.IsGiftCardIssue && !string.IsNullOrWhiteSpace(i.GiftCardCode)))
+                {
+                    var code = GiftCardRules.Normalize(item.GiftCardCode);
+                    if (await _giftCards.GetByCodeAsync(code) != null) continue;
+                    await _giftCards.AddAsync(new GiftCard
+                    {
+                        Code = code,
+                        Balance = item.Total,
+                        IssuedAmount = item.Total,
+                        IssuedAt = SaleDate,
+                        RecipientName = item.GiftCardRecipient
+                    });
+                }
+
+                foreach (var payment in _resolvedPayments.Where(p => p.Method == PaymentMethods.GiftCard))
+                {
+                    var card = await _giftCards.GetByCodeAsync(payment.Reference ?? string.Empty);
+                    if (card == null) continue;
+                    card.Balance = Math.Max(0, card.Balance - payment.Amount);
+                    await _giftCards.UpdateAsync(card);
+                }
+            }
+
+            if (SelectedCustomer == null) return;
+            var settings = _shopText != null ? await _shopText.GetAsync() : ShopTextSettings.Default;
+            var spent = LoyaltyPointsOn(_resolvedPayments);
+            var earned = 0;
+            if (SelectedCustomer.LoyaltyEnrolled)
+            {
+                var merchandise = SaleItems.Where(i => !i.IsGiftCardIssue).Sum(i => i.Total);
+                var loyaltyDollars = _resolvedPayments.Where(p => p.Method == PaymentMethods.Loyalty).Sum(p => p.Amount);
+                var discounts = (DiscountOnProducts ?? 0) + (DiscountOnBill ?? 0);
+                earned = LoyaltyRules.EarnedOnLines(merchandise, discounts, loyaltyDollars, settings.PointsPerDollar);
+            }
+            if (earned == 0 && spent == 0) return;
+            SelectedCustomer.LoyaltyPoints = Math.Max(0, SelectedCustomer.LoyaltyPoints + earned - spent);
+            SelectedCustomer.ModifiedDate = DateTime.Now;
+            await _customerRepository.UpdateAsync(SelectedCustomer);
+        }
+
         private async Task SaveSale(bool printAfterSave = false, bool alreadyPrepared = false)
         {
             if (!SaleItems.Any())
@@ -1085,6 +1260,7 @@ namespace POSApp.UI.ViewModels
                 {
                     if (!ResolvePse()) return;
                     if (!ResolvePayments()) return;
+                    if (!await CheckStoreCreditAsync()) return;
                     await PrepareForSaveAsync();
                     if (!await ChargeCardsOnReaderAsync()) return;
                 }
@@ -1161,6 +1337,7 @@ namespace POSApp.UI.ViewModels
                 await _saleRepository.AddAsync(sale);
                 _readerCharges.Clear();   // saved with the sale now; a later failure must not refund or charge it again
                 saved = true;
+                await ApplyStoreCreditAsync();
 
                 // Cash went into the till: open the drawer (when this PC has one switched on).
                 var tookCash = IsUsCheckout
@@ -1224,7 +1401,7 @@ namespace POSApp.UI.ViewModels
                 // The sale (and any card charge) is already stored. Clear the cart so a
                 // second press of Save does not charge the card again.
                 CardNotice(
-                    $"The sale was saved, but a step after that failed: {ex.Message}\n\nThe screen was cleared so the card is not charged again.",
+                    $"The sale was saved, but a step after that failed: {ex.Message}\n\nThe screen was cleared so the card is not charged again. If this sale sold or used a gift card, or used loyalty points, check that balance before selling again.",
                     "Sale saved",
                     true);
                 NewSale();
@@ -1292,6 +1469,9 @@ namespace POSApp.UI.ViewModels
                     UnitPrice = item.UnitPrice,
                     DiscountPercent = item.DiscountPercent,
                     DiscountType = item.DiscountType,
+                    IsGiftCardIssue = item.IsGiftCardIssue,
+                    GiftCardCode = item.GiftCardCode,
+                    GiftCardRecipient = item.GiftCardRecipient
                 });
             }
             CalculateTotals();
@@ -1308,6 +1488,7 @@ namespace POSApp.UI.ViewModels
             // US: the PSE logbook and the tenders first, so the receipt shows how it was paid.
             if (!ResolvePse()) return;
             if (!ResolvePayments()) return;
+            if (!await CheckStoreCreditAsync()) return;
 
             try
             {
@@ -1710,6 +1891,15 @@ namespace POSApp.UI.ViewModels
         private decimal _total;
         private string? _batchNo;
         private DateTime? _expiryDate;
+
+        /// <summary>This line sells a new gift card. It is not taken from stock and it is not taxed.</summary>
+        public bool IsGiftCardIssue { get; set; }
+
+        /// <summary>The code printed on the receipt for <see cref="IsGiftCardIssue"/>.</summary>
+        public string? GiftCardCode { get; set; }
+
+        /// <summary>Optional name written on the gift card.</summary>
+        public string? GiftCardRecipient { get; set; }
 
         public string ProductId
         {
